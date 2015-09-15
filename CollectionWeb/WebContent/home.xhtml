@@ -1,0 +1,28 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/BasicTemplate.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{homeController.initialize}"/>
+		</f:metadata>	
+	</ui:define>
+		
+
+	<ui:define name="content">
+		<h:panelGrid style="margin:auto;text-align:center;">
+			<h1>Bienvenido al Sistema de Cobranzas.</h1>
+			<p:outputLabel value="#{sessionBean.user.firstname} #{sessionBean.user.lastname} - #{sessionBean.user.username}"></p:outputLabel>
+			<p:outputLabel value="#{sessionBean.bank.name}"></p:outputLabel>
+
+			<h:panelGrid style="margin:auto;height: 40px;">
+				<p:clock pattern="dd-MM-yyyy HH:mm:ss " mode="server" />
+			</h:panelGrid>
+		</h:panelGrid>
+	</ui:define>
+</ui:composition>
+</html>

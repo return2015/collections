@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+	
+	<f:metadata>
+			<f:viewAction action="#{addPayerController.initialize}"/>
+		</f:metadata>
+		
+
+<h:head>
+	<h:outputStylesheet library="css" name="collection.css" />
+</h:head>
+
+<h:body>
+	<div class="title ui-widget-header ui-corner-all">
+		<h:panelGrid style="margin:auto;">
+		ACTUALIZAR RESPONSABLE DE PAGO
+		</h:panelGrid>
+
+	</div>
+	<h:form id="form">
+		
+		<h:panelGrid style="margin:auto;">
+
+			<h:panelGrid style="margin:auto;text-align:center;">
+				<p:messages id="messages"></p:messages>
+			</h:panelGrid>
+
+			<h:panelGrid columns="2">
+
+				<p:outputLabel value="Nuic"></p:outputLabel>
+				<p:inputText required="true"
+					requiredMessage="Debe ingresar nuic"
+					value="#{addPayerController.payerSelected.nuicResponsible}"></p:inputText>
+
+				<p:outputLabel value="Nombres"></p:outputLabel>
+				<p:inputText required="true"
+					requiredMessage="Debe ingresar nombres"
+					value="#{addPayerController.payerSelected.firstnameResponsible}"></p:inputText>
+				
+				<p:outputLabel value="Apellido Paterno"></p:outputLabel>
+				<p:inputText required="true"
+					requiredMessage="Debe ingresar apellido paterno"
+					value="#{addPayerController.payerSelected.lastnamePaternalResponsible}"></p:inputText>
+					
+				<p:outputLabel value="Apellido Materno"></p:outputLabel>
+				<p:inputText required="true"
+					requiredMessage="Debe ingresar apellido materno"
+					value="#{addPayerController.payerSelected.lastnameMaternalResponsible}"></p:inputText>
+				
+				<p:outputLabel value="Correo"></p:outputLabel>
+				<p:inputText 
+					value="#{addPayerController.payerSelected.mail}"></p:inputText>
+				
+				<p:outputLabel value="Dirección"></p:outputLabel>
+				<p:inputText 
+					value="#{addPayerController.payerSelected.address}"></p:inputText>
+				
+				<p:outputLabel value="Provincia"></p:outputLabel>
+				<p:inputText 
+					value="#{addPayerController.payerSelected.province}"></p:inputText>
+					
+				<p:outputLabel value="Departamento"></p:outputLabel>
+				<p:inputText 
+					value="#{addPayerController.payerSelected.department}"></p:inputText>
+					
+				<p:outputLabel value="Distrito"></p:outputLabel>
+				<p:inputText 
+					value="#{addPayerController.payerSelected.district}"></p:inputText>						
+				
+			</h:panelGrid>
+
+			<h:panelGrid style="margin:auto;text-align:center;">
+				<p:commandButton actionListener="#{addPayerController.add}"
+					update="@form" value="Actualizar">
+				</p:commandButton>
+			</h:panelGrid>
+		</h:panelGrid>
+
+
+
+	</h:form>
+
+</h:body>
+</html>

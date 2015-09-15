@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/BasicTemplate.xhtml">
+
+<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{loadRepaymentsController.initialize}"/>
+		</f:metadata>	
+	</ui:define>
+
+	<ui:define name="content">
+
+		<div class="title ui-widget-header ui-corner-all">
+			<h:panelGrid style="margin:auto;">
+		CARGAR EXTORNOS
+		</h:panelGrid>
+
+		</div>
+
+		<h:form id="form" enctype="multipart/form-data">
+			<h:panelGrid style="margin:auto;">
+
+				<h:panelGrid style="margin:auto;text-align:center;">
+					<p:messages id="messages" showDetail="true"></p:messages>
+				</h:panelGrid>
+
+				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
+
+					<p:fileUpload mode="simple" value="#{loadRepaymentsController.file}" />
+					
+					<p:commandButton icon="ui-icon-document" ajax="false"
+						action="#{loadRepaymentsController.load}" value="Cargar Extornos">
+					</p:commandButton>
+
+				</h:panelGrid>
+
+			</h:panelGrid>
+
+
+		</h:form>
+	</ui:define>
+
+</ui:composition>
+</html>

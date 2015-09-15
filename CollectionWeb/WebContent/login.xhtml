@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/LoginTemplate.xhtml">
+
+	<ui:define name="content">
+
+		<h:panelGrid  border="0"  columns="1" style="margin:auto;">
+			<h:form id="frmLogin">
+				<h:panelGrid border="0" columns="1"
+					style="margin:auto;text-align: center">
+					<p:messages id="messages" showDetail="true" ></p:messages>
+					<h:panelGrid columns="2" border="0" style="margin:auto;">
+					
+						<p:outputLabel value="Usuario" id="lblUsername" for="inUsername"></p:outputLabel>
+						<p:inputText id="inUsername" value="#{loginController.username}" 
+						required="true" requiredMessage="Debe ingresar usuario"
+							style="width: 180px;">
+						</p:inputText>
+						
+						<p:outputLabel value="Clave" id="lblPassword" for="inPassword"></p:outputLabel>
+						<p:password id="inPassword" value="#{loginController.password}" 
+						required="true" requiredMessage="Debe ingresar clave"
+							style="width: 180px; ">
+						</p:password>
+						
+					</h:panelGrid>
+					<p:commandButton id="btnLogin" value="Ingresar" update=":frmLogin:messages"
+						action="#{loginController.doLogin}"></p:commandButton>	
+				</h:panelGrid>
+			</h:form>
+		</h:panelGrid>
+
+	</ui:define>
+</ui:composition>
+</html>

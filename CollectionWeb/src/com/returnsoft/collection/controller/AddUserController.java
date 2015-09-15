@@ -1,0 +1,206 @@
+package com.returnsoft.collection.controller;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
+import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
+
+import com.returnsoft.collection.entity.Bank;
+import com.returnsoft.collection.entity.User;
+import com.returnsoft.collection.enumeration.UserTypeEnum;
+import com.returnsoft.collection.exception.ServiceException;
+import com.returnsoft.collection.service.UserService;
+import com.returnsoft.collection.util.FacesUtil;
+
+
+@ManagedBean
+@ViewScoped
+public class AddUserController implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private User userSelected;
+
+	@EJB
+	private UserService userService;
+
+	private List<SelectItem> userTypes;
+	private String userTypeSelected;
+	
+	private List<String> banksSelected;
+	private List<SelectItem> banks;
+	
+	private FacesUtil facesUtil;
+
+
+	public AddUserController() {
+		
+		facesUtil = new FacesUtil();
+		userSelected = new User();
+		
+	}
+
+	public void reset() {
+		
+		userSelected = new User();
+		userTypeSelected = null;
+		banksSelected = null;
+		
+	}
+
+	
+
+	@PostConstruct
+	public void initialize() {
+		try {
+
+			System.out.println("Ingreso a initialize");
+
+			
+
+			//List<UserType> userTypesEntity = userService.getUserTypes();
+			userTypes = new ArrayList<SelectItem>();
+			/*for (UserType userType : userTypesEntity) {
+				SelectItem item = new SelectItem();
+				item.setLabel(userType.getName());
+				item.setValue(userType.getId());
+				userTypes.add(item);
+			}*/
+			
+			for (UserTypeEnum userTypeEnum : UserTypeEnum.values()) {
+				
+				SelectItem item = new SelectItem();
+				item.setValue(userTypeEnum.getId());
+				item.setLabel(userTypeEnum.getName());
+				userTypes.add(item);
+			}
+			
+			List<Bank> banksEntity = userService.getBanks();
+			banks = new ArrayList<SelectItem>();
+			for (Bank bank : banksEntity) {
+				SelectItem item = new SelectItem();
+				item.setValue(bank.getId().toString());
+				item.setLabel(bank.getName());
+				banks.add(item);
+			}
+
+		} catch (Exception e) {
+
+			if (!(e instanceof ServiceException)) {
+				e.printStackTrace();
+			}
+			FacesMessage msg = new FacesMessage(e.getMessage(), e.getMessage());
+			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
+			FacesContext.getCurrentInstance().addMessage(null, msg);
+		}
+	}
+
+	
+	
+
+	public void add() {
+		try {
+
+			List<Bank> banksEntity = new ArrayList<Bank>();
+			
+			if (userTypeSelected!=null && userTypeSelected.length()>0) {
+				UserTypeEnum userType = UserTypeEnum.findById(Short.parseShort(userTypeSelected));
+				userSelected.setUserType(userType);
+			}
+			
+
+			/*if (userTypeSelected != null && userTypeSelected.length() > 0) {
+				UserType userType = new UserType();
+				userType.setId(Integer.parseInt(userTypeSelected));
+				userSelected.setUserType(userType);
+			}*/
+			
+			if (banksSelected != null && banksSelected.size() > 0) {
+				for (String bankId : banksSelected) {
+					Bank bankEntity = new Bank();
+					bankEntity.setId(Short.parseShort(bankId));
+					banksEntity.add(bankEntity);
+				}
+			}
+
+			userSelected.setBanks(banksEntity);
+
+			userService.add(userSelected);
+
+			// SE IMPRIME MENSAJE DE CONFIRMACION
+			FacesMessage msg = new FacesMessage(
+					"Se creó satisfactoriamente el usuario ");
+			msg.setSeverity(FacesMessage.SEVERITY_INFO);
+			FacesContext.getCurrentInstance().addMessage(null, msg);
+
+			reset();
+
+		} catch (Exception e) {
+
+			if (!(e instanceof ServiceException)) {
+				e.printStackTrace();
+			}
+			FacesMessage msg = new FacesMessage(e.getMessage(), e.getMessage());
+			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
+			FacesContext.getCurrentInstance().addMessage(null, msg);
+		}
+
+	}
+
+	public User getUserSelected() {
+		return userSelected;
+	}
+
+	public void setUserSelected(User userSelected) {
+		this.userSelected = userSelected;
+	}
+
+	
+
+	public List<SelectItem> getUserTypes() {
+		return userTypes;
+	}
+
+	public void setUserTypes(List<SelectItem> userTypes) {
+		this.userTypes = userTypes;
+	}
+
+	public String getUserTypeSelected() {
+		return userTypeSelected;
+	}
+
+	public void setUserTypeSelected(String userTypeSelected) {
+		this.userTypeSelected = userTypeSelected;
+	}
+
+	public List<SelectItem> getBanks() {
+		return banks;
+	}
+
+	public void setBanks(List<SelectItem> banks) {
+		this.banks = banks;
+	}
+
+	public List<String> getBanksSelected() {
+		return banksSelected;
+	}
+
+	public void setBanksSelected(List<String> banksSelected) {
+		this.banksSelected = banksSelected;
+	}
+
+	
+	
+	
+
+}

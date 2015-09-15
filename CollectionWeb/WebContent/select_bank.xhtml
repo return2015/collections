@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/BasicTemplate.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{selectBankController.initialize}"/>
+		</f:metadata>	
+	</ui:define>
+
+	<ui:define name="content">
+
+		<div class="title ui-widget-header ui-corner-all">
+			<h:panelGrid style="margin:auto;">
+				SELECCIONE BANCO
+			</h:panelGrid>
+		</div>
+
+		<h:form id="form">
+			<h:panelGrid style="margin:auto;">
+
+				<h:panelGrid style="margin:auto;text-align:center;">
+					<p:messages id="messages" showDetail="true"></p:messages>
+				</h:panelGrid>
+
+				<h:panelGrid columns="2">
+
+					<p:outputLabel value="Banco"></p:outputLabel>
+					<p:selectOneMenu required="true"
+						requiredMessage="Debe seleccionar banco"
+						value="#{selectBankController.bankSelected}">
+						<f:selectItem itemValue="" itemLabel="Seleccione..."></f:selectItem>
+						<f:selectItems value="#{selectBankController.banks}"></f:selectItems>
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+				<h:panelGrid style="margin:auto;text-align:center;">
+					<p:commandButton icon="ui-icon-search"
+						action="#{selectBankController.selectBank}" value="Seleccionar"
+						process="@form" update=":form:messages">
+					</p:commandButton>
+				</h:panelGrid>
+			</h:panelGrid>
+
+
+		</h:form>
+	</ui:define>
+
+</ui:composition>
+</html>

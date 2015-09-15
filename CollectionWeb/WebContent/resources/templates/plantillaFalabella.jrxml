@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="plantillaFalabella" language="groovy" pageWidth="595" pageHeight="842" columnWidth="445" leftMargin="75" rightMargin="75" topMargin="30" bottomMargin="0" uuid="bc7a153f-e446-477a-b9d6-b75b03d25dfa">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="737"/>
+	<parameter name="names" class="java.lang.String"/>
+	<parameter name="department" class="java.lang.String"/>
+	<parameter name="address" class="java.lang.String"/>
+	<parameter name="signature" class="java.lang.String"/>
+	<title>
+		<band height="812" splitType="Stretch">
+			<textField pattern="&apos;Lima, &apos;dd &apos;de&apos; MMMMM &apos;de&apos; yyyy">
+				<reportElement x="273" y="0" width="172" height="15" uuid="dbba5901-6f1b-4ce4-8f78-a683a5c51cc4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="68" width="290" height="15" uuid="5425df29-d59d-49a7-9239-c93e4da82640"/>
+				<textElement>
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{names}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="83" width="290" height="15" uuid="35915b79-ba2a-470b-9815-8a1d998d71ea"/>
+				<textElement>
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{address}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="98" width="290" height="15" uuid="cd232d3a-4dcf-4cfc-84c0-19ccbe2b0897"/>
+				<textElement>
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{department}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="53" width="100" height="15" uuid="54212117-ff1c-4370-81f2-d7e38f0945e2"/>
+				<textElement>
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<text><![CDATA[Señor(a)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="216" width="445" height="302" uuid="f9920712-b97f-4e40-9ea5-3a4c50dad10e"/>
+				<textElement>
+					<font fontName="Arial" size="11" isBold="false"/>
+				</textElement>
+				<text><![CDATA[	Porque un evento inesperado se puede presentar en cualquier momento y en cualquier lugar, este producto  garantiza un servicio integral para usted y sus beneficiarios en: asistencia médica, en el hogar, vial, viaje nacional, legal, tecnológico, servicios de coordinación de reservas y referencias de direcciones de calles de Lima y locales especializados.
+Recuerde que las cuotas del programa de asistencia contratado, serán cargadas automáticamente de forma mensual, sin intereses, a través de su tarjeta CMR o Visa del Banco Falabella.
+
+	Adjunto a la presente carta encontrará la siguiente documentación que contiene información del producto adquirido:
+
+	• Condiciones Generales del Producto
+	• Resumen de coberturas del Producto.
+
+	Quedamos a su disposición frente a cualquier duda  o consulta. Lo invitamos a comunicarse con nosotros a través de nuestra central telefónica 615-6000 (Lima) ó 60-6025 (Provincias) o a visitarnos en nuestras oficinas ubicadas en Saga Falabella e Hipermercados  Tottus donde gustosamente será atendido.
+
+Sin otro particular quedamos a su disposición.
+
+Atentamente,
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="132" width="100" height="15" uuid="fd28268f-2ccd-469d-8679-ab3b0b7d44ca"/>
+				<text><![CDATA[Estimado Señor (a)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="161" width="406" height="15" uuid="c47b8f4b-7bfe-4e50-b08b-b825feaf5586"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="false"/>
+				</textElement>
+				<text><![CDATA[	Mediante la presente agradecemos su preferencia por haber contratado el]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="404" y="161" width="51" height="15" uuid="32b7062a-30ba-4217-9e28-df311fd4022a"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Servicio]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="176" width="125" height="15" uuid="86166adf-9c3a-43d6-8c23-3dcb9817e095"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[de asistencia Falabella,]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="134" y="176" width="60" height="15" uuid="edcec563-e4da-4b7b-bcc9-682e2ad1d697"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="false"/>
+				</textElement>
+				<text><![CDATA[a través de ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="194" y="176" width="191" height="15" uuid="f37f53f5-c9da-48fd-a8ed-8e95ad1efe39"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Falabella Servicios Generales S.A.C.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="394" y="176" width="51" height="15" uuid="5b3e4980-7793-42ae-b13f-4618fdd4a858"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="false"/>
+				</textElement>
+				<text><![CDATA[con el ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="191" width="60" height="15" uuid="1a44094d-fcb3-4544-93f2-2ccf0580fe99"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="false"/>
+				</textElement>
+				<text><![CDATA[respaldo del]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="64" y="191" width="276" height="15" uuid="997c3507-8cf3-4e7d-adeb-6400a906e4d7"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Arial" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Grupo Especializado de Asistencia del Perú S.A.C. (GEA) ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="148" y="676" width="163" height="81" uuid="4f865266-5d38-40ec-b3f1-8deb0d70a39c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<text><![CDATA[______________________
+
+Daniel Benavides
+Gerente de Negocios
+Falabella Servicios Generales
+]]></text>
+			</staticText>
+			<image scaleImage="RealSize">
+				<reportElement x="125" y="562" width="215" height="114" uuid="a867dc46-f966-431b-a87a-eb9fb790bbf8"/>
+				<imageExpression><![CDATA[$P{signature}]]></imageExpression>
+			</image>
+		</band>
+	</title>
+</jasperReport>

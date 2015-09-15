@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<f:metadata>
+			<f:viewAction action="#{addNotificationController.initialize}"/>
+		</f:metadata>
+<h:head>
+	<h:outputStylesheet library="css" name="collection.css" />
+	
+</h:head>
+
+<h:body>
+	<div class="title ui-widget-header ui-corner-all">
+		<h:panelGrid style="margin:auto;">
+		AGREGAR NOTIFICACIÓN
+		</h:panelGrid>
+
+	</div>
+	<h:form id="form">
+
+		<h:panelGrid style="margin:auto;">
+
+			<h:panelGrid style="margin:auto;text-align:center;">
+				<p:messages id="messages"></p:messages>
+			</h:panelGrid>
+
+			<h:panelGrid columns="2">
+			
+			<p:outputLabel value="Codigo único"></p:outputLabel>
+			<p:outputLabel value="#{addNotificationController.notificationSelected.sale.code}"></p:outputLabel>
+			
+			<p:outputLabel value="Nombre Responsable"></p:outputLabel>
+			<p:outputLabel value="#{addNotificationController.notificationSelected.sale.firstnameResponsible}"></p:outputLabel>
+			
+			<p:outputLabel value="A. Paterno Responsable"></p:outputLabel>
+			<p:outputLabel value="#{addNotificationController.notificationSelected.sale.lastnamePaternalResponsible}"></p:outputLabel>
+			
+			<p:outputLabel value="A. Materno Responsable"></p:outputLabel>
+			<p:outputLabel value="#{addNotificationController.notificationSelected.sale.lastnameMaternalResponsible}"></p:outputLabel>
+			
+			
+			
+
+				<p:outputLabel value="Fecha de envío"></p:outputLabel>
+				<p:calendar required="true" pattern="dd/MM/yyyy" navigator="true"
+					requiredMessage="Debe ingresar fecha de envío"
+					value="#{addNotificationController.notificationSelected.sendingAt}"></p:calendar>
+				
+				<p:outputLabel value="Fecha de respuesta"></p:outputLabel>
+				<p:calendar pattern="dd/MM/yyyy" navigator="true"
+					value="#{addNotificationController.notificationSelected.answeringAt}"></p:calendar>	
+					
+					
+				<p:outputLabel value="Estado"></p:outputLabel>
+				<p:selectOneMenu required="true"
+					requiredMessage="Debe seleccionar estado"
+					value="#{addNotificationController.notificationStateSelected}">
+					<f:selectItem itemValue="" itemLabel="Seleccione..."></f:selectItem>
+					<f:selectItems value="#{addNotificationController.notificationStates}"></f:selectItems>
+				</p:selectOneMenu>
+
+			</h:panelGrid>
+
+			<h:panelGrid style="margin:auto;text-align:center;">
+				<p:commandButton actionListener="#{addNotificationController.add}"
+					update="@form" value="Agregar">
+				</p:commandButton>
+			</h:panelGrid>
+		</h:panelGrid>
+
+
+
+	</h:form>
+
+</h:body>
+</html>
