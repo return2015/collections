@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/BasicTemplate.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{printNotificationsController.initialize}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="content">
+		<!-- 
+		<script>
+			function addMaintenance() {
+				PF('stateButtom2').jq.click();
+			}
+		</script>
+ -->
+		<div class="title ui-widget-header ui-corner-all">
+			<h:panelGrid style="margin:auto;">
+		IMPRIMIR NOTIFICACIONES
+		</h:panelGrid>
+
+		</div>
+
+		<h:form id="form">
+
+			<h:panelGrid style="margin:auto;">
+
+				<h:panelGrid style="margin:auto;text-align:center;">
+					<p:messages id="messages" showDetail="true"></p:messages>
+				</h:panelGrid>
+
+				<h:panelGrid columns="3">
+					<h:panelGrid columns="2">
+						<p:outputLabel value="Tipo de busqueda:"></p:outputLabel>
+						<p:selectOneMenu id="searchType"
+							value="#{printNotificationsController.searchTypeSelected}"
+							required="true"
+							requiredMessage="Debe seleccionar tipo de busqueda">
+							<f:selectItem itemLabel="Seleccione..." itemValue="" />
+							<f:selectItem itemLabel="Buscar por DNI responsable."
+								itemValue="dni" />
+							<f:selectItem itemLabel="Buscar por datos de venta."
+								itemValue="saleData" />
+							<p:ajax immediate="true" process=":form:searchType"
+								listener="#{printNotificationsController.onChangeSearchType}"
+								update=":form:searchTypeOut :form:messages"></p:ajax>
+						</p:selectOneMenu>
+					</h:panelGrid>
+					<p:outputPanel id="searchTypeOut">
+						<h:panelGrid columns="4"
+							rendered="#{printNotificationsController.searchByDateSaleRendered}">
+
+							<p:outputLabel value="F. Venta Desde:"></p:outputLabel>
+							<p:calendar navigator="true"
+								value="#{printNotificationsController.dateOfSaleStarted}"
+								required="true"
+								requiredMessage="Debe ingresar fecha venta desde:"
+								pattern="dd-MM-yyyy"></p:calendar>
+
+							<p:outputLabel value="F. Venta Hasta:"></p:outputLabel>
+							<p:calendar navigator="true"
+								value="#{printNotificationsController.dateOfSaleEnded}"
+								required="true"
+								requiredMessage="Debe ingresar fecha venta hasta:"
+								pattern="dd-MM-yyyy"></p:calendar>
+
+							<p:outputLabel value="F. Afiliacion"></p:outputLabel>
+							<p:calendar navigator="true"
+								value="#{printNotificationsController.affiliationDate}"
+								pattern="dd-MM-yyyy"></p:calendar>
+
+
+							<p:outputLabel value="Estado:"></p:outputLabel>
+							<p:selectOneMenu id="state"
+								value="#{printNotificationsController.saleStateSelected}">
+								<f:selectItem itemLabel="Seleccione..." itemValue="" />
+								<f:selectItems
+									value="#{printNotificationsController.saleStates}"></f:selectItems>
+							</p:selectOneMenu>
+
+						</h:panelGrid>
+
+
+						<h:panelGrid columns="2"
+							rendered="#{printNotificationsController.searchByDocumentNumberResponsibleRendered}">
+							<p:outputLabel value="DNI RESP."></p:outputLabel>
+							<p:inputText style="width: 120px;" required="true"
+								requiredMessage="Debe ingresar DNI RESP."
+								value="#{printNotificationsController.nuicResponsible}"></p:inputText>
+
+						</h:panelGrid>
+
+					</p:outputPanel>
+				</h:panelGrid>
+				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
+
+					<p:commandButton icon="ui-icon-search"
+						actionListener="#{printNotificationsController.search}"
+						value="Buscar" process="@form"
+						update=":form:searchTypeOut :form:searchTable :form:salesCount :form:messages">
+					</p:commandButton>
+
+					<p:commandButton immediate="true" icon="ui-icon-print"
+						value="Imprimir notificaciones" ajax="false"
+						actionListener="#{printNotificationsController.printNotification}">
+					</p:commandButton>
+
+				</h:panelGrid>
+			</h:panelGrid>
+
+			<h:panelGrid style="margin:auto;">
+
+				<h:panelGrid columns="2" style="width:100%;">
+					<h:panelGrid columns="2" style="width:100%;">
+						<h:panelGrid style="width:100%;">
+							<p:outputLabel id="salesCount"
+								value="Se encontraron #{printNotificationsController.sales!=null?printNotificationsController.sales.size():'0'} ventas.">
+							</p:outputLabel>
+						</h:panelGrid>
+					</h:panelGrid>
+				</h:panelGrid>
+
+
+				<p:dataTable value="#{printNotificationsController.sales}" var="s"
+					scrollable="true" scrollWidth="900" paginator="true" rows="10"
+					rowKey="#{s.id}" id="searchTable">
+
+					<p:column headerText="CODIGO" width="100">
+						<h:outputText value="#{s.code}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="TIPO DE DOCUMENTO" width="80">
+						<h:outputText value="#{s.documentType}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="NUIC RESP PAGO" width="80">
+						<h:outputText value="#{s.payer.nuicResponsible}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="AP PAT RESP PAGO" width="80">
+						<h:outputText value="#{s.payer.lastnamePaternalResponsible}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="AP MAT RESP PAGO" width="80">
+						<h:outputText value="#{s.payer.lastnameMaternalResponsible}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="NOMBRES RESP PAGO" width="80">
+						<h:outputText value="#{s.payer.firstnameResponsible}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="CORREO" width="120">
+						<h:outputText value="#{s.payer.mail}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="DEPARTAMENTO" width="80">
+						<h:outputText value="#{s.payer.department}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="PROVINCIA" width="80">
+						<h:outputText value="#{s.payer.province}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="DISTRITO" width="80">
+						<h:outputText value="#{s.payer.district}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="DIRECCION" width="80"
+						style="white-space:nowrap;">
+						<h:outputText value="#{s.payer.address}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="FECHA DE VENTA" width="80">
+						<h:outputText value="#{s.dateOfSale}" width="80">
+							<f:convertDateTime pattern="dd/MM/yyyy" />
+						</h:outputText>
+					</p:column>
+
+					<p:column headerText="ESTADO" width="80">
+						<h:outputText value="#{s.saleState.state.name}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="FECHA DE AFILIACION" width="80">
+						<h:outputText value="#{s.affiliationDate}" width="80">
+							<f:convertDateTime pattern="dd/MM/yyyy hh:mm:ss" />
+						</h:outputText>
+					</p:column>
+
+					<p:column headerText="NOTIFICACIONES VIRTUALES" width="80">
+						<h:outputText value="#{s.mailingRetries}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="NOTIFICACIONES FÍSICAS" width="80">
+						<h:outputText value="#{s.printingRetries}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="TIPO" width="80">
+						<h:outputText value="#{s.notification.type.name}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="ESTADO" width="80">
+						<h:outputText value="#{s.notification.state.name}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="FECHA DE ENVÍO" width="80">
+						<h:outputText value="#{s.notification.sendingAt}">
+							<f:convertDateTime pattern="dd/MM/yyyy" />
+						</h:outputText>
+					</p:column>
+
+					<p:column headerText="FECHA DE RESPUESTA" width="80">
+						<h:outputText value="#{s.notification.answeringAt}">
+							<f:convertDateTime pattern="dd/MM/yyyy" />
+						</h:outputText>
+					</p:column>
+
+					<p:column headerText="NÚMERO DE CARGO" width="80">
+						<h:outputText value="#{s.notification.chargeNumber}">
+						</h:outputText>
+					</p:column>
+
+				</p:dataTable>
+
+			</h:panelGrid>
+
+		</h:form>
+
+
+	</ui:define>
+
+</ui:composition>
+</html>

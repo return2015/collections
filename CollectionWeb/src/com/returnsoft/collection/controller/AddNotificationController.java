@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -41,7 +40,6 @@ public class AddNotificationController implements Serializable{
 	@EJB
 	private NotificationService notificationService;
 	
-	// @PostConstruct
 	public String initialize() {
 		try {
 
@@ -73,26 +71,18 @@ public class AddNotificationController implements Serializable{
 			maintenanceSelected.setCode(saleSelected.getCode());*/
 			
 			//if (saleSelected.getSaleState()!=null && saleSelected.getSaleState().length()>0) {
-				
 				//saleStateSelected = saleSelected.getSaleState();
-				
 				//System.out.println(saleStateSelected);
-				
 				//if (saleSelected.getSaleState().equals(saleStates[1])) {
-					
 					//System.out.println("INGRESO!!");
-					
 					// CHECK PASSWORD SUPERVISOR
-					
 					 /*Map<String,Object> options = new HashMap<String, Object>();
 				        options.put("modal", true);
 				        options.put("draggable", false);
 				        options.put("resizable", false);
 				        options.put("contentHeight", 220);
 				        options.put("contentWidth", 280);*/
-				        
 					/*Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
-
 					ArrayList<String> paramList = new ArrayList<>();
 					paramList.add(String.valueOf(saleSelected.getId()));
 					paramMap.put("saleId", paramList);*/
@@ -100,7 +90,6 @@ public class AddNotificationController implements Serializable{
 							"validate_password_supervisor", null, null);
 					System.out.println("INGRESO!!");*/
 				//}
-				
 			//}
 			
 			updateNotificationStates();
@@ -114,6 +103,7 @@ public class AddNotificationController implements Serializable{
 				saleStates.add(item);
 			}
 			*/
+			
 			return null;
 
 		} catch (Exception e) {
@@ -131,18 +121,14 @@ public class AddNotificationController implements Serializable{
 	public void updateNotificationStates(){
 		
 		notificationStates = new ArrayList<SelectItem>();
+		for (NotificationStateEnum notificationStateEnum : NotificationStateEnum.values()) {
+			SelectItem item = new SelectItem();
+			item.setValue(notificationStateEnum.getId());
+			item.setLabel(notificationStateEnum.getName());
+			notificationStates.add(item);
+		}
 		
-			for (NotificationStateEnum notificationStateEnum : NotificationStateEnum.values()) {
-				
-				SelectItem item = new SelectItem();
-				item.setValue(notificationStateEnum.getId());
-				item.setLabel(notificationStateEnum.getName());
-				notificationStates.add(item);
-			}
-			
 	}
-
-	
 	
 
 	public void add() {
@@ -153,21 +139,16 @@ public class AddNotificationController implements Serializable{
 			}
 			
 			notificationSelected.setType(NotificationTypeEnum.PHYSICAL);
-			
 			notificationSelected.setCreatedAt(new Date());
-			
 			SessionBean sessionBean = (SessionBean) FacesContext
 					.getCurrentInstance().getExternalContext()
 					.getSessionMap().get("sessionBean");
-			
 			int userId = sessionBean.getUser().getId();
 			
 			User user = new User();
 			user.setId(userId);
 			notificationSelected.setCreatedBy(user);
-			
 			notificationService.add(notificationSelected);
-			
 			RequestContext.getCurrentInstance().closeDialog(notificationSelected.getSale());
 
 		} catch (Exception e) {

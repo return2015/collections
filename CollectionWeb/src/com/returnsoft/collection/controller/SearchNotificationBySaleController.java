@@ -1,5 +1,7 @@
 package com.returnsoft.collection.controller;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -24,12 +26,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
 
-import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.Collection;
 import com.returnsoft.collection.entity.Commerce;
 import com.returnsoft.collection.entity.CreditCard;
 import com.returnsoft.collection.entity.Notification;
-import com.returnsoft.collection.entity.Product;
+import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.SaleState;
@@ -38,6 +39,13 @@ import com.returnsoft.collection.enumeration.BankLetterEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
 import com.returnsoft.collection.exception.BankLetterNotFoundException;
+import com.returnsoft.collection.exception.NotificationAddressNullException;
+import com.returnsoft.collection.exception.NotificationDepartmentNullException;
+import com.returnsoft.collection.exception.NotificationDistrictNullException;
+import com.returnsoft.collection.exception.NotificationLastnameMaternalNullException;
+import com.returnsoft.collection.exception.NotificationLastnamePaternalNullException;
+import com.returnsoft.collection.exception.NotificationPayerNullException;
+import com.returnsoft.collection.exception.NotificationProvinceNullException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
@@ -68,56 +76,35 @@ public class SearchNotificationBySaleController implements Serializable {
 	private UserService userService;
 
 	private String searchTypeSelected;
-	private String personTypeSelected;
 
 	private List<Sale> sales;
 	private Sale saleSelected;
 
-	private String creditCardNumber;
 	private Date dateOfSaleStarted;
 	private Date dateOfSaleEnded;
 
 	private Date affiliationDate;
 
 	private String nuicResponsible;
-	private String lastnamePaternalResponsible;
-	private String lastnameMaternalResponsible;
-	private String firstnameResponsible;
 
-	private String nuicContractor;
-	private String lastnamePaternalContractor;
-	private String lastnameMaternalContractor;
-	private String firstnameContractor;
-
-	private String nuicInsured;
-	private String lastnamePaternalInsured;
-	private String lastnameMaternalInsured;
-	private String firstnameInsured;
-
-	private List<SelectItem> banks;
+	/*private List<SelectItem> banks;
 	private String bankSelected;
 
 	private List<SelectItem> products;
-	private String productSelected;
-
+	private String productSelected;*/
 	
 	private List<SelectItem> saleStates;
 	private String saleStateSelected;
 
-	private Boolean searchByCreditCardNumberRendered;
 	private Boolean searchByDocumentNumberResponsibleRendered;
-	private Boolean searchByNamesRendered;
 	private Boolean searchByDateSaleRendered;
 
-	private Boolean searchByContractorRendered;
-	private Boolean searchByInsuredRendered;
-	private Boolean searchByResponsibleRendered;
-
-	private List<CreditCard> updates;
-	private List<Collection> collections;
-	private List<SaleState> maintenances;
+	//private List<CreditCard> updates;
+	//private List<Collection> collections;
+	//private List<SaleState> maintenances;
 	private List<Notification> notifications;
-	private List<Repayment> repayments;
+	private List<Payer> payers;
+	//private List<Repayment> repayments;
 
 	private List<Commerce> commerces;
 	
@@ -161,23 +148,23 @@ public class SearchNotificationBySaleController implements Serializable {
 					System.out.println("cantidad de commerce encontrados:"+commerces.size());
 				}
 				
-				List<Bank> banksEntity = saleService.getBanks();
+				/*List<Bank> banksEntity = saleService.getBanks();
 				banks = new ArrayList<SelectItem>();
 				for (Bank bank : banksEntity) {
 					SelectItem item = new SelectItem();
 					item.setValue(bank.getId().toString());
 					item.setLabel(bank.getName());
 					banks.add(item);
-				}
+				}*/
 
-				List<Product> productsEntity = saleService.getProducts();
+				/*List<Product> productsEntity = saleService.getProducts();
 				products = new ArrayList<SelectItem>();
 				for (Product product : productsEntity) {
 					SelectItem item = new SelectItem();
 					item.setValue(product.getId().toString());
 					item.setLabel(product.getName());
 					products.add(item);
-				}
+				}*/
 				
 				saleStates = new ArrayList<SelectItem>();
 				for (SaleStateEnum saleStateEnum : SaleStateEnum.values()) {
@@ -228,35 +215,14 @@ public class SearchNotificationBySaleController implements Serializable {
 
 			System.out.println("onChangeSearchBy" + searchTypeSelected);
 
-			searchByContractorRendered = false;
-			searchByInsuredRendered = false;
-			searchByResponsibleRendered = false;
-			personTypeSelected = null;
-
-			if (searchTypeSelected.equals("creditCard")) {
-				searchByCreditCardNumberRendered = true;
-				searchByDocumentNumberResponsibleRendered = false;
-				searchByNamesRendered = false;
-				searchByDateSaleRendered = false;
-			} else if (searchTypeSelected.equals("dni")) {
-				searchByCreditCardNumberRendered = false;
+			if (searchTypeSelected.equals("dni")) {
 				searchByDocumentNumberResponsibleRendered = true;
-				searchByNamesRendered = false;
 				searchByDateSaleRendered = false;
 			} else if (searchTypeSelected.equals("saleData")) {
-				searchByCreditCardNumberRendered = false;
 				searchByDocumentNumberResponsibleRendered = false;
-				searchByNamesRendered = false;
 				searchByDateSaleRendered = true;
-			} else if (searchTypeSelected.equals("personalData")) {
-				searchByCreditCardNumberRendered = false;
-				searchByDocumentNumberResponsibleRendered = false;
-				searchByNamesRendered = true;
-				searchByDateSaleRendered = false;
 			} else {
-				searchByCreditCardNumberRendered = false;
 				searchByDocumentNumberResponsibleRendered = false;
-				searchByNamesRendered = false;
 				searchByDateSaleRendered = false;
 			}
 		} catch (Exception e) {
@@ -266,62 +232,26 @@ public class SearchNotificationBySaleController implements Serializable {
 		}
 	}
 
-	public void onChangePersonType() {
-		try {
-			// if (fromRequest) {
-			personTypeSelected = FacesContext.getCurrentInstance()
-					.getExternalContext().getRequestParameterMap()
-					.get("form:personType_input");
-			// }
-
-			System.out.println("onChangeSearchBy" + searchTypeSelected);
-			if (personTypeSelected.equals("contractor")) {
-				searchByContractorRendered = true;
-				searchByInsuredRendered = false;
-				searchByResponsibleRendered = false;
-			} else if (personTypeSelected.equals("insured")) {
-				searchByContractorRendered = false;
-				searchByInsuredRendered = true;
-				searchByResponsibleRendered = false;
-			} else if (personTypeSelected.equals("responsible")) {
-				searchByContractorRendered = false;
-				searchByInsuredRendered = false;
-				searchByResponsibleRendered = true;
-			} else {
-				searchByContractorRendered = false;
-				searchByInsuredRendered = false;
-				searchByResponsibleRendered = false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-	}
-
+	
 	public void search() {
 
 		try {
 			
 			saleSelected=null;
 
-			if (searchTypeSelected.equals("creditCard")) {
-				Long creditCardNumberLong = Long.parseLong(creditCardNumber);
-				sales = saleService
-						.findSalesByCreditCardNumber(creditCardNumberLong);
-			} else if (searchTypeSelected.equals("dni")) {
+			if (searchTypeSelected.equals("dni")) {
 				Long nuicResponsibleLong = Long.parseLong(nuicResponsible);
 				sales = saleService
 						.findSalesByNuicResponsible(nuicResponsibleLong);
 			} else if (searchTypeSelected.equals("saleData")) {
-				Integer productId = null;
-				if (productSelected != null && productSelected.length() > 0) {
+				Short productId = null;
+				/*if (productSelected != null && productSelected.length() > 0) {
 					productId = Integer.parseInt(productSelected);
-				}
-				Integer bankId = null;
-				if (bankSelected != null && bankSelected.length() > 0) {
+				}*/
+				Short bankId = null;
+				/*if (bankSelected != null && bankSelected.length() > 0) {
 					bankId = Integer.parseInt(bankSelected);
-				}
+				}*/
 				SaleStateEnum saleState = null;
 				if (saleStateSelected != null && saleStateSelected.length() > 0) {
 					saleState = SaleStateEnum.findById(Short.parseShort(saleStateSelected));
@@ -329,96 +259,7 @@ public class SearchNotificationBySaleController implements Serializable {
 				sales = saleService.findSalesBySaleData(dateOfSaleStarted,
 						dateOfSaleEnded, affiliationDate, bankId, productId,
 						saleState);
-
-			} else if (searchTypeSelected.equals("personalData")) {
-				if (personTypeSelected.equals("contractor")) {
-
-					if ((nuicContractor != null && nuicContractor.length() > 0)
-							|| (firstnameContractor != null && firstnameContractor
-									.length() > 0)
-							|| (lastnamePaternalContractor != null && lastnamePaternalContractor
-									.length() > 0)
-							|| (lastnameMaternalContractor != null && lastnameMaternalContractor
-									.length() > 0)) {
-
-						Long nuicContractorLong = null;
-						if (nuicContractor != null
-								&& nuicContractor.length() > 0) {
-							nuicContractorLong = Long.parseLong(nuicContractor);
-						}
-
-						sales = saleService.findSalesByNamesContractor(
-								nuicContractorLong, firstnameContractor,
-								lastnamePaternalContractor,
-								lastnameMaternalContractor);
-
-					} else {
-						FacesMessage msg = new FacesMessage(
-								"Debe ingresar al menos un dato");
-						msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-						FacesContext.getCurrentInstance().addMessage(null, msg);
-					}
-
-				} else if (personTypeSelected.equals("insured")) {
-
-					if ((nuicInsured != null && nuicInsured.length() > 0)
-							|| (firstnameInsured != null && firstnameInsured
-									.length() > 0)
-							|| (lastnamePaternalInsured != null && lastnamePaternalInsured
-									.length() > 0)
-							|| (lastnameMaternalInsured != null && lastnameMaternalInsured
-									.length() > 0)) {
-
-						Long nuicInsuredLong = null;
-						if (nuicInsured != null && nuicInsured.length() > 0) {
-							nuicInsuredLong = Long.parseLong(nuicInsured);
-						}
-
-						sales = saleService.findSalesByNamesInsured(
-								nuicInsuredLong, firstnameInsured,
-								lastnamePaternalInsured,
-								lastnameMaternalInsured);
-
-					} else {
-						FacesMessage msg = new FacesMessage(
-								"Debe ingresar al menos un dato");
-						msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-						FacesContext.getCurrentInstance().addMessage(null, msg);
-					}
-
-				} else if (personTypeSelected.equals("responsible")) {
-
-					if ((nuicResponsible != null && nuicResponsible.length() > 0)
-							|| (firstnameResponsible != null && firstnameResponsible
-									.length() > 0)
-							|| (lastnamePaternalResponsible != null && lastnamePaternalResponsible
-									.length() > 0)
-							|| (lastnameMaternalResponsible != null && lastnameMaternalResponsible
-									.length() > 0)) {
-
-						Long nuicResponsibleLong = null;
-						if (nuicResponsible != null
-								&& nuicResponsible.length() > 0) {
-							nuicResponsibleLong = Long
-									.parseLong(nuicResponsible);
-						}
-
-						sales = saleService.findSalesByNamesResponsible(
-								nuicResponsibleLong, firstnameResponsible,
-								lastnamePaternalResponsible,
-								lastnameMaternalResponsible);
-
-					} else {
-						FacesMessage msg = new FacesMessage(
-								"Debe ingresar al menos un dato");
-						msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-						FacesContext.getCurrentInstance().addMessage(null, msg);
-					}
-				}
-				
-				
-
-			}
+			} 
 			
 			
 
@@ -614,74 +455,14 @@ public class SearchNotificationBySaleController implements Serializable {
 
 	}
 
-	public void showCreditCards() {
-		try {
+	
 
-			System.out.println("Ingreso a showCreditCardUpdates "
-					+ saleSelected);
-			updates = saleService.findUpdates(saleSelected.getId());
-			System.out.println("updates: " + updates.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
-
-	public void showCollections() {
-
-		try {
-
-			System.out.println("Ingreso a showCollections " + saleSelected);
-			collections = saleService.findCollections(saleSelected.getId());
-			System.out.println("collections: " + collections.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
 	
 	
-	public void showRepayments() {
-
-		try {
-
-			//System.out.println("Ingreso a showCollections " + saleSelected);
-			repayments = saleService.findRepayments(saleSelected.getId());
-			//System.out.println("collections: " + collections.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
 	
-	public void showMaintenances() {
-
-		try {
-
-			System.out.println("Ingreso a showMaintenances " + saleSelected);
-			maintenances = saleService.findMaintenances(saleSelected.getId());
-			System.out.println("maintenances: " + maintenances.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
+	
+	
+	
 	
 	public void showNotifications() {
 
@@ -699,6 +480,24 @@ public class SearchNotificationBySaleController implements Serializable {
 		}
 
 	}
+	
+	public void showPayers() {
+
+		try {
+
+			System.out.println("Ingreso a showDatas " + saleSelected);
+			payers = saleService.findPayers(saleSelected.getId());
+			System.out.println("payers: " + payers.size());
+			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+					e.getMessage());
+		}
+
+	}
+	
 	
 	
 
@@ -887,18 +686,63 @@ public class SearchNotificationBySaleController implements Serializable {
 				facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 						e.getMessage());
 			}else{
-				Map<String, Object> options = new HashMap<String, Object>();
-				options.put("modal", true);
-				options.put("draggable", false);
-				options.put("resizable", false);
-				options.put("contentHeight", 420);
-				options.put("contentWidth", 320);
+				if (saleSelected.getPayer()!=null) {
+					if (saleSelected.getPayer().getFirstnameResponsible().equals("")) {
+						//error, el nombre de responsable de pago esta vacío.
+					}else if (saleSelected.getPayer().getLastnamePaternalResponsible().trim().equals("")) {
+						Exception e = new NotificationLastnamePaternalNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+					}else if (saleSelected.getPayer().getLastnameMaternalResponsible().trim().equals("")) {
+						Exception e = new NotificationLastnameMaternalNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+					}else if (saleSelected.getPayer().getAddress().trim().equals("")) {
+						Exception e = new NotificationAddressNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+					}else if (saleSelected.getPayer().getDepartment().trim().equals("")) {
+						Exception e = new NotificationDepartmentNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+					}else if (saleSelected.getPayer().getProvince().trim().equals("")) {
+						Exception e = new NotificationProvinceNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+					}else if (saleSelected.getPayer().getDistrict().trim().equals("")) {
+						Exception e = new NotificationDistrictNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+					}else{
+						
+						
+						/*
+						 * 
+						 * 
+						 * */
+						
+						Map<String, Object> options = new HashMap<String, Object>();
+						options.put("modal", true);
+						options.put("draggable", false);
+						options.put("resizable", false);
+						options.put("contentHeight", 420);
+						options.put("contentWidth", 320);
 
-				Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
-				ArrayList<String> paramList = new ArrayList<>();
-				paramList.add(String.valueOf(saleSelected.getId()));
-				paramMap.put("saleId", paramList);
-				RequestContext.getCurrentInstance().openDialog("add_notification", options,paramMap);
+						Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
+						ArrayList<String> paramList = new ArrayList<>();
+						paramList.add(String.valueOf(saleSelected.getId()));
+						paramMap.put("saleId", paramList);
+						RequestContext.getCurrentInstance().openDialog("add_notification", options,paramMap);
+					}
+					
+					
+				}else{
+					Exception e = new NotificationPayerNullException();
+					facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+							e.getMessage());
+				}
+				
+				
 			}
 			
 			
@@ -968,9 +812,9 @@ public class SearchNotificationBySaleController implements Serializable {
 						
 						Map<String, Object> parameters = new HashMap<String, Object>();
 						
-						parameters.put("names", saleSelected.getPayer().getFirstnameResponsible()+" "+saleSelected.getPayer().getLastnamePaternalResponsible()+" "+saleSelected.getPayer().getLastnameMaternalResponsible());
-					    parameters.put("department", saleSelected.getPayer().getProvince()+" "+saleSelected.getPayer().getDepartment());
-					    parameters.put("address", saleSelected.getPayer().getAddress()+" "+saleSelected.getPayer().getDistrict());
+						//parameters.put("names", saleSelected.getPayer().getFirstnameResponsible()+" "+saleSelected.getPayer().getLastnamePaternalResponsible()+" "+saleSelected.getPayer().getLastnameMaternalResponsible());
+					    //parameters.put("department", saleSelected.getPayer().getProvince()+" "+saleSelected.getPayer().getDepartment());
+					    //parameters.put("address", saleSelected.getPayer().getAddress()+" "+saleSelected.getPayer().getDistrict());
 					    
 					    ServletContext servletContext=(ServletContext) FacesContext.getCurrentInstance ().getExternalContext().getContext();
 		
@@ -982,9 +826,23 @@ public class SearchNotificationBySaleController implements Serializable {
 						
 						String signatureName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getSignature();
 						
+						//FileInputStream file = new FileInputStream(signatureName);
+						
+						
+						
 						System.out.println("signatureName:"+signatureName);
 						
 						parameters.put("signature", signatureName);
+						//8:10 8:50-10:30
+						//8:20 - 8:30
+						
+						//
+						
+						//parameters.put("signature", file);
+						
+						System.out.println("cantidad de sales:"+sales.size());
+						
+						parameters.put("sales", sales);
 						
 						//
 						 
@@ -1110,89 +968,7 @@ public class SearchNotificationBySaleController implements Serializable {
 		this.dateOfSaleEnded = dateOfSaleEnded;
 	}
 
-	public String getCreditCardNumber() {
-		return creditCardNumber;
-	}
-
-	public void setCreditCardNumber(String creditCardNumber) {
-		this.creditCardNumber = creditCardNumber;
-	}
-
-	public String getLastnamePaternalResponsible() {
-		return lastnamePaternalResponsible;
-	}
-
-	public void setLastnamePaternalResponsible(
-			String lastnamePaternalResponsible) {
-		this.lastnamePaternalResponsible = lastnamePaternalResponsible;
-	}
-
-	public String getLastnameMaternalResponsible() {
-		return lastnameMaternalResponsible;
-	}
-
-	public void setLastnameMaternalResponsible(
-			String lastnameMaternalResponsible) {
-		this.lastnameMaternalResponsible = lastnameMaternalResponsible;
-	}
-
-	public String getFirstnameResponsible() {
-		return firstnameResponsible;
-	}
-
-	public void setFirstnameResponsible(String firstnameResponsible) {
-		this.firstnameResponsible = firstnameResponsible;
-	}
-
-	public String getFirstnameContractor() {
-		return firstnameContractor;
-	}
-
-	public void setFirstnameContractor(String firstnameContractor) {
-		this.firstnameContractor = firstnameContractor;
-	}
-
-	public String getFirstnameInsured() {
-		return firstnameInsured;
-	}
-
-	public void setFirstnameInsured(String firstnameInsured) {
-		this.firstnameInsured = firstnameInsured;
-	}
-
-	public String getLastnamePaternalContractor() {
-		return lastnamePaternalContractor;
-	}
-
-	public void setLastnamePaternalContractor(String lastnamePaternalContractor) {
-		this.lastnamePaternalContractor = lastnamePaternalContractor;
-	}
-
-	public String getLastnameMaternalContractor() {
-		return lastnameMaternalContractor;
-	}
-
-	public void setLastnameMaternalContractor(String lastnameMaternalContractor) {
-		this.lastnameMaternalContractor = lastnameMaternalContractor;
-	}
-
-	public String getLastnamePaternalInsured() {
-		return lastnamePaternalInsured;
-	}
-
-	public void setLastnamePaternalInsured(String lastnamePaternalInsured) {
-		this.lastnamePaternalInsured = lastnamePaternalInsured;
-	}
-
-	public String getLastnameMaternalInsured() {
-		return lastnameMaternalInsured;
-	}
-
-	public void setLastnameMaternalInsured(String lastnameMaternalInsured) {
-		this.lastnameMaternalInsured = lastnameMaternalInsured;
-	}
-
-	public List<SelectItem> getBanks() {
+	/*public List<SelectItem> getBanks() {
 		return banks;
 	}
 
@@ -1222,7 +998,7 @@ public class SearchNotificationBySaleController implements Serializable {
 
 	public void setProductSelected(String productSelected) {
 		this.productSelected = productSelected;
-	}
+	}*/
 
 	public String getSearchTypeSelected() {
 		return searchTypeSelected;
@@ -1232,14 +1008,7 @@ public class SearchNotificationBySaleController implements Serializable {
 		this.searchTypeSelected = searchTypeSelected;
 	}
 
-	public Boolean getSearchByCreditCardNumberRendered() {
-		return searchByCreditCardNumberRendered;
-	}
-
-	public void setSearchByCreditCardNumberRendered(
-			Boolean searchByCreditCardNumberRendered) {
-		this.searchByCreditCardNumberRendered = searchByCreditCardNumberRendered;
-	}
+	
 
 	public Boolean getSearchByDocumentNumberResponsibleRendered() {
 		return searchByDocumentNumberResponsibleRendered;
@@ -1250,13 +1019,7 @@ public class SearchNotificationBySaleController implements Serializable {
 		this.searchByDocumentNumberResponsibleRendered = searchByDocumentNumberResponsibleRendered;
 	}
 
-	public Boolean getSearchByNamesRendered() {
-		return searchByNamesRendered;
-	}
-
-	public void setSearchByNamesRendered(Boolean searchByNamesRendered) {
-		this.searchByNamesRendered = searchByNamesRendered;
-	}
+	
 
 	public Boolean getSearchByDateSaleRendered() {
 		return searchByDateSaleRendered;
@@ -1266,78 +1029,8 @@ public class SearchNotificationBySaleController implements Serializable {
 		this.searchByDateSaleRendered = searchByDateSaleRendered;
 	}
 
-	public String getPersonTypeSelected() {
-		return personTypeSelected;
-	}
 
-	public void setPersonTypeSelected(String personTypeSelected) {
-		this.personTypeSelected = personTypeSelected;
-	}
 
-	public Boolean getSearchByContractorRendered() {
-		return searchByContractorRendered;
-	}
-
-	public void setSearchByContractorRendered(Boolean searchByContractorRendered) {
-		this.searchByContractorRendered = searchByContractorRendered;
-	}
-
-	public Boolean getSearchByInsuredRendered() {
-		return searchByInsuredRendered;
-	}
-
-	public void setSearchByInsuredRendered(Boolean searchByInsuredRendered) {
-		this.searchByInsuredRendered = searchByInsuredRendered;
-	}
-
-	public Boolean getSearchByResponsibleRendered() {
-		return searchByResponsibleRendered;
-	}
-
-	public void setSearchByResponsibleRendered(
-			Boolean searchByResponsibleRendered) {
-		this.searchByResponsibleRendered = searchByResponsibleRendered;
-	}
-
-	public String getNuicResponsible() {
-		return nuicResponsible;
-	}
-
-	public void setNuicResponsible(String nuicResponsible) {
-		this.nuicResponsible = nuicResponsible;
-	}
-
-	public String getNuicContractor() {
-		return nuicContractor;
-	}
-
-	public void setNuicContractor(String nuicContractor) {
-		this.nuicContractor = nuicContractor;
-	}
-
-	public String getNuicInsured() {
-		return nuicInsured;
-	}
-
-	public void setNuicInsured(String nuicInsured) {
-		this.nuicInsured = nuicInsured;
-	}
-
-	public List<CreditCard> getUpdates() {
-		return updates;
-	}
-
-	public void setUpdates(List<CreditCard> updates) {
-		this.updates = updates;
-	}
-
-	public List<Collection> getCollections() {
-		return collections;
-	}
-
-	public void setCollections(List<Collection> collections) {
-		this.collections = collections;
-	}
 
 	public Sale getSaleSelected() {
 		return saleSelected;
@@ -1365,21 +1058,6 @@ public class SearchNotificationBySaleController implements Serializable {
 		this.affiliationDate = affiliationDate;
 	}
 
-	public List<SaleState> getMaintenances() {
-		return maintenances;
-	}
-
-	public void setMaintenances(List<SaleState> maintenances) {
-		this.maintenances = maintenances;
-	}
-
-	public List<Repayment> getRepayments() {
-		return repayments;
-	}
-
-	public void setRepayments(List<Repayment> repayments) {
-		this.repayments = repayments;
-	}
 
 	public List<SelectItem> getSaleStates() {
 		return saleStates;
@@ -1419,6 +1097,22 @@ public class SearchNotificationBySaleController implements Serializable {
 
 	public void setSalesCount(Integer salesCount) {
 		this.salesCount = salesCount;
+	}
+
+	public String getNuicResponsible() {
+		return nuicResponsible;
+	}
+
+	public void setNuicResponsible(String nuicResponsible) {
+		this.nuicResponsible = nuicResponsible;
+	}
+
+	public List<Payer> getPayers() {
+		return payers;
+	}
+
+	public void setPayers(List<Payer> payers) {
+		this.payers = payers;
 	}
 	
 

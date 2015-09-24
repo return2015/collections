@@ -69,7 +69,7 @@ public class SaleEaoImpl implements SaleEao {
 	}
 	
 	
-	public List<Sale> findBySaleData(Date saleDateStartedAt,Date saleDateEndedAt, Date affiliationDate,Integer bankId, Integer productId, SaleStateEnum saleState)  throws EaoException {
+	public List<Sale> findBySaleData(Date saleDateStartedAt,Date saleDateEndedAt, Date affiliationDate,Short bankId, Short productId, SaleStateEnum saleState)  throws EaoException {
 		try {
 			
 			String query = "SELECT s FROM Sale s "
@@ -162,7 +162,7 @@ public class SaleEaoImpl implements SaleEao {
 					+ " and s.mailingRetries<3";
 			
 			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
-			q.setParameter("state", NotificationStateEnum.CONDITIONED);
+			//q.setParameter("state", NotificationStateEnum.CONDITIONED);
 			
 			List<Sale> sales = q.getResultList();
 			return sales;
@@ -242,7 +242,7 @@ public class SaleEaoImpl implements SaleEao {
 	public List<Sale> findByNuicResponsible(Long nuicResponsible) throws EaoException {
 		try {
 			
-			String query = "SELECT s FROM Sale s WHERE s.nuicResponsible = :nuicResponsible ";
+			String query = "SELECT s FROM Sale s left join s.payer p WHERE p.nuicResponsible = :nuicResponsible ";
 			
 			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
 			q.setParameter("nuicResponsible", nuicResponsible);

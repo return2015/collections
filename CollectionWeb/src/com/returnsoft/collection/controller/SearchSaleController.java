@@ -314,13 +314,13 @@ public class SearchSaleController implements Serializable {
 				sales = saleService
 						.findSalesByNuicResponsible(nuicResponsibleLong);
 			} else if (searchTypeSelected.equals("saleData")) {
-				Integer productId = null;
+				Short productId = null;
 				if (productSelected != null && productSelected.length() > 0) {
-					productId = Integer.parseInt(productSelected);
+					productId = Short.parseShort(productSelected);
 				}
-				Integer bankId = null;
+				Short bankId = null;
 				if (bankSelected != null && bankSelected.length() > 0) {
-					bankId = Integer.parseInt(bankSelected);
+					bankId = Short.parseShort(bankSelected);
 				}
 				SaleStateEnum saleState = null;
 				if (saleStateSelected != null && saleStateSelected.length() > 0) {

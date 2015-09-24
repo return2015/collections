@@ -7,11 +7,11 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui">
 <f:metadata>
-			<f:viewAction action="#{addNotificationController.initialize}"/>
-		</f:metadata>
+	<f:viewAction action="#{addNotificationController.initialize}" />
+</f:metadata>
 <h:head>
 	<h:outputStylesheet library="css" name="collection.css" />
-	
+
 </h:head>
 
 <h:body>
@@ -30,39 +30,64 @@
 			</h:panelGrid>
 
 			<h:panelGrid columns="2">
-			
-			<p:outputLabel value="Codigo único"></p:outputLabel>
-			<p:outputLabel value="#{addNotificationController.notificationSelected.sale.code}"></p:outputLabel>
-			
-			<p:outputLabel value="Nombre Responsable"></p:outputLabel>
-			<p:outputLabel value="#{addNotificationController.notificationSelected.sale.firstnameResponsible}"></p:outputLabel>
-			
-			<p:outputLabel value="A. Paterno Responsable"></p:outputLabel>
-			<p:outputLabel value="#{addNotificationController.notificationSelected.sale.lastnamePaternalResponsible}"></p:outputLabel>
-			
-			<p:outputLabel value="A. Materno Responsable"></p:outputLabel>
-			<p:outputLabel value="#{addNotificationController.notificationSelected.sale.lastnameMaternalResponsible}"></p:outputLabel>
-			
-			
-			
 
-				<p:outputLabel value="Fecha de envío"></p:outputLabel>
-				<p:calendar required="true" pattern="dd/MM/yyyy" navigator="true"
-					requiredMessage="Debe ingresar fecha de envío"
-					value="#{addNotificationController.notificationSelected.sendingAt}"></p:calendar>
-				
-				<p:outputLabel value="Fecha de respuesta"></p:outputLabel>
-				<p:calendar pattern="dd/MM/yyyy" navigator="true"
-					value="#{addNotificationController.notificationSelected.answeringAt}"></p:calendar>	
-					
-					
+				<p:outputLabel value="Codigo único"></p:outputLabel>
+				<p:outputLabel
+					value="#{addNotificationController.notificationSelected.sale.code}"></p:outputLabel>
+
+				<p:outputLabel value="Nombre Responsable"></p:outputLabel>
+				<p:outputLabel
+					value="#{addNotificationController.notificationSelected.sale.payer.firstnameResponsible}"></p:outputLabel>
+
+				<p:outputLabel value="A. Paterno Responsable"></p:outputLabel>
+				<p:outputLabel
+					value="#{addNotificationController.notificationSelected.sale.payer.lastnamePaternalResponsible}"></p:outputLabel>
+
+				<p:outputLabel value="A. Materno Responsable"></p:outputLabel>
+				<p:outputLabel
+					value="#{addNotificationController.notificationSelected.sale.payer.lastnameMaternalResponsible}"></p:outputLabel>
+
+				<p:outputLabel value="Dirección"></p:outputLabel>
+				<p:outputLabel
+					value="#{addNotificationController.notificationSelected.sale.payer.address}"></p:outputLabel>
+
+				<p:outputLabel value="Departamento"></p:outputLabel>
+				<p:outputLabel
+					value="#{addNotificationController.notificationSelected.sale.payer.department}"></p:outputLabel>
+
+				<p:outputLabel value="Provincia"></p:outputLabel>
+				<p:outputLabel
+					value="#{addNotificationController.notificationSelected.sale.payer.province}"></p:outputLabel>
+
+				<p:outputLabel value="Distrito"></p:outputLabel>
+				<p:outputLabel
+					value="#{addNotificationController.notificationSelected.sale.payer.district}"></p:outputLabel>
+
+
 				<p:outputLabel value="Estado"></p:outputLabel>
 				<p:selectOneMenu required="true"
 					requiredMessage="Debe seleccionar estado"
 					value="#{addNotificationController.notificationStateSelected}">
 					<f:selectItem itemValue="" itemLabel="Seleccione..."></f:selectItem>
-					<f:selectItems value="#{addNotificationController.notificationStates}"></f:selectItems>
+					<f:selectItems
+						value="#{addNotificationController.notificationStates}"></f:selectItems>
 				</p:selectOneMenu>
+
+				<p:outputLabel value="Fecha de envío"></p:outputLabel>
+				<p:calendar required="true" pattern="dd/MM/yyyy" navigator="true"
+					requiredMessage="Debe ingresar fecha de envío"
+					value="#{addNotificationController.notificationSelected.sendingAt}"></p:calendar>
+
+				<p:outputLabel value="Número de cargo"></p:outputLabel>
+				<p:inputText
+					value="#{addNotificationController.notificationSelected.chargeNumber}"></p:inputText>
+
+				<p:outputLabel value="Fecha de respuesta"></p:outputLabel>
+				<p:calendar pattern="dd/MM/yyyy" navigator="true"
+					value="#{addNotificationController.notificationSelected.answeringAt}"></p:calendar>
+
+
+
 
 			</h:panelGrid>
 

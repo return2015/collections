@@ -36,8 +36,11 @@ public class Notification implements Serializable{
 	@Column(name = "not_id")
 	private Integer id;
 	
-	@Column(name = "not_code")
-	private String code;
+	/*@Column(name = "not_code")
+	private String code;*/
+	
+	@Column(name = "not_charge_number")
+	private String chargeNumber;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "not_sending_at")
@@ -90,12 +93,14 @@ public class Notification implements Serializable{
 		this.id = id;
 	}
 
-	public String getCode() {
-		return code;
+	
+
+	public String getChargeNumber() {
+		return chargeNumber;
 	}
 
-	public void setCode(String code) {
-		this.code = code;
+	public void setChargeNumber(String chargeNumber) {
+		this.chargeNumber = chargeNumber;
 	}
 
 	public Date getSendingAt() {

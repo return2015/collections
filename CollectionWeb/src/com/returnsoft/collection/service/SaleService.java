@@ -7,11 +7,12 @@ import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.Collection;
 import com.returnsoft.collection.entity.Commerce;
 import com.returnsoft.collection.entity.CreditCard;
-import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.Notification;
+import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.Product;
 import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
+import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.ServiceException;
 
@@ -31,6 +32,8 @@ public interface SaleService {
 	
 	//public List<Notification> findMailings(Long saleId) throws ServiceException;
 	
+	public List<Payer> findPayers(Long saleId) throws ServiceException;
+	
 	public List<Collection> findCollections(Long saleId) throws ServiceException;
 	
 	public List<Repayment> findRepayments(Long saleId) throws ServiceException;
@@ -39,7 +42,7 @@ public interface SaleService {
 	
 	public List<Notification> findNotifications(Long saleId) throws ServiceException;
 	
-	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Integer bankId, Integer productId, SaleStateEnum saleState) throws ServiceException;
+	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException;
 	
 	public List<Sale> findSalesByCreditCardNumber(Long creditCardNumber) throws ServiceException;
 	

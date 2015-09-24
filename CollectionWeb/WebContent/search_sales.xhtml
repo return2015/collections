@@ -210,9 +210,8 @@
 						actionListener="#{searchSaleController.search}" value="Buscar"
 						process="@form"
 						update=":form:searchTypeOut :form:searchTable :form:saleId :form:salesCount :form:messages 
-						:form:updatesButtom :form:collectionsButtom :form:notificationsButtom  
-						:form:notificationButtom :form:printButtom :form:maintenancesButtom  
-						:form:stateButtom :form:repaymentsButtom :form:dataButtom">
+						:form:updatesButtom :form:collectionsButtom :form:maintenancesButtom  
+						:form:stateButtom :form:repaymentsButtom">
 					</p:commandButton>
 
 					<p:commandButton action="#{searchSaleController.exportExcel}"
@@ -230,24 +229,12 @@
 						value="Venta seleccionada: #{searchSaleController.saleSelected!=null?searchSaleController.saleSelected.code:''}">
 					</p:outputLabel>
 
-					<h:panelGrid columns="2" style="width:100%;">
 
 						<h:panelGrid style="width:100%;">
 							<p:outputLabel id="salesCount"
 								value="Se encontraron #{searchSaleController.sales!=null?searchSaleController.sales.size():'0'} ventas.">
 							</p:outputLabel>
 						</h:panelGrid>
-
-						<h:panelGrid style="width:100%;text-align:right;">
-							<p:commandButton id="printButtom" immediate="true"
-								icon="ui-icon-print" value="Imprimir notificación"
-								actionListener="#{searchSaleController.printNotification}"
-								ajax="false"
-								disabled="#{searchSaleController.saleSelected==null}">
-							</p:commandButton>
-						</h:panelGrid>
-
-					</h:panelGrid>
 
 				</h:panelGrid>
 
@@ -294,35 +281,7 @@
 							listener="#{searchSaleController.afterAddMaintenance}" />
 					</p:commandButton>
 					
-					<p:commandButton id="dataButtom" immediate="true"
-						icon="ui-icon-pencil" value="Editar datos"
-						update=":form:messages"
-						actionListener="#{searchSaleController.addPayer}"
-						disabled="#{searchSaleController.saleSelected==null}">
-						<p:ajax event="dialogReturn" update=":form:searchTable"
-							listener="#{searchSaleController.afterAddPayer}" />
-					</p:commandButton>
-					
-
-					<p:commandButton id="notificationsButtom"
-						actionListener="#{searchSaleController.showNotifications}"
-						icon="ui-icon-search" value="Ver notificaciones"
-						oncomplete="PF('notificationsDialog').show()"
-						update=":formNotification:notificationsDetail"
-						disabled="#{searchSaleController.saleSelected==null}">
-					</p:commandButton>
-
-					<p:commandButton id="notificationButtom" immediate="true"
-						icon="ui-icon-plus" value="Agregar notificación"
-						update=":form:messages"
-						actionListener="#{searchSaleController.addNotification}"
-						disabled="#{searchSaleController.saleSelected==null}">
-						<p:ajax event="dialogReturn" update=":form:searchTable"
-							listener="#{searchSaleController.afterAddNotification}" />
-					</p:commandButton>
-
 				</h:panelGrid>
-
 
 
 				<p:dataTable value="#{searchSaleController.sales}" var="s"
@@ -332,9 +291,9 @@
 					id="searchTable">
 
 					<p:ajax event="rowSelect"
-						update=":form:dataButtom :form:updatesButtom :form:collectionsButtom :form:notificationsButtom :form:notificationButtom :form:printButtom :form:maintenancesButtom :form:stateButtom :form:repaymentsButtom :form:saleId" />
+						update=":form:updatesButtom :form:collectionsButtom :form:maintenancesButtom :form:stateButtom :form:repaymentsButtom :form:saleId" />
 					<p:ajax event="rowUnselect"
-						update=":form:dataButtom :form:updatesButtom :form:collectionsButtom :form:notificationsButtom :form:notificationButtom :form:printButtom :form:maintenancesButtom :form:stateButtom :form:repaymentsButtom :form:saleId" />
+						update=":form:updatesButtom :form:collectionsButtom :form:maintenancesButtom :form:stateButtom :form:repaymentsButtom :form:saleId" />
 
 
 					<p:column headerText="CODIGO" width="100">

@@ -176,7 +176,7 @@ public class SaleServiceImpl implements SaleService{
 	
 	
 	
-	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Integer bankId, Integer productId, SaleStateEnum saleState) throws ServiceException {
+	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException {
 		try {
 			List<Sale> sales = saleEao.findBySaleData(saleDateStartedAt, saleDateEndedAt,  affiliationDate, bankId, productId, saleState);
 
@@ -316,6 +316,24 @@ public class SaleServiceImpl implements SaleService{
 			}
 		}
 	}
+	
+	public List<Payer> findPayers(Long saleId) throws ServiceException{
+		try {
+			
+			List<Payer> payers = payerEao.findBySaleId(saleId);
+
+			return payers;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
 	
 	public List<Collection> findCollections(Long saleId) throws ServiceException{
 		try {

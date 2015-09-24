@@ -54,10 +54,10 @@ import com.returnsoft.collection.util.FacesUtil;
 @ViewScoped
 public class LoadSalesController implements Serializable {
 
-
 	/**
 	 * 
 	 */
+	
 	private static final long serialVersionUID = -4374647108976645077L;
 
 	private UploadedFile file;
@@ -68,6 +68,7 @@ public class LoadSalesController implements Serializable {
 	private List<Exception> errors;
 	private Map<String, String> headers;
 	private List<Map<String, String>> dataList;
+	
 	//private final String[] saleStates = { "ACTIVO", "BAJA" };
 
 	@EJB
@@ -98,7 +99,7 @@ public class LoadSalesController implements Serializable {
 						&& !sessionBean.getUser().getUserType().equals(UserTypeEnum.AGENT)) {
 					throw new UserPermissionNotFoundException();
 				}
-					
+				
 				Short bankId = (Short) sessionBean.getBank().getId();
 				
 				commerces = saleService.findCommercesByBankId(bankId);
@@ -758,6 +759,8 @@ public class LoadSalesController implements Serializable {
 			
 			Integer lineNumber = 1;
 			SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
+			
+			
 
 			for (Map<String, String> data : dataList) {
 				
@@ -1016,7 +1019,7 @@ public class LoadSalesController implements Serializable {
 						for (Exception e : errors) {
 							facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
 						}
-					}else{
+					} else{
 						validateDuplicates();
 						if (errors != null && errors.size() > 0) {
 							for (Exception e : errors) {
