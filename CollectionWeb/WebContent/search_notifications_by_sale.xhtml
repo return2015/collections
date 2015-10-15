@@ -32,13 +32,12 @@
 
 		<h:form id="form">
 
-			<h:panelGrid style="margin:auto;">
 
 				<h:panelGrid style="margin:auto;text-align:center;">
 					<p:messages id="messages" showDetail="true"></p:messages>
 				</h:panelGrid>
 
-				<h:panelGrid columns="3">
+				<h:panelGrid columns="3" style="margin:auto;text-align:center;">
 					<h:panelGrid columns="2">
 						<p:outputLabel value="Tipo de busqueda:"></p:outputLabel>
 						<p:selectOneMenu id="searchType"
@@ -99,12 +98,13 @@
 
 					</p:outputPanel>
 				</h:panelGrid>
+				
 				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
 					<p:commandButton icon="ui-icon-search"
 						actionListener="#{searchNotificationBySaleController.search}" value="Buscar"
 						process="@form"
 						update=":form:searchTypeOut :form:searchTable :form:saleId :form:salesCount :form:messages 
-						:form:notificationsButtom :form:notificationButtom :form:dataButtom">
+						:form:notificationsButtom :form:notificationButtom :form:dataButtom :form:payersButtom">
 					</p:commandButton>
 
 					<p:commandButton action="#{searchNotificationBySaleController.exportExcel}"
@@ -112,33 +112,23 @@
 					</p:commandButton>
 
 				</h:panelGrid>
-			</h:panelGrid>
+			
 
-			<h:panelGrid style="margin:auto;">
 
-				<h:panelGrid columns="2" style="width:100%;">
+				<h:panelGrid columns="1" style="width:100%;text-align:center;">
 
+					<p:outputLabel id="salesCount"
+						value="Se encontraron #{searchNotificationBySaleController.sales!=null?searchNotificationBySaleController.sales.size():'0'} ventas.">
+					</p:outputLabel>
+							
 					<p:outputLabel id="saleId"
 						value="Venta seleccionada: #{searchNotificationBySaleController.saleSelected!=null?searchNotificationBySaleController.saleSelected.code:''}">
 					</p:outputLabel>
-
-					<h:panelGrid columns="2" style="width:100%;">
-
-						<h:panelGrid style="width:100%;">
-							<p:outputLabel id="salesCount"
-								value="Se encontraron #{searchNotificationBySaleController.sales!=null?searchNotificationBySaleController.sales.size():'0'} ventas.">
-							</p:outputLabel>
-						</h:panelGrid>
-
-
-					</h:panelGrid>
-
+					
 				</h:panelGrid>
 
-				<h:panelGrid columns="4" style="width:100%;">
+				<h:panelGrid columns="4" style="width:100%; text-align:center;">
 
-
-					
 					<p:commandButton id="dataButtom" immediate="true"
 						icon="ui-icon-pencil" value="Editar datos"
 						update=":form:messages"
@@ -150,24 +140,23 @@
 					
 					<p:commandButton id="payersButtom"
 						actionListener="#{searchNotificationBySaleController.showPayers}"
-						icon="ui-icon-search" value="Ver actualizaciones"
+						icon="ui-icon-search" value="Ver actualizaciones de datos"
 						oncomplete="PF('payersDialog').show()"
 						update=":formPayer:payersDetail"
 						disabled="#{searchNotificationBySaleController.saleSelected==null}">
 					</p:commandButton>
 
-					<p:commandButton id="notificationsButtom"
+					<p:commandButton id="notificationsButtom" immediate="true"
 						actionListener="#{searchNotificationBySaleController.showNotifications}"
 						icon="ui-icon-search" value="Ver notificaciones"
-						oncomplete="PF('notificationsDialog').show()"
-						update=":formNotification:notificationsDetail"
+						update=":form:messages"
 						disabled="#{searchNotificationBySaleController.saleSelected==null}">
 					</p:commandButton>
 
 					<p:commandButton id="notificationButtom" immediate="true"
+						actionListener="#{searchNotificationBySaleController.addNotification}"
 						icon="ui-icon-plus" value="Agregar notificación"
 						update=":form:messages"
-						actionListener="#{searchNotificationBySaleController.addNotification}"
 						disabled="#{searchNotificationBySaleController.saleSelected==null}">
 						<p:ajax event="dialogReturn" update=":form:searchTable"
 							listener="#{searchNotificationBySaleController.afterAddNotification}" />
@@ -177,8 +166,8 @@
 
 
 
-				<p:dataTable value="#{searchNotificationBySaleController.sales}" var="s"
-					scrollable="true" scrollWidth="900" paginator="true" rows="10"
+				<p:dataTable style="width:100%;" value="#{searchNotificationBySaleController.sales}" var="s"
+					scrollable="true" scrollWidth="100%" paginator="true" rows="10"
 					selectionMode="single"
 					selection="#{searchNotificationBySaleController.saleSelected}" rowKey="#{s.id}"
 					id="searchTable">
@@ -251,11 +240,11 @@
 					</p:column>
 
 					<p:column headerText="NOTIFICACIONES VIRTUALES" width="80">
-						<h:outputText value="#{s.mailingRetries}"></h:outputText>
+						<h:outputText value="#{s.virtualNotifications}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="NOTIFICACIONES FÍSICAS" width="80">
-						<h:outputText value="#{s.printingRetries}"></h:outputText>
+						<h:outputText value="#{s.physicalNotifications}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="TIPO" width="80">
@@ -278,8 +267,13 @@
 						</h:outputText>
 					</p:column>
 					
-					<p:column headerText="NÚMERO DE CARGO" width="80">
-						<h:outputText value="#{s.notification.chargeNumber}">
+					<p:column headerText="NÚMERO DE ORDEN" width="80">
+						<h:outputText value="#{s.notification.orderNumber}">
+						</h:outputText>
+					</p:column>
+					
+					<p:column headerText="NÚMERO CORRELATIVO" width="80">
+						<h:outputText value="#{s.notification.correlativeNumber}">
 						</h:outputText>
 					</p:column>
 
@@ -287,14 +281,13 @@
 
 				</p:dataTable>
 
-			</h:panelGrid>
 
 		</h:form>
 
 		
 
 		<p:dialog header="Notificaciones" widgetVar="notificationsDialog"
-			showEffect="fade" hideEffect="fade" width="800" height="200">
+			showEffect="fade" hideEffect="fade" width="400" height="200">
 			<h:form id="formNotification">
 				<p:outputPanel id="notificationsDetail" style="text-align:center;">
 

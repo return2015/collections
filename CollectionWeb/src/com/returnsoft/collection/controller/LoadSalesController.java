@@ -974,8 +974,8 @@ public class LoadSalesController implements Serializable {
 				sale.setCommerce(commercialCodeObject);
 				
 				//CAMPOS NUEVOS
-				sale.setMailingRetries((short)0);
-				sale.setPrintingRetries((short)0);
+				sale.setVirtualNotifications((short)0);
+				sale.setPhysicalNotifications((short)0);
 
 				sale.setCreatedBy(user);
 				sale.setCreatedAt(current);

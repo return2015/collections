@@ -42,8 +42,11 @@ import com.returnsoft.collection.exception.BankLetterNotFoundException;
 import com.returnsoft.collection.exception.NotificationAddressNullException;
 import com.returnsoft.collection.exception.NotificationDepartmentNullException;
 import com.returnsoft.collection.exception.NotificationDistrictNullException;
+import com.returnsoft.collection.exception.NotificationFirstnameNullException;
 import com.returnsoft.collection.exception.NotificationLastnameMaternalNullException;
 import com.returnsoft.collection.exception.NotificationLastnamePaternalNullException;
+import com.returnsoft.collection.exception.NotificationLimit1Exception;
+import com.returnsoft.collection.exception.NotificationLimit2Exception;
 import com.returnsoft.collection.exception.NotificationPayerNullException;
 import com.returnsoft.collection.exception.NotificationProvinceNullException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
@@ -467,11 +470,27 @@ public class SearchNotificationBySaleController implements Serializable {
 	public void showNotifications() {
 
 		try {
+			
+			Map<String, Object> options = new HashMap<String, Object>();
+		   options.put("modal", true);
+		   options.put("draggable", true);
+		   options.put("resizable", true);
+		   options.put("contentHeight", "'100%'");
+		   options.put("contentWidth", "'100%'");
+		   options.put("height", "400");
+		   options.put("width", "1000");
+			   
+			
+			Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
+			ArrayList<String> paramList = new ArrayList<>();
+			paramList.add(String.valueOf(saleSelected.getId()));
+			paramMap.put("saleId", paramList);
+			RequestContext.getCurrentInstance().openDialog("edit_notification_by_sale", options,paramMap);
+			
 
-			System.out.println("Ingreso a showNotifications " + saleSelected);
+			/*System.out.println("Ingreso a showNotifications " + saleSelected);
 			notifications = saleService.findNotifications(saleSelected.getId());
-			System.out.println("notifications: " + notifications.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
+			System.out.println("notifications: " + notifications.size());*/
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -509,6 +528,9 @@ public class SearchNotificationBySaleController implements Serializable {
 			SessionBean sessionBean = (SessionBean) FacesContext
 					.getCurrentInstance().getExternalContext().getSessionMap()
 					.get("sessionBean");
+			
+			
+			
 			if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
 
 				// VALIDA COMMERCIAL CODE
@@ -526,22 +548,17 @@ public class SearchNotificationBySaleController implements Serializable {
 					msg.setSeverity(FacesMessage.SEVERITY_ERROR);
 					FacesContext.getCurrentInstance().addMessage(null, msg);
 				}else{
-
 					// VALIDATE PASSWORD SUPERVISOR
 					if (saleSelected.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
-
 						// CHECK PASSWORD SUPERVISOR
 						RequestContext context = RequestContext.getCurrentInstance();
 						context.execute("PF('passSuperDialog').show();");
-						
 					} else {
-						
 						Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
 						ArrayList<String> paramList = new ArrayList<>();
 						paramList.add(String.valueOf(saleSelected.getId()));
 						paramMap.put("saleId", paramList);
 						RequestContext.getCurrentInstance().openDialog("add_maintenance", null,paramMap);
-
 					}
 				}
 				
@@ -665,21 +682,8 @@ public class SearchNotificationBySaleController implements Serializable {
 	public void addNotification() {
 		try {
 			System.out.println("Ingreso a addNotification");
-			
-			/*notifications = saleService.findNotifications(saleSelected.getId());
-			int physical=0;
-			int mail=0;
-			for (Notification notification : notifications) {
-				if (notification.getNotificationType().equals(NotificationTypeEnum.MAIL)) {
-					mail++;
-				}else if (notification.getNotificationType().equals(NotificationTypeEnum.PHYSICAL)){
-					physical++;
-				}
-			}
-			
-			if (mail<3 || physical==0) {*/
-				//SE ENVIA
-			
+			System.out.println("1");
+
 			// VALIDA SI LA VENTA NO ESTA ACTIVA
 			if (!saleSelected.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
 				Exception e = new SaleStateNoActiveException(saleSelected.getCode());
@@ -687,55 +691,95 @@ public class SearchNotificationBySaleController implements Serializable {
 						e.getMessage());
 			}else{
 				if (saleSelected.getPayer()!=null) {
-					if (saleSelected.getPayer().getFirstnameResponsible().equals("")) {
-						//error, el nombre de responsable de pago esta vacío.
+					System.out.println("2");
+					if (saleSelected.getPayer().getFirstnameResponsible().trim().equals("")) {
+						System.out.println("3"+saleSelected.getPayer().getFirstnameResponsible());
+						Exception e = new NotificationFirstnameNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+						
 					}else if (saleSelected.getPayer().getLastnamePaternalResponsible().trim().equals("")) {
+						System.out.println("3");
 						Exception e = new NotificationLastnamePaternalNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 								e.getMessage());
 					}else if (saleSelected.getPayer().getLastnameMaternalResponsible().trim().equals("")) {
+						System.out.println("4");
 						Exception e = new NotificationLastnameMaternalNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 								e.getMessage());
 					}else if (saleSelected.getPayer().getAddress().trim().equals("")) {
+						System.out.println("5");
 						Exception e = new NotificationAddressNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 								e.getMessage());
 					}else if (saleSelected.getPayer().getDepartment().trim().equals("")) {
+						System.out.println("6");
 						Exception e = new NotificationDepartmentNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 								e.getMessage());
 					}else if (saleSelected.getPayer().getProvince().trim().equals("")) {
+						System.out.println("7");
 						Exception e = new NotificationProvinceNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 								e.getMessage());
 					}else if (saleSelected.getPayer().getDistrict().trim().equals("")) {
+						System.out.println("8");
 						Exception e = new NotificationDistrictNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 								e.getMessage());
-					}else{
+					}else if (saleSelected.getVirtualNotifications()<3) {
+						System.out.println("9");
+						//Si tiene menos de 3 envios virtuales
+						if (saleSelected.getPhysicalNotifications()>1) {
+							System.out.println("10");
+							//no se agrega porque tiene 2 envíos físicos y menos de 3 virtuales.
+							Exception e = new NotificationLimit2Exception(saleSelected.getCode());
+							facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+									e.getMessage());
+						}else{
+							System.out.println("antes de dialogo");
+							
+							Map<String, Object> options = new HashMap<String, Object>();
+							options.put("modal", true);
+							options.put("draggable", false);
+							options.put("resizable", false);
+							options.put("contentHeight", 420);
+							options.put("contentWidth", 320);
+	
+							Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
+							ArrayList<String> paramList = new ArrayList<>();
+							paramList.add(String.valueOf(saleSelected.getId()));
+							paramMap.put("saleId", paramList);
+							RequestContext.getCurrentInstance().openDialog("add_notification", options,paramMap);
+						}
+					}else {
+						System.out.println("1");
+						if (saleSelected.getPhysicalNotifications()>0) {
+							System.out.println("1");
+							//No se agrega porque ya tiene 1 envío físico y 3 envíos virtuales.
+							Exception e = new NotificationLimit1Exception(saleSelected.getCode());
+							facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+									e.getMessage());
+						}else{
+							
+							System.out.println("antes de dialogo");
 						
-						
-						/*
-						 * 
-						 * 
-						 * */
-						
-						Map<String, Object> options = new HashMap<String, Object>();
-						options.put("modal", true);
-						options.put("draggable", false);
-						options.put("resizable", false);
-						options.put("contentHeight", 420);
-						options.put("contentWidth", 320);
-
-						Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
-						ArrayList<String> paramList = new ArrayList<>();
-						paramList.add(String.valueOf(saleSelected.getId()));
-						paramMap.put("saleId", paramList);
-						RequestContext.getCurrentInstance().openDialog("add_notification", options,paramMap);
+							Map<String, Object> options = new HashMap<String, Object>();
+							options.put("modal", true);
+							options.put("draggable", false);
+							options.put("resizable", false);
+							options.put("contentHeight", 420);
+							options.put("contentWidth", 320);
+	
+							Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
+							ArrayList<String> paramList = new ArrayList<>();
+							paramList.add(String.valueOf(saleSelected.getId()));
+							paramMap.put("saleId", paramList);
+							RequestContext.getCurrentInstance().openDialog("add_notification", options,paramMap);
+						}
+					
 					}
-					
-					
 				}else{
 					Exception e = new NotificationPayerNullException();
 					facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
@@ -778,7 +822,7 @@ public class SearchNotificationBySaleController implements Serializable {
 			//System.out.println("1"+sale.getId());
 			//System.out.println("2"+saleReturn.getId());
 			if (sale.getId().equals(saleReturn.getId())) {
-				System.out.println("INGRESOOOOOOOO");
+				//System.out.println("INGRESOOOOOOOO");
 				/*System.out.println(saleReturn.getDownUser());
 				System.out.println(saleReturn.getDownObservation());*/
 				sales.set(i, saleReturn);
