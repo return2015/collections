@@ -548,29 +548,7 @@
 						<h:outputText value="#{s.createdBy.username}"></h:outputText>
 					</p:column>
 
-					<p:column headerText="Notificaciones vituales " width="80">
-						<h:outputText value="#{s.mailingRetries}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="Notificaciones físicas" width="80">
-						<h:outputText value="#{s.printingRetries}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="Notificación tipo" width="80">
-						<h:outputText value="#{s.notification.type.name}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="Notificación estado" width="80">
-						<h:outputText value="#{s.notification.state.name}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="Notificación enviado" width="80">
-						<h:outputText value="#{s.notification.sendingAt}">
-							<f:convertDateTime pattern="dd/MM/yyyy" />
-						</h:outputText>
-					</p:column>
-
-
+					
 
 				</p:dataTable>
 

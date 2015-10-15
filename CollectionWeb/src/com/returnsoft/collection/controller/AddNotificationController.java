@@ -35,7 +35,11 @@ public class AddNotificationController implements Serializable{
 	
 	private String notificationStateSelected;
 	
-	private List<SelectItem> notificationStates;
+	//private List<SelectItem> notificationStates;
+	
+	private NotificationStateEnum notificationState = NotificationStateEnum.SENDING;
+	
+	private NotificationTypeEnum notificationType = NotificationTypeEnum.PHYSICAL;
 	
 	@EJB
 	private NotificationService notificationService;
@@ -92,7 +96,7 @@ public class AddNotificationController implements Serializable{
 				//}
 			//}
 			
-			updateNotificationStates();
+			//updateNotificationStates();
 
 			/*List<SaleState> saleStatesEntity = maintenanceService.getSaleStates();
 			saleStates = new ArrayList<SelectItem>();
@@ -118,7 +122,7 @@ public class AddNotificationController implements Serializable{
 		}
 	}
 	
-	public void updateNotificationStates(){
+	/*public void updateNotificationStates(){
 		
 		notificationStates = new ArrayList<SelectItem>();
 		for (NotificationStateEnum notificationStateEnum : NotificationStateEnum.values()) {
@@ -128,17 +132,19 @@ public class AddNotificationController implements Serializable{
 			notificationStates.add(item);
 		}
 		
-	}
+	}*/
 	
 
 	public void add() {
 		try {
 			
-			if (notificationStateSelected != null && notificationStateSelected.length() > 0) {
+			/*if (notificationStateSelected != null && notificationStateSelected.length() > 0) {
 				notificationSelected.setState(NotificationStateEnum.findById(Short.parseShort(notificationStateSelected)));
-			}
+			}*/
 			
-			notificationSelected.setType(NotificationTypeEnum.PHYSICAL);
+			notificationSelected.setType(notificationType);
+			notificationSelected.setState(notificationState);
+			
 			notificationSelected.setCreatedAt(new Date());
 			SessionBean sessionBean = (SessionBean) FacesContext
 					.getCurrentInstance().getExternalContext()
@@ -179,13 +185,15 @@ public class AddNotificationController implements Serializable{
 		this.notificationStateSelected = notificationStateSelected;
 	}
 
-	public List<SelectItem> getNotificationStates() {
-		return notificationStates;
+	public NotificationStateEnum getNotificationState() {
+		return notificationState;
 	}
 
-	public void setNotificationStates(List<SelectItem> notificationStates) {
-		this.notificationStates = notificationStates;
+	public NotificationTypeEnum getNotificationType() {
+		return notificationType;
 	}
+
+	
 
 
 

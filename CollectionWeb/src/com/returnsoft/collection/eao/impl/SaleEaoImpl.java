@@ -158,11 +158,15 @@ public class SaleEaoImpl implements SaleEao {
 		
 		try {
 			
-			String query = "SELECT s FROM Sale s left join s.notification n WHERE (n.state is null or n.state <> :state) "
-					+ " and s.mailingRetries<3";
+			String query = "SELECT s FROM Sale s "
+					+ "left join s.notification n "
+					+ "left join s.saleState ss "
+					+ "WHERE (n.id is null or n.state = :notificationState) "
+					+ " and s.virtualNotifications<3 and ss.state = :saleState";
 			
 			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
-			//q.setParameter("state", NotificationStateEnum.CONDITIONED);
+			q.setParameter("notificationState", NotificationStateEnum.SENDING);
+			q.setParameter("saleState", SaleStateEnum.ACTIVE);
 			
 			List<Sale> sales = q.getResultList();
 			return sales;

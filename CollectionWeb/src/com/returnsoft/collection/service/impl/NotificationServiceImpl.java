@@ -12,7 +12,9 @@ import com.returnsoft.collection.entity.Notification;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
-import com.returnsoft.collection.exception.NotificationLimitException;
+import com.returnsoft.collection.exception.NotificationLimit1Exception;
+import com.returnsoft.collection.exception.NotificationLimit2Exception;
+// import com.returnsoft.collection.exception.NotificationLimitException;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.NotificationService;
 
@@ -47,39 +49,24 @@ public class NotificationServiceImpl implements NotificationService {
 			
 			Sale saleFound = saleEao.findById(notification.getSale().getId());
 			
-			//Si ya tiene 3 envíos por correo
-			if (saleFound.getMailingRetries()!=null && saleFound.getMailingRetries()==3) {
-				if (saleFound.getPrintingRetries()==null) {
-					//se agrega porque, ya tiene 3 envíos por correo pero no tiene envíos físicos.
-					notificationEao.add(notification);
-					saleFound.setPrintingRetries((short)(saleFound.getPrintingRetries()+1));
-					saleFound.setNotification(notification);
-					saleFound = saleEao.update(saleFound);
-					
-				}else{
-					if (saleFound.getPrintingRetries()>0) {
-						//no se agrega porque, ya tiene 3 envíos por correo y 1 envío físico.
-						throw new NotificationLimitException();
-					}else{
-						//se agrega porque, ya tiene 3 envíos por correo pero no tiene envíos físicos. 
-						notificationEao.add(notification);
-						saleFound.setPrintingRetries((short)(saleFound.getPrintingRetries()+1));
-						saleFound.setNotification(notification);
-						saleFound = saleEao.update(saleFound);
-					}
+			//Si tiene menos de 3 envios virtuales
+			if (saleFound.getVirtualNotifications()<3) {
+				if (saleFound.getPhysicalNotifications()>1) {
+					//no se agrega porque tiene 2 envíos físicos y menos de 3 virtuales.
+					throw new NotificationLimit2Exception(saleFound.getCode());
 				}
-			}else if(saleFound.getMailingRetries()==null || saleFound.getMailingRetries()<3) {
-				if (saleFound.getPrintingRetries()<3) {
-					//se agrega porque, menos de 3 envios fisicos.
-					notificationEao.add(notification);
-					saleFound.setPrintingRetries((short)(saleFound.getPrintingRetries()+1));
-					saleFound.setNotification(notification);
-					saleFound = saleEao.update(saleFound);
-				}else{
-					//no se agrega porque, ya tiene 3 envíos físicos.
-					throw new NotificationLimitException();
+			}else {
+				if (saleFound.getPhysicalNotifications()>0) {
+					//No se agrega porque ya tiene 1 envío físico y 3 envíos virtuales.
+					throw new NotificationLimit1Exception(saleFound.getCode());
 				}
 			}
+			
+			//se agrega notification 
+			notificationEao.add(notification);
+			saleFound.setPhysicalNotifications((short)(saleFound.getPhysicalNotifications()+1));
+			saleFound.setNotification(notification);
+			saleFound = saleEao.update(saleFound);
 			
 
 		} catch (Exception e) {

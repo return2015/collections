@@ -63,31 +63,16 @@
 				<p:outputLabel
 					value="#{addNotificationController.notificationSelected.sale.payer.district}"></p:outputLabel>
 
-
-				<p:outputLabel value="Estado"></p:outputLabel>
-				<p:selectOneMenu required="true"
-					requiredMessage="Debe seleccionar estado"
-					value="#{addNotificationController.notificationStateSelected}">
-					<f:selectItem itemValue="" itemLabel="Seleccione..."></f:selectItem>
-					<f:selectItems
-						value="#{addNotificationController.notificationStates}"></f:selectItems>
-				</p:selectOneMenu>
+				<p:outputLabel value="Estado de notificación"></p:outputLabel>
+				<p:outputLabel value="#{addNotificationController.notificationState.name}"></p:outputLabel>
+				
+				<p:outputLabel value="Tipo de notificación"></p:outputLabel>
+				<p:outputLabel value="#{addNotificationController.notificationType.name}"></p:outputLabel>
 
 				<p:outputLabel value="Fecha de envío"></p:outputLabel>
 				<p:calendar required="true" pattern="dd/MM/yyyy" navigator="true"
 					requiredMessage="Debe ingresar fecha de envío"
 					value="#{addNotificationController.notificationSelected.sendingAt}"></p:calendar>
-
-				<p:outputLabel value="Número de cargo"></p:outputLabel>
-				<p:inputText
-					value="#{addNotificationController.notificationSelected.chargeNumber}"></p:inputText>
-
-				<p:outputLabel value="Fecha de respuesta"></p:outputLabel>
-				<p:calendar pattern="dd/MM/yyyy" navigator="true"
-					value="#{addNotificationController.notificationSelected.answeringAt}"></p:calendar>
-
-
-
 
 			</h:panelGrid>
 

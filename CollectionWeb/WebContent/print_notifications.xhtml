@@ -16,13 +16,7 @@
 	</ui:define>
 
 	<ui:define name="content">
-		<!-- 
-		<script>
-			function addMaintenance() {
-				PF('stateButtom2').jq.click();
-			}
-		</script>
- -->
+
 		<div class="title ui-widget-header ui-corner-all">
 			<h:panelGrid style="margin:auto;">
 		IMPRIMIR NOTIFICACIONES
@@ -78,15 +72,6 @@
 								value="#{printNotificationsController.affiliationDate}"
 								pattern="dd-MM-yyyy"></p:calendar>
 
-
-							<p:outputLabel value="Estado:"></p:outputLabel>
-							<p:selectOneMenu id="state"
-								value="#{printNotificationsController.saleStateSelected}">
-								<f:selectItem itemLabel="Seleccione..." itemValue="" />
-								<f:selectItems
-									value="#{printNotificationsController.saleStates}"></f:selectItems>
-							</p:selectOneMenu>
-
 						</h:panelGrid>
 
 
@@ -101,18 +86,31 @@
 
 					</p:outputPanel>
 				</h:panelGrid>
-				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
+				<h:panelGrid columns="4" style="margin:auto;text-align:center;">
 
 					<p:commandButton icon="ui-icon-search"
 						actionListener="#{printNotificationsController.search}"
 						value="Buscar" process="@form"
 						update=":form:searchTypeOut :form:searchTable :form:salesCount :form:messages">
 					</p:commandButton>
+					
+					<p:commandButton action="#{printNotificationsController.exportExcel}"
+						value="Exportar a excel" process="@form" ajax="false">
+					</p:commandButton>
+					
 
 					<p:commandButton immediate="true" icon="ui-icon-print"
 						value="Imprimir notificaciones" ajax="false"
 						actionListener="#{printNotificationsController.printNotification}">
 					</p:commandButton>
+					
+					<p:commandButton immediate="true" icon="ui-icon-plus"
+						value="Crear notificaciones" 
+						oncomplete="PF('notificationsDialog').show()"
+						update=":formNotifications">
+					</p:commandButton>
+					
+					
 
 				</h:panelGrid>
 			</h:panelGrid>
@@ -196,11 +194,11 @@
 					</p:column>
 
 					<p:column headerText="NOTIFICACIONES VIRTUALES" width="80">
-						<h:outputText value="#{s.mailingRetries}"></h:outputText>
+						<h:outputText value="#{s.virtualNotifications}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="NOTIFICACIONES FÍSICAS" width="80">
-						<h:outputText value="#{s.printingRetries}"></h:outputText>
+						<h:outputText value="#{s.physicalNotifications}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="TIPO" width="80">
@@ -222,11 +220,17 @@
 							<f:convertDateTime pattern="dd/MM/yyyy" />
 						</h:outputText>
 					</p:column>
-
-					<p:column headerText="NÚMERO DE CARGO" width="80">
-						<h:outputText value="#{s.notification.chargeNumber}">
+					
+					<p:column headerText="NÚMERO DE ORDEN" width="80">
+						<h:outputText value="#{s.notification.orderNumber}">
 						</h:outputText>
 					</p:column>
+
+					<p:column headerText="NÚMERO CORRELATIVO" width="80">
+						<h:outputText value="#{s.notification.correlativeNumber}">
+						</h:outputText>
+					</p:column>
+					
 
 				</p:dataTable>
 
@@ -234,6 +238,34 @@
 
 		</h:form>
 
+		<p:dialog header="Crear Notificaciones"
+			widgetVar="notificationsDialog" showEffect="fade" hideEffect="fade"
+			width="800" height="200">
+			<h:form id="formNotifications">
+				<h:panelGrid style="margin:auto;">
+
+					<h:panelGrid style="margin:auto;text-align:center;">
+						<p:messages  id="messagesNotifications" showDetail="true"></p:messages>
+					</h:panelGrid>
+
+					<h:panelGrid columns="2">
+
+						<p:outputLabel value="Ingrese fecha de envío"></p:outputLabel>
+						<p:calendar required="true" pattern="dd/MM/yyyy" navigator="true"
+							requiredMessage="Debe ingresar fecha de envío"
+							value="#{printNotificationsController.sendingAt}"></p:calendar>
+
+					</h:panelGrid>
+
+					<h:panelGrid style="margin:auto;text-align:center;">
+						<p:commandButton actionListener="#{printNotificationsController.createNotifications}"
+							update=":formNotifications:messagesNotifications" value="Crear notificaciones">
+						</p:commandButton>
+					</h:panelGrid>
+				</h:panelGrid>
+			</h:form>
+
+		</p:dialog>
 
 	</ui:define>
 

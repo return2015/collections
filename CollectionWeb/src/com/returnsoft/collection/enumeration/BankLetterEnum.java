@@ -11,7 +11,7 @@ public enum BankLetterEnum {
 	+"Se le hace llegar el Condicionado y la Carta de Servicio de Asistencia GNB."
 	+"<br/>"
 	+"<br/>"
-	+"Gracias."),
+	+"Gracias.","falabella_asistencia@pe.geainternacional.com"),
 	GNB((short)3,"plantillaGNB.jrxml","signatureGNB.jpg","Asistencia GNB",
 	"<br/>"
 	+"<br/>"
@@ -21,20 +21,22 @@ public enum BankLetterEnum {
 	+"Se le hace llegar el Condicionado y la Carta de Servicio de Asistencia Falabella."
 	+"<br/>"
 	+"<br/>"
-	+"Gracias.");
+	+"Gracias.","gnb_asistencia@pe.geainternacional.com");
 	
 	private Short id;
 	private String template;
 	private String signature;
 	private String subject;
 	private String body;
+	private String mail;
 	
-	private BankLetterEnum(short id, String template, String signature, String subject, String body){
+	private BankLetterEnum(short id, String template, String signature, String subject, String body, String mail){
 		this.id=id;
 		this.template=template;
 		this.signature=signature;
 		this.subject=subject;
 		this.body=body;
+		this.mail=mail;
 	}
 	
 	public static BankLetterEnum findById(Short id){
@@ -74,6 +76,10 @@ public enum BankLetterEnum {
 
 	public void setBody(String body) {
 		this.body = body;
+	}
+
+	public String getMail() {
+		return mail;
 	}
 	
 	

@@ -37,26 +37,8 @@ public class Sale implements Serializable{
 	@Column(name = "sal_document_type")
 	private String documentType;
 	
-	/////////////////////////
-	
-	/*@Column(name = "sal_nuic_res")
-	private Integer nuicResponsible;
-	
-	@Column(name = "sal_lastname_paternal_res")
-	private String lastnamePaternalResponsible;
-	
-	@Column(name = "sal_lastname_maternal_res")
-	private String lastnameMaternalResponsible;
-	
-	@Column(name = "sal_firstname_res")
-	private String firstnameResponsible;*/
-	
-	/////////////////////////
-	
-	
 	@Column(name = "sal_account_number")
 	private Long accountNumber;
-
 	
 	@Column(name = "sal_nuic_contractor")
 	private Integer nuicContractor;
@@ -87,25 +69,6 @@ public class Sale implements Serializable{
 	
 	@Column(name = "sal_phone2")
 	private Integer phone2;
-	
-	/////////////
-	
-	/*@Column(name = "sal_mail")
-	private String mail;
-	
-	@Column(name = "sal_department")
-	private String department;
-	
-	@Column(name = "sal_province")
-	private String province;
-	
-	@Column(name = "sal_district")
-	private String district;
-	
-	@Column(name = "sal_address")
-	private String address;*/
-	
-	//////////
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "sal_date")
@@ -171,7 +134,6 @@ public class Sale implements Serializable{
 	@JoinColumn(name = "sal_com_id")
 	private Commerce commerce;
 	
-	
 	@Column(name = "sal_affiliation")
 	private Boolean affiliation;
 	
@@ -183,11 +145,11 @@ public class Sale implements Serializable{
 	@JoinColumn(name = "sal_affiliation_usr_id")
 	private User affiliationUser;
 	
-	@Column(name = "sal_printing_retries")
-	private Short printingRetries;
+	@Column(name = "sal_physical_notifications")
+	private Short physicalNotifications;
 	
-	@Column(name = "sal_mailing_retries")
-	private Short mailingRetries;
+	@Column(name = "sal_virtual_notifications")
+	private Short virtualNotifications;
 	
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "sal_not_id")
@@ -229,9 +191,6 @@ public class Sale implements Serializable{
 	public void setDocumentType(String documentType) {
 		this.documentType = documentType;
 	}
-
-	
-
 
 	public String getFirstnameContractor() {
 		return firstnameContractor;
@@ -320,8 +279,6 @@ public class Sale implements Serializable{
 	public void setPhone2(Integer phone2) {
 		this.phone2 = phone2;
 	}
-
-	
 
 	public Date getDateOfSale() {
 		return dateOfSale;
@@ -507,22 +464,6 @@ public class Sale implements Serializable{
 		this.commerce = commerce;
 	}
 
-	public Short getPrintingRetries() {
-		return printingRetries;
-	}
-
-	public void setPrintingRetries(Short printingRetries) {
-		this.printingRetries = printingRetries;
-	}
-
-	public Short getMailingRetries() {
-		return mailingRetries;
-	}
-
-	public void setMailingRetries(Short mailingRetries) {
-		this.mailingRetries = mailingRetries;
-	}
-
 	public Notification getNotification() {
 		return notification;
 	}
@@ -547,8 +488,21 @@ public class Sale implements Serializable{
 		this.payer = payer;
 	}
 
+	public Short getPhysicalNotifications() {
+		return physicalNotifications;
+	}
 
-	
+	public void setPhysicalNotifications(Short physicalNotifications) {
+		this.physicalNotifications = physicalNotifications;
+	}
+
+	public Short getVirtualNotifications() {
+		return virtualNotifications;
+	}
+
+	public void setVirtualNotifications(Short virtualNotifications) {
+		this.virtualNotifications = virtualNotifications;
+	}
 
 	
 }

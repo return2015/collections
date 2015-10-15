@@ -39,8 +39,11 @@ public class Notification implements Serializable{
 	/*@Column(name = "not_code")
 	private String code;*/
 	
-	@Column(name = "not_charge_number")
-	private String chargeNumber;
+	@Column(name = "not_correlative_number")
+	private String correlativeNumber;
+	
+	@Column(name = "not_order_number")
+	private String orderNumber;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "not_sending_at")
@@ -93,14 +96,20 @@ public class Notification implements Serializable{
 		this.id = id;
 	}
 
-	
-
-	public String getChargeNumber() {
-		return chargeNumber;
+	public String getCorrelativeNumber() {
+		return correlativeNumber;
 	}
 
-	public void setChargeNumber(String chargeNumber) {
-		this.chargeNumber = chargeNumber;
+	public void setCorrelativeNumber(String correlativeNumber) {
+		this.correlativeNumber = correlativeNumber;
+	}
+
+	public String getOrderNumber() {
+		return orderNumber;
+	}
+
+	public void setOrderNumber(String orderNumber) {
+		this.orderNumber = orderNumber;
 	}
 
 	public Date getSendingAt() {
