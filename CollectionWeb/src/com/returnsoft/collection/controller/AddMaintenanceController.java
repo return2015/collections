@@ -28,7 +28,7 @@ import com.returnsoft.collection.util.FacesUtil;
 public class AddMaintenanceController implements Serializable{
 
 	/**
-	 * 
+	 * aca un mensaje
 	 */
 	private static final long serialVersionUID = 1L;
 	

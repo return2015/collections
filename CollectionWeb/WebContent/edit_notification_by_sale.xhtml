@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+	
+	<h:head>
+	<h:outputStylesheet library="css" name="collection.css" />
+</h:head>
+
+
+
+<h:body>
+	<div class="title ui-widget-header ui-corner-all">
+		<h:panelGrid style="margin:auto;">
+		NOTIFICACIONES
+		</h:panelGrid>
+
+	</div>
+	
+
+	<h:form id="formNotification">
+			
+		<h:panelGrid style="margin:auto;text-align:center;">
+			<p:messages id="messages"></p:messages>
+		</h:panelGrid>
+			
+		<h:panelGrid>
+			<p:commandButton id="editNotificationButtom"
+				actionListener="#{editNotificationBySaleController.beforeEditNotification}"
+				icon="ui-icon-search" value="Editar notificación"
+				update=":formEditNotification :formNotification:messages">
+			</p:commandButton>
+		</h:panelGrid>
+				
+
+
+		<p:dataTable style="width:100%;" value="#{editNotificationBySaleController.notifications}" var="n"
+			paginator="true" rows="5" id="notificationsTable" rowKey="#{n.id}"
+			selection="#{editNotificationBySaleController.notificationSelected}" selectionMode="single">
+			
+			<p:column headerText="Código de venta" width="100">
+				<h:outputText value="#{n.sale.code}"></h:outputText>
+			</p:column>
+			
+			<p:column headerText="Número correlativo" width="100">
+				<h:outputText value="#{n.correlativeNumber}"></h:outputText>
+			</p:column>
+			
+			<p:column headerText="Número de orden" width="100">
+				<h:outputText value="#{n.orderNumber}"></h:outputText>
+			</p:column>
+			
+			<p:column headerText="Tipo" width="100">
+				<h:outputText value="#{n.type.name}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Estado" width="100">
+				<h:outputText value="#{n.state.name}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Fecha de envío" width="80">
+				<h:outputText value="#{n.sendingAt}">
+					<f:convertDateTime pattern="dd/MM/yyyy " />
+				</h:outputText>
+			</p:column>
+
+			<p:column headerText="Fecha de respuesta" width="80">
+				<h:outputText value="#{n.answeringAt}">
+					<f:convertDateTime pattern="dd/MM/yyyy" />
+				</h:outputText>
+			</p:column>
+
+		</p:dataTable>
+
+				
+	</h:form>
+		<h:form id="formEditNotification">	
+	<p:dialog header="Editar notificacion" widgetVar="editNotificationDialog"
+	showEffect="fade" hideEffect="fade" width="800" height="200">
+		
+				
+
+					<h:panelGrid style="margin:auto;text-align:center;">
+						<p:messages id="messagesEditNotification"></p:messages>
+					</h:panelGrid>
+
+					<h:panelGrid columns="2">
+
+						
+						<p:outputLabel value="Código de venta"></p:outputLabel>
+						<p:outputLabel value="#{editNotificationBySaleController.notificationSelected.sale.code}">
+						</p:outputLabel>
+						
+						<p:outputLabel value="Fecha de envío"></p:outputLabel>
+						<p:outputLabel value="#{editNotificationBySaleController.notificationSelected.sendingAt}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+						</p:outputLabel>
+						
+						<p:outputLabel value="Tipo"></p:outputLabel>
+						<p:outputLabel value="#{editNotificationBySaleController.notificationSelected.type.name}">
+						</p:outputLabel>
+						
+						<p:outputLabel value="Número correlativo"></p:outputLabel>
+						<p:inputText value="#{editNotificationBySaleController.notificationSelected.correlativeNumber}"></p:inputText>
+						
+						<p:outputLabel value="Número de orden"></p:outputLabel>
+						<p:inputText value="#{editNotificationBySaleController.notificationSelected.orderNumber}"></p:inputText>
+						
+						
+						<p:outputLabel value="Estado"></p:outputLabel>
+						<p:selectOneMenu required="true"
+							requiredMessage="Debe seleccionar estado"
+							value="#{editNotificationBySaleController.notificationStateSelected}">
+							<f:selectItem itemValue="" itemLabel="Seleccione..."></f:selectItem>
+							<f:selectItems value="#{editNotificationBySaleController.notificationStates}"></f:selectItems>
+						</p:selectOneMenu>
+						
+						<p:outputLabel value="Fecha de respuesta"></p:outputLabel>
+						<p:calendar pattern="dd/MM/yyyy" navigator="true"
+							value="#{editNotificationBySaleController.notificationSelected.answeringAt}"></p:calendar>	
+							
+					</h:panelGrid>
+
+					<h:panelGrid style="margin:auto;text-align:center;">
+						<p:commandButton actionListener="#{editNotificationBySaleController.edit}"
+							update=":formEditNotification:messagesEditNotification :formNotification:notificationsTable" value="Aceptar">
+						</p:commandButton>
+					</h:panelGrid>
+				
+			
+
+		</p:dialog>
+		</h:form>
+
+</h:body>
+</html>
+
