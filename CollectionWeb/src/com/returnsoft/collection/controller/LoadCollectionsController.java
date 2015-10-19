@@ -25,6 +25,7 @@ import com.returnsoft.collection.entity.Commerce;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.CollectionResponseEnum;
+import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
 import com.returnsoft.collection.exception.DataCollectionAllowMaximumByDayException;
 import com.returnsoft.collection.exception.DataCollectionAllowMaximumByMonthException;
@@ -40,6 +41,7 @@ import com.returnsoft.collection.exception.DataColumnNullException;
 import com.returnsoft.collection.exception.DataColumnNumberException;
 import com.returnsoft.collection.exception.DataCommerceCodeException;
 import com.returnsoft.collection.exception.DataSaleNotFoundException;
+import com.returnsoft.collection.exception.DataSaleStateNoActiveException;
 import com.returnsoft.collection.exception.FileColumnsTotalException;
 import com.returnsoft.collection.exception.FileExtensionException;
 import com.returnsoft.collection.exception.FileNotFoundException;
@@ -324,11 +326,6 @@ public class LoadCollectionsController implements Serializable {
 					}
 
 				
-
-					if (data.get("affiliationDate").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("affiliationDate")));
-						
-					}
 					
 					lineNumber++;
 
@@ -546,10 +543,9 @@ public class LoadCollectionsController implements Serializable {
 						if (sale != null && sale.getId() > 0) {
 
 							// VALIDA SI LA VENTA ESTA DE BAJA
-							
-							/*if (!sale.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
-								errors.add(new DataCellValueSaleStateNoActiveException(lineNumber, headers.get("code"),data.get("code")));
-							}*/
+							if (!sale.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
+								errors.add(new DataSaleStateNoActiveException(lineNumber, headers.get("code"),data.get("code")));
+							}
 
 							// VALIDA COMMERCIAL CODE
 							Commerce commercialCodeObject = null;

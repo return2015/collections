@@ -438,21 +438,6 @@ try {
 							}
 							
 							
-							
-							
-							
-							//VALIDATE IF RECEIPT EXIST
-							
-							/*Collection collection = repaymentService.findCollectionByReceiptNumber(data
-									.get("receiptNumber"));
-							
-							if (collection == null || collection.getId() == 0) {
-								
-								errors.add("Error en linea "
-										+ data.get("lineNumber") + ": La columna "
-										+ headers.get("receiptNumber")
-										+ " No se encontro numero de recibo");
-							}*/
 
 
 						} else {
