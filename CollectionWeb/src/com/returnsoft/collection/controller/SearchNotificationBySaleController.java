@@ -67,7 +67,7 @@ import net.sf.jasperreports.engine.JasperReport;
 public class SearchNotificationBySaleController implements Serializable {
 
 	/**
-	 * 
+	 * Esta clase sirve para buscar ventas para gestionar notificaciones.
 	 */
 	private static final long serialVersionUID = 1L;
 
