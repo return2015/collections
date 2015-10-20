@@ -30,42 +30,48 @@
 		<p:menubar styleClass="centeredMenuBar">
 
 			<p:menuitem value="Inicio" outcome="home" icon="ui-icon-star" />
+			
+			<p:submenu label="Ventas" icon="ui-icon-star" rendered="#{sessionBean.bank.id!=null}">
+			
+			<p:menuitem  value="Cargar ventas" style="width:130px;" outcome="load_sales"
+					rendered="#{sessionBean.bank.id!=null}"
+					icon="ui-icon-star" />
+					
+			<p:menuitem value="Actualizar estados" outcome="load_maintenances"
+					rendered="#{sessionBean.bank.id!=null}"
+					icon="ui-icon-star" />
+					
+			</p:submenu>
 
-			<p:submenu label="Ventas" icon="ui-icon-star">
+			<p:submenu label="Cobranzas" icon="ui-icon-star">
 			
 				<p:menuitem value="Buscar ventas" outcome="search_sales"
 					icon="ui-icon-star" />
 					
-				<p:menuitem  value="Crear ventas" style="width:130px;" outcome="load_sales"
+				<p:menuitem  value="Cargar cobranzas" style="width:130px;" outcome="load_collections"
 					rendered="#{sessionBean.bank.id!=null}"
 					icon="ui-icon-star" />
 					
-				<p:submenu label="Actualizar ventas" icon="ui-icon-star" rendered="#{sessionBean.bank.id!=null}">
-					<p:menuitem value="Actualizar afiliados" outcome="load_affiliations"
-						icon="ui-icon-star" />
-					<p:menuitem value="Actualizar tarjetas" outcome="load_credit_cards"
-						icon="ui-icon-star" />
-					<p:menuitem value="Actualizar estados" outcome="load_maintenances"
-						icon="ui-icon-star" />
-				</p:submenu>
+				<p:menuitem  value="Cargar extornos" style="width:130px;" outcome="load_repayments"
+					rendered="#{sessionBean.bank.id!=null}"
+					icon="ui-icon-star" />	
+				
+				<p:menuitem value="Actualizar afiliados" outcome="load_affiliations"
+					rendered="#{sessionBean.bank.id!=null}"
+					icon="ui-icon-star" />
 					
-					
+				<p:menuitem value="Actualizar tarjetas" outcome="load_credit_cards"
+					rendered="#{sessionBean.bank.id!=null}"
+					icon="ui-icon-star" />
+				
 			</p:submenu>
 			
 			<p:submenu label="Notificaciones" icon="ui-icon-star">
-			<p:menuitem  value="Buscar notificaciones" style="width:130px;" outcome="search_notifications_by_sale"
-					icon="ui-icon-star" />
-				<p:menuitem  value="Imprimir notificaciones" style="width:130px;" outcome="print_notifications"
-					icon="ui-icon-star" />
+				<p:menuitem  value="Buscar ventas" style="width:130px;" outcome="search_notifications_by_sale"
+						icon="ui-icon-star" />
 			</p:submenu>
 			
 			
-			<p:submenu label="Cobranzas" icon="ui-icon-star" rendered="#{sessionBean.bank.id!=null}">
-				<p:menuitem  value="Crear cobranzas" style="width:130px;" outcome="load_collections"
-					icon="ui-icon-star" />
-				<p:menuitem  value="Crear extornos" style="width:130px;" outcome="load_repayments"
-					icon="ui-icon-star" />
-			</p:submenu>
 			
 
 			<p:menuitem value="Usuarios" outcome="search_user" rendered="#{sessionBean.isAdmin}" icon="ui-icon-star" />

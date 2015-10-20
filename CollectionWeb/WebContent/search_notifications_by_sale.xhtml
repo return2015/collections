@@ -25,7 +25,7 @@
  -->
 		<div class="title ui-widget-header ui-corner-all">
 			<h:panelGrid style="margin:auto;">
-		BUSCAR NOTIFICACIONES
+		BUSCAR VENTAS PARA GESTIONAR NOTIFICACIONES
 		</h:panelGrid>
 
 		</div>
@@ -78,11 +78,10 @@
 
 
 							<p:outputLabel value="Estado:"></p:outputLabel>
-							<p:selectOneMenu id="state"
-								value="#{searchNotificationBySaleController.saleStateSelected}">
-								<f:selectItem itemLabel="Seleccione..." itemValue="" />
-								<f:selectItems value="#{searchNotificationBySaleController.saleStates}"></f:selectItems>
-							</p:selectOneMenu>
+							<p:selectManyMenu id="state" 
+								value="#{searchNotificationBySaleController.notificationStatesSelected}">
+								<f:selectItems value="#{searchNotificationBySaleController.notificationStates}"></f:selectItems>
+							</p:selectManyMenu>
 
 						</h:panelGrid>
 
@@ -99,7 +98,7 @@
 					</p:outputPanel>
 				</h:panelGrid>
 				
-				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
+				<h:panelGrid columns="4" style="margin:auto;text-align:center;">
 					<p:commandButton icon="ui-icon-search"
 						actionListener="#{searchNotificationBySaleController.search}" value="Buscar"
 						process="@form"
@@ -110,6 +109,18 @@
 					<p:commandButton action="#{searchNotificationBySaleController.exportExcel}"
 						value="Exportar a excel" process="@form" ajax="false">
 					</p:commandButton>
+					
+					<p:commandButton immediate="true" icon="ui-icon-print"
+						value="Imprimir cartas" ajax="false"
+						actionListener="#{searchNotificationBySaleController.printNotifications}">
+					</p:commandButton>
+					
+					<p:commandButton immediate="true" icon="ui-icon-plus"
+						value="Crear masivamente notificaciones" 
+						oncomplete="PF('notificationsDialog').show()"
+						update=":formNotifications">
+					</p:commandButton>
+					
 
 				</h:panelGrid>
 			
@@ -437,7 +448,34 @@
 
 		</p:dialog>
 
+	<p:dialog header="Crear Notificaciones"
+			widgetVar="notificationsDialog" showEffect="fade" hideEffect="fade"
+			width="800" height="200">
+			<h:form id="formNotifications">
+				<h:panelGrid style="margin:auto;">
 
+					<h:panelGrid style="margin:auto;text-align:center;">
+						<p:messages  id="messagesNotifications" showDetail="true"></p:messages>
+					</h:panelGrid>
+
+					<h:panelGrid columns="2">
+
+						<p:outputLabel value="Ingrese fecha de envío"></p:outputLabel>
+						<p:calendar required="true" pattern="dd/MM/yyyy" navigator="true"
+							requiredMessage="Debe ingresar fecha de envío"
+							value="#{searchNotificationBySaleController.sendingAt}"></p:calendar>
+
+					</h:panelGrid>
+
+					<h:panelGrid style="margin:auto;text-align:center;">
+						<p:commandButton actionListener="#{searchNotificationBySaleController.createNotifications}"
+							update=":formNotifications:messagesNotifications" value="Crear masivamente notificaciones">
+						</p:commandButton>
+					</h:panelGrid>
+				</h:panelGrid>
+			</h:form>
+
+		</p:dialog>
 
 
 

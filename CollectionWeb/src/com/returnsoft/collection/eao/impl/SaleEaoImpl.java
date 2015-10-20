@@ -68,6 +68,48 @@ public class SaleEaoImpl implements SaleEao {
 		}
 	}
 	
+	public List<Sale> findBySaleData2(Date saleDateStartedAt,Date saleDateEndedAt, Date affiliationDate,List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState)  throws EaoException {
+		try {
+			
+			String query = "SELECT s FROM Sale s "
+					+ "left join s.notification n "
+					+ "WHERE s.dateOfSale between :saleDateStartedAt and :saleDateEndedAt ";
+			
+			if (affiliationDate!=null) {
+				query+=" and s.affiliationDate between :affiliationDateStart and  :affiliationDateEnd";
+			}
+			
+			if (notificationStates!=null && notificationStates.size()>0) {
+				query+=" and n.state in :notificationStates ";
+			}
+			
+			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
+			q.setParameter("saleDateStartedAt", saleDateStartedAt);
+			q.setParameter("saleDateEndedAt", saleDateEndedAt);
+			
+			if (affiliationDate!=null ) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				q.setParameter("affiliationDateStart", sdf2.parse(sdf.format(affiliationDate)+" 00:00:00"));
+				q.setParameter("affiliationDateEnd", sdf2.parse(sdf.format(affiliationDate)+" 23:59:59"));
+			}
+			
+			if (notificationStates!=null && notificationStates.size()>0) {
+				q.setParameter("notificationStates", notificationStates);
+			}
+			
+			List<Sale> sales = q.getResultList();
+			return sales;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
+	
 	
 	public List<Sale> findBySaleData(Date saleDateStartedAt,Date saleDateEndedAt, Date affiliationDate,Short bankId, Short productId, SaleStateEnum saleState)  throws EaoException {
 		try {
