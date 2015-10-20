@@ -455,7 +455,7 @@ public class PrintNotificationsController implements Serializable {
 	public void createNotifications(){
 		try {
 			
-System.out.println("Ingreso a printNotification");
+			System.out.println("Ingreso a printNotification");
 			
 			List<Exception> errors = new ArrayList<Exception>();
 			

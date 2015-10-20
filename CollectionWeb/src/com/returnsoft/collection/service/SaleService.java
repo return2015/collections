@@ -13,6 +13,7 @@ import com.returnsoft.collection.entity.Product;
 import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.SaleState;
+import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.ServiceException;
 
@@ -43,6 +44,8 @@ public interface SaleService {
 	public List<Notification> findNotifications(Long saleId) throws ServiceException;
 	
 	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException;
+	
+	public List<Sale> findSalesBySaleData2(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState) throws ServiceException;
 	
 	public List<Sale> findSalesByCreditCardNumber(Long creditCardNumber) throws ServiceException;
 	

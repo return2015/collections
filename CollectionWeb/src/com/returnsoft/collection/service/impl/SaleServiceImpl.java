@@ -26,6 +26,7 @@ import com.returnsoft.collection.entity.Product;
 import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.SaleState;
+import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.SaleService;
@@ -174,11 +175,25 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	
-	
 	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException {
 		try {
 			List<Sale> sales = saleEao.findBySaleData(saleDateStartedAt, saleDateEndedAt,  affiliationDate, bankId, productId, saleState);
+
+			return sales;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
+	public List<Sale> findSalesBySaleData2(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState) throws ServiceException {
+		try {
+			List<Sale> sales = saleEao.findBySaleData2(saleDateStartedAt, saleDateEndedAt,  affiliationDate, notificationStates,bankId, saleState);
 
 			return sales;
 
