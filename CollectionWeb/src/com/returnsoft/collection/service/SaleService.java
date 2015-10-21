@@ -14,6 +14,7 @@ import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
+import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.ServiceException;
 
@@ -45,7 +46,7 @@ public interface SaleService {
 	
 	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException;
 	
-	public List<Sale> findSalesBySaleData2(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState) throws ServiceException;
+	public List<Sale> findSalesBySaleData2(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType) throws ServiceException;
 	
 	public List<Sale> findSalesByCreditCardNumber(Long creditCardNumber) throws ServiceException;
 	
@@ -58,6 +59,11 @@ public interface SaleService {
 	public List<Sale> findSalesByNamesContractor(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws ServiceException;
 	
 	public Sale findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws ServiceException;
+	
+	
+	//////
+	
+	
 	
 
 }

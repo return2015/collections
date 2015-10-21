@@ -21,5 +21,7 @@ public interface CollectionService {
 	public List<Collection> findByResponseAndAuthorizationDay(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode) throws ServiceException;
 	
 	public List<Collection> findByResponseAndAuthorizationMonth(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode) throws ServiceException;
+	
+	//public void createNotifications() throws ServiceException;
 
 }

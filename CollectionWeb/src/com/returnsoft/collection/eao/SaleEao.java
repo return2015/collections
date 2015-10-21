@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
+import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.EaoException;
 
@@ -16,7 +17,7 @@ public interface SaleEao{
 	
 	public List<Sale> findBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Short bankId, Short productId, SaleStateEnum saleState) throws EaoException;
 	
-	public List<Sale> findBySaleData2(Date saleDateStartedAt,Date saleDateEndedAt, Date affiliationDate,List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState)  throws EaoException;
+	public List<Sale> findBySaleData2(Date saleDateStartedAt,Date saleDateEndedAt, Date affiliationDate, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType)  throws EaoException;
 	
 	//public List<Sale> findByCreditCardNumber(Long creditCardNumber) throws EaoException;
 	

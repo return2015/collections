@@ -418,7 +418,7 @@ public class PrintNotificationsController implements Serializable {
 	
 					String separator=System.getProperty("file.separator");
 					String rootPath= servletContext.getRealPath(separator);
-					String fileName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getTemplate();
+					String fileName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getTemplateLetter();
 					String signatureName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getSignature();
 					
 					parameters.put("signature", signatureName);

@@ -25,22 +25,32 @@ import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
 
 import com.returnsoft.collection.entity.Bank;
-import com.returnsoft.collection.entity.Collection;
 import com.returnsoft.collection.entity.Commerce;
-import com.returnsoft.collection.entity.CreditCard;
 import com.returnsoft.collection.entity.Notification;
-import com.returnsoft.collection.entity.Product;
-import com.returnsoft.collection.entity.Repayment;
+import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.Sale;
-import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.BankLetterEnum;
+import com.returnsoft.collection.enumeration.NotificationStateEnum;
+import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
-import com.returnsoft.collection.exception.BankLetterNotFoundException;
+import com.returnsoft.collection.exception.CommerceCodeException;
+import com.returnsoft.collection.exception.NotificationAddressNullException;
+import com.returnsoft.collection.exception.NotificationDepartmentNullException;
+import com.returnsoft.collection.exception.NotificationDistrictNullException;
+import com.returnsoft.collection.exception.NotificationFirstnameNullException;
+import com.returnsoft.collection.exception.NotificationLastnameMaternalNullException;
+import com.returnsoft.collection.exception.NotificationLastnamePaternalNullException;
+import com.returnsoft.collection.exception.NotificationLimit1Exception;
+import com.returnsoft.collection.exception.NotificationLimit2Exception;
+import com.returnsoft.collection.exception.NotificationPayerNullException;
+import com.returnsoft.collection.exception.NotificationProvinceNullException;
+import com.returnsoft.collection.exception.PayerDataNullException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
+import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
@@ -54,82 +64,67 @@ import net.sf.jasperreports.engine.JasperReport;
 
 @ManagedBean
 @ViewScoped
-public class SearchSaleController implements Serializable {
+public class SearchSalesForNotificationsController implements Serializable {
 
 	/**
-	 * 
+	 * Esta clase busca ventas para gestionar notificaciones.
 	 */
 	private static final long serialVersionUID = 1L;
 
 	@EJB
 	private SaleService saleService;
-	
 	@EJB
 	private UserService userService;
+	@EJB
+	private NotificationService notificationService;
 
-	private String searchTypeSelected;
-	private String personTypeSelected;
-
+	// VENTAS ENCONTRADAS
 	private List<Sale> sales;
 	private Sale saleSelected;
-
-	private String creditCardNumber;
-	private Date dateOfSaleStarted;
-	private Date dateOfSaleEnded;
-
-	private Date affiliationDate;
-
-	private String nuicResponsible;
-	private String lastnamePaternalResponsible;
-	private String lastnameMaternalResponsible;
-	private String firstnameResponsible;
-
-	private String nuicContractor;
-	private String lastnamePaternalContractor;
-	private String lastnameMaternalContractor;
-	private String firstnameContractor;
-
-	private String nuicInsured;
-	private String lastnamePaternalInsured;
-	private String lastnameMaternalInsured;
-	private String firstnameInsured;
-
-	private List<SelectItem> banks;
-	private String bankSelected;
-
-	private List<SelectItem> products;
-	private String productSelected;
-
+	private Integer salesCount;
 	
-	private List<SelectItem> saleStates;
-	private String saleStateSelected;
-
-	private Boolean searchByCreditCardNumberRendered;
+	// TIPOS DE BÚSQUEDA
+	private String searchTypeSelected;
 	private Boolean searchByDocumentNumberResponsibleRendered;
-	private Boolean searchByNamesRendered;
 	private Boolean searchByDateSaleRendered;
 
-	private Boolean searchByContractorRendered;
-	private Boolean searchByInsuredRendered;
-	private Boolean searchByResponsibleRendered;
-
-	private List<CreditCard> updates;
-	private List<Collection> collections;
-	private List<SaleState> maintenances;
-	private List<Notification> notifications;
-	private List<Repayment> repayments;
-
-	private List<Commerce> commerces;
+	// BUSQUEDA POR DATOS DE LA VENTA 
+	private Date dateOfSaleStarted;
+	private Date dateOfSaleEnded;
+	private Date affiliationDate;
+	private Date sendingDate;
+	private List<SelectItem> notificationStates;
+	private List<String> notificationStatesSelected;
+	private List<SelectItem> banks;
+	private String bankSelected;
+	private List<SelectItem> saleStates;
+	private String saleStateSelected;
+	private List<SelectItem> notificationTypes;
+	private String notificationTypeSelected;
 	
-	private FacesUtil facesUtil;
+	// BÚSQUEDA POR NUIC DE RESPONSABLE
+	private String nuicResponsible;
 	
+	// INGRESAR PASSWORD SUPERVISOR
 	private String passwordSupervisor;
-	
 	private Boolean supervisorAccess;
 	
-	private Integer salesCount;
+	// ENVÍO DE NOTIFICACIONES FÍSICAS
+	private Date sendingAtForPhysicals;
+	
+	// VER NOTIFICACIONES
+	private List<Notification> notifications;
+	
+	// VER ACTUALIZACIONES DE DATOS
+	private List<Payer> payers;
+	
+	// UTIL
+	private FacesUtil facesUtil;
+	private List<Commerce> commerces;
+	
+	
 
-	public SearchSaleController() {
+	public SearchSalesForNotificationsController() {
 		System.out.println("Se construye SearchSaleController");
 		facesUtil = new FacesUtil();
 	}
@@ -158,7 +153,7 @@ public class SearchSaleController implements Serializable {
 					Short bankId = sessionBean.getBank().getId();
 					System.out.println("id de banco"+bankId);
 					commerces = saleService.findCommercesByBankId(bankId);
-					System.out.println("cantidad de commerce encontrados:"+commerces.size());
+					//System.out.println("cantidad de commerce encontrados:"+commerces.size());
 				}
 				
 				List<Bank> banksEntity = saleService.getBanks();
@@ -170,21 +165,37 @@ public class SearchSaleController implements Serializable {
 					banks.add(item);
 				}
 
-				List<Product> productsEntity = saleService.getProducts();
+				/*List<Product> productsEntity = saleService.getProducts();
 				products = new ArrayList<SelectItem>();
 				for (Product product : productsEntity) {
 					SelectItem item = new SelectItem();
 					item.setValue(product.getId().toString());
 					item.setLabel(product.getName());
 					products.add(item);
-				}
+				}*/
 				
 				saleStates = new ArrayList<SelectItem>();
-				for (SaleStateEnum saleStateEnum : SaleStateEnum.values()) {
+				//for (SaleStateEnum saleStateEnum : SaleStateEnum.values()) {
+					SelectItem saleStateItem = new SelectItem();
+					saleStateItem.setValue(SaleStateEnum.ACTIVE.getId());
+					saleStateItem.setLabel(SaleStateEnum.ACTIVE.getName());
+					saleStates.add(saleStateItem);
+				//}
+					
+					notificationTypes = new ArrayList<SelectItem>();
+					for (NotificationTypeEnum notificationTypeEnum : NotificationTypeEnum.values()) {
+						SelectItem item = new SelectItem();
+						item.setValue(notificationTypeEnum.getId());
+						item.setLabel(notificationTypeEnum.getName());
+						notificationTypes.add(item);
+					}
+				
+				notificationStates = new ArrayList<SelectItem>();
+				for (NotificationStateEnum notificationStateEnum : NotificationStateEnum.values()) {
 					SelectItem item = new SelectItem();
-					item.setValue(saleStateEnum.getId());
-					item.setLabel(saleStateEnum.getName());
-					saleStates.add(item);
+					item.setValue(notificationStateEnum.getId());
+					item.setLabel(notificationStateEnum.getName());
+					notificationStates.add(item);
 				}
 				
 				searchTypeSelected="";
@@ -228,35 +239,14 @@ public class SearchSaleController implements Serializable {
 
 			System.out.println("onChangeSearchBy" + searchTypeSelected);
 
-			searchByContractorRendered = false;
-			searchByInsuredRendered = false;
-			searchByResponsibleRendered = false;
-			personTypeSelected = null;
-
-			if (searchTypeSelected.equals("creditCard")) {
-				searchByCreditCardNumberRendered = true;
-				searchByDocumentNumberResponsibleRendered = false;
-				searchByNamesRendered = false;
-				searchByDateSaleRendered = false;
-			} else if (searchTypeSelected.equals("dni")) {
-				searchByCreditCardNumberRendered = false;
+			if (searchTypeSelected.equals("dni")) {
 				searchByDocumentNumberResponsibleRendered = true;
-				searchByNamesRendered = false;
 				searchByDateSaleRendered = false;
 			} else if (searchTypeSelected.equals("saleData")) {
-				searchByCreditCardNumberRendered = false;
 				searchByDocumentNumberResponsibleRendered = false;
-				searchByNamesRendered = false;
 				searchByDateSaleRendered = true;
-			} else if (searchTypeSelected.equals("personalData")) {
-				searchByCreditCardNumberRendered = false;
-				searchByDocumentNumberResponsibleRendered = false;
-				searchByNamesRendered = true;
-				searchByDateSaleRendered = false;
 			} else {
-				searchByCreditCardNumberRendered = false;
 				searchByDocumentNumberResponsibleRendered = false;
-				searchByNamesRendered = false;
 				searchByDateSaleRendered = false;
 			}
 		} catch (Exception e) {
@@ -266,159 +256,50 @@ public class SearchSaleController implements Serializable {
 		}
 	}
 
-	public void onChangePersonType() {
-		try {
-			// if (fromRequest) {
-			personTypeSelected = FacesContext.getCurrentInstance()
-					.getExternalContext().getRequestParameterMap()
-					.get("form:personType_input");
-			// }
-
-			System.out.println("onChangeSearchBy" + searchTypeSelected);
-			if (personTypeSelected.equals("contractor")) {
-				searchByContractorRendered = true;
-				searchByInsuredRendered = false;
-				searchByResponsibleRendered = false;
-			} else if (personTypeSelected.equals("insured")) {
-				searchByContractorRendered = false;
-				searchByInsuredRendered = true;
-				searchByResponsibleRendered = false;
-			} else if (personTypeSelected.equals("responsible")) {
-				searchByContractorRendered = false;
-				searchByInsuredRendered = false;
-				searchByResponsibleRendered = true;
-			} else {
-				searchByContractorRendered = false;
-				searchByInsuredRendered = false;
-				searchByResponsibleRendered = false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-	}
-
+	
 	public void search() {
 
 		try {
 			
 			saleSelected=null;
 
-			if (searchTypeSelected.equals("creditCard")) {
-				Long creditCardNumberLong = Long.parseLong(creditCardNumber);
-				sales = saleService
-						.findSalesByCreditCardNumber(creditCardNumberLong);
-			} else if (searchTypeSelected.equals("dni")) {
+			if (searchTypeSelected.equals("dni")) {
 				Long nuicResponsibleLong = Long.parseLong(nuicResponsible);
 				sales = saleService
 						.findSalesByNuicResponsible(nuicResponsibleLong);
 			} else if (searchTypeSelected.equals("saleData")) {
-				Short productId = null;
-				if (productSelected != null && productSelected.length() > 0) {
-					productId = Short.parseShort(productSelected);
+				
+				//ESTADOS DE NOTIFICACION
+				List<NotificationStateEnum> notificationStatesEnum = new ArrayList<NotificationStateEnum>();
+				if (notificationStatesSelected != null && notificationStatesSelected.size() > 0) {
+					for (String notificationStateSelected : notificationStatesSelected) {
+						NotificationStateEnum notificationStateEnum = NotificationStateEnum.findById(Short.parseShort(notificationStateSelected));
+						notificationStatesEnum.add(notificationStateEnum);
+					}
 				}
+				
+				//BANCO
 				Short bankId = null;
 				if (bankSelected != null && bankSelected.length() > 0) {
 					bankId = Short.parseShort(bankSelected);
 				}
+				
+				//ESTADO DE VENTA
 				SaleStateEnum saleState = null;
 				if (saleStateSelected != null && saleStateSelected.length() > 0) {
 					saleState = SaleStateEnum.findById(Short.parseShort(saleStateSelected));
 				}
-				sales = saleService.findSalesBySaleData(dateOfSaleStarted,
-						dateOfSaleEnded, affiliationDate, bankId, productId,
-						saleState);
-
-			} else if (searchTypeSelected.equals("personalData")) {
-				if (personTypeSelected.equals("contractor")) {
-
-					if ((nuicContractor != null && nuicContractor.length() > 0)
-							|| (firstnameContractor != null && firstnameContractor
-									.length() > 0)
-							|| (lastnamePaternalContractor != null && lastnamePaternalContractor
-									.length() > 0)
-							|| (lastnameMaternalContractor != null && lastnameMaternalContractor
-									.length() > 0)) {
-
-						Long nuicContractorLong = null;
-						if (nuicContractor != null
-								&& nuicContractor.length() > 0) {
-							nuicContractorLong = Long.parseLong(nuicContractor);
-						}
-
-						sales = saleService.findSalesByNamesContractor(
-								nuicContractorLong, firstnameContractor,
-								lastnamePaternalContractor,
-								lastnameMaternalContractor);
-
-					} else {
-						FacesMessage msg = new FacesMessage(
-								"Debe ingresar al menos un dato");
-						msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-						FacesContext.getCurrentInstance().addMessage(null, msg);
-					}
-
-				} else if (personTypeSelected.equals("insured")) {
-
-					if ((nuicInsured != null && nuicInsured.length() > 0)
-							|| (firstnameInsured != null && firstnameInsured
-									.length() > 0)
-							|| (lastnamePaternalInsured != null && lastnamePaternalInsured
-									.length() > 0)
-							|| (lastnameMaternalInsured != null && lastnameMaternalInsured
-									.length() > 0)) {
-
-						Long nuicInsuredLong = null;
-						if (nuicInsured != null && nuicInsured.length() > 0) {
-							nuicInsuredLong = Long.parseLong(nuicInsured);
-						}
-
-						sales = saleService.findSalesByNamesInsured(
-								nuicInsuredLong, firstnameInsured,
-								lastnamePaternalInsured,
-								lastnameMaternalInsured);
-
-					} else {
-						FacesMessage msg = new FacesMessage(
-								"Debe ingresar al menos un dato");
-						msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-						FacesContext.getCurrentInstance().addMessage(null, msg);
-					}
-
-				} else if (personTypeSelected.equals("responsible")) {
-
-					if ((nuicResponsible != null && nuicResponsible.length() > 0)
-							|| (firstnameResponsible != null && firstnameResponsible
-									.length() > 0)
-							|| (lastnamePaternalResponsible != null && lastnamePaternalResponsible
-									.length() > 0)
-							|| (lastnameMaternalResponsible != null && lastnameMaternalResponsible
-									.length() > 0)) {
-
-						Long nuicResponsibleLong = null;
-						if (nuicResponsible != null
-								&& nuicResponsible.length() > 0) {
-							nuicResponsibleLong = Long
-									.parseLong(nuicResponsible);
-						}
-
-						sales = saleService.findSalesByNamesResponsible(
-								nuicResponsibleLong, firstnameResponsible,
-								lastnamePaternalResponsible,
-								lastnameMaternalResponsible);
-
-					} else {
-						FacesMessage msg = new FacesMessage(
-								"Debe ingresar al menos un dato");
-						msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-						FacesContext.getCurrentInstance().addMessage(null, msg);
-					}
+				
+				
+				//TIPO DE NOTIFICACIÓN
+				NotificationTypeEnum notificationType = null;
+				if (notificationTypeSelected != null && notificationTypeSelected.length() > 0) {
+					notificationType = NotificationTypeEnum.findById(Short.parseShort(notificationTypeSelected));
 				}
 				
-				
-
-			}
+				sales = saleService.findSalesBySaleData2(dateOfSaleStarted,
+						dateOfSaleEnded, affiliationDate,sendingDate,notificationStatesEnum,bankId,saleState,notificationType);
+			} 
 			
 			
 
@@ -614,82 +495,55 @@ public class SearchSaleController implements Serializable {
 
 	}
 
-	public void showCreditCards() {
-		try {
+	
 
-			System.out.println("Ingreso a showCreditCardUpdates "
-					+ saleSelected);
-			updates = saleService.findUpdates(saleSelected.getId());
-			System.out.println("updates: " + updates.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
-
-	public void showCollections() {
-
-		try {
-
-			System.out.println("Ingreso a showCollections " + saleSelected);
-			collections = saleService.findCollections(saleSelected.getId());
-			System.out.println("collections: " + collections.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
 	
 	
-	public void showRepayments() {
-
-		try {
-
-			//System.out.println("Ingreso a showCollections " + saleSelected);
-			repayments = saleService.findRepayments(saleSelected.getId());
-			//System.out.println("collections: " + collections.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
 	
-	public void showMaintenances() {
-
-		try {
-
-			System.out.println("Ingreso a showMaintenances " + saleSelected);
-			maintenances = saleService.findMaintenances(saleSelected.getId());
-			System.out.println("maintenances: " + maintenances.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
+	
+	
+	
 	
 	public void showNotifications() {
 
 		try {
+			
+			Map<String, Object> options = new HashMap<String, Object>();
+		   options.put("modal", true);
+		   options.put("draggable", true);
+		   options.put("resizable", true);
+		   options.put("contentHeight", "'100%'");
+		   options.put("contentWidth", "'100%'");
+		   options.put("height", "400");
+		   options.put("width", "1000");
+			   
+			
+			Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
+			ArrayList<String> paramList = new ArrayList<>();
+			paramList.add(String.valueOf(saleSelected.getId()));
+			paramMap.put("saleId", paramList);
+			RequestContext.getCurrentInstance().openDialog("edit_notification_by_sale", options,paramMap);
+			
 
-			System.out.println("Ingreso a showNotifications " + saleSelected);
+			/*System.out.println("Ingreso a showNotifications " + saleSelected);
 			notifications = saleService.findNotifications(saleSelected.getId());
-			System.out.println("notifications: " + notifications.size());
+			System.out.println("notifications: " + notifications.size());*/
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+					e.getMessage());
+		}
+
+	}
+	
+	public void showPayers() {
+
+		try {
+
+			System.out.println("Ingreso a showDatas " + saleSelected);
+			payers = saleService.findPayers(saleSelected.getId());
+			System.out.println("payers: " + payers.size());
 			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
 
 		} catch (Exception e) {
@@ -699,6 +553,7 @@ public class SearchSaleController implements Serializable {
 		}
 
 	}
+	
 	
 	
 
@@ -710,6 +565,9 @@ public class SearchSaleController implements Serializable {
 			SessionBean sessionBean = (SessionBean) FacesContext
 					.getCurrentInstance().getExternalContext().getSessionMap()
 					.get("sessionBean");
+			
+			
+			
 			if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
 
 				// VALIDA COMMERCIAL CODE
@@ -727,22 +585,17 @@ public class SearchSaleController implements Serializable {
 					msg.setSeverity(FacesMessage.SEVERITY_ERROR);
 					FacesContext.getCurrentInstance().addMessage(null, msg);
 				}else{
-
 					// VALIDATE PASSWORD SUPERVISOR
 					if (saleSelected.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
-
 						// CHECK PASSWORD SUPERVISOR
 						RequestContext context = RequestContext.getCurrentInstance();
 						context.execute("PF('passSuperDialog').show();");
-						
 					} else {
-						
 						Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
 						ArrayList<String> paramList = new ArrayList<>();
 						paramList.add(String.valueOf(saleSelected.getId()));
 						paramMap.put("saleId", paramList);
 						RequestContext.getCurrentInstance().openDialog("add_maintenance", null,paramMap);
-
 					}
 				}
 				
@@ -866,39 +719,111 @@ public class SearchSaleController implements Serializable {
 	public void addNotification() {
 		try {
 			System.out.println("Ingreso a addNotification");
-			
-			/*notifications = saleService.findNotifications(saleSelected.getId());
-			int physical=0;
-			int mail=0;
-			for (Notification notification : notifications) {
-				if (notification.getNotificationType().equals(NotificationTypeEnum.MAIL)) {
-					mail++;
-				}else if (notification.getNotificationType().equals(NotificationTypeEnum.PHYSICAL)){
-					physical++;
-				}
-			}
-			
-			if (mail<3 || physical==0) {*/
-				//SE ENVIA
-			
+			System.out.println("1");
+
 			// VALIDA SI LA VENTA NO ESTA ACTIVA
 			if (!saleSelected.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
 				Exception e = new SaleStateNoActiveException(saleSelected.getCode());
 				facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 						e.getMessage());
 			}else{
-				Map<String, Object> options = new HashMap<String, Object>();
-				options.put("modal", true);
-				options.put("draggable", false);
-				options.put("resizable", false);
-				options.put("contentHeight", 420);
-				options.put("contentWidth", 320);
-
-				Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
-				ArrayList<String> paramList = new ArrayList<>();
-				paramList.add(String.valueOf(saleSelected.getId()));
-				paramMap.put("saleId", paramList);
-				RequestContext.getCurrentInstance().openDialog("add_notification", options,paramMap);
+				if (saleSelected.getPayer()!=null) {
+					System.out.println("2");
+					if (saleSelected.getPayer().getFirstnameResponsible().trim().equals("")) {
+						System.out.println("3"+saleSelected.getPayer().getFirstnameResponsible());
+						Exception e = new NotificationFirstnameNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+						
+					}else if (saleSelected.getPayer().getLastnamePaternalResponsible().trim().equals("")) {
+						System.out.println("3");
+						Exception e = new NotificationLastnamePaternalNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+					}else if (saleSelected.getPayer().getLastnameMaternalResponsible().trim().equals("")) {
+						System.out.println("4");
+						Exception e = new NotificationLastnameMaternalNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+					}else if (saleSelected.getPayer().getAddress().trim().equals("")) {
+						System.out.println("5");
+						Exception e = new NotificationAddressNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+					}else if (saleSelected.getPayer().getDepartment().trim().equals("")) {
+						System.out.println("6");
+						Exception e = new NotificationDepartmentNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+					}else if (saleSelected.getPayer().getProvince().trim().equals("")) {
+						System.out.println("7");
+						Exception e = new NotificationProvinceNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+					}else if (saleSelected.getPayer().getDistrict().trim().equals("")) {
+						System.out.println("8");
+						Exception e = new NotificationDistrictNullException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+								e.getMessage());
+					}else if (saleSelected.getVirtualNotifications()<3) {
+						System.out.println("9");
+						//Si tiene menos de 3 envios virtuales
+						if (saleSelected.getPhysicalNotifications()>1) {
+							System.out.println("10");
+							//no se agrega porque tiene 2 envíos físicos y menos de 3 virtuales.
+							Exception e = new NotificationLimit2Exception(saleSelected.getCode());
+							facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+									e.getMessage());
+						}else{
+							System.out.println("antes de dialogo");
+							
+							Map<String, Object> options = new HashMap<String, Object>();
+							options.put("modal", true);
+							options.put("draggable", false);
+							options.put("resizable", false);
+							options.put("contentHeight", 420);
+							options.put("contentWidth", 320);
+	
+							Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
+							ArrayList<String> paramList = new ArrayList<>();
+							paramList.add(String.valueOf(saleSelected.getId()));
+							paramMap.put("saleId", paramList);
+							RequestContext.getCurrentInstance().openDialog("add_notification", options,paramMap);
+						}
+					}else {
+						System.out.println("1");
+						if (saleSelected.getPhysicalNotifications()>0) {
+							System.out.println("1");
+							//No se agrega porque ya tiene 1 envío físico y 3 envíos virtuales.
+							Exception e = new NotificationLimit1Exception(saleSelected.getCode());
+							facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+									e.getMessage());
+						}else{
+							
+							System.out.println("antes de dialogo");
+						
+							Map<String, Object> options = new HashMap<String, Object>();
+							options.put("modal", true);
+							options.put("draggable", false);
+							options.put("resizable", false);
+							options.put("contentHeight", 420);
+							options.put("contentWidth", 320);
+	
+							Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
+							ArrayList<String> paramList = new ArrayList<>();
+							paramList.add(String.valueOf(saleSelected.getId()));
+							paramMap.put("saleId", paramList);
+							RequestContext.getCurrentInstance().openDialog("add_notification", options,paramMap);
+						}
+					
+					}
+				}else{
+					Exception e = new NotificationPayerNullException();
+					facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+							e.getMessage());
+				}
+				
+				
 			}
 			
 			
@@ -934,7 +859,7 @@ public class SearchSaleController implements Serializable {
 			//System.out.println("1"+sale.getId());
 			//System.out.println("2"+saleReturn.getId());
 			if (sale.getId().equals(saleReturn.getId())) {
-				System.out.println("INGRESOOOOOOOO");
+				//System.out.println("INGRESOOOOOOOO");
 				/*System.out.println(saleReturn.getDownUser());
 				System.out.println(saleReturn.getDownObservation());*/
 				sales.set(i, saleReturn);
@@ -945,8 +870,270 @@ public class SearchSaleController implements Serializable {
 
 	}
 	
+	public void createNotifications(){
+		try {
+			
+			System.out.println("Ingreso a printNotification");
+			
+			List<Exception> errors = new ArrayList<Exception>();
+			
+			if (sales!=null && sales.size()>0) {
+				
+				for (Sale sale : sales) {
+					
+					// VALIDATE COMMERCIAL CODE
+					Commerce commercialCodeObject = null;
+					for (Commerce commerce : commerces) {
+						if (sale.getCommerce().getCode().equals(commerce.getCode())) {
+							commercialCodeObject = commerce;
+							break;
+						}
+					}
+					if (commercialCodeObject == null) {
+						errors.add(new CommerceCodeException(sale.getCode(),sale.getCommerce().getCode()));
+					}
+					
+					if (sale.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
+						errors.add(new SaleStateNoActiveException(sale.getCode()));
+					}
+					if (sale.getPayer().getFirstnameResponsible()==null || sale.getPayer().getFirstnameResponsible().trim().length()==0) {
+						errors.add(new PayerDataNullException("El nombre", sale.getCode()));
+					}
+					if (sale.getPayer().getLastnamePaternalResponsible()==null || sale.getPayer().getLastnamePaternalResponsible().trim().length()==0) {
+						errors.add(new PayerDataNullException("El apellido paterno", sale.getCode()));
+					}
+					if (sale.getPayer().getLastnameMaternalResponsible()==null || sale.getPayer().getLastnameMaternalResponsible().trim().length()==0) {
+						errors.add(new PayerDataNullException("El apellido materno", sale.getCode()));
+					}
+					if (sale.getPayer().getAddress()==null || sale.getPayer().getAddress().trim().length()==0) {
+						errors.add(new PayerDataNullException("La dirección", sale.getCode()));
+					}
+					if (sale.getPayer().getProvince()==null || sale.getPayer().getProvince().trim().length()==0) {
+						errors.add(new PayerDataNullException("La provincia", sale.getCode()));//
+					}
+					if (sale.getPayer().getDepartment()==null || sale.getPayer().getDepartment().trim().length()==0) {
+						errors.add(new PayerDataNullException("El departamento", sale.getCode()));//
+					}
+					if (sale.getPayer().getDistrict()==null || sale.getPayer().getDistrict().trim().length()==0) {
+						errors.add(new PayerDataNullException("El distrito", sale.getCode()));//
+					}
+					
+					//Si tiene menos de 3 envios virtuales
+					if (sale.getVirtualNotifications()<3) {
+						if (sale.getPhysicalNotifications()>1) {
+							//no se agrega porque tiene 2 envíos físicos y menos de 3 virtuales.
+							errors.add(new NotificationLimit2Exception(sale.getCode()));
+						}
+					}else {
+						if (sale.getPhysicalNotifications()>0) {
+							//No se agrega porque ya tiene 1 envío físico y 3 envíos virtuales.
+							errors.add(new NotificationLimit1Exception(sale.getCode()));
+						}
+					}
+					
+					
+					
+					//validacion de confirmacion de imprimir.
+					//preguntar si desea agregar notificación a las ventas.
+					
+					
+				}
+				
+				if (errors.size()>0) {
+					for (Exception e : errors) {
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
+					}
+				} else {
+					
+					SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance()
+							.getExternalContext().getSessionMap().get("sessionBean");
+					
+					User user= sessionBean.getUser();
+					List<Exception> errors2 = new ArrayList<Exception>();
+					for (Sale sale : sales) {
+						Notification notification = new Notification();
+						notification.setSendingAt(sendingAtForPhysicals);
+						notification.setSale(sale);
+						notification.setType(NotificationTypeEnum.PHYSICAL);
+						notification.setState(NotificationStateEnum.SENDING);
+						notification.setCreatedBy(user);
+						notification.setCreatedAt(new Date());
+						try {
+							notificationService.add(notification);	
+						} catch (Exception e) {
+							e.printStackTrace();
+							errors2.add(e);
+						}
+					}
+					RequestContext context = RequestContext.getCurrentInstance();
+					context.execute("PF('notificationsDialog').hide()");
+					context.update("form:messages");
+					
+					if (errors2.size()>0) {
+						for (Exception e : errors) {
+							facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+									e.getMessage());
+						}
+					}else{
+						facesUtil.sendConfirmMessage("Se crearon las notificaciones correctamente", "");
+					}
+					
+				}
+				
+			}else{
+				facesUtil.sendErrorMessage("No existen ventas para notificar...","");
+			}
+			
+			
+			
+			////////////////
+		
+		
+		
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+					e.getMessage());
+		}
+		
+	}
 	
-	public void printNotification(){
+	
+	public void printNotifications(){
+		
+		try {
+			
+			System.out.println("Ingreso a printNotification");
+			
+			//VALIDA BANK
+			SessionBean sessionBean = (SessionBean) FacesContext
+					.getCurrentInstance().getExternalContext().getSessionMap()
+					.get("sessionBean");
+			
+			if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
+				List<Exception> errors = new ArrayList<Exception>();
+				
+				if (sales!=null && sales.size()>0) {
+					
+					for (Sale sale : sales) {
+						if (sale.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
+							errors.add(new SaleStateNoActiveException(sale.getCode()));
+						}
+						if (sale.getPayer().getFirstnameResponsible()==null || sale.getPayer().getFirstnameResponsible().trim().length()==0) {
+							errors.add(new PayerDataNullException("El nombre", sale.getCode()));
+						}
+						if (sale.getPayer().getLastnamePaternalResponsible()==null || sale.getPayer().getLastnamePaternalResponsible().trim().length()==0) {
+							errors.add(new PayerDataNullException("El apellido paterno", sale.getCode()));
+						}
+						if (sale.getPayer().getLastnameMaternalResponsible()==null || sale.getPayer().getLastnameMaternalResponsible().trim().length()==0) {
+							errors.add(new PayerDataNullException("El apellido materno", sale.getCode()));
+						}
+						if (sale.getPayer().getAddress()==null || sale.getPayer().getAddress().trim().length()==0) {
+							errors.add(new PayerDataNullException("La dirección", sale.getCode()));
+						}
+						if (sale.getPayer().getProvince()==null || sale.getPayer().getProvince().trim().length()==0) {
+							errors.add(new PayerDataNullException("La provincia", sale.getCode()));//
+						}
+						if (sale.getPayer().getDepartment()==null || sale.getPayer().getDepartment().trim().length()==0) {
+							errors.add(new PayerDataNullException("El departamento", sale.getCode()));//
+						}
+						if (sale.getPayer().getDistrict()==null || sale.getPayer().getDistrict().trim().length()==0) {
+							errors.add(new PayerDataNullException("El distrito", sale.getCode()));//
+						}
+						
+						//Si tiene menos de 3 envios virtuales
+						if (sale.getVirtualNotifications()<3) {
+							if (sale.getPhysicalNotifications()>1) {
+								//no se agrega porque tiene 2 envíos físicos y menos de 3 virtuales.
+								errors.add(new NotificationLimit2Exception(sale.getCode()));
+							}
+						}else {
+							if (sale.getPhysicalNotifications()>0) {
+								//No se agrega porque ya tiene 1 envío físico y 3 envíos virtuales.
+								errors.add(new NotificationLimit1Exception(sale.getCode()));
+							}
+						}
+						
+						// VALIDATE COMMERCIAL CODE
+						Commerce commercialCodeObject = null;
+						for (Commerce commerce : commerces) {
+							if (sale.getCommerce().getCode().equals(commerce.getCode())) {
+								commercialCodeObject = commerce;
+								break;
+							}
+						}
+						if (commercialCodeObject == null) {
+							errors.add(new CommerceCodeException(sale.getCode(),sale.getCommerce().getCode()));
+						}
+						
+						//validacion de confirmacion de imprimir.
+						//preguntar si desea agregar notificación a las ventas.
+						
+						
+					}
+					
+					if (errors.size()>0) {
+						for (Exception e : errors) {
+							facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
+						}
+					} else {
+						
+						/*SessionBean sessionBean = (SessionBean) FacesContext
+								.getCurrentInstance().getExternalContext()
+								.getSessionMap().get("sessionBean");*/
+						
+						Short bankId = sessionBean.getBank().getId();
+						
+						BankLetterEnum bankLetterEnum = BankLetterEnum.findById(bankId);
+						
+						Map<String, Object> parameters = new HashMap<String, Object>();
+						
+					    ServletContext servletContext=(ServletContext) FacesContext.getCurrentInstance ().getExternalContext().getContext();
+						String separator=System.getProperty("file.separator");
+						String rootPath= servletContext.getRealPath(separator);
+						String fileName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getTemplateLetter();
+						String signatureName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getSignature();
+						
+						parameters.put("signature", signatureName);
+						parameters.put("sales", sales);
+						
+						JasperReport report = JasperCompileManager.compileReport(fileName);
+					    JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+					    
+					    FacesContext facesContext = FacesContext.getCurrentInstance();
+						ExternalContext externalContext = facesContext.getExternalContext();
+						externalContext.setResponseContentType("application/pdf");
+						externalContext.setResponseHeader("Content-Disposition",
+								"attachment; filename=\"carta.pdf\"");
+						
+						JasperExportManager.exportReportToPdfStream(print, externalContext.getResponseOutputStream());
+						
+						facesContext.responseComplete();
+						
+					}
+					
+				}else{
+					System.out.println("No existen ventas para imprimir...");
+					facesUtil.sendErrorMessage("No existen ventas para imprimir...","");
+					
+				}
+			}else{
+				FacesMessage msg = new FacesMessage("Debe seleccionar banco");
+				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
+				FacesContext.getCurrentInstance().addMessage(null, msg);
+			}
+			
+			
+			  
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
+		}
+		
+	}
+	
+	/*public void printNotification(){
 		
 		try {
 			
@@ -968,10 +1155,6 @@ public class SearchSaleController implements Serializable {
 						
 						Map<String, Object> parameters = new HashMap<String, Object>();
 						
-						parameters.put("names", saleSelected.getPayer().getFirstnameResponsible()+" "+saleSelected.getPayer().getLastnamePaternalResponsible()+" "+saleSelected.getPayer().getLastnameMaternalResponsible());
-					    parameters.put("department", saleSelected.getPayer().getProvince()+" "+saleSelected.getPayer().getDepartment());
-					    parameters.put("address", saleSelected.getPayer().getAddress()+" "+saleSelected.getPayer().getDistrict());
-					    
 					    ServletContext servletContext=(ServletContext) FacesContext.getCurrentInstance ().getExternalContext().getContext();
 		
 						String separator=System.getProperty("file.separator");
@@ -982,32 +1165,27 @@ public class SearchSaleController implements Serializable {
 						
 						String signatureName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getSignature();
 						
+						
 						System.out.println("signatureName:"+signatureName);
 						
 						parameters.put("signature", signatureName);
 						
-						//
-						 
-						//String pdfFileName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getPdfName();
-						  
-						//System.out.println("nombre del archivo: "+pdfFileName);
+						System.out.println("cantidad de sales:"+sales.size());
+						
+						parameters.put("sales", sales);
+						
 						
 						JasperReport report = JasperCompileManager.compileReport(fileName);
 					    JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
-					    //JasperExportManager.exportReportToPdfFile(print,pdfFileName);
-					    
-					    //return "resources/templates/"+bankLetterEnum.getPdfName();
 					    
 					    FacesContext facesContext = FacesContext.getCurrentInstance();
 						ExternalContext externalContext = facesContext.getExternalContext();
-						// externalContext.setResponseContentType("application/vnd.ms-excel");
+						
 						externalContext
 								.setResponseContentType("application/pdf");
 						externalContext.setResponseHeader("Content-Disposition",
 								"attachment; filename=\"carta.pdf\"");
 						
-						//response.setContentType("application/pdf");
-					    //response.addHeader("Content-disposition","inline; filename=relatorioDesempenhoComercial.pdf");
 						
 						JasperExportManager.exportReportToPdfStream(print, externalContext.getResponseOutputStream());
 						
@@ -1024,19 +1202,13 @@ public class SearchSaleController implements Serializable {
 				
 			}
 			
-			
-		    
-		    //return null;
-		      
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 					e.getMessage());
 		}
-		
-		
-	      
-	}
+		  
+	}*/
 	
 	public void validate() {
 
@@ -1110,89 +1282,7 @@ public class SearchSaleController implements Serializable {
 		this.dateOfSaleEnded = dateOfSaleEnded;
 	}
 
-	public String getCreditCardNumber() {
-		return creditCardNumber;
-	}
-
-	public void setCreditCardNumber(String creditCardNumber) {
-		this.creditCardNumber = creditCardNumber;
-	}
-
-	public String getLastnamePaternalResponsible() {
-		return lastnamePaternalResponsible;
-	}
-
-	public void setLastnamePaternalResponsible(
-			String lastnamePaternalResponsible) {
-		this.lastnamePaternalResponsible = lastnamePaternalResponsible;
-	}
-
-	public String getLastnameMaternalResponsible() {
-		return lastnameMaternalResponsible;
-	}
-
-	public void setLastnameMaternalResponsible(
-			String lastnameMaternalResponsible) {
-		this.lastnameMaternalResponsible = lastnameMaternalResponsible;
-	}
-
-	public String getFirstnameResponsible() {
-		return firstnameResponsible;
-	}
-
-	public void setFirstnameResponsible(String firstnameResponsible) {
-		this.firstnameResponsible = firstnameResponsible;
-	}
-
-	public String getFirstnameContractor() {
-		return firstnameContractor;
-	}
-
-	public void setFirstnameContractor(String firstnameContractor) {
-		this.firstnameContractor = firstnameContractor;
-	}
-
-	public String getFirstnameInsured() {
-		return firstnameInsured;
-	}
-
-	public void setFirstnameInsured(String firstnameInsured) {
-		this.firstnameInsured = firstnameInsured;
-	}
-
-	public String getLastnamePaternalContractor() {
-		return lastnamePaternalContractor;
-	}
-
-	public void setLastnamePaternalContractor(String lastnamePaternalContractor) {
-		this.lastnamePaternalContractor = lastnamePaternalContractor;
-	}
-
-	public String getLastnameMaternalContractor() {
-		return lastnameMaternalContractor;
-	}
-
-	public void setLastnameMaternalContractor(String lastnameMaternalContractor) {
-		this.lastnameMaternalContractor = lastnameMaternalContractor;
-	}
-
-	public String getLastnamePaternalInsured() {
-		return lastnamePaternalInsured;
-	}
-
-	public void setLastnamePaternalInsured(String lastnamePaternalInsured) {
-		this.lastnamePaternalInsured = lastnamePaternalInsured;
-	}
-
-	public String getLastnameMaternalInsured() {
-		return lastnameMaternalInsured;
-	}
-
-	public void setLastnameMaternalInsured(String lastnameMaternalInsured) {
-		this.lastnameMaternalInsured = lastnameMaternalInsured;
-	}
-
-	public List<SelectItem> getBanks() {
+	/*public List<SelectItem> getBanks() {
 		return banks;
 	}
 
@@ -1222,7 +1312,7 @@ public class SearchSaleController implements Serializable {
 
 	public void setProductSelected(String productSelected) {
 		this.productSelected = productSelected;
-	}
+	}*/
 
 	public String getSearchTypeSelected() {
 		return searchTypeSelected;
@@ -1232,14 +1322,7 @@ public class SearchSaleController implements Serializable {
 		this.searchTypeSelected = searchTypeSelected;
 	}
 
-	public Boolean getSearchByCreditCardNumberRendered() {
-		return searchByCreditCardNumberRendered;
-	}
-
-	public void setSearchByCreditCardNumberRendered(
-			Boolean searchByCreditCardNumberRendered) {
-		this.searchByCreditCardNumberRendered = searchByCreditCardNumberRendered;
-	}
+	
 
 	public Boolean getSearchByDocumentNumberResponsibleRendered() {
 		return searchByDocumentNumberResponsibleRendered;
@@ -1250,13 +1333,7 @@ public class SearchSaleController implements Serializable {
 		this.searchByDocumentNumberResponsibleRendered = searchByDocumentNumberResponsibleRendered;
 	}
 
-	public Boolean getSearchByNamesRendered() {
-		return searchByNamesRendered;
-	}
-
-	public void setSearchByNamesRendered(Boolean searchByNamesRendered) {
-		this.searchByNamesRendered = searchByNamesRendered;
-	}
+	
 
 	public Boolean getSearchByDateSaleRendered() {
 		return searchByDateSaleRendered;
@@ -1266,78 +1343,8 @@ public class SearchSaleController implements Serializable {
 		this.searchByDateSaleRendered = searchByDateSaleRendered;
 	}
 
-	public String getPersonTypeSelected() {
-		return personTypeSelected;
-	}
 
-	public void setPersonTypeSelected(String personTypeSelected) {
-		this.personTypeSelected = personTypeSelected;
-	}
 
-	public Boolean getSearchByContractorRendered() {
-		return searchByContractorRendered;
-	}
-
-	public void setSearchByContractorRendered(Boolean searchByContractorRendered) {
-		this.searchByContractorRendered = searchByContractorRendered;
-	}
-
-	public Boolean getSearchByInsuredRendered() {
-		return searchByInsuredRendered;
-	}
-
-	public void setSearchByInsuredRendered(Boolean searchByInsuredRendered) {
-		this.searchByInsuredRendered = searchByInsuredRendered;
-	}
-
-	public Boolean getSearchByResponsibleRendered() {
-		return searchByResponsibleRendered;
-	}
-
-	public void setSearchByResponsibleRendered(
-			Boolean searchByResponsibleRendered) {
-		this.searchByResponsibleRendered = searchByResponsibleRendered;
-	}
-
-	public String getNuicResponsible() {
-		return nuicResponsible;
-	}
-
-	public void setNuicResponsible(String nuicResponsible) {
-		this.nuicResponsible = nuicResponsible;
-	}
-
-	public String getNuicContractor() {
-		return nuicContractor;
-	}
-
-	public void setNuicContractor(String nuicContractor) {
-		this.nuicContractor = nuicContractor;
-	}
-
-	public String getNuicInsured() {
-		return nuicInsured;
-	}
-
-	public void setNuicInsured(String nuicInsured) {
-		this.nuicInsured = nuicInsured;
-	}
-
-	public List<CreditCard> getUpdates() {
-		return updates;
-	}
-
-	public void setUpdates(List<CreditCard> updates) {
-		this.updates = updates;
-	}
-
-	public List<Collection> getCollections() {
-		return collections;
-	}
-
-	public void setCollections(List<Collection> collections) {
-		this.collections = collections;
-	}
 
 	public Sale getSaleSelected() {
 		return saleSelected;
@@ -1347,13 +1354,13 @@ public class SearchSaleController implements Serializable {
 		this.saleSelected = saleSelected;
 	}
 
-	public String getSaleStateSelected() {
+	/*public String getSaleStateSelected() {
 		return saleStateSelected;
 	}
 
 	public void setSaleStateSelected(String saleStateSelected) {
 		this.saleStateSelected = saleStateSelected;
-	}
+	}*/
 
 	
 
@@ -1361,33 +1368,36 @@ public class SearchSaleController implements Serializable {
 		return affiliationDate;
 	}
 
+	public List<SelectItem> getNotificationStates() {
+		return notificationStates;
+	}
+
+	public void setNotificationStates(List<SelectItem> notificationStates) {
+		this.notificationStates = notificationStates;
+	}
+
+	
+
+	public List<String> getNotificationStatesSelected() {
+		return notificationStatesSelected;
+	}
+
+	public void setNotificationStatesSelected(List<String> notificationStatesSelected) {
+		this.notificationStatesSelected = notificationStatesSelected;
+	}
+
 	public void setAffiliationDate(Date affiliationDate) {
 		this.affiliationDate = affiliationDate;
 	}
 
-	public List<SaleState> getMaintenances() {
-		return maintenances;
-	}
 
-	public void setMaintenances(List<SaleState> maintenances) {
-		this.maintenances = maintenances;
-	}
-
-	public List<Repayment> getRepayments() {
-		return repayments;
-	}
-
-	public void setRepayments(List<Repayment> repayments) {
-		this.repayments = repayments;
-	}
-
-	public List<SelectItem> getSaleStates() {
+	/*public List<SelectItem> getSaleStates() {
 		return saleStates;
 	}
 
 	public void setSaleStates(List<SelectItem> saleStates) {
 		this.saleStates = saleStates;
-	}
+	}*/
 
 	public String getPasswordSupervisor() {
 		return passwordSupervisor;
@@ -1419,6 +1429,88 @@ public class SearchSaleController implements Serializable {
 
 	public void setSalesCount(Integer salesCount) {
 		this.salesCount = salesCount;
+	}
+
+	public String getNuicResponsible() {
+		return nuicResponsible;
+	}
+
+	public void setNuicResponsible(String nuicResponsible) {
+		this.nuicResponsible = nuicResponsible;
+	}
+
+	public List<Payer> getPayers() {
+		return payers;
+	}
+
+	public void setPayers(List<Payer> payers) {
+		this.payers = payers;
+	}
+
+	
+
+	public Date getSendingAtForPhysicals() {
+		return sendingAtForPhysicals;
+	}
+
+	public void setSendingAtForPhysicals(Date sendingAtForPhysicals) {
+		this.sendingAtForPhysicals = sendingAtForPhysicals;
+	}
+
+	public List<SelectItem> getBanks() {
+		return banks;
+	}
+
+	public void setBanks(List<SelectItem> banks) {
+		this.banks = banks;
+	}
+
+	public String getBankSelected() {
+		return bankSelected;
+	}
+
+	public void setBankSelected(String bankSelected) {
+		this.bankSelected = bankSelected;
+	}
+
+	public List<SelectItem> getSaleStates() {
+		return saleStates;
+	}
+
+	public void setSaleStates(List<SelectItem> saleStates) {
+		this.saleStates = saleStates;
+	}
+
+	public String getSaleStateSelected() {
+		return saleStateSelected;
+	}
+
+	public void setSaleStateSelected(String saleStateSelected) {
+		this.saleStateSelected = saleStateSelected;
+	}
+
+	public Date getSendingDate() {
+		return sendingDate;
+	}
+
+	public void setSendingDate(Date sendingDate) {
+		this.sendingDate = sendingDate;
+	}
+
+	public List<SelectItem> getNotificationTypes() {
+		return notificationTypes;
+	}
+
+	public void setNotificationTypes(List<SelectItem> notificationTypes) {
+		this.notificationTypes = notificationTypes;
+	}
+
+	public String getNotificationTypeSelected() {
+		return notificationTypeSelected;
+	}
+
+	public void setNotificationTypeSelected(String notificationTypeSelected) {
+		this.notificationTypeSelected = notificationTypeSelected;
 	}
 	
 

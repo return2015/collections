@@ -14,6 +14,7 @@ import javax.persistence.TypedQuery;
 import com.returnsoft.collection.eao.SaleEao;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
+import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.EaoException;
 //import org.eclipse.persistence.exceptions.IntegrityException;
@@ -68,15 +69,33 @@ public class SaleEaoImpl implements SaleEao {
 		}
 	}
 	
-	public List<Sale> findBySaleData2(Date saleDateStartedAt,Date saleDateEndedAt, Date affiliationDate,List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState)  throws EaoException {
+	public List<Sale> findBySaleData2(Date saleDateStartedAt,Date saleDateEndedAt, Date affiliationDate, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType)  throws EaoException {
 		try {
 			
 			String query = "SELECT s FROM Sale s "
+					+ "left join s.saleState ss "
+					+ "left join s.commerce c "
+					+ "left join c.bank b "
 					+ "left join s.notification n "
 					+ "WHERE s.dateOfSale between :saleDateStartedAt and :saleDateEndedAt ";
 			
 			if (affiliationDate!=null) {
 				query+=" and s.affiliationDate between :affiliationDateStart and  :affiliationDateEnd";
+			}
+			
+			if (sendingDate!=null) {
+				query+=" and n.sendingAt between :sendingDateStart and  :sendingDateEnd";
+			}
+			if (bankId!=null ) {
+				query+=" and b.id = :bankId ";
+			}
+			
+			if (saleState!=null) {
+				query+=" and ss.state = :saleState ";
+			}
+			
+			if (notificationType!=null) {
+				query+=" and n.type = :notificationType ";
 			}
 			
 			if (notificationStates!=null && notificationStates.size()>0) {
@@ -87,6 +106,13 @@ public class SaleEaoImpl implements SaleEao {
 			q.setParameter("saleDateStartedAt", saleDateStartedAt);
 			q.setParameter("saleDateEndedAt", saleDateEndedAt);
 			
+			if (sendingDate!=null ) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				q.setParameter("sendingDateStart", sdf2.parse(sdf.format(sendingDate)+" 00:00:00"));
+				q.setParameter("sendingDateEnd", sdf2.parse(sdf.format(sendingDate)+" 23:59:59"));
+			}
+			
 			if (affiliationDate!=null ) {
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -96,6 +122,18 @@ public class SaleEaoImpl implements SaleEao {
 			
 			if (notificationStates!=null && notificationStates.size()>0) {
 				q.setParameter("notificationStates", notificationStates);
+			}
+			
+			if (saleState!=null) {
+				q.setParameter("saleState", saleState);
+			}
+			
+			if (notificationType!=null) {
+				q.setParameter("notificationType", notificationType);
+			}
+			
+			if (bankId!=null ) {
+				q.setParameter("bankId", bankId);
 			}
 			
 			List<Sale> sales = q.getResultList();

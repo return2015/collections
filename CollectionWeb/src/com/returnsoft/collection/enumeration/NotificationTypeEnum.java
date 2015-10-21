@@ -2,7 +2,7 @@ package com.returnsoft.collection.enumeration;
 
 public enum NotificationTypeEnum {
 	
-	MAIL((short)1,"Correo"),
+	MAIL((short)1,"Virtual"),
 	PHYSICAL((short)2,"Físico");
 	
 	private Short id;

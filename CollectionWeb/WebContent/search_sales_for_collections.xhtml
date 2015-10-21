@@ -11,7 +11,7 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewAction action="#{searchSaleController.initialize}" />
+			<f:viewAction action="#{searchSalesForCollectionsController.initialize}" />
 		</f:metadata>
 	</ui:define>
 
@@ -42,7 +42,7 @@
 					<h:panelGrid columns="2">
 						<p:outputLabel value="Tipo de busqueda:"></p:outputLabel>
 						<p:selectOneMenu id="searchType"
-							value="#{searchSaleController.searchTypeSelected}"
+							value="#{searchSalesForCollectionsController.searchTypeSelected}"
 							required="true"
 							requiredMessage="Debe seleccionar tipo de busqueda">
 							<f:selectItem itemLabel="Seleccione..." itemValue="" />
@@ -55,83 +55,83 @@
 							<f:selectItem itemLabel="Buscar por datos personales"
 								itemValue="personalData" />
 							<p:ajax immediate="true" process=":form:searchType"
-								listener="#{searchSaleController.onChangeSearchType}"
+								listener="#{searchSalesForCollectionsController.onChangeSearchType}"
 								update=":form:searchTypeOut :form:messages"></p:ajax>
 						</p:selectOneMenu>
 					</h:panelGrid>
 					<p:outputPanel id="searchTypeOut">
 						<h:panelGrid columns="4"
-							rendered="#{searchSaleController.searchByDateSaleRendered}">
+							rendered="#{searchSalesForCollectionsController.searchByDateSaleRendered}">
 
 							<p:outputLabel value="F. Venta Desde:"></p:outputLabel>
 							<p:calendar navigator="true"
-								value="#{searchSaleController.dateOfSaleStarted}"
+								value="#{searchSalesForCollectionsController.dateOfSaleStarted}"
 								required="true"
 								requiredMessage="Debe ingresar fecha venta desde:"
 								pattern="dd-MM-yyyy"></p:calendar>
 
 							<p:outputLabel value="F. Venta Hasta:"></p:outputLabel>
 							<p:calendar navigator="true"
-								value="#{searchSaleController.dateOfSaleEnded}" required="true"
+								value="#{searchSalesForCollectionsController.dateOfSaleEnded}" required="true"
 								requiredMessage="Debe ingresar fecha venta hasta:"
 								pattern="dd-MM-yyyy"></p:calendar>
 
 
 							<p:outputLabel value="Banco:"></p:outputLabel>
 							<p:selectOneMenu id="bank"
-								value="#{searchSaleController.bankSelected}">
+								value="#{searchSalesForCollectionsController.bankSelected}">
 								<f:selectItem itemLabel="Seleccione..." itemValue="" />
-								<f:selectItems value="#{searchSaleController.banks}"></f:selectItems>
+								<f:selectItems value="#{searchSalesForCollectionsController.banks}"></f:selectItems>
 							</p:selectOneMenu>
 
 							<p:outputLabel value="Producto:"></p:outputLabel>
 							<p:selectOneMenu id="product"
-								value="#{searchSaleController.productSelected}">
+								value="#{searchSalesForCollectionsController.productSelected}">
 								<f:selectItem itemLabel="Seleccione..." itemValue="" />
-								<f:selectItems value="#{searchSaleController.products}"></f:selectItems>
+								<f:selectItems value="#{searchSalesForCollectionsController.products}"></f:selectItems>
 							</p:selectOneMenu>
 
 							<p:outputLabel value="F. Afiliacion"></p:outputLabel>
 							<p:calendar navigator="true"
-								value="#{searchSaleController.affiliationDate}"
+								value="#{searchSalesForCollectionsController.affiliationDate}"
 								pattern="dd-MM-yyyy"></p:calendar>
 
 
 							<p:outputLabel value="Estado:"></p:outputLabel>
 							<p:selectOneMenu id="state"
-								value="#{searchSaleController.saleStateSelected}">
+								value="#{searchSalesForCollectionsController.saleStateSelected}">
 								<f:selectItem itemLabel="Seleccione..." itemValue="" />
-								<f:selectItems value="#{searchSaleController.saleStates}"></f:selectItems>
+								<f:selectItems value="#{searchSalesForCollectionsController.saleStates}"></f:selectItems>
 							</p:selectOneMenu>
 
 						</h:panelGrid>
 
 						<h:panelGrid columns="2"
-							rendered="#{searchSaleController.searchByCreditCardNumberRendered}">
+							rendered="#{searchSalesForCollectionsController.searchByCreditCardNumberRendered}">
 
 							<p:outputLabel value="NUM. TARJETA"></p:outputLabel>
 							<p:inputText style="width: 120px;" required="true"
 								requiredMessage="Debe ingresar NUM. TARJETA"
-								value="#{searchSaleController.creditCardNumber}"></p:inputText>
+								value="#{searchSalesForCollectionsController.creditCardNumber}"></p:inputText>
 
 						</h:panelGrid>
 
 						<h:panelGrid columns="2"
-							rendered="#{searchSaleController.searchByDocumentNumberResponsibleRendered}">
+							rendered="#{searchSalesForCollectionsController.searchByDocumentNumberResponsibleRendered}">
 							<p:outputLabel value="DNI RESP."></p:outputLabel>
 							<p:inputText style="width: 120px;" required="true"
 								requiredMessage="Debe ingresar DNI RESP."
-								value="#{searchSaleController.nuicResponsible}"></p:inputText>
+								value="#{searchSalesForCollectionsController.nuicResponsible}"></p:inputText>
 
 						</h:panelGrid>
 
 
 						<h:panelGrid columns="2"
-							rendered="#{searchSaleController.searchByNamesRendered}">
+							rendered="#{searchSalesForCollectionsController.searchByNamesRendered}">
 
 							<p:outputLabel value="Tipo de persona:"></p:outputLabel>
 							<p:selectOneMenu id="personType"
-								value="#{searchSaleController.personTypeSelected}"
+								value="#{searchSalesForCollectionsController.personTypeSelected}"
 								required="true"
 								requiredMessage="Debe seleccionar tipo de persona">
 								<f:selectItem itemLabel="Seleccione..." itemValue="" />
@@ -139,82 +139,82 @@
 								<f:selectItem itemLabel="Asegurado" itemValue="insured" />
 								<f:selectItem itemLabel="Contratante" itemValue="contractor" />
 								<p:ajax immediate="true"
-									listener="#{searchSaleController.onChangePersonType}"
+									listener="#{searchSalesForCollectionsController.onChangePersonType}"
 									update="@form"></p:ajax>
 							</p:selectOneMenu>
 
 						</h:panelGrid>
 
 						<h:panelGrid columns="2"
-							rendered="#{searchSaleController.searchByContractorRendered}">
+							rendered="#{searchSalesForCollectionsController.searchByContractorRendered}">
 
 							<p:outputLabel value="NUIC CONT."></p:outputLabel>
 							<p:inputText style="width: 230px;"
-								value="#{searchSaleController.nuicContractor}"></p:inputText>
+								value="#{searchSalesForCollectionsController.nuicContractor}"></p:inputText>
 
 							<p:outputLabel value="AP. PATERNO CONT."></p:outputLabel>
 							<p:inputText style="width: 230px;"
-								value="#{searchSaleController.lastnamePaternalContractor}"></p:inputText>
+								value="#{searchSalesForCollectionsController.lastnamePaternalContractor}"></p:inputText>
 
 							<p:outputLabel value="AP. MATERNO CONT."></p:outputLabel>
 							<p:inputText style="width: 230px;"
-								value="#{searchSaleController.lastnameMaternalContractor}"></p:inputText>
+								value="#{searchSalesForCollectionsController.lastnameMaternalContractor}"></p:inputText>
 
 							<p:outputLabel value="NOMBRES CONT."></p:outputLabel>
 							<p:inputText style="width: 230px;"
-								value="#{searchSaleController.firstnameContractor}"></p:inputText>
+								value="#{searchSalesForCollectionsController.firstnameContractor}"></p:inputText>
 
 						</h:panelGrid>
 						<h:panelGrid columns="2"
-							rendered="#{searchSaleController.searchByInsuredRendered}">
+							rendered="#{searchSalesForCollectionsController.searchByInsuredRendered}">
 
 							<p:outputLabel value="NUIC ASEG."></p:outputLabel>
 							<p:inputText style="width: 230px;"
-								value="#{searchSaleController.nuicInsured}"></p:inputText>
+								value="#{searchSalesForCollectionsController.nuicInsured}"></p:inputText>
 
 							<p:outputLabel value="AP. PATERNO ASEG."></p:outputLabel>
 							<p:inputText style="width: 230px;"
-								value="#{searchSaleController.lastnamePaternalInsured}"></p:inputText>
+								value="#{searchSalesForCollectionsController.lastnamePaternalInsured}"></p:inputText>
 
 							<p:outputLabel value="AP. MATERNO ASEG."></p:outputLabel>
 							<p:inputText style="width: 230px;"
-								value="#{searchSaleController.lastnameMaternalInsured}"></p:inputText>
+								value="#{searchSalesForCollectionsController.lastnameMaternalInsured}"></p:inputText>
 
 							<p:outputLabel value="NOMBRES ASEG."></p:outputLabel>
 							<p:inputText style="width: 230px;"
-								value="#{searchSaleController.firstnameInsured}"></p:inputText>
+								value="#{searchSalesForCollectionsController.firstnameInsured}"></p:inputText>
 						</h:panelGrid>
 						<h:panelGrid columns="2"
-							rendered="#{searchSaleController.searchByResponsibleRendered}">
+							rendered="#{searchSalesForCollectionsController.searchByResponsibleRendered}">
 
 							<p:outputLabel value="NUIC RESP."></p:outputLabel>
 							<p:inputText style="width: 230px;"
-								value="#{searchSaleController.nuicResponsible}"></p:inputText>
+								value="#{searchSalesForCollectionsController.nuicResponsible}"></p:inputText>
 
 							<p:outputLabel value="AP. PATERNO RESP."></p:outputLabel>
 							<p:inputText style="width: 230px;"
-								value="#{searchSaleController.lastnamePaternalResponsible}"></p:inputText>
+								value="#{searchSalesForCollectionsController.lastnamePaternalResponsible}"></p:inputText>
 
 							<p:outputLabel value="AP. MATERNO RESP."></p:outputLabel>
 							<p:inputText style="width: 230px;"
-								value="#{searchSaleController.lastnameMaternalResponsible}"></p:inputText>
+								value="#{searchSalesForCollectionsController.lastnameMaternalResponsible}"></p:inputText>
 
 							<p:outputLabel value="NOMBRES RESP."></p:outputLabel>
 							<p:inputText style="width: 230px;"
-								value="#{searchSaleController.firstnameResponsible}"></p:inputText>
+								value="#{searchSalesForCollectionsController.firstnameResponsible}"></p:inputText>
 						</h:panelGrid>
 					</p:outputPanel>
 				</h:panelGrid>
 				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
 					<p:commandButton icon="ui-icon-search"
-						actionListener="#{searchSaleController.search}" value="Buscar"
+						actionListener="#{searchSalesForCollectionsController.search}" value="Buscar"
 						process="@form"
 						update=":form:searchTypeOut :form:searchTable :form:saleId :form:salesCount :form:messages 
 						:form:updatesButtom :form:collectionsButtom :form:maintenancesButtom  
 						:form:stateButtom :form:repaymentsButtom">
 					</p:commandButton>
 
-					<p:commandButton action="#{searchSaleController.exportExcel}"
+					<p:commandButton action="#{searchSalesForCollectionsController.exportExcel}"
 						value="Exportar a excel" process="@form" ajax="false">
 					</p:commandButton>
 
@@ -226,13 +226,13 @@
 				<h:panelGrid columns="2" style="width:100%;">
 
 					<p:outputLabel id="saleId"
-						value="Venta seleccionada: #{searchSaleController.saleSelected!=null?searchSaleController.saleSelected.code:''}">
+						value="Venta seleccionada: #{searchSalesForCollectionsController.saleSelected!=null?searchSalesForCollectionsController.saleSelected.code:''}">
 					</p:outputLabel>
 
 
 						<h:panelGrid style="width:100%;">
 							<p:outputLabel id="salesCount"
-								value="Se encontraron #{searchSaleController.sales!=null?searchSaleController.sales.size():'0'} ventas.">
+								value="Se encontraron #{searchSalesForCollectionsController.sales!=null?searchSalesForCollectionsController.sales.size():'0'} ventas.">
 							</p:outputLabel>
 						</h:panelGrid>
 
@@ -241,53 +241,53 @@
 				<h:panelGrid columns="7" style="width:100%;">
 
 					<p:commandButton id="updatesButtom"
-						actionListener="#{searchSaleController.showCreditCards}"
+						actionListener="#{searchSalesForCollectionsController.showCreditCards}"
 						icon="ui-icon-search" value="Ver tarjetas"
 						oncomplete="PF('updatesDialog').show()"
 						update=":formUpdate:updatesDetail"
-						disabled="#{searchSaleController.saleSelected==null}">
+						disabled="#{searchSalesForCollectionsController.saleSelected==null}">
 					</p:commandButton>
 
 					<p:commandButton id="repaymentsButtom"
-						actionListener="#{searchSaleController.showRepayments}"
+						actionListener="#{searchSalesForCollectionsController.showRepayments}"
 						icon="ui-icon-search" value="Ver extornos"
 						oncomplete="PF('repaymentsDialog').show()"
 						update=":formRepayment:repaymentsDetail"
-						disabled="#{searchSaleController.saleSelected==null}">
+						disabled="#{searchSalesForCollectionsController.saleSelected==null}">
 					</p:commandButton>
 
 					<p:commandButton id="collectionsButtom"
-						actionListener="#{searchSaleController.showCollections}"
+						actionListener="#{searchSalesForCollectionsController.showCollections}"
 						icon="ui-icon-search" value="Ver cobranzas"
 						oncomplete="PF('collectionsDialog').show()"
 						update=":formCollection:collectionsDetail"
-						disabled="#{searchSaleController.saleSelected==null}">
+						disabled="#{searchSalesForCollectionsController.saleSelected==null}">
 					</p:commandButton>
 
 					<p:commandButton id="maintenancesButtom"
-						actionListener="#{searchSaleController.showMaintenances}"
+						actionListener="#{searchSalesForCollectionsController.showMaintenances}"
 						icon="ui-icon-search" value="Ver estados"
 						oncomplete="PF('maintenancesDialog').show()"
 						update=":formMaintenance:maintenancesDetail"
-						disabled="#{searchSaleController.saleSelected==null}">
+						disabled="#{searchSalesForCollectionsController.saleSelected==null}">
 					</p:commandButton>
 
 					<p:commandButton id="stateButtom" immediate="true"
 						icon="ui-icon-pencil" value="Editar estado"
 						update=":form:messages"
-						actionListener="#{searchSaleController.addMaintenance}"
-						disabled="#{searchSaleController.saleSelected==null}">
+						actionListener="#{searchSalesForCollectionsController.addMaintenance}"
+						disabled="#{searchSalesForCollectionsController.saleSelected==null}">
 						<p:ajax event="dialogReturn" update=":form:searchTable"
-							listener="#{searchSaleController.afterAddMaintenance}" />
+							listener="#{searchSalesForCollectionsController.afterAddMaintenance}" />
 					</p:commandButton>
 					
 				</h:panelGrid>
 
 
-				<p:dataTable value="#{searchSaleController.sales}" var="s"
+				<p:dataTable value="#{searchSalesForCollectionsController.sales}" var="s"
 					scrollable="true" scrollWidth="900" paginator="true" rows="10"
 					selectionMode="single"
-					selection="#{searchSaleController.saleSelected}" rowKey="#{s.id}"
+					selection="#{searchSalesForCollectionsController.saleSelected}" rowKey="#{s.id}"
 					id="searchTable">
 
 					<p:ajax event="rowSelect"
@@ -563,7 +563,7 @@
 
 					<h:panelGrid style="margin:auto;">
 
-						<p:dataTable value="#{searchSaleController.updates}" var="s"
+						<p:dataTable value="#{searchSalesForCollectionsController.updates}" var="s"
 							paginator="true" rows="5" id="updatesTable">
 
 
@@ -616,7 +616,7 @@
 
 					<h:panelGrid style="margin:auto;">
 
-						<p:dataTable value="#{searchSaleController.collections}" var="c"
+						<p:dataTable value="#{searchSalesForCollectionsController.collections}" var="c"
 							paginator="true" rows="5" id="collectionsTable">
 
 							<p:column headerText="FECHA AFILIACION" width="80">
@@ -722,7 +722,7 @@
 
 					<h:panelGrid style="margin:auto;">
 
-						<p:dataTable value="#{searchSaleController.repayments}" var="r"
+						<p:dataTable value="#{searchSalesForCollectionsController.repayments}" var="r"
 							paginator="true" rows="5" id="repaymentsTable">
 
 							<p:column headerText="CODIGO UNICO" width="100">
@@ -779,7 +779,7 @@
 
 					<h:panelGrid style="margin:auto;">
 
-						<p:dataTable value="#{searchSaleController.maintenances}" var="m"
+						<p:dataTable value="#{searchSalesForCollectionsController.maintenances}" var="m"
 							paginator="true" rows="5" id="maintenancesTable">
 
 							<p:column headerText="ESTADO" width="100">
@@ -830,7 +830,7 @@
 
 					<h:panelGrid style="margin:auto;">
 
-						<p:dataTable value="#{searchSaleController.notifications}" var="n"
+						<p:dataTable value="#{searchSalesForCollectionsController.notifications}" var="n"
 							paginator="true" rows="5" id="notificationsTable">
 
 							<p:column headerText="TIPO" width="100">
@@ -888,15 +888,15 @@
 						<p:outputLabel value="Password supervisor"></p:outputLabel>
 						<p:password required="true"
 							requiredMessage="Debe ingresar password supervisor"
-							value="#{searchSaleController.passwordSupervisor}"></p:password>
+							value="#{searchSalesForCollectionsController.passwordSupervisor}"></p:password>
 
 					</h:panelGrid>
 
 					<h:panelGrid style="margin:auto;text-align:center;">
-						<p:commandButton actionListener="#{searchSaleController.validate}"
+						<p:commandButton actionListener="#{searchSalesForCollectionsController.validate}"
 							update=":formPassSuper:messagesPassSuper" value="Aceptar">
 							<p:ajax event="dialogReturn" update=":form:searchTable"
-								listener="#{searchSaleController.afterAddMaintenance}" />
+								listener="#{searchSalesForCollectionsController.afterAddMaintenance}" />
 						</p:commandButton>
 					</h:panelGrid>
 				</h:panelGrid>
