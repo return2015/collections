@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="plantillaGNB" language="groovy" pageWidth="595" pageHeight="842" columnWidth="445" leftMargin="75" rightMargin="75" topMargin="30" bottomMargin="0" uuid="bc7a153f-e446-477a-b9d6-b75b03d25dfa">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="885"/>
+	<property name="ireport.y" value="117"/>
 	<parameter name="names" class="java.lang.String"/>
 	<parameter name="department" class="java.lang.String"/>
 	<parameter name="address" class="java.lang.String"/>

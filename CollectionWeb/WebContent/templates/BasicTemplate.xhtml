@@ -31,7 +31,10 @@
 
 			<p:menuitem value="Inicio" outcome="home" icon="ui-icon-star" />
 			
-			<p:submenu label="Ventas" icon="ui-icon-star" rendered="#{sessionBean.bank.id!=null}">
+			<p:submenu label="Ventas" icon="ui-icon-star">
+			
+			<p:menuitem value="Buscar ventas" outcome="search_sales"
+					icon="ui-icon-star" />
 			
 			<p:menuitem  value="Cargar ventas" style="width:130px;" outcome="load_sales"
 					rendered="#{sessionBean.bank.id!=null}"

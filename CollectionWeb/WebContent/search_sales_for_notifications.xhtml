@@ -38,7 +38,6 @@
 				<p:messages id="messages" showDetail="true"></p:messages>
 			</h:panelGrid>
 
-
 			<h:panelGrid columns="2" style="margin:auto;text-align:center;">
 				<p:outputLabel value="Tipo de búsqueda:"></p:outputLabel>
 				<p:selectOneMenu id="searchType"
@@ -82,7 +81,6 @@
 								value="#{searchSalesForNotificationsController.banks}"></f:selectItems>
 						</p:selectOneMenu>
 
-
 						<p:outputLabel value="Estado venta:"></p:outputLabel>
 						<p:selectOneMenu id="saleState"
 							value="#{searchSalesForNotificationsController.saleStateSelected}">
@@ -94,7 +92,6 @@
 						<p:calendar navigator="true"
 							value="#{searchSalesForNotificationsController.sendingDate}"
 							pattern="dd-MM-yyyy"></p:calendar>
-
 
 						<p:outputLabel value="Fecha afiliación"></p:outputLabel>
 						<p:calendar navigator="true"
@@ -115,10 +112,6 @@
 							<f:selectItems
 								value="#{searchSalesForNotificationsController.notificationStates}"></f:selectItems>
 						</p:selectManyMenu>
-
-
-
-					
 
 				</h:panelGrid>
 
@@ -150,7 +143,7 @@
 
 				<p:commandButton immediate="true" icon="ui-icon-print"
 					value="Imprimir cartas" ajax="false"
-					actionListener="#{searchSalesForNotificationsController.printNotifications}">
+					actionListener="#{searchSalesForNotificationsController.printLetters}">
 				</p:commandButton>
 
 				<p:commandButton immediate="true" icon="ui-icon-plus"
