@@ -17,13 +17,7 @@
 	</ui:define>
 
 	<ui:define name="content">
-		<!-- 
-		<script>
-			function addMaintenance() {
-				PF('stateButtom2').jq.click();
-			}
-		</script>
- -->
+
 		<div class="title ui-widget-header ui-corner-all">
 			<h:panelGrid style="margin:auto;">
 		BUSCAR VENTAS PARA GESTIONAR NOTIFICACIONES
@@ -58,60 +52,58 @@
 					rendered="#{searchSalesForNotificationsController.searchByDateSaleRendered}">
 
 
-						<p:outputLabel value="Fecha venta desde:"></p:outputLabel>
-						<p:calendar navigator="true"
-							value="#{searchSalesForNotificationsController.dateOfSaleStarted}"
-							required="true"
-							requiredMessage="Debe ingresar fecha venta desde:"
-							pattern="dd-MM-yyyy"></p:calendar>
+					<p:outputLabel value="Fecha venta desde:"></p:outputLabel>
+					<p:calendar navigator="true"
+						value="#{searchSalesForNotificationsController.dateOfSaleStarted}"
+						required="true" requiredMessage="Debe ingresar fecha venta desde:"
+						pattern="dd-MM-yyyy"></p:calendar>
 
-						<p:outputLabel value="Fecha venta hasta:"></p:outputLabel>
-						<p:calendar navigator="true"
-							value="#{searchSalesForNotificationsController.dateOfSaleEnded}"
-							required="true"
-							requiredMessage="Debe ingresar fecha venta hasta:"
-							pattern="dd-MM-yyyy"></p:calendar>
+					<p:outputLabel value="Fecha venta hasta:"></p:outputLabel>
+					<p:calendar navigator="true"
+						value="#{searchSalesForNotificationsController.dateOfSaleEnded}"
+						required="true" requiredMessage="Debe ingresar fecha venta hasta:"
+						pattern="dd-MM-yyyy"></p:calendar>
 
-						
-						<p:outputLabel value="Banco"></p:outputLabel>
-						<p:selectOneMenu id="bank"
-							value="#{searchSalesForNotificationsController.bankSelected}">
-							<f:selectItem itemLabel="Seleccione..." itemValue="" />
-							<f:selectItems
-								value="#{searchSalesForNotificationsController.banks}"></f:selectItems>
-						</p:selectOneMenu>
 
-						<p:outputLabel value="Estado venta:"></p:outputLabel>
-						<p:selectOneMenu id="saleState"
-							value="#{searchSalesForNotificationsController.saleStateSelected}">
-							<f:selectItems
-								value="#{searchSalesForNotificationsController.saleStates}"></f:selectItems>
-						</p:selectOneMenu>
+					<p:outputLabel value="Banco"></p:outputLabel>
+					<p:selectOneMenu id="bank"
+						value="#{searchSalesForNotificationsController.bankSelected}">
+						<f:selectItem itemLabel="Seleccione..." itemValue="" />
+						<f:selectItems
+							value="#{searchSalesForNotificationsController.banks}"></f:selectItems>
+					</p:selectOneMenu>
 
-						<p:outputLabel value="Fecha envío notificación"></p:outputLabel>
-						<p:calendar navigator="true"
-							value="#{searchSalesForNotificationsController.sendingDate}"
-							pattern="dd-MM-yyyy"></p:calendar>
+					<p:outputLabel value="Estado venta:"></p:outputLabel>
+					<p:selectOneMenu id="saleState"
+						value="#{searchSalesForNotificationsController.saleStateSelected}">
+						<f:selectItems
+							value="#{searchSalesForNotificationsController.saleStates}"></f:selectItems>
+					</p:selectOneMenu>
 
-						<p:outputLabel value="Fecha afiliación"></p:outputLabel>
-						<p:calendar navigator="true"
-							value="#{searchSalesForNotificationsController.affiliationDate}"
-							pattern="dd-MM-yyyy"></p:calendar>
+					<p:outputLabel value="Fecha envío notificación"></p:outputLabel>
+					<p:calendar navigator="true"
+						value="#{searchSalesForNotificationsController.sendingDate}"
+						pattern="dd-MM-yyyy"></p:calendar>
 
-						<p:outputLabel value="Tipo notificación"></p:outputLabel>
-						<p:selectOneMenu id="notificationType"
-							value="#{searchSalesForNotificationsController.notificationTypeSelected}">
-							<f:selectItem itemLabel="Seleccione..." itemValue="" />
-							<f:selectItems
-								value="#{searchSalesForNotificationsController.notificationTypes}"></f:selectItems>
-						</p:selectOneMenu>
-						
-						<p:outputLabel value="Estado notificación:"></p:outputLabel>
-						<p:selectManyMenu id="notificationState"
-							value="#{searchSalesForNotificationsController.notificationStatesSelected}">
-							<f:selectItems
-								value="#{searchSalesForNotificationsController.notificationStates}"></f:selectItems>
-						</p:selectManyMenu>
+					<p:outputLabel value="Fecha afiliación"></p:outputLabel>
+					<p:calendar navigator="true"
+						value="#{searchSalesForNotificationsController.affiliationDate}"
+						pattern="dd-MM-yyyy"></p:calendar>
+
+					<p:outputLabel value="Tipo notificación"></p:outputLabel>
+					<p:selectOneMenu id="notificationType"
+						value="#{searchSalesForNotificationsController.notificationTypeSelected}">
+						<f:selectItem itemLabel="Seleccione..." itemValue="" />
+						<f:selectItems
+							value="#{searchSalesForNotificationsController.notificationTypes}"></f:selectItems>
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Estado notificación:"></p:outputLabel>
+					<p:selectManyMenu id="notificationState"
+						value="#{searchSalesForNotificationsController.notificationStatesSelected}">
+						<f:selectItems
+							value="#{searchSalesForNotificationsController.notificationStates}"></f:selectItems>
+					</p:selectManyMenu>
 
 				</h:panelGrid>
 
@@ -151,7 +143,7 @@
 					oncomplete="PF('notificationsDialog').show()"
 					update=":formNotifications">
 				</p:commandButton>
-				
+
 				<p:commandButton immediate="true" icon="ui-icon-plus"
 					value="Crear notificaciones virtuales"
 					oncomplete="PF('notificationsDialog').show()"
@@ -280,7 +272,7 @@
 				<p:column headerText="Estado venta" width="80">
 					<h:outputText value="#{s.saleState.state.name}"></h:outputText>
 				</p:column>
-				
+
 				<p:column headerText="Banco" width="80">
 					<h:outputText value="#{s.commerce.bank.name}"></h:outputText>
 				</p:column>
@@ -337,59 +329,6 @@
 		</h:form>
 
 
-
-		<p:dialog header="Notificaciones" widgetVar="notificationsDialog"
-			showEffect="fade" hideEffect="fade" width="400" height="200">
-			<h:form id="formNotification">
-				<p:outputPanel id="notificationsDetail" style="text-align:center;">
-
-					<h:panelGrid style="margin:auto;">
-
-						<p:dataTable
-							value="#{searchSalesForNotificationsController.notifications}"
-							var="n" paginator="true" rows="5" id="notificationsTable">
-
-							<p:column headerText="TIPO" width="100">
-								<h:outputText value="#{n.type.name}"></h:outputText>
-							</p:column>
-
-							<p:column headerText="ESTADO" width="100">
-								<h:outputText value="#{n.state.name}"></h:outputText>
-							</p:column>
-
-							<p:column headerText="FECHA ENVÍO" width="80">
-								<h:outputText value="#{n.sendingAt}">
-									<f:convertDateTime pattern="dd/MM/yyyy " />
-								</h:outputText>
-							</p:column>
-
-							<p:column headerText="FECHA RESPUESTA" width="80">
-								<h:outputText value="#{n.answeringAt}">
-									<f:convertDateTime pattern="dd/MM/yyyy" />
-								</h:outputText>
-							</p:column>
-
-							<p:column headerText="FECHA CREACIÓN" width="80">
-								<h:outputText value="#{n.createdAt}">
-									<f:convertDateTime pattern="dd/MM/yyyy hh:mm:ss a" />
-								</h:outputText>
-							</p:column>
-
-							<p:column headerText="USUARIO CREACIÓN" width="80">
-								<h:outputText value="#{n.createdBy.username}"></h:outputText>
-							</p:column>
-
-
-
-
-						</p:dataTable>
-
-					</h:panelGrid>
-				</p:outputPanel>
-			</h:form>
-		</p:dialog>
-
-
 		<p:dialog header="Actualizaciones" widgetVar="payersDialog"
 			showEffect="fade" hideEffect="fade" width="800" height="200">
 			<h:form id="formPayer">
@@ -401,7 +340,7 @@
 							value="#{searchSalesForNotificationsController.payers}" var="n"
 							paginator="true" rows="5" id="payersTable">
 
-							<p:column headerText="Nuic" width="100">
+							<p:column headerText="NUIC" width="100">
 								<h:outputText value="#{n.nuicResponsible}"></h:outputText>
 							</p:column>
 
@@ -440,13 +379,13 @@
 								<h:outputText value="#{n.district}"></h:outputText>
 							</p:column>
 
-							<p:column headerText="FECHA CREACIÓN" width="80">
+							<p:column headerText="Fecha creación" width="80">
 								<h:outputText value="#{n.createdAt}">
 									<f:convertDateTime pattern="dd/MM/yyyy hh:mm:ss a" />
 								</h:outputText>
 							</p:column>
 
-							<p:column headerText="USUARIO CREACIÓN" width="80">
+							<p:column headerText="Usuario creación" width="80">
 								<h:outputText value="#{n.createdBy.username}"></h:outputText>
 							</p:column>
 
@@ -461,38 +400,7 @@
 		</p:dialog>
 
 
-		<p:dialog header="Password Supervisor" widgetVar="passSuperDialog"
-			showEffect="fade" hideEffect="fade" width="800" height="200">
-			<h:form id="formPassSuper">
-				<h:panelGrid style="margin:auto;">
-
-					<h:panelGrid style="margin:auto;text-align:center;">
-						<p:messages id="messagesPassSuper"></p:messages>
-					</h:panelGrid>
-
-					<h:panelGrid columns="2">
-
-						<p:outputLabel value="Password supervisor"></p:outputLabel>
-						<p:password required="true"
-							requiredMessage="Debe ingresar password supervisor"
-							value="#{searchSalesForNotificationsController.passwordSupervisor}"></p:password>
-
-					</h:panelGrid>
-
-					<h:panelGrid style="margin:auto;text-align:center;">
-						<p:commandButton
-							actionListener="#{searchSalesForNotificationsController.validate}"
-							update=":formPassSuper:messagesPassSuper" value="Aceptar">
-							<p:ajax event="dialogReturn" update=":form:searchTable"
-								listener="#{searchSalesForNotificationsController.afterAddMaintenance}" />
-						</p:commandButton>
-					</h:panelGrid>
-				</h:panelGrid>
-			</h:form>
-
-		</p:dialog>
-
-		<p:dialog header="Crear Notificaciones"
+		<p:dialog header="Crear Notificaciones físicas masivamente"
 			widgetVar="notificationsDialog" showEffect="fade" hideEffect="fade"
 			width="800" height="200">
 			<h:form id="formNotifications">
@@ -515,7 +423,7 @@
 						<p:commandButton
 							actionListener="#{searchSalesForNotificationsController.createNotifications}"
 							update=":formNotifications:messagesNotifications"
-							value="Crear masivamente notificaciones">
+							value="Crear">
 						</p:commandButton>
 					</h:panelGrid>
 				</h:panelGrid>

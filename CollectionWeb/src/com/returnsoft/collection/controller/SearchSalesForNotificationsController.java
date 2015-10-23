@@ -319,68 +319,40 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 			search();
 
-			SimpleDateFormat sdf1 = new SimpleDateFormat("MM/yyyy");
+			//SimpleDateFormat sdf1 = new SimpleDateFormat("MM/yyyy");
 			SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
-			SimpleDateFormat sdf3 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			//SimpleDateFormat sdf3 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
 			XSSFWorkbook wb = new XSSFWorkbook();
 			XSSFSheet sheet = wb.createSheet();
 			XSSFRow row = sheet.createRow(0);
 
-			row.createCell(0).setCellValue("COD UNICO");
-			row.createCell(1).setCellValue("TIPO DOC");
-			row.createCell(2).setCellValue("NUIC RESP PAGO");
-			row.createCell(3).setCellValue("AP PAT RESP PAGO");
-			row.createCell(4).setCellValue("AP MAT RESP PAGO");
-			row.createCell(5).setCellValue("NOMBRES RESP PAGO");
-			row.createCell(6).setCellValue("N° TARJETA DE CREDITO");
-			row.createCell(7).setCellValue("N° DE CUENTA");
-			row.createCell(8).setCellValue("FECHA VENC TARJETA");
-			row.createCell(9).setCellValue("DIAS MORA");
-			row.createCell(10).setCellValue("NUIC CONTRATANTE");
-			row.createCell(11).setCellValue("AP PAT CONTRATANTE");
-			row.createCell(12).setCellValue("AP MAT CONTRATANTE");
-			row.createCell(13).setCellValue("NOMBRES CONTRATANTE");
-			row.createCell(14).setCellValue("NUIC ASEGURADO");
-			row.createCell(15).setCellValue("AP PAT ASEGURADO");
-			row.createCell(16).setCellValue("AP MAT ASEGURADO");
-			row.createCell(17).setCellValue("NOMBRES ASEGURADO");
-			row.createCell(18).setCellValue("TELEFONO 1");
-			row.createCell(19).setCellValue("TELEFONO 2");
-			row.createCell(20).setCellValue("E-MAIL");
-			row.createCell(21).setCellValue("DEPARTAMENTO");
-			row.createCell(22).setCellValue("PROVINCIA");
-			row.createCell(23).setCellValue("DISTRITO");
-			row.createCell(24).setCellValue("DIRECCION");
-			row.createCell(25).setCellValue("FECHA DE VENTA");
-			row.createCell(26).setCellValue("CANAL DE VENTA");
-			row.createCell(27).setCellValue("LUGAR DE VENTA");
-			row.createCell(28).setCellValue("COD DE VENDEDOR");
-			row.createCell(29).setCellValue("NOMBRE DE VENDEDOR");
-			row.createCell(30).setCellValue("# DE POLIZA");
-			row.createCell(31).setCellValue("# CERTIFICADO");
-			row.createCell(32).setCellValue("# PROPUESTA");
-			row.createCell(33).setCellValue("CODIGO DE COMERCIO");
-			row.createCell(34).setCellValue("PRODUCTO");
-			row.createCell(35).setCellValue("DESCRIPCION DEL PRODUCTO");
-			row.createCell(36).setCellValue("PERIODO DE COBRO");
-			row.createCell(37).setCellValue("TIPO DE COBRO");
-			row.createCell(38).setCellValue("MEDIO DE PAGO");
-			row.createCell(39).setCellValue("PRIMA");
-			row.createCell(40).setCellValue("FECHA DE AUDITORIA");
-			row.createCell(41).setCellValue("USUARIO DE AUDITORIA");
-			row.createCell(42).setCellValue("ESTADO");
-			row.createCell(43).setCellValue("FECHA ESTADO");
-			row.createCell(44).setCellValue("USUARIO BAJA");
-			row.createCell(45).setCellValue("CANAL BAJA");
-			row.createCell(46).setCellValue("MOTIVO BAJA");
-			row.createCell(47).setCellValue("OBSERVACION BAJA");
-			row.createCell(48).setCellValue("FECHA ACT TC");
-
-			row.createCell(49).setCellValue("BANCO");
-			row.createCell(50).setCellValue("FECHA CREACION");
-			row.createCell(51).setCellValue("USUARIO CREACION");
-
+			row.createCell(0).setCellValue("Código único");
+			row.createCell(1).setCellValue("Tipo documento");
+			row.createCell(2).setCellValue("NUIC responsable");
+			row.createCell(3).setCellValue("Apellido paterno responsable");
+			row.createCell(4).setCellValue("Apellido materno responsable");
+			row.createCell(5).setCellValue("Nombres responsable");
+			
+			
+			
+			row.createCell(6).setCellValue("Correo");
+			row.createCell(7).setCellValue("Departamento");
+			row.createCell(8).setCellValue("Provincia");
+			row.createCell(9).setCellValue("Distrito");
+			row.createCell(10).setCellValue("Dirección");
+			row.createCell(11).setCellValue("Fecha venta");
+			row.createCell(12).setCellValue("Estado venta");
+			row.createCell(13).setCellValue("Banco");
+			row.createCell(14).setCellValue("Fecha afiliación");
+			row.createCell(15).setCellValue("Notificaciones virtuales");
+			row.createCell(16).setCellValue("Notificaciones físicas");
+			row.createCell(17).setCellValue("Tipo notificación");
+			row.createCell(18).setCellValue("Fecha envío notificación");
+			row.createCell(19).setCellValue("Fecha respuesta notificación");
+			row.createCell(20).setCellValue("# orden notificación");
+			row.createCell(21).setCellValue("# correlativo notificación");
+			
 			for (int i = 0; i < sales.size(); i++) {
 				Sale sale = sales.get(i);
 				XSSFRow rowBody = sheet.createRow(i + 1);
@@ -394,80 +366,28 @@ public class SearchSalesForNotificationsController implements Serializable {
 						sale.getPayer().getLastnameMaternalResponsible());
 				rowBody.createCell(5).setCellValue(
 						sale.getPayer().getFirstnameResponsible());
-				// System.out.println("credi card number: "+sale.getCreditCardNumber());
-				rowBody.createCell(6).setCellValue(
-						sale.getCreditCard().getNumber() + "");
-				rowBody.createCell(7)
-						.setCellValue(sale.getAccountNumber() + "");
-				rowBody.createCell(8).setCellValue(
-						sale.getCreditCard().getExpirationDate() != null ? sdf1
-								.format(sale.getCreditCard().getExpirationDate())
-								: null);
-				rowBody.createCell(9).setCellValue(""/*
-						sale.getCreditCard().getDaysOfDefault() != null
-						?sale.getCreditCard().getDaysOfDefault():null*/);
 				
-				rowBody.createCell(10).setCellValue(""/*sale.getNuicContractor()*/);
-				rowBody.createCell(11).setCellValue(
-						sale.getLastnamePaternalContractor());
-				rowBody.createCell(12).setCellValue(
-						sale.getLastnameMaternalContractor());
-				rowBody.createCell(13).setCellValue(
-						sale.getFirstnameContractor());
-				rowBody.createCell(14).setCellValue(sale.getNuicInsured());
-				rowBody.createCell(15).setCellValue(
-						sale.getLastnamePaternalInsured());
-				rowBody.createCell(16).setCellValue(
-						sale.getLastnameMaternalInsured());
-				rowBody.createCell(17).setCellValue(sale.getFirstnameInsured());
-				rowBody.createCell(18).setCellValue(sale.getPhone1());
-				rowBody.createCell(19).setCellValue(sale.getPhone2());
-				rowBody.createCell(20).setCellValue(sale.getPayer().getMail());
-				rowBody.createCell(21).setCellValue(sale.getPayer().getDepartment());
-				rowBody.createCell(22).setCellValue(sale.getPayer().getProvince());
-				rowBody.createCell(23).setCellValue(sale.getPayer().getDistrict());
-				rowBody.createCell(24).setCellValue(sale.getPayer().getAddress());
-				rowBody.createCell(25).setCellValue(
-						sdf2.format(sale.getDateOfSale()));
-				rowBody.createCell(26).setCellValue(sale.getChannelOfSale());
-				rowBody.createCell(27).setCellValue(sale.getPlaceOfSale());
-				rowBody.createCell(28).setCellValue(sale.getVendorCode());
-				rowBody.createCell(29).setCellValue(sale.getVendorName());
-				rowBody.createCell(30).setCellValue(sale.getPolicyNumber());
-				rowBody.createCell(31)
-						.setCellValue(sale.getCertificateNumber());
-				rowBody.createCell(32).setCellValue(sale.getProposalNumber());
-				rowBody.createCell(33).setCellValue(sale.getCommerce().getCode());
-				rowBody.createCell(34)
-						.setCellValue(sale.getCommerce().getProduct().getName());
-				rowBody.createCell(35).setCellValue(
-						sale.getProductDescription());
-				rowBody.createCell(36).setCellValue(sale.getCollectionPeriod());
-				rowBody.createCell(37).setCellValue(sale.getCollectionType());
-				rowBody.createCell(38).setCellValue(
-						sale.getCommerce().getPaymentMethod().getName());
-				rowBody.createCell(39).setCellValue(
-						sale.getInsurancePremium().doubleValue());
-				rowBody.createCell(40).setCellValue(
-						sdf2.format(sale.getAuditDate()));
-				rowBody.createCell(41).setCellValue(sale.getAuditUser());
-				rowBody.createCell(42).setCellValue(sale.getSaleState().getState().getName());
-				rowBody.createCell(43).setCellValue(
-						sale.getSaleState().getDate() != null ? sdf2.format(sale
-								.getSaleState().getDate()) : "");
-				rowBody.createCell(44).setCellValue(sale.getSaleState().getDownUser());
-				rowBody.createCell(45).setCellValue(sale.getSaleState().getDownChannel());
-				rowBody.createCell(46).setCellValue(sale.getSaleState().getDownReason());
-				rowBody.createCell(47).setCellValue(sale.getSaleState().getDownObservation());
-				rowBody.createCell(48).setCellValue(
-						sale.getCreditCard().getUpdateDate() != null ? sdf2
-								.format(sale.getCreditCard().getUpdateDate()) : "");
 
-				rowBody.createCell(49).setCellValue(sale.getCommerce().getBank().getName());
-				rowBody.createCell(50).setCellValue(
-						sdf3.format(sale.getCreatedAt()));
-				rowBody.createCell(51).setCellValue(
-						sale.getCreatedBy().getUsername());
+				
+				rowBody.createCell(6).setCellValue(sale.getPayer().getMail());
+				rowBody.createCell(7).setCellValue(sale.getPayer().getDepartment());
+				rowBody.createCell(8).setCellValue(sale.getPayer().getProvince());
+				rowBody.createCell(9).setCellValue(sale.getPayer().getDistrict());
+				rowBody.createCell(10).setCellValue(sale.getPayer().getAddress());
+				rowBody.createCell(11).setCellValue(
+						sdf2.format(sale.getDateOfSale()));
+				rowBody.createCell(12).setCellValue(sale.getSaleState().getState().getName());
+				rowBody.createCell(13).setCellValue(sale.getCommerce().getBank().getName());
+				
+				rowBody.createCell(14).setCellValue(sale.getAffiliationDate()!=null?sdf2.format(sale.getAffiliationDate()):"");
+				rowBody.createCell(15).setCellValue(sale.getVirtualNotifications());
+				rowBody.createCell(16).setCellValue(sale.getPhysicalNotifications());
+				rowBody.createCell(17).setCellValue(sale.getNotification()!=null?sale.getNotification().getType().getName():"");
+				rowBody.createCell(18).setCellValue(sale.getNotification()!=null?sdf2.format(sale.getNotification().getSendingAt()):"");
+				rowBody.createCell(19).setCellValue(sale.getNotification()!=null?sale.getNotification().getAnsweringAt()!=null?sdf2.format(sale.getNotification().getAnsweringAt()):"":"");
+				rowBody.createCell(20).setCellValue(sale.getNotification()!=null?sale.getNotification().getOrderNumber():"");
+				rowBody.createCell(21).setCellValue(sale.getNotification()!=null?sale.getNotification().getCorrelativeNumber():"");
+				
 
 			}
 
@@ -486,6 +406,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 					"attachment; filename=\"ventas.xlsx\"");
 
 			wb.write(externalContext.getResponseOutputStream());
+			wb.close();
 			facesContext.responseComplete();
 
 		} catch (Exception e) {
