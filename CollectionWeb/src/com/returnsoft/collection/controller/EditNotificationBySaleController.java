@@ -16,9 +16,9 @@ import javax.faces.model.SelectItem;
 import org.primefaces.context.RequestContext;
 
 import com.returnsoft.collection.entity.Notification;
+import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
-import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.SaleService;
@@ -43,7 +43,7 @@ public class EditNotificationBySaleController implements Serializable{
 	@EJB
 	private SaleService saleService;
 	
-	private List<Notification> notifications;
+	//private List<Notification> notifications;
 	
 	
 	@PostConstruct
@@ -55,17 +55,21 @@ public class EditNotificationBySaleController implements Serializable{
 			String saleId = FacesContext.getCurrentInstance()
 					.getExternalContext().getRequestParameterMap()
 					.get("saleId");
-
-			notifications = saleService.findNotifications(Long.parseLong(saleId));
+			
+			Sale saleFound = saleService.findById(Long.parseLong(saleId));
+			
+			notificationSelected = saleFound.getNotification();
 			
 			notificationStates = new ArrayList<SelectItem>();
-			
 			for (NotificationStateEnum notificationStateEnum : NotificationStateEnum.values()) {
-				
 				SelectItem item = new SelectItem();
 				item.setValue(notificationStateEnum.getId());
 				item.setLabel(notificationStateEnum.getName());
 				notificationStates.add(item);
+			}
+			
+			if (notificationSelected.getState()!=null) {
+				notificationStateSelected = notificationSelected.getState().getId().toString();
 			}
 			
 			
@@ -83,7 +87,7 @@ public class EditNotificationBySaleController implements Serializable{
 		}
 	}
 	
-	public void beforeEditNotification(){
+	/*public void beforeEditNotification(){
 		System.out.println("beforeEditNotification...");
 		if (notificationSelected!=null) {
 			if (notificationSelected.getState()!=null) {
@@ -100,7 +104,7 @@ public class EditNotificationBySaleController implements Serializable{
 			FacesContext.getCurrentInstance().addMessage(null,msg);
 		}
 		
-	}
+	}*/
 	
 
 
@@ -112,28 +116,26 @@ public class EditNotificationBySaleController implements Serializable{
 			if (notificationStateSelected != null && notificationStateSelected.length() > 0) {
 				notificationSelected.setState(NotificationStateEnum.findById(Short.parseShort(notificationStateSelected)));
 			}
-			
-			//notificationSelected.setType(NotificationTypeEnum.PHYSICAL);
-			
-			
+
 			notificationSelected.setUpdatedAt(new Date());
 			
 			SessionBean sessionBean = (SessionBean) FacesContext
 					.getCurrentInstance().getExternalContext()
 					.getSessionMap().get("sessionBean");
-			
 			int userId = sessionBean.getUser().getId();
-			
 			User user = new User();
 			user.setId(userId);
 			notificationSelected.setUpdatedBy(user);
-			
 			notificationSelected = notificationService.update(notificationSelected);
 			
-			notifications = saleService.findNotifications(notificationSelected.getSale().getId());
+			Sale saleUpdated = saleService.findById(notificationSelected.getSale().getId());
 			
-			RequestContext context = RequestContext.getCurrentInstance();
-			context.execute("PF('editNotificationDialog').hide();");
+			RequestContext.getCurrentInstance().closeDialog(saleUpdated);
+			
+			//notifications = saleService.findNotifications(notificationSelected.getSale().getId());
+			
+			/*RequestContext context = RequestContext.getCurrentInstance();
+			context.execute("PF('editNotificationDialog').hide();");*/
 			
 			
 		} catch (Exception e) {
@@ -172,18 +174,6 @@ public class EditNotificationBySaleController implements Serializable{
 		this.notificationStates = notificationStates;
 	}
 
-	public List<Notification> getNotifications() {
-		return notifications;
-	}
-
-	public void setNotifications(List<Notification> notifications) {
-		this.notifications = notifications;
-	}
-
-
-
-	
-	
 	
 
 }

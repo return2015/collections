@@ -30,6 +30,8 @@ public interface SaleService {
 	
 	public List<Product> getProducts() throws ServiceException;
 	
+	public Sale findById(Long saleId) throws ServiceException;
+	
 	public List<CreditCard> findUpdates(Long saleId) throws ServiceException;
 	
 	//public List<Notification> findMailings(Long saleId) throws ServiceException;

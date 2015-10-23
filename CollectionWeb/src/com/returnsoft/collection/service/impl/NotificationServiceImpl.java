@@ -50,7 +50,7 @@ public class NotificationServiceImpl implements NotificationService {
 			Sale saleFound = saleEao.findById(notification.getSale().getId());
 			
 			//Si tiene menos de 3 envios virtuales
-			if (saleFound.getVirtualNotifications()<3) {
+			/*if (saleFound.getVirtualNotifications()<3) {
 				if (saleFound.getPhysicalNotifications()>1) {
 					//no se agrega porque tiene 2 envíos físicos y menos de 3 virtuales.
 					throw new NotificationLimit2Exception(saleFound.getCode());
@@ -60,11 +60,16 @@ public class NotificationServiceImpl implements NotificationService {
 					//No se agrega porque ya tiene 1 envío físico y 3 envíos virtuales.
 					throw new NotificationLimit1Exception(saleFound.getCode());
 				}
-			}
+			}*/
 			
 			//se agrega notification 
 			notificationEao.add(notification);
-			saleFound.setPhysicalNotifications((short)(saleFound.getPhysicalNotifications()+1));
+			if (notification.getType().equals(NotificationTypeEnum.PHYSICAL)) {
+				saleFound.setPhysicalNotifications((short)(saleFound.getPhysicalNotifications()+1));	
+			}else if (notification.getType().equals(NotificationTypeEnum.MAIL)) {
+				saleFound.setVirtualNotifications((short)(saleFound.getVirtualNotifications()+1));
+			}
+			
 			saleFound.setNotification(notification);
 			saleFound = saleEao.update(saleFound);
 			

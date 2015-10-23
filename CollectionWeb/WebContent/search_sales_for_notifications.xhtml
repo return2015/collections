@@ -125,7 +125,7 @@
 					actionListener="#{searchSalesForNotificationsController.search}"
 					value="Buscar" process="@form"
 					update=":form:searchTypeOut :form:searchTable :form:saleId :form:salesCount :form:messages 
-						:form:notificationsButtom :form:notificationButtom :form:dataButtom :form:payersButtom">
+						:form:notificationsButtom :form:notificationButtom :form:dataButtom :form:payersButtom :form:editNotificationButtom ">
 				</p:commandButton>
 
 				<p:commandButton
@@ -140,14 +140,14 @@
 
 				<p:commandButton immediate="true" icon="ui-icon-plus"
 					value="Crear notificaciones físicas"
-					oncomplete="PF('notificationsDialog').show()"
+					oncomplete="PF('createPhysicalsDialog').show()"
 					update=":formNotifications">
 				</p:commandButton>
 
 				<p:commandButton immediate="true" icon="ui-icon-plus"
+				actionListener="#{searchSalesForNotificationsController.createVirtualNotifications}"
 					value="Crear notificaciones virtuales"
-					oncomplete="PF('notificationsDialog').show()"
-					update=":formNotifications">
+					update=":form:searchTable :form:messages">
 				</p:commandButton>
 
 
@@ -167,7 +167,7 @@
 
 			</h:panelGrid>
 
-			<h:panelGrid columns="4" style="width:100%; text-align:center;">
+			<h:panelGrid columns="5" style="width:100%; text-align:center;">
 
 				<p:commandButton id="dataButtom" immediate="true"
 					icon="ui-icon-pencil" value="Editar datos" update=":form:messages"
@@ -184,17 +184,27 @@
 					update=":formPayer:payersDetail"
 					disabled="#{searchSalesForNotificationsController.saleSelected==null}">
 				</p:commandButton>
-
-				<p:commandButton id="notificationsButtom" immediate="true"
+				
+				<p:commandButton id="notificationsButtom"
 					actionListener="#{searchSalesForNotificationsController.showNotifications}"
 					icon="ui-icon-search" value="Ver notificaciones"
+					oncomplete="PF('notificationsDialog').show()"
+					update=":formNotification:notificationsDetail"
+					disabled="#{searchSalesForNotificationsController.saleSelected==null}">
+				</p:commandButton>
+
+				<p:commandButton id="editNotificationButtom" immediate="true"
+					actionListener="#{searchSalesForNotificationsController.editNotification}"
+					icon="ui-icon-search" value="Editar notificación"
 					update=":form:messages"
 					disabled="#{searchSalesForNotificationsController.saleSelected==null}">
+					<p:ajax event="dialogReturn" update=":form:searchTable"
+						listener="#{searchSalesForNotificationsController.afterEditNotification}" />
 				</p:commandButton>
 
 				<p:commandButton id="notificationButtom" immediate="true"
 					actionListener="#{searchSalesForNotificationsController.addNotification}"
-					icon="ui-icon-plus" value="Agregar notificación"
+					icon="ui-icon-plus" value="Agregar notificación física"
 					update=":form:messages"
 					disabled="#{searchSalesForNotificationsController.saleSelected==null}">
 					<p:ajax event="dialogReturn" update=":form:searchTable"
@@ -213,9 +223,9 @@
 				rowKey="#{s.id}" id="searchTable">
 
 				<p:ajax event="rowSelect"
-					update=":form:dataButtom :form:payersButtom :form:notificationsButtom :form:notificationButtom :form:saleId" />
+					update=":form:dataButtom :form:payersButtom :form:notificationsButtom :form:notificationButtom :form:editNotificationButtom :form:saleId" />
 				<p:ajax event="rowUnselect"
-					update=":form:dataButtom :form:payersButtom :form:notificationsButtom :form:notificationButtom :form:saleId" />
+					update=":form:dataButtom :form:payersButtom :form:notificationsButtom :form:notificationButtom :form:editNotificationButtom :form:saleId" />
 
 
 				<p:column headerText="Código único venta" width="100">
@@ -329,8 +339,9 @@
 		</h:form>
 
 
-		<p:dialog header="Actualizaciones" widgetVar="payersDialog"
-			showEffect="fade" hideEffect="fade" width="800" height="200">
+		<p:dialog header="Actualizaciones de datos de responsable"
+			widgetVar="payersDialog" showEffect="fade" hideEffect="fade"
+			width="800" height="200">
 			<h:form id="formPayer">
 				<p:outputPanel id="payersDetail" style="text-align:center;">
 
@@ -400,9 +411,11 @@
 		</p:dialog>
 
 
+
+
 		<p:dialog header="Crear Notificaciones físicas masivamente"
-			widgetVar="notificationsDialog" showEffect="fade" hideEffect="fade"
-			width="800" height="200">
+			widgetVar="createPhysicalsDialog" showEffect="fade" hideEffect="fade"
+			width="400" height="200">
 			<h:form id="formNotifications">
 				<h:panelGrid style="margin:auto;">
 
@@ -421,14 +434,80 @@
 
 					<h:panelGrid style="margin:auto;text-align:center;">
 						<p:commandButton
-							actionListener="#{searchSalesForNotificationsController.createNotifications}"
-							update=":formNotifications:messagesNotifications"
-							value="Crear">
+							actionListener="#{searchSalesForNotificationsController.createPhysicalNotifications}"
+							update=":formNotifications:messagesNotifications :form:searchTable" value="Crear">
 						</p:commandButton>
 					</h:panelGrid>
 				</h:panelGrid>
 			</h:form>
 
+		</p:dialog>
+
+
+		<p:dialog header="Notificaciones" widgetVar="notificationsDialog"
+			showEffect="fade" hideEffect="fade" width="800" height="200">
+			<h:form id="formNotification">
+				<p:outputPanel id="notificationsDetail" style="text-align:center;">
+
+					<h:panelGrid style="margin:auto;">
+
+						<p:dataTable
+							value="#{searchSalesForNotificationsController.notifications}"
+							var="n" paginator="true" rows="5" id="notificationsTable">
+							
+							<p:column headerText="Código único" width="100">
+								<h:outputText value="#{n.sale.code}"></h:outputText>
+							</p:column>
+
+							<p:column headerText="Tipo" width="100">
+								<h:outputText value="#{n.type.name}"></h:outputText>
+							</p:column>
+
+							<p:column headerText="Estado" width="100">
+								<h:outputText value="#{n.state.name}"></h:outputText>
+							</p:column>
+
+							<p:column headerText="Fecha envío" width="80">
+								<h:outputText value="#{n.sendingAt}">
+									<f:convertDateTime pattern="dd/MM/yyyy " />
+								</h:outputText>
+							</p:column>
+
+							<p:column headerText="Fecha respuesta" width="80">
+								<h:outputText value="#{n.answeringAt}">
+									<f:convertDateTime pattern="dd/MM/yyyy" />
+								</h:outputText>
+							</p:column>
+
+							<p:column headerText="Número orden notificación" width="80">
+								<h:outputText value="#{n.orderNumber}">
+								</h:outputText>
+							</p:column>
+
+							<p:column headerText="Número correlativo notificación" width="80">
+								<h:outputText value="#{n.correlativeNumber}">
+								</h:outputText>
+							</p:column>
+
+
+							<p:column headerText="Fecha creación" width="80">
+								<h:outputText value="#{n.createdAt}">
+									<f:convertDateTime pattern="dd/MM/yyyy hh:mm:ss a" />
+								</h:outputText>
+							</p:column>
+
+							<p:column headerText="Usuario creación" width="80">
+								<h:outputText value="#{n.createdBy.username}"></h:outputText>
+							</p:column>
+
+
+
+
+						</p:dataTable>
+
+					</h:panelGrid>
+				</p:outputPanel>
+			</h:form>
 		</p:dialog>
 
 

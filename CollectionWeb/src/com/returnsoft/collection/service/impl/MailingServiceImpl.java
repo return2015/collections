@@ -171,6 +171,132 @@ public class MailingServiceImpl implements MailingService {
 		}
 
 	}
+	
+	
+	
+	public void sendMail(String email, String names, Short bankId) throws ServiceException {
+		try {
+			
+			/*System.out.println("mailerDaemon..");
+			List<Sale> sales = saleEao.getNotConditioned();
+			System.out.println("cantidad de ventas encontradas:" + sales.size());*/
+			
+			//for (Sale sale : sales) {
+
+				//String email = sale.getPayer().getMail();
+				System.out.println("email:" + email);
+				/*String names = sale.getPayer().getFirstnameResponsible() + " "
+						+ sale.getPayer().getLastnamePaternalResponsible() + " "
+						+ sale.getPayer().getLastnameMaternalResponsible();*/
+				System.out.println("names:" + names);
+
+				if (email != null && names != null) {
+
+					BankLetterEnum bankLetterEnum = BankLetterEnum.findById(bankId);
+
+					if (bankLetterEnum != null) {
+						
+						Session sessionSelected = null;
+
+						switch (bankLetterEnum) {
+						case FALABELLA:
+							sessionSelected = mailFalabella;
+							break;
+						case GNB:
+							sessionSelected = mailGNB;
+							break;
+						default:
+							break;
+						}
+
+						try {
+
+							MimeMessage message = new MimeMessage(sessionSelected);
+							message.setFrom(new InternetAddress(sessionSelected.getProperty("mail.from")));
+							InternetAddress[] address = { new InternetAddress(email) };
+							message.setRecipients(Message.RecipientType.TO, address);
+							message.setSubject(bankLetterEnum.getSubject());
+							message.setSentDate(new Date());
+							
+							ServletContext servletContext=(ServletContext) FacesContext.getCurrentInstance ().getExternalContext().getContext();
+							String separator=System.getProperty("file.separator");
+							String rootPath= servletContext.getRealPath(separator);
+							String fileName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getTemplateMail();
+							String logoName = rootPath+"resources"+separator+"templates"+separator+"logoGEA.jpg";
+							String htmlText="";
+							BufferedReader br = new BufferedReader(new FileReader(fileName));
+							try {
+							    StringBuilder sb = new StringBuilder();
+							    String line = br.readLine();
+
+							    while (line != null) {
+							        sb.append(line);
+							        sb.append(System.lineSeparator());
+							        line = br.readLine();
+							    }
+							    htmlText = sb.toString();
+							} finally {
+							    br.close();
+							}
+							htmlText=String.format(htmlText, names);
+							
+							//
+					        // This HTML mail have to 2 part, the BODY and the embedded image
+					        //
+					        MimeMultipart multipart = new MimeMultipart("related");
+					        
+					        // first part  (the html)
+					        BodyPart messageBodyPart = new MimeBodyPart();
+					        messageBodyPart.setContent(htmlText, "text/html");
+					        
+					        // add it
+					        multipart.addBodyPart(messageBodyPart);
+					        
+					        // second part (the image)
+					        messageBodyPart = new MimeBodyPart();
+					        DataSource fds = new FileDataSource(logoName);
+					        messageBodyPart.setDataHandler(new DataHandler(fds));
+					        messageBodyPart.setHeader("Content-ID","<image>");
+
+					        // add it
+					        multipart.addBodyPart(messageBodyPart);
+					        
+
+					        // put everything together
+					        message.setContent(multipart);
+
+					        // para enviar condicionado
+							// message.addHeader("Disposition-Notification-To",bankLetterEnum.getMail());
+					        
+							Transport.send(message);
+							System.out.println("se envío el mensaje");
+
+						} catch (MessagingException ex) {
+							ex.printStackTrace();
+						} catch (Exception ex) {
+							System.out.println("INGRESO A EXCEPTIONNNN");
+							System.out.println("INGRESO A EXCEPTIONNNN");
+							System.out.println("INGRESO A EXCEPTIONNNN");
+							System.out.println("INGRESO A EXCEPTIONNNN");
+							System.out.println("INGRESO A EXCEPTIONNNN");
+							ex.printStackTrace();
+						}
+					}
+
+				}
+
+			//}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage() != null && e.getMessage().trim().length() > 0) {
+				throw new ServiceException(e.getMessage(), e);
+			} else {
+				throw new ServiceException();
+			}
+		}
+
+	}
 
 	/*
 	 * public void sendEmail(String email, String names, String subject, String

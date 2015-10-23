@@ -66,6 +66,24 @@ public class SaleServiceImpl implements SaleService{
 	@EJB
 	private PayerEao payerEao;
 	
+	public Sale findById(Long saleId) throws ServiceException {
+		try {
+
+			Sale sale = saleEao.findById(saleId);
+
+			return sale;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
+	
 	
 	
 	/*@EJB

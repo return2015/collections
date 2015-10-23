@@ -823,55 +823,7 @@
 		</p:dialog>
 
 
-		<p:dialog header="Notificaciones" widgetVar="notificationsDialog"
-			showEffect="fade" hideEffect="fade" width="800" height="200">
-			<h:form id="formNotification">
-				<p:outputPanel id="notificationsDetail" style="text-align:center;">
-
-					<h:panelGrid style="margin:auto;">
-
-						<p:dataTable value="#{searchSalesForCollectionsController.notifications}" var="n"
-							paginator="true" rows="5" id="notificationsTable">
-
-							<p:column headerText="TIPO" width="100">
-								<h:outputText value="#{n.type.name}"></h:outputText>
-							</p:column>
-
-							<p:column headerText="ESTADO" width="100">
-								<h:outputText value="#{n.state.name}"></h:outputText>
-							</p:column>
-
-							<p:column headerText="FECHA ENVÍO" width="80">
-								<h:outputText value="#{n.sendingAt}">
-									<f:convertDateTime pattern="dd/MM/yyyy " />
-								</h:outputText>
-							</p:column>
-
-							<p:column headerText="FECHA RESPUESTA" width="80">
-								<h:outputText value="#{n.answeringAt}">
-									<f:convertDateTime pattern="dd/MM/yyyy" />
-								</h:outputText>
-							</p:column>
-
-							<p:column headerText="FECHA CREACIÓN" width="80">
-								<h:outputText value="#{n.createdAt}">
-									<f:convertDateTime pattern="dd/MM/yyyy hh:mm:ss a" />
-								</h:outputText>
-							</p:column>
-
-							<p:column headerText="USUARIO CREACIÓN" width="80">
-								<h:outputText value="#{n.createdBy.username}"></h:outputText>
-							</p:column>
-
-
-
-
-						</p:dataTable>
-
-					</h:panelGrid>
-				</p:outputPanel>
-			</h:form>
-		</p:dialog>
+		
 
 
 		<p:dialog header="Password Supervisor" widgetVar="passSuperDialog"

@@ -1,16 +1,13 @@
 package com.returnsoft.collection.controller;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
 
 import org.primefaces.context.RequestContext;
 
@@ -21,6 +18,7 @@ import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.NotificationService;
+import com.returnsoft.collection.service.SaleService;
 
 @ManagedBean
 @ViewScoped
@@ -43,6 +41,9 @@ public class AddNotificationController implements Serializable{
 	
 	@EJB
 	private NotificationService notificationService;
+	
+	@EJB
+	private SaleService saleService;
 	
 	public String initialize() {
 		try {
@@ -150,12 +151,15 @@ public class AddNotificationController implements Serializable{
 					.getCurrentInstance().getExternalContext()
 					.getSessionMap().get("sessionBean");
 			int userId = sessionBean.getUser().getId();
-			
 			User user = new User();
 			user.setId(userId);
 			notificationSelected.setCreatedBy(user);
+			
 			notificationService.add(notificationSelected);
-			RequestContext.getCurrentInstance().closeDialog(notificationSelected.getSale());
+			
+			Sale saleUpdated = saleService.findById(notificationSelected.getSale().getId());
+			
+			RequestContext.getCurrentInstance().closeDialog(saleUpdated);
 
 		} catch (Exception e) {
 
