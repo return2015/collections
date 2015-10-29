@@ -83,6 +83,22 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
+	public Sale findByCode(String code) throws ServiceException{
+		try {
+			System.out.println("Ingreso a findByCode ServiceImpl");
+			
+			Sale sale = saleEao.findByCode(code);
+
+			return sale;
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
 	
 	
 	

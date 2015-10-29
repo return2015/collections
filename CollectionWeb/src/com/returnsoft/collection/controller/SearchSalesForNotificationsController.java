@@ -46,6 +46,7 @@ import com.returnsoft.collection.exception.NotificationLastnameMaternalNullExcep
 import com.returnsoft.collection.exception.NotificationLastnamePaternalNullException;
 import com.returnsoft.collection.exception.NotificationLimit1Exception;
 import com.returnsoft.collection.exception.NotificationLimit2Exception;
+import com.returnsoft.collection.exception.NotificationLimit3Exception;
 import com.returnsoft.collection.exception.NotificationNotFoundException;
 import com.returnsoft.collection.exception.NotificationPayerNullException;
 import com.returnsoft.collection.exception.NotificationPendingException;
@@ -131,8 +132,10 @@ public class SearchSalesForNotificationsController implements Serializable {
 	private List<Commerce> commerces;
 
 	public SearchSalesForNotificationsController() {
+		
 		System.out.println("Se construye SearchSaleController");
 		facesUtil = new FacesUtil();
+		
 	}
 
 	public String initialize() {
@@ -955,7 +958,6 @@ public class SearchSalesForNotificationsController implements Serializable {
 						}
 
 						// VALIDA DATOS DE RESPONSABLE
-
 						if (sale.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
 							errors.add(new SaleStateNoActiveException(sale.getCode()));
 						}
@@ -987,32 +989,12 @@ public class SearchSalesForNotificationsController implements Serializable {
 							errors.add(new PayerDataNullException("El distrito", sale.getCode()));//
 						}
 
-						// VALIDA CANTIDAD DE NOTIFICACIONES ENVIADAS
-						// Si tiene menos de 3 envios virtuales
-						if (sale.getVirtualNotifications() < 3) {
-							if (sale.getPhysicalNotifications() > 1) {
-								// no se agrega porque tiene 2 envíos físicos y
-								// menos de 3 virtuales.
-								errors.add(new NotificationLimit2Exception(sale.getCode()));
-							}
-						} else {
-							
-							if (sale.getPhysicalNotifications() > 0) {
-								// No se agrega porque ya tiene 1 envío físico y
-								// 3
-								// envíos virtuales.
-								errors.add(new NotificationLimit1Exception(sale.getCode()));
-							}
+						// VALIDA CANTIDAD DE NOTIFICACIONES VIRTUALES ENVIADAS
+						// Solo puede tener 3 notificaciones virtuales.
+						if (sale.getVirtualNotifications() > 2) {
+							errors.add(new NotificationLimit3Exception(sale.getCode()));
 						}
 						
-						
-						
-						
-						
-						
-						
-						
-
 					}
 
 					if (errors.size() > 0) {
@@ -1030,16 +1012,17 @@ public class SearchSalesForNotificationsController implements Serializable {
 							
 							String email = sale.getPayer().getMail();
 							
+							String code = sale.getCode();
+							
 							String names = sale.getPayer().getFirstnameResponsible() + " "
 							+ sale.getPayer().getLastnamePaternalResponsible() + " "
 							+ sale.getPayer().getLastnameMaternalResponsible();
 							
 							Short bankId = sale.getCommerce().getBank().getId();
 							
-							mailingService.sendMail(email, names, bankId);
+							mailingService.sendMail(email, names, code, bankId);
 							
 							//	SE CREA LA NOTIFICACION VIRTUAL
-							
 							Notification notification = new Notification();
 							notification.setSendingAt(new Date());
 							notification.setSale(sale);

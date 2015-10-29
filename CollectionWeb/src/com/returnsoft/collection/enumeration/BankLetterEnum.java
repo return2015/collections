@@ -7,19 +7,18 @@ public enum BankLetterEnum {
 					"mailGNB.html");
 
 	private Short id;
-	// private String mail;
 	private String templateLetter;
 	private String signature;
 	private String templateMail;
 	private String subject;
 
-	private BankLetterEnum(short id, String templateLetter, String signature, String subject, String templateMail) {
+	private BankLetterEnum(short id, String templateLetter,String signature, String subject, String templateMail) {
 		this.id = id;
 		this.templateLetter = templateLetter;
 		this.signature = signature;
 		this.subject = subject;
 		this.templateMail = templateMail;
-		// this.mail=mail;
+
 	}
 
 	public static BankLetterEnum findById(Short id) {
@@ -42,10 +41,6 @@ public enum BankLetterEnum {
 	public String getSubject() {
 		return subject;
 	}
-
-	/*
-	 * public String getMail() { return mail; }
-	 */
 
 	public String getTemplateLetter() {
 		return templateLetter;

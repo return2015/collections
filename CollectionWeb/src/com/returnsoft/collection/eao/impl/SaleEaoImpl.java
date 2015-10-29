@@ -217,6 +217,8 @@ public class SaleEaoImpl implements SaleEao {
 	public Sale findByCode(String code) throws EaoException{
 		try {
 			
+			System.out.println("ingreso a findByCode EAOImpl");
+			
 			String query = "SELECT s FROM Sale s WHERE s.code = :code ";
 			
 			TypedQuery<Sale> q = em.createQuery(query, Sale.class);

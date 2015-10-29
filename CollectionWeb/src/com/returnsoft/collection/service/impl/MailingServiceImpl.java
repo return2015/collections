@@ -135,7 +135,6 @@ public class MailingServiceImpl implements MailingService {
 					        // add it
 					        multipart.addBodyPart(messageBodyPart);
 					        
-
 					        // put everything together
 					        message.setContent(multipart);
 
@@ -174,23 +173,13 @@ public class MailingServiceImpl implements MailingService {
 	
 	
 	
-	public void sendMail(String email, String names, Short bankId) throws ServiceException {
+	public void sendMail(String email, String names, String code, Short bankId) throws ServiceException {
 		try {
-			
-			/*System.out.println("mailerDaemon..");
-			List<Sale> sales = saleEao.getNotConditioned();
-			System.out.println("cantidad de ventas encontradas:" + sales.size());*/
-			
-			//for (Sale sale : sales) {
 
-				//String email = sale.getPayer().getMail();
 				System.out.println("email:" + email);
-				/*String names = sale.getPayer().getFirstnameResponsible() + " "
-						+ sale.getPayer().getLastnamePaternalResponsible() + " "
-						+ sale.getPayer().getLastnameMaternalResponsible();*/
 				System.out.println("names:" + names);
 
-				if (email != null && names != null) {
+				if (email != null && names != null && bankId != null) {
 
 					BankLetterEnum bankLetterEnum = BankLetterEnum.findById(bankId);
 
@@ -238,7 +227,9 @@ public class MailingServiceImpl implements MailingService {
 							} finally {
 							    br.close();
 							}
-							htmlText=String.format(htmlText, names);
+							String urlConditioned="http://172.28.0.23:8080/collectionWeb/faces/download_conditioned.xhtml?code="+code;
+							String urlLetter="http://172.28.0.23:8080/collectionWeb/faces/download_letter.xhtml?code="+code;
+							htmlText=String.format(htmlText, names,urlLetter,urlConditioned);
 							
 							//
 					        // This HTML mail have to 2 part, the BODY and the embedded image
@@ -248,7 +239,6 @@ public class MailingServiceImpl implements MailingService {
 					        // first part  (the html)
 					        BodyPart messageBodyPart = new MimeBodyPart();
 					        messageBodyPart.setContent(htmlText, "text/html");
-					        
 					        // add it
 					        multipart.addBodyPart(messageBodyPart);
 					        
@@ -257,10 +247,15 @@ public class MailingServiceImpl implements MailingService {
 					        DataSource fds = new FileDataSource(logoName);
 					        messageBodyPart.setDataHandler(new DataHandler(fds));
 					        messageBodyPart.setHeader("Content-ID","<image>");
-
 					        // add it
 					        multipart.addBodyPart(messageBodyPart);
 					        
+					        // third part (the link)
+					        /*messageBodyPart = new MimeBodyPart();
+					        messageBodyPart.setText("un texto adicional");
+					        messageBodyPart.setHeader("Content-ID","<link>");
+					        // add it
+					        multipart.addBodyPart(messageBodyPart);*/
 
 					        // put everything together
 					        message.setContent(multipart);

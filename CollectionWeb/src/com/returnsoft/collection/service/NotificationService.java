@@ -15,14 +15,11 @@ public interface NotificationService {
 	
 	public void add(Notification notification) throws ServiceException;
 	
-	//public void addPhysical(Notification notification) throws ServiceException;
-	
-	//public void addVirtual(Notification notification) throws ServiceException;
-	
 	public List<Notification> findNotificationsByData(Date sendingAt,Date createdAt,NotificationTypeEnum notificationType, NotificationStateEnum notificationState) throws ServiceException;
 	
 	public Notification findById(Integer notificationId) throws ServiceException;
 	
 	public Notification update(Notification notification) throws ServiceException;
+	
 
 }

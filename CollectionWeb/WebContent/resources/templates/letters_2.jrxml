@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="plantillaFalabella" language="groovy" pageWidth="595" pageHeight="841" columnWidth="425" leftMargin="85" rightMargin="85" topMargin="30" bottomMargin="0" uuid="bc7a153f-e446-477a-b9d6-b75b03d25dfa">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="1114"/>
+	<parameter name="names" class="java.lang.String"/>
+	<parameter name="ROOT_DIR" class="java.lang.String"/>
+	<detail>
+		<band height="811">
+			<staticText>
+				<reportElement x="0" y="111" width="340" height="15" uuid="fd28268f-2ccd-469d-8679-ab3b0b7d44ca"/>
+				<textElement>
+					<font fontName="Calibri" size="9"/>
+				</textElement>
+				<text><![CDATA[Estimado Señor(a)]]></text>
+			</staticText>
+			<image scaleImage="FillFrame">
+				<reportElement x="0" y="560" width="136" height="84" uuid="a867dc46-f966-431b-a87a-eb9fb790bbf8"/>
+				<imageExpression><![CDATA[$P{ROOT_DIR}+"signatureFalabella2.jpg"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="0" y="164" width="425" height="370" uuid="80dbbd5c-4c64-46b8-a874-20e3f4897deb"/>
+				<textElement textAlignment="Justified" markup="styled">
+					<font fontName="Arial" size="9" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="1_1_2" lineSpacingSize="1.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA["\t Mediante la presente agradecemos su preferencia por haber contratado el <style isBold='true' pdfFontName='Helvetica-Bold' size='9'>Servicio de asistencia Falabella</style>, a través de <style isBold='true' pdfFontName='Helvetica-Bold' size='9'>Falabella Servicios Generales S.A.C.</style> con el respaldo del <style isBold='true' pdfFontName='Helvetica-Bold' size='9'>Grupo Especializado de Asistencia del Perú S.A.C. (GEA)</style> \r\n\n \t Porque un evento inesperado se puede presentar en cualquier momento y en cualquier lugar, este producto  garantiza un servicio integral para usted y sus beneficiarios en: asistencia médica, en el hogar, vial, viaje nacional, legal, tecnológico, servicios de coordinación de reservas y referencias de direcciones de calles de Lima y locales especializados.\r\nRecuerde que las cuotas del programa de asistencia contratado, serán cargadas automáticamente de forma mensual, sin intereses, a través de su tarjeta CMR o Visa del Banco Falabella.\n\r\t Adjunto a la presente carta encontrará la siguiente documentación que contiene información del producto adquirido:\r\n\n\t •  Condiciones Generales del Producto.\r\t •  Resumen de coberturas del Producto.\r\n\n\tQuedamos a su disposición frente a cualquier duda  o consulta. Lo invitamos a comunicarse con nosotros a través de nuestra central telefónica 615-6000 (Lima) ó 60-6025 (Provincias) o a visitarnos en nuestras oficinas ubicadas en Saga Falabella e Hipermercados  Tottus donde gustosamente será atendido.\r\n\n Sin otro particular quedamos a su disposición.\r\n\n Atentamente,"]]></textFieldExpression>
+			</textField>
+			<textField pattern="&apos;Lima, &apos; MMMMM &apos;de&apos; yyyy">
+				<reportElement x="0" y="67" width="172" height="20" uuid="dbba5901-6f1b-4ce4-8f78-a683a5c51cc4"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Calibri" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="138" width="406" height="18" uuid="5fd43de4-4f29-4e2c-b1f9-11cbdb518537"/>
+				<textElement>
+					<font fontName="Calibri" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{names}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="FillFrame">
+				<reportElement x="321" y="20" width="125" height="50" uuid="5ba06e4a-d6b4-4157-b922-6aa6011c7605"/>
+				<imageExpression><![CDATA[$P{ROOT_DIR}+"logoFalabella.jpg"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="315" y="72" width="134" height="15" forecolor="#666666" uuid="5d52a792-81bc-4f67-993f-3221ee940c00"/>
+				<textElement markup="styled">
+					<font fontName="Times New Roman" size="9" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<style pdfFontName='Times-Roman' size='10'>Asesoramos personas. Como tú.</style>"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="726" width="425" height="46" uuid="54ae2b16-e995-4358-92b2-f53d3985d8a7"/>
+				<textElement textAlignment="Center">
+					<font fontName="Calibri" size="9"/>
+					<paragraph lineSpacing="1_1_2"/>
+				</textElement>
+				<textFieldExpression><![CDATA["FALABELLA SERVICIOS GENERALES S.A.C. Inscrito en la partida Nº 11686578 Asiento A 00001 del \r\n Registro de Personas Jurídicas de Lima Oficina Principal Lima: Av. Angamos Este Nº1805, Interior \r\n Of. 3C piso 8 – Edificio Angamos Open Plaza – Surquillo. Teléfono: 618-7000"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="644" width="136" height="35" uuid="07622f35-8c49-44e9-a049-79512dd71204"/>
+				<textElement textAlignment="Center">
+					<font fontName="Calibri" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Daniel Benavides \r\n Gerente de Negocios \r\n Falabella Servicios Generales"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

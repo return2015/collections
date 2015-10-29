@@ -32,6 +32,8 @@ public interface SaleService {
 	
 	public Sale findById(Long saleId) throws ServiceException;
 	
+	public Sale findByCode(String code) throws ServiceException;
+	
 	public List<CreditCard> findUpdates(Long saleId) throws ServiceException;
 	
 	//public List<Notification> findMailings(Long saleId) throws ServiceException;
