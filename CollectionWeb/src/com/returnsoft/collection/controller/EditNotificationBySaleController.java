@@ -43,8 +43,6 @@ public class EditNotificationBySaleController implements Serializable{
 	@EJB
 	private SaleService saleService;
 	
-	//private List<Notification> notifications;
-	
 	
 	@PostConstruct
 	public void initialize() {
@@ -52,13 +50,11 @@ public class EditNotificationBySaleController implements Serializable{
 
 			System.out.println("Ingreso a initialize");
 			
-			String saleId = FacesContext.getCurrentInstance()
+			String notificationId = FacesContext.getCurrentInstance()
 					.getExternalContext().getRequestParameterMap()
-					.get("saleId");
+					.get("notificationId");
 			
-			Sale saleFound = saleService.findById(Long.parseLong(saleId));
-			
-			notificationSelected = saleFound.getNotification();
+			notificationSelected = notificationService.findById(Integer.parseInt(notificationId));
 			
 			notificationStates = new ArrayList<SelectItem>();
 			for (NotificationStateEnum notificationStateEnum : NotificationStateEnum.values()) {
@@ -72,10 +68,6 @@ public class EditNotificationBySaleController implements Serializable{
 				notificationStateSelected = notificationSelected.getState().getId().toString();
 			}
 			
-			
-			//updateNotificationStates();
-
-
 		} catch (Exception e) {
 
 			if (!(e instanceof ServiceException)) {
@@ -87,29 +79,6 @@ public class EditNotificationBySaleController implements Serializable{
 		}
 	}
 	
-	/*public void beforeEditNotification(){
-		System.out.println("beforeEditNotification...");
-		if (notificationSelected!=null) {
-			if (notificationSelected.getState()!=null) {
-				notificationStateSelected = notificationSelected.getState().getId().toString();
-				
-			}
-			
-			RequestContext context = RequestContext.getCurrentInstance();
-			context.execute("PF('editNotificationDialog').show();");
-			
-		}else{
-			FacesMessage msg = new FacesMessage("Seleccione notificación");
-			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-			FacesContext.getCurrentInstance().addMessage(null,msg);
-		}
-		
-	}*/
-	
-
-
-	
-
 	public void edit() {
 		try {
 			
@@ -128,15 +97,11 @@ public class EditNotificationBySaleController implements Serializable{
 			notificationSelected.setUpdatedBy(user);
 			notificationSelected = notificationService.update(notificationSelected);
 			
+			// RETORNA LA VENTA ACTUALIZADA
+			
 			Sale saleUpdated = saleService.findById(notificationSelected.getSale().getId());
 			
 			RequestContext.getCurrentInstance().closeDialog(saleUpdated);
-			
-			//notifications = saleService.findNotifications(notificationSelected.getSale().getId());
-			
-			/*RequestContext context = RequestContext.getCurrentInstance();
-			context.execute("PF('editNotificationDialog').hide();");*/
-			
 			
 		} catch (Exception e) {
 

@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
@@ -15,12 +14,12 @@ import javax.faces.model.SelectItem;
 
 import org.primefaces.context.RequestContext;
 
-import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.Sale;
+import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
-import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.MaintenanceService;
+import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 
 @ManagedBean
@@ -44,6 +43,9 @@ public class AddMaintenanceController implements Serializable{
 	@EJB
 	private MaintenanceService maintenanceService;
 	
+	@EJB
+	private SaleService saleService;
+	
 	private FacesUtil facesUtil;
 	
 	@PostConstruct
@@ -57,7 +59,7 @@ public class AddMaintenanceController implements Serializable{
 					.getExternalContext().getRequestParameterMap()
 					.get("saleId");
 			
-			Sale saleSelected = maintenanceService.findSaleById(Long.parseLong(saleId));
+			Sale saleSelected = saleService.findById(Long.parseLong(saleId));
 			
 			maintenanceSelected = new SaleState();
 			Sale sale = new Sale();
@@ -111,7 +113,7 @@ public class AddMaintenanceController implements Serializable{
 			
 			maintenanceService.add(maintenanceSelected);
 			
-			Sale saleReturn = maintenanceService.findSaleById(maintenanceSelected.getSale().getId());
+			Sale saleReturn = saleService.findById(maintenanceSelected.getSale().getId());
 			
 			RequestContext.getCurrentInstance().closeDialog(saleReturn);
 

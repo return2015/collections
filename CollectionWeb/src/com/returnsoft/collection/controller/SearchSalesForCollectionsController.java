@@ -41,6 +41,13 @@ import com.returnsoft.collection.exception.BankLetterNotFoundException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
+import com.returnsoft.collection.service.BankService;
+import com.returnsoft.collection.service.CollectionService;
+import com.returnsoft.collection.service.CommerceService;
+import com.returnsoft.collection.service.CreditCardService;
+import com.returnsoft.collection.service.MaintenanceService;
+import com.returnsoft.collection.service.ProductService;
+import com.returnsoft.collection.service.RepaymentService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
@@ -62,10 +69,32 @@ public class SearchSalesForCollectionsController implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@EJB
+	private CommerceService commerceService;
+	
+	@EJB
+	private BankService bankService;
+	
+	@EJB
+	private ProductService productService;
+	
+	
+	@EJB
 	private SaleService saleService;
 	
 	@EJB
 	private UserService userService;
+	
+	@EJB
+	private CreditCardService creditCardService;
+	
+	@EJB
+	private RepaymentService repaymentService;
+	
+	@EJB
+	private CollectionService collectionService;
+	
+	@EJB
+	private MaintenanceService maintenanceService;
 
 	private String searchTypeSelected;
 	private String personTypeSelected;
@@ -157,11 +186,11 @@ public class SearchSalesForCollectionsController implements Serializable {
 				if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
 					Short bankId = sessionBean.getBank().getId();
 					System.out.println("id de banco"+bankId);
-					commerces = saleService.findCommercesByBankId(bankId);
+					commerces = commerceService.findByBank(bankId);
 					System.out.println("cantidad de commerce encontrados:"+commerces.size());
 				}
 				
-				List<Bank> banksEntity = saleService.getBanks();
+				List<Bank> banksEntity = bankService.getAll();
 				banks = new ArrayList<SelectItem>();
 				for (Bank bank : banksEntity) {
 					SelectItem item = new SelectItem();
@@ -170,7 +199,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 					banks.add(item);
 				}
 
-				List<Product> productsEntity = saleService.getProducts();
+				List<Product> productsEntity = productService.getAll();
 				products = new ArrayList<SelectItem>();
 				for (Product product : productsEntity) {
 					SelectItem item = new SelectItem();
@@ -619,7 +648,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 
 			System.out.println("Ingreso a showCreditCardUpdates "
 					+ saleSelected);
-			updates = saleService.findUpdates(saleSelected.getId());
+			updates = creditCardService.findBySale(saleSelected.getId());
 			System.out.println("updates: " + updates.size());
 			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
 
@@ -636,7 +665,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 		try {
 
 			System.out.println("Ingreso a showCollections " + saleSelected);
-			collections = saleService.findCollections(saleSelected.getId());
+			collections = collectionService.findBySale(saleSelected.getId());
 			System.out.println("collections: " + collections.size());
 			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
 
@@ -654,7 +683,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 		try {
 
 			//System.out.println("Ingreso a showCollections " + saleSelected);
-			repayments = saleService.findRepayments(saleSelected.getId());
+			repayments = repaymentService.findBySale(saleSelected.getId());
 			//System.out.println("collections: " + collections.size());
 			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
 
@@ -671,7 +700,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 		try {
 
 			System.out.println("Ingreso a showMaintenances " + saleSelected);
-			maintenances = saleService.findMaintenances(saleSelected.getId());
+			maintenances = maintenanceService.findBySale(saleSelected.getId());
 			System.out.println("maintenances: " + maintenances.size());
 			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
 
@@ -683,7 +712,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 
 	}
 	
-	public void showNotifications() {
+	/*public void showNotifications() {
 
 		try {
 
@@ -698,7 +727,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 					e.getMessage());
 		}
 
-	}
+	}*/
 	
 	
 

@@ -27,23 +27,25 @@ import com.returnsoft.collection.enumeration.CreditCardValidationEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
 import com.returnsoft.collection.exception.DataCollectionCreateException;
-import com.returnsoft.collection.exception.DataCreditCardDuplicateException;
-import com.returnsoft.collection.exception.DataCommerceCodeException;
 import com.returnsoft.collection.exception.DataColumnDateException;
 import com.returnsoft.collection.exception.DataColumnLengthException;
 import com.returnsoft.collection.exception.DataColumnNullException;
 import com.returnsoft.collection.exception.DataColumnNumberException;
+import com.returnsoft.collection.exception.DataCommerceCodeException;
+import com.returnsoft.collection.exception.DataCreditCardDuplicateException;
+import com.returnsoft.collection.exception.DataCreditCardValidationNotFoundException;
 import com.returnsoft.collection.exception.DataSaleNotFoundException;
 import com.returnsoft.collection.exception.DataSaleStateNoActiveException;
-import com.returnsoft.collection.exception.DataCreditCardValidationNotFoundException;
 import com.returnsoft.collection.exception.FileColumnsTotalException;
-import com.returnsoft.collection.exception.FileRowsZeroException;
-import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.FileExtensionException;
 import com.returnsoft.collection.exception.FileNotFoundException;
+import com.returnsoft.collection.exception.FileRowsZeroException;
+import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
+import com.returnsoft.collection.service.CommerceService;
 import com.returnsoft.collection.service.CreditCardService;
+import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 
 @ManagedBean
@@ -74,6 +76,12 @@ public class LoadCreditCardsController implements Serializable {
 	@EJB
 	private CreditCardService creditCardUpdateService;
 	
+	@EJB
+	private CommerceService commerceService;
+	
+	@EJB
+	private SaleService saleService;
+	
 	private FacesUtil facesUtil;
 
 	public LoadCreditCardsController() {
@@ -98,7 +106,7 @@ try {
 					
 				Short bankId = (Short) sessionBean.getBank().getId();
 				
-				commerces = creditCardUpdateService.findCommercesByBankId(bankId);
+				commerces = commerceService.findByBank(bankId);
 				
 				return null;
 				
@@ -403,8 +411,7 @@ public void validateDuplicates(){
 					
 
 						// VALIDA SI LA VENTA EXISTE
-						Sale sale = creditCardUpdateService.findByCode(data
-								.get("code"));
+						Sale sale = saleService.findByCode(data.get("code"));
 						if (sale != null && sale.getId() > 0) {
 
 							// VALIDA SI LA VENTA ESTA DE BAJA
@@ -470,7 +477,7 @@ public void validateDuplicates(){
 					try {
 						// / SE CREA LA TARJETA
 						
-						Sale sale = creditCardUpdateService.findByCode(data.get("code"));
+						Sale sale = saleService.findByCode(data.get("code"));
 						
 						CreditCard creditCard = new CreditCard();
 						creditCard.setSale(sale);

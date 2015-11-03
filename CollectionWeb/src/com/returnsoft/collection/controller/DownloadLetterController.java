@@ -58,7 +58,7 @@ public class DownloadLetterController implements Serializable {
 
 		try {
 
-			System.out.println("Ingreso a start: " + code);
+			//System.out.println("Ingreso a start: " + code);
 			facesUtil = new FacesUtil();
 			List<Exception> errors = new ArrayList<Exception>();
 

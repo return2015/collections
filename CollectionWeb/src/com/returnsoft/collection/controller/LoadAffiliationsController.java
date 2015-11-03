@@ -23,19 +23,20 @@ import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
 import com.returnsoft.collection.exception.DataAffiliationDuplicateException;
 import com.returnsoft.collection.exception.DataCollectionCreateException;
-import com.returnsoft.collection.exception.DataCommerceCodeException;
 import com.returnsoft.collection.exception.DataColumnLengthException;
 import com.returnsoft.collection.exception.DataColumnNullException;
+import com.returnsoft.collection.exception.DataCommerceCodeException;
 import com.returnsoft.collection.exception.DataSaleNotFoundException;
 import com.returnsoft.collection.exception.DataSaleStateNoActiveException;
 import com.returnsoft.collection.exception.FileColumnsTotalException;
-import com.returnsoft.collection.exception.FileRowsZeroException;
-import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.FileExtensionException;
 import com.returnsoft.collection.exception.FileNotFoundException;
+import com.returnsoft.collection.exception.FileRowsZeroException;
+import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
-import com.returnsoft.collection.service.AffiliationService;
+import com.returnsoft.collection.service.CommerceService;
+import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 
 @ManagedBean
@@ -59,10 +60,13 @@ public class LoadAffiliationsController implements Serializable {
 	private List<Map<String, String>> dataList;
 	
 	//private final String[] saleStates = { "ACTIVO", "BAJA" };
-	
 
+	
 	@EJB
-	private AffiliationService affiliationService;
+	private CommerceService commerceService;
+	
+	@EJB
+	private SaleService saleService;
 	
 	private FacesUtil facesUtil;
 	
@@ -89,7 +93,7 @@ try {
 					
 				Short bankId = (Short) sessionBean.getBank().getId();
 				
-				commerces = affiliationService.findCommercesByBankId(bankId);
+				commerces = commerceService.findByBank(bankId);
 				
 				return null;
 				
@@ -269,7 +273,7 @@ try {
 
 						// VALIDA SI LA VENTA EXISTE
 						
-						Sale sale = affiliationService.findByCode(data
+						Sale sale = saleService.findByCode(data
 								.get("code"));
 						if (sale != null && sale.getId() > 0) {
 
@@ -346,7 +350,7 @@ try {
 
 					try {
 
-						affiliationService.affiliate(data.get("code"), userId,
+						saleService.affiliate(data.get("code"), userId,
 								affiliationDate);
 
 

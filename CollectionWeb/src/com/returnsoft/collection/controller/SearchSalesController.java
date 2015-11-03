@@ -5,9 +5,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
@@ -16,41 +14,25 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
-import javax.servlet.ServletContext;
 
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.primefaces.context.RequestContext;
-import org.primefaces.event.SelectEvent;
 
 import com.returnsoft.collection.entity.Bank;
-import com.returnsoft.collection.entity.Collection;
 import com.returnsoft.collection.entity.Commerce;
-import com.returnsoft.collection.entity.CreditCard;
-import com.returnsoft.collection.entity.Notification;
 import com.returnsoft.collection.entity.Product;
-import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
-import com.returnsoft.collection.entity.SaleState;
-import com.returnsoft.collection.entity.User;
-import com.returnsoft.collection.enumeration.BankLetterEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
-import com.returnsoft.collection.exception.BankLetterNotFoundException;
-import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
+import com.returnsoft.collection.service.BankService;
+import com.returnsoft.collection.service.CommerceService;
+import com.returnsoft.collection.service.ProductService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
-
-import net.sf.jasperreports.engine.JREmptyDataSource;
-import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
 
 @ManagedBean
 @ViewScoped
@@ -60,6 +42,15 @@ public class SearchSalesController implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	@EJB
+	private CommerceService commerceService;
+	
+	@EJB
+	private BankService bankService;
+	
+	@EJB
+	private ProductService productService;
 
 	@EJB
 	private SaleService saleService;
@@ -113,18 +104,10 @@ public class SearchSalesController implements Serializable {
 	private Boolean searchByInsuredRendered;
 	private Boolean searchByResponsibleRendered;
 
-	private List<CreditCard> updates;
-	private List<Collection> collections;
-	private List<SaleState> maintenances;
-	private List<Notification> notifications;
-	private List<Repayment> repayments;
-
 	private List<Commerce> commerces;
 	
 	private FacesUtil facesUtil;
-	
-	private String passwordSupervisor;
-	
+		
 	private Boolean supervisorAccess;
 	
 	private Integer salesCount;
@@ -157,11 +140,11 @@ public class SearchSalesController implements Serializable {
 				if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
 					Short bankId = sessionBean.getBank().getId();
 					System.out.println("id de banco"+bankId);
-					commerces = saleService.findCommercesByBankId(bankId);
+					commerces = commerceService.findByBank(bankId);
 					System.out.println("cantidad de commerce encontrados:"+commerces.size());
 				}
 				
-				List<Bank> banksEntity = saleService.getBanks();
+				List<Bank> banksEntity = bankService.getAll();
 				banks = new ArrayList<SelectItem>();
 				for (Bank bank : banksEntity) {
 					SelectItem item = new SelectItem();
@@ -170,7 +153,7 @@ public class SearchSalesController implements Serializable {
 					banks.add(item);
 				}
 
-				List<Product> productsEntity = saleService.getProducts();
+				List<Product> productsEntity = productService.getAll();
 				products = new ArrayList<SelectItem>();
 				for (Product product : productsEntity) {
 					SelectItem item = new SelectItem();
@@ -614,476 +597,11 @@ public class SearchSalesController implements Serializable {
 
 	}
 
-	public void showCreditCards() {
-		try {
-
-			System.out.println("Ingreso a showCreditCardUpdates "
-					+ saleSelected);
-			updates = saleService.findUpdates(saleSelected.getId());
-			System.out.println("updates: " + updates.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
-
-	public void showCollections() {
-
-		try {
-
-			System.out.println("Ingreso a showCollections " + saleSelected);
-			collections = saleService.findCollections(saleSelected.getId());
-			System.out.println("collections: " + collections.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
-	
-	
-	public void showRepayments() {
-
-		try {
-
-			//System.out.println("Ingreso a showCollections " + saleSelected);
-			repayments = saleService.findRepayments(saleSelected.getId());
-			//System.out.println("collections: " + collections.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
-	
-	public void showMaintenances() {
-
-		try {
-
-			System.out.println("Ingreso a showMaintenances " + saleSelected);
-			maintenances = saleService.findMaintenances(saleSelected.getId());
-			System.out.println("maintenances: " + maintenances.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
-	
-	public void showNotifications() {
-
-		try {
-
-			System.out.println("Ingreso a showNotifications " + saleSelected);
-			notifications = saleService.findNotifications(saleSelected.getId());
-			System.out.println("notifications: " + notifications.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
-	
 	
 
-	public void addMaintenance() {
-		try {
-			System.out.println("Ingreso a addMaintenance");
-			
-			//VALIDA BANK
-			SessionBean sessionBean = (SessionBean) FacesContext
-					.getCurrentInstance().getExternalContext().getSessionMap()
-					.get("sessionBean");
-			if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
-
-				// VALIDA COMMERCIAL CODE
-				Commerce commercialCodeObject = null;
-				for (Commerce commerce : commerces) {
-					if (saleSelected.getCommerce().getCode().equals(
-							commerce.getCode())) {
-						commercialCodeObject = commerce;
-					}
-				}
-				if (commercialCodeObject == null) {
-					String message = "Error " + saleSelected.getCommerce().getCode()
-							+ " codigo de comercio inexistente.";
-					FacesMessage msg = new FacesMessage(message);
-					msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-					FacesContext.getCurrentInstance().addMessage(null, msg);
-				}else{
-
-					// VALIDATE PASSWORD SUPERVISOR
-					if (saleSelected.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
-
-						// CHECK PASSWORD SUPERVISOR
-						RequestContext context = RequestContext.getCurrentInstance();
-						context.execute("PF('passSuperDialog').show();");
-						
-					} else {
-						
-						Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
-						ArrayList<String> paramList = new ArrayList<>();
-						paramList.add(String.valueOf(saleSelected.getId()));
-						paramMap.put("saleId", paramList);
-						RequestContext.getCurrentInstance().openDialog("add_maintenance", null,paramMap);
-
-					}
-				}
-				
-			}else{
-				FacesMessage msg = new FacesMessage("Debe seleccionar banco");
-				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-				FacesContext.getCurrentInstance().addMessage(null, msg);
-			}
-
-				
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-	}
 	
 	
-	public void addPayer() {
-		try {
-			System.out.println("Ingreso a addPayer");
-			
-			//VALIDA BANK
-			SessionBean sessionBean = (SessionBean) FacesContext
-					.getCurrentInstance().getExternalContext().getSessionMap()
-					.get("sessionBean");
-			if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
-
-				// VALIDA COMMERCIAL CODE
-				Commerce commercialCodeObject = null;
-				for (Commerce commerce : commerces) {
-					if (saleSelected.getCommerce().getCode().equals(
-							commerce.getCode())) {
-						commercialCodeObject = commerce;
-					}
-				}
-				if (commercialCodeObject == null) {
-					String message = "Error " + saleSelected.getCommerce().getCode()
-							+ " codigo de comercio inexistente.";
-					FacesMessage msg = new FacesMessage(message);
-					msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-					FacesContext.getCurrentInstance().addMessage(null, msg);
-				}else{
-
-					// VALIDATE PASSWORD SUPERVISOR
-					//if (saleSelected.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
-
-						// CHECK PASSWORD SUPERVISOR
-						//RequestContext context = RequestContext.getCurrentInstance();
-						//context.execute("PF('passSuperDialog').show();");
-						
-					//} else {
-						
-						Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
-						ArrayList<String> paramList = new ArrayList<>();
-						paramList.add(String.valueOf(saleSelected.getId()));
-						paramMap.put("saleId", paramList);
-						RequestContext.getCurrentInstance().openDialog("add_payer", null,paramMap);
-
-					//}
-				}
-				
-			}else{
-				FacesMessage msg = new FacesMessage("Debe seleccionar banco");
-				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-				FacesContext.getCurrentInstance().addMessage(null, msg);
-			}
-
-				
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-	}
 	
-	
-	public void afterAddMaintenance(SelectEvent event) {
-
-		/*Object response = event.getObject();
-
-		System.out.println("response:" + response + ":");*/
-		
-		Sale saleReturn = (Sale) event.getObject();
-		
-		for (int i = 0; i < sales.size(); i++) {
-			Sale sale = sales.get(i);
-			System.out.println("1"+sale.getId());
-			System.out.println("1"+sale.getCode());
-			System.out.println("2"+saleReturn.getId());
-			System.out.println("2"+saleReturn.getCode());
-			if (sale.getId().equals(saleReturn.getId())) {
-				System.out.println("INGRESOOOOOOOO");
-				/*System.out.println(saleReturn.getDownUser());
-				System.out.println(saleReturn.getDownObservation());*/
-				sales.set(i, saleReturn);
-				saleSelected=saleReturn;
-				break;
-			}
-		}
-
-	}
-	
-	public void afterAddPayer(SelectEvent event) {
-		
-		Sale saleReturn = (Sale) event.getObject();
-		
-		for (int i = 0; i < sales.size(); i++) {
-			Sale sale = sales.get(i);
-			if (sale.getId().equals(saleReturn.getId())) {
-				sales.set(i, saleReturn);
-				saleSelected=saleReturn;
-				break;
-			}
-		}
-
-	}
-	
-	public void addNotification() {
-		try {
-			System.out.println("Ingreso a addNotification");
-			
-			/*notifications = saleService.findNotifications(saleSelected.getId());
-			int physical=0;
-			int mail=0;
-			for (Notification notification : notifications) {
-				if (notification.getNotificationType().equals(NotificationTypeEnum.MAIL)) {
-					mail++;
-				}else if (notification.getNotificationType().equals(NotificationTypeEnum.PHYSICAL)){
-					physical++;
-				}
-			}
-			
-			if (mail<3 || physical==0) {*/
-				//SE ENVIA
-			
-			// VALIDA SI LA VENTA NO ESTA ACTIVA
-			if (!saleSelected.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
-				Exception e = new SaleStateNoActiveException(saleSelected.getCode());
-				facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-						e.getMessage());
-			}else{
-				Map<String, Object> options = new HashMap<String, Object>();
-				options.put("modal", true);
-				options.put("draggable", false);
-				options.put("resizable", false);
-				options.put("contentHeight", 420);
-				options.put("contentWidth", 320);
-
-				Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
-				ArrayList<String> paramList = new ArrayList<>();
-				paramList.add(String.valueOf(saleSelected.getId()));
-				paramMap.put("saleId", paramList);
-				RequestContext.getCurrentInstance().openDialog("add_notification", options,paramMap);
-			}
-			
-			
-			
-				
-			/*}else{
-				
-				if (physical==0) {
-					//SE ENVIA
-				}else{
-					//se han enviado 3 notificaciones por medio electrónico y una por medio físico.
-				}
-				FacesMessage msg = new FacesMessage("se han enviado 3 notificaciones por medio electrónico y una por medio físico.");
-				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-				FacesContext.getCurrentInstance().addMessage(null, msg);
-			}*/
-			
-			
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-	}
-	
-	public void afterAddNotification(SelectEvent event) {
-		
-		Sale saleReturn = (Sale) event.getObject();
-		
-		for (int i = 0; i < sales.size(); i++) {
-			Sale sale = sales.get(i);
-			//System.out.println("1"+sale.getId());
-			//System.out.println("2"+saleReturn.getId());
-			if (sale.getId().equals(saleReturn.getId())) {
-				System.out.println("INGRESOOOOOOOO");
-				/*System.out.println(saleReturn.getDownUser());
-				System.out.println(saleReturn.getDownObservation());*/
-				sales.set(i, saleReturn);
-				saleSelected=saleReturn;
-				break;
-			}
-		}
-
-	}
-	
-	
-	public void printNotification(){
-		
-		try {
-			
-			System.out.println("Ingreso a printNotification");
-			
-			if (saleSelected!=null && saleSelected.getId()!=null) {
-				
-				// VALIDA SI LA VENTA NO ESTA ACTIVA
-				if (!saleSelected.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
-					Exception e = new SaleStateNoActiveException(saleSelected.getCode());
-					facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-							e.getMessage());
-				}else{
-					System.out.println("bankId:"+saleSelected.getCommerce().getBank().getId());
-					
-					BankLetterEnum bankLetterEnum = BankLetterEnum.findById(saleSelected.getCommerce().getBank().getId());
-					
-					if (bankLetterEnum!=null) {
-						
-						Map<String, Object> parameters = new HashMap<String, Object>();
-						
-						parameters.put("names", saleSelected.getPayer().getFirstnameResponsible()+" "+saleSelected.getPayer().getLastnamePaternalResponsible()+" "+saleSelected.getPayer().getLastnameMaternalResponsible());
-					    parameters.put("department", saleSelected.getPayer().getProvince()+" "+saleSelected.getPayer().getDepartment());
-					    parameters.put("address", saleSelected.getPayer().getAddress()+" "+saleSelected.getPayer().getDistrict());
-					    
-					    ServletContext servletContext=(ServletContext) FacesContext.getCurrentInstance ().getExternalContext().getContext();
-		
-						String separator=System.getProperty("file.separator");
-						  
-						String rootPath= servletContext.getRealPath(separator);
-						  
-						String fileName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getTemplateLetter();
-						
-						String signatureName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getSignature();
-						
-						System.out.println("signatureName:"+signatureName);
-						
-						parameters.put("signature", signatureName);
-						
-						//
-						 
-						//String pdfFileName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getPdfName();
-						  
-						//System.out.println("nombre del archivo: "+pdfFileName);
-						
-						JasperReport report = JasperCompileManager.compileReport(fileName);
-					    JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
-					    //JasperExportManager.exportReportToPdfFile(print,pdfFileName);
-					    
-					    //return "resources/templates/"+bankLetterEnum.getPdfName();
-					    
-					    FacesContext facesContext = FacesContext.getCurrentInstance();
-						ExternalContext externalContext = facesContext.getExternalContext();
-						// externalContext.setResponseContentType("application/vnd.ms-excel");
-						externalContext
-								.setResponseContentType("application/pdf");
-						externalContext.setResponseHeader("Content-Disposition",
-								"attachment; filename=\"carta.pdf\"");
-						
-						//response.setContentType("application/pdf");
-					    //response.addHeader("Content-disposition","inline; filename=relatorioDesempenhoComercial.pdf");
-						
-						JasperExportManager.exportReportToPdfStream(print, externalContext.getResponseOutputStream());
-						
-						facesContext.responseComplete();
-				    
-					}else{
-						Exception e = new BankLetterNotFoundException(saleSelected.getCode(),saleSelected.getCommerce().getBank().getName());
-						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-								e.getMessage());
-						
-					}
-				}
-				
-				
-			}
-			
-			
-		    
-		    //return null;
-		      
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-		
-		
-	      
-	}
-	
-	public void validate() {
-
-		try {
-			
-			System.out.println("ingreso a validate");
-			
-			System.out.println("passwordSupervisor"+passwordSupervisor);
-			
-			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance()
-					.getExternalContext().getSessionMap().get("sessionBean");
-			
-			/*Integer userId = (Integer) FacesContext.getCurrentInstance()
-					.getExternalContext().getSessionMap().get("userId");*/
-			Integer userId = sessionBean.getUser().getId();
-			
-			User user = userService.findById(userId);
-
-			if (user.getPasswordSupervisor().equals(passwordSupervisor)) {
-				// CORRECT
-				//RequestContext.getCurrentInstance().closeDialog("ValidatePasswordCorrect");
-				RequestContext context = RequestContext.getCurrentInstance();
-                // execute javascript and show dialog
-                context.execute("PF('passSuperDialog').hide();");
-				//System.out.println("isCorrecto");
-				/////////
-				Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
-				ArrayList<String> paramList = new ArrayList<>();
-				paramList.add(String.valueOf(saleSelected.getId()));
-				paramMap.put("saleId", paramList);
-				RequestContext.getCurrentInstance().openDialog("add_maintenance", null,paramMap);
-
-				 				
-			} else {
-				FacesMessage msg = new FacesMessage(
-						"Password supervisor incorrecto");
-				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-				FacesContext.getCurrentInstance().addMessage(null, msg);
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-
-	}
 	
 
 	public List<Sale> getSales() {
@@ -1323,21 +841,7 @@ public class SearchSalesController implements Serializable {
 		this.nuicInsured = nuicInsured;
 	}
 
-	public List<CreditCard> getUpdates() {
-		return updates;
-	}
-
-	public void setUpdates(List<CreditCard> updates) {
-		this.updates = updates;
-	}
-
-	public List<Collection> getCollections() {
-		return collections;
-	}
-
-	public void setCollections(List<Collection> collections) {
-		this.collections = collections;
-	}
+	
 
 	public Sale getSaleSelected() {
 		return saleSelected;
@@ -1365,21 +869,6 @@ public class SearchSalesController implements Serializable {
 		this.affiliationDate = affiliationDate;
 	}
 
-	public List<SaleState> getMaintenances() {
-		return maintenances;
-	}
-
-	public void setMaintenances(List<SaleState> maintenances) {
-		this.maintenances = maintenances;
-	}
-
-	public List<Repayment> getRepayments() {
-		return repayments;
-	}
-
-	public void setRepayments(List<Repayment> repayments) {
-		this.repayments = repayments;
-	}
 
 	public List<SelectItem> getSaleStates() {
 		return saleStates;
@@ -1389,13 +878,7 @@ public class SearchSalesController implements Serializable {
 		this.saleStates = saleStates;
 	}
 
-	public String getPasswordSupervisor() {
-		return passwordSupervisor;
-	}
-
-	public void setPasswordSupervisor(String passwordSupervisor) {
-		this.passwordSupervisor = passwordSupervisor;
-	}
+	
 
 	public Boolean getSupervisorAccess() {
 		return supervisorAccess;
@@ -1403,14 +886,6 @@ public class SearchSalesController implements Serializable {
 
 	public void setSupervisorAccess(Boolean supervisorAccess) {
 		this.supervisorAccess = supervisorAccess;
-	}
-
-	public List<Notification> getNotifications() {
-		return notifications;
-	}
-
-	public void setNotifications(List<Notification> notifications) {
-		this.notifications = notifications;
 	}
 
 	public Integer getSalesCount() {

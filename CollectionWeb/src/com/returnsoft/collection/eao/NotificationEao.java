@@ -18,6 +18,8 @@ public interface NotificationEao {
 	
 	public Notification findById(Integer notificationId) throws EaoException;
 	
+	//public Notification findLastBySaleId(Long saleId) throws EaoException;
+	
 	public Notification update(Notification notification) throws EaoException;
 
 }

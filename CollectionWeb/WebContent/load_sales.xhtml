@@ -32,12 +32,16 @@
 				</h:panelGrid>
 
 
-				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
+				<h:panelGrid columns="3" style="margin:auto;text-align:center;">
 
 					<p:fileUpload mode="simple" value="#{loadSalesController.file}" />
 					
 					<p:commandButton icon="ui-icon-document" ajax="false"
 						action="#{loadSalesController.load}" value="Cargar Ventas">
+					</p:commandButton>
+					
+					<p:commandButton icon="ui-icon-document" ajax="false"
+						action="#{loadSalesController.download}" value="Descargar plantilla">
 					</p:commandButton>
 
 				</h:panelGrid>

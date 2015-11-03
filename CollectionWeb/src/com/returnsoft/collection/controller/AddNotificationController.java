@@ -33,8 +33,6 @@ public class AddNotificationController implements Serializable{
 	
 	private String notificationStateSelected;
 	
-	//private List<SelectItem> notificationStates;
-	
 	private NotificationStateEnum notificationState = NotificationStateEnum.SENDING;
 	
 	private NotificationTypeEnum notificationType = NotificationTypeEnum.PHYSICAL;
@@ -48,66 +46,14 @@ public class AddNotificationController implements Serializable{
 	public String initialize() {
 		try {
 
-			System.out.println("Ingreso a initialize");
-			
 			String saleId = FacesContext.getCurrentInstance()
 					.getExternalContext().getRequestParameterMap()
 					.get("saleId");
 			
-			Sale saleSelected = notificationService.findSaleById(Long.parseLong(saleId));
-			
-			System.out.println("saleSelected");
-			
-			System.out.println("getId"+saleSelected.getId());
-			System.out.println("getCode"+saleSelected.getCode());
-			
-			/*System.out.println("getFirstnameContractor"+saleSelected.getFirstnameResponsible());
-			System.out.println("getLastnamePaternalContractor"+saleSelected.getLastnamePaternalResponsible());
-			System.out.println("getLastnameMaternalContractor"+saleSelected.getLastnameMaternalResponsible());*/
+			Sale saleSelected = saleService.findById(Long.parseLong(saleId));
 			
 			notificationSelected = new Notification();
 			notificationSelected.setSale(saleSelected);
-			
-			/*maintenanceSelected.setDownUser(saleSelected.getDownUser());
-			maintenanceSelected.setDownChannel(saleSelected.getDownChannel());
-			maintenanceSelected.setDownObservation(saleSelected.getDownObservation());
-			maintenanceSelected.setDownReason(saleSelected.getDownReason());
-			maintenanceSelected.setStateDate(saleSelected.getStateDate());
-			maintenanceSelected.setCode(saleSelected.getCode());*/
-			
-			//if (saleSelected.getSaleState()!=null && saleSelected.getSaleState().length()>0) {
-				//saleStateSelected = saleSelected.getSaleState();
-				//System.out.println(saleStateSelected);
-				//if (saleSelected.getSaleState().equals(saleStates[1])) {
-					//System.out.println("INGRESO!!");
-					// CHECK PASSWORD SUPERVISOR
-					 /*Map<String,Object> options = new HashMap<String, Object>();
-				        options.put("modal", true);
-				        options.put("draggable", false);
-				        options.put("resizable", false);
-				        options.put("contentHeight", 220);
-				        options.put("contentWidth", 280);*/
-					/*Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
-					ArrayList<String> paramList = new ArrayList<>();
-					paramList.add(String.valueOf(saleSelected.getId()));
-					paramMap.put("saleId", paramList);*/
-					/*RequestContext.getCurrentInstance().openDialog(
-							"validate_password_supervisor", null, null);
-					System.out.println("INGRESO!!");*/
-				//}
-			//}
-			
-			//updateNotificationStates();
-
-			/*List<SaleState> saleStatesEntity = maintenanceService.getSaleStates();
-			saleStates = new ArrayList<SelectItem>();
-			for (SaleState saleState : saleStatesEntity) {
-				SelectItem item = new SelectItem();
-				item.setLabel(saleState.getName());
-				item.setValue(saleState.getId());
-				saleStates.add(item);
-			}
-			*/
 			
 			return null;
 
@@ -123,25 +69,8 @@ public class AddNotificationController implements Serializable{
 		}
 	}
 	
-	/*public void updateNotificationStates(){
-		
-		notificationStates = new ArrayList<SelectItem>();
-		for (NotificationStateEnum notificationStateEnum : NotificationStateEnum.values()) {
-			SelectItem item = new SelectItem();
-			item.setValue(notificationStateEnum.getId());
-			item.setLabel(notificationStateEnum.getName());
-			notificationStates.add(item);
-		}
-		
-	}*/
-	
-
 	public void add() {
 		try {
-			
-			/*if (notificationStateSelected != null && notificationStateSelected.length() > 0) {
-				notificationSelected.setState(NotificationStateEnum.findById(Short.parseShort(notificationStateSelected)));
-			}*/
 			
 			notificationSelected.setType(notificationType);
 			notificationSelected.setState(notificationState);
@@ -157,8 +86,9 @@ public class AddNotificationController implements Serializable{
 			
 			notificationService.add(notificationSelected);
 			
-			Sale saleUpdated = saleService.findById(notificationSelected.getSale().getId());
+			// RETORNA LA VENTA ACTUALIZADA
 			
+			Sale saleUpdated = saleService.findById(notificationSelected.getSale().getId());
 			RequestContext.getCurrentInstance().closeDialog(saleUpdated);
 
 		} catch (Exception e) {
@@ -197,38 +127,6 @@ public class AddNotificationController implements Serializable{
 		return notificationType;
 	}
 
-	
-
-
-
-	/*public Maintenance getMaintenanceSelected() {
-		return maintenanceSelected;
-	}
-
-
-
-	public void setMaintenanceSelected(Maintenance maintenanceSelected) {
-		this.maintenanceSelected = maintenanceSelected;
-	}*/
-
-
-
-	/*public String[] getSaleStates() {
-		return saleStates;
-	}
-
-
-
-	public String getSaleStateSelected() {
-		return saleStateSelected;
-	}*/
-
-
-
-	/*public void setSaleStateSelected(String saleStateSelected) {
-		this.saleStateSelected = saleStateSelected;
-	}*/
-	
 	
 	
 

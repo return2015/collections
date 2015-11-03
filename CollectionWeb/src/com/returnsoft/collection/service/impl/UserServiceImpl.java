@@ -7,15 +7,13 @@ import javax.ejb.Stateless;
 
 import com.returnsoft.collection.eao.BankEao;
 import com.returnsoft.collection.eao.UserEao;
-//import com.returnsoft.collection.eao.UserTypeEao;
-import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserInactiveException;
 import com.returnsoft.collection.exception.UserNotFoundException;
 import com.returnsoft.collection.exception.UserWrongPasswordException;
 import com.returnsoft.collection.service.UserService;
-//import com.returnsoft.collection.entity.UserType;
+
 
 @Stateless
 public class UserServiceImpl implements UserService {
@@ -26,9 +24,7 @@ public class UserServiceImpl implements UserService {
 	@EJB
 	private BankEao bankEao;
 
-	/*@EJB
-	private UserTypeEao userTypeEao;*/
-
+	
 	public User loginUser(String username, String password)
 			throws ServiceException {
 
@@ -80,45 +76,7 @@ public class UserServiceImpl implements UserService {
 
 	}
 
-	/*public boolean logoutUser(String USERNAME) throws ServiceException {
-
-		// String USERNAME = "agente1";
-		// String[] USERTYPES = { "administrator", "coordinator", "recruiter" };
-
-		try {
-
-			return true;
-
-		} catch (Exception e) {
-			throw new ServiceException("ServiceException:" + e.getMessage());
-		}
-
-	}*/
-
-	/*public User currentUser(String USERNAME) throws ServiceException {
-
-		try {
-
-			User user = userEao.findByUsername(USERNAME);
-			if (user == null) {
-				throw new ServiceException("El usuario es nulo.");
-			}
-
-			UserType userType = userEao.findUserType(user.getId());
-			user.setUserType(userType);
-
-			return user;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-
-	}*/
+	
 
 	public List<User> find(String documentNumber, String name)
 			throws ServiceException {
@@ -137,19 +95,6 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
-	/*public List<UserType> getUserTypes() throws ServiceException {
-		try {
-
-			List<UserType> userTypes = userTypeEao.getUserTypes();
-
-			return userTypes;
-
-		} catch (EaoException e) {
-			throw new ServiceException("EaoException:" + e.getMessage());
-		} catch (Exception e) {
-			throw new ServiceException("ServiceException:" + e.getMessage());
-		}
-	}*/
 
 	public void add(User user) throws ServiceException {
 
@@ -201,55 +146,6 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
-	public List<Bank> findBanksByUserId(Integer userId) throws ServiceException {
-		try {
-
-			List<Bank> banks = bankEao.findByUserId(userId);
-
-			return banks;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
-
-	public Bank findBankById(Short bankId) throws ServiceException {
-		try {
-
-			Bank bank = bankEao.findById(bankId);
-
-			return bank;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
-
-	public List<Bank> getBanks() throws ServiceException {
-		try {
-
-			List<Bank> banks = bankEao.getBanks();
-
-			return banks;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
+	
 
 }

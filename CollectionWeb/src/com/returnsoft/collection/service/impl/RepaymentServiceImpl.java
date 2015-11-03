@@ -10,8 +10,6 @@ import com.returnsoft.collection.eao.CollectionEao;
 import com.returnsoft.collection.eao.CommerceEao;
 import com.returnsoft.collection.eao.RepaymentEao;
 import com.returnsoft.collection.eao.SaleEao;
-import com.returnsoft.collection.entity.Collection;
-import com.returnsoft.collection.entity.Commerce;
 import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.exception.ServiceException;
@@ -32,91 +30,6 @@ public class RepaymentServiceImpl implements RepaymentService{
 	@EJB
 	private RepaymentEao repaymentEao;
 	
-	
-	public List<Commerce> findCommercesByBankId(Short bankId)
-			throws ServiceException {
-		try {
-
-			List<Commerce> commerces = commerceEao.findByBankId(bankId);
-			return commerces;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
-	
-	public Sale findSaleByCode(String code) throws ServiceException {
-		try {
-
-			Sale sale = saleEao.findByCode(code);
-
-			return sale;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
-	
-	/*public Collection findCollectionByReceiptNumber(String receiptNumber) throws ServiceException {
-		try {
-
-			Collection collection = collectionEao.findByReceiptNumber(receiptNumber);
-
-			return collection;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}*/
-	
-public List<Collection> findCollectionsAllowBySaleId(Long saleId) throws ServiceException{
-	try {
-
-		List<Collection> collections = collectionEao.findAllowsBySaleId(saleId);
-
-		return collections;
-
-	} catch (Exception e) {
-		e.printStackTrace();
-		if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-			throw new ServiceException(e.getMessage(), e);	
-		}else{
-			throw new ServiceException();
-		}
-	}
-}
-	
-	public List<Repayment> findRepaymentsBySaleId(Long saleId) throws ServiceException{
-		try {
-
-			List<Repayment> repayments = repaymentEao.findBySaleId(saleId);
-
-			return repayments;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
 	
 	public Repayment findBySaleIdAndReturnedDate(Long saleId, Date returnedDate) throws ServiceException{
 		try {
@@ -157,6 +70,24 @@ public List<Collection> findCollectionsAllowBySaleId(Long saleId) throws Service
 			}
 		}
 	}
+	
+	public List<Repayment> findBySale(Long saleId) throws ServiceException{
+		try {
+			
+			List<Repayment> repayments = repaymentEao.findBySaleId(saleId);
+
+			return repayments;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
 	
 	
 

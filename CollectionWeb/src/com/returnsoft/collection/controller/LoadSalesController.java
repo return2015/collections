@@ -1,7 +1,10 @@
 package com.returnsoft.collection.controller;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -16,7 +19,9 @@ import java.util.Map;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.servlet.ServletContext;
 
 import org.primefaces.model.UploadedFile;
 
@@ -29,24 +34,25 @@ import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.CreditCardValidationEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
-import com.returnsoft.collection.exception.DataCommerceCodeException;
 import com.returnsoft.collection.exception.DataColumnDateException;
 import com.returnsoft.collection.exception.DataColumnDecimalException;
 import com.returnsoft.collection.exception.DataColumnLengthException;
 import com.returnsoft.collection.exception.DataColumnNullException;
 import com.returnsoft.collection.exception.DataColumnNumberException;
+import com.returnsoft.collection.exception.DataCommerceCodeException;
+import com.returnsoft.collection.exception.DataSaleCreateException;
+import com.returnsoft.collection.exception.DataSaleDuplicateException;
 import com.returnsoft.collection.exception.DataSalePaymentMethodException;
 import com.returnsoft.collection.exception.DataSaleProductException;
-import com.returnsoft.collection.exception.DataSaleDuplicateException;
 import com.returnsoft.collection.exception.DataSaleStateNotFoundException;
 import com.returnsoft.collection.exception.FileColumnsTotalException;
 import com.returnsoft.collection.exception.FileExtensionException;
 import com.returnsoft.collection.exception.FileNotFoundException;
 import com.returnsoft.collection.exception.FileRowsZeroException;
 import com.returnsoft.collection.exception.ServiceException;
-import com.returnsoft.collection.exception.DataSaleCreateException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
+import com.returnsoft.collection.service.CommerceService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 
@@ -72,20 +78,23 @@ public class LoadSalesController implements Serializable {
 	//private final String[] saleStates = { "ACTIVO", "BAJA" };
 
 	@EJB
+	private CommerceService commerceService;
+	
+	@EJB
 	private SaleService saleService;
 	
 	private FacesUtil facesUtil;
 
 	public LoadSalesController() {
 		
-		System.out.println("Construyendo LoadSalesController");
+		//System.out.println("Construyendo LoadSalesController");
 		
 		facesUtil = new FacesUtil();
 	}
 
 	public String initialize() {
 		
-		System.out.println("Inicializando LoadSalesController");
+		//System.out.println("Inicializando LoadSalesController");
 		
 		try {
 			
@@ -102,7 +111,7 @@ public class LoadSalesController implements Serializable {
 				
 				Short bankId = (Short) sessionBean.getBank().getId();
 				
-				commerces = saleService.findCommercesByBankId(bankId);
+				commerces = commerceService.findByBank(bankId);
 				
 				return null;
 				
@@ -129,11 +138,55 @@ public class LoadSalesController implements Serializable {
 		}
 	}
 	
+	public void download(){
+		try {
+			/*ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance()
+					.getExternalContext().getContext();
+			String separator = System.getProperty("file.separator");
+			String rootPath = servletContext.getRealPath(separator);
+			String fileName = rootPath + "resources" + separator + "templates" + separator + "tramas_ventas.xlsx";
+			*/
+			
+			ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance()
+					.getExternalContext().getContext();
+			String separator = System.getProperty("file.separator");
+			String rootPath = servletContext.getRealPath(separator);
+			String fileName = rootPath + "resources" + separator + "templates" + separator
+					+ "tramas_ventas.xlsx";
+			File file = new File(fileName);
+			InputStream pdfInputStream = new FileInputStream(file);
+			
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+			ExternalContext externalContext = facesContext.getExternalContext();
+			externalContext.setResponseContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"tramas_ventas.xlsx\"");
+
+			// Read PDF contents and write them to the output
+			byte[] bytesBuffer = new byte[2048];
+			int bytesRead;
+			
+			while ((bytesRead = pdfInputStream.read(bytesBuffer)) > 0) {
+				externalContext.getResponseOutputStream().write(bytesBuffer, 0, bytesRead);
+			}
+			
+			externalContext.getResponseOutputStream().flush();
+			externalContext.getResponseOutputStream().close();
+			pdfInputStream.close();
+			facesContext.responseComplete();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+					e.getMessage());
+		}
+		
+	}
+	
 	
 
 	public void getData() {
 
-		System.out.println("LoadSalesController: obteniendo datos desde archivo");
+		//System.out.println("LoadSalesController: obteniendo datos desde archivo");
 
 		BufferedReader br = null;
 		try {

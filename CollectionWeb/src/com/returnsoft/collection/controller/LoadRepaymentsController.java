@@ -25,29 +25,29 @@ import com.returnsoft.collection.entity.Commerce;
 import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
-import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
 import com.returnsoft.collection.exception.DataCollectionCreateException;
-import com.returnsoft.collection.exception.DataCommerceCodeException;
 import com.returnsoft.collection.exception.DataColumnDateException;
 import com.returnsoft.collection.exception.DataColumnDecimalException;
 import com.returnsoft.collection.exception.DataColumnLengthException;
 import com.returnsoft.collection.exception.DataColumnNullException;
 import com.returnsoft.collection.exception.DataColumnNumberException;
-import com.returnsoft.collection.exception.DataSaleNotFoundException;
-import com.returnsoft.collection.exception.DataSaleStateNoActiveException;
-import com.returnsoft.collection.exception.FileColumnsTotalException;
-import com.returnsoft.collection.exception.FileRowsZeroException;
-import com.returnsoft.collection.exception.ServiceException;
-import com.returnsoft.collection.exception.FileExtensionException;
-import com.returnsoft.collection.exception.FileNotFoundException;
-import com.returnsoft.collection.exception.DataMaintenanceDuplicateException;
+import com.returnsoft.collection.exception.DataCommerceCodeException;
 import com.returnsoft.collection.exception.DataRepaymentChargeAmountException;
 import com.returnsoft.collection.exception.DataRepaymentDuplicateException;
 import com.returnsoft.collection.exception.DataRepaymentInsurancePremiumException;
+import com.returnsoft.collection.exception.DataSaleNotFoundException;
+import com.returnsoft.collection.exception.FileColumnsTotalException;
+import com.returnsoft.collection.exception.FileExtensionException;
+import com.returnsoft.collection.exception.FileNotFoundException;
+import com.returnsoft.collection.exception.FileRowsZeroException;
+import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
+import com.returnsoft.collection.service.CollectionService;
+import com.returnsoft.collection.service.CommerceService;
 import com.returnsoft.collection.service.RepaymentService;
+import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 
 @ManagedBean
@@ -75,6 +75,15 @@ public class LoadRepaymentsController implements Serializable {
 	@EJB
 	private RepaymentService repaymentService;
 	
+	@EJB
+	private CollectionService collectionService;
+	
+	@EJB
+	private CommerceService commerceService;
+	
+	@EJB
+	private SaleService saleService;
+	
 	private FacesUtil facesUtil;
 
 	public LoadRepaymentsController() {
@@ -99,7 +108,7 @@ try {
 					
 				Short bankId = (Short) sessionBean.getBank().getId();
 				
-				commerces = repaymentService.findCommercesByBankId(bankId);
+				commerces = commerceService.findByBank(bankId);
 				
 				return null;
 				
@@ -379,7 +388,7 @@ try {
 				for (Map<String, String> data : dataList) {
 
 
-						Sale sale = repaymentService.findSaleByCode(data
+						Sale sale = saleService.findByCode(data
 								.get("code"));
 
 						// VALIDA SI LA VENTA EXISTE
@@ -419,12 +428,12 @@ try {
 							
 							//VALIDA QUE el número de primas sea menor o igual que "la cantidad de cobranzas aprobadas de la venta" - "cantidad de extornos de la venta").
 							Integer collectionsAllowCount=0;
-							List<Collection> collections = repaymentService.findCollectionsAllowBySaleId(sale.getId());
+							List<Collection> collections = collectionService.findAllowsBySale(sale.getId());
 							if (collections!=null) {
 								collectionsAllowCount=collections.size();
 							}
 							Integer repaymentsCount=0;
-							List<Repayment> repayments = repaymentService.findRepaymentsBySaleId(sale.getId());
+							List<Repayment> repayments = repaymentService.findBySale(sale.getId());
 							if (repayments!=null) {
 								repaymentsCount=repayments.size();
 							}

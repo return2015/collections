@@ -25,23 +25,24 @@ import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
-import com.returnsoft.collection.exception.DataAffiliationDuplicateException;
 import com.returnsoft.collection.exception.DataCollectionCreateException;
-import com.returnsoft.collection.exception.DataCommerceCodeException;
 import com.returnsoft.collection.exception.DataColumnDateException;
 import com.returnsoft.collection.exception.DataColumnLengthException;
 import com.returnsoft.collection.exception.DataColumnNullException;
+import com.returnsoft.collection.exception.DataCommerceCodeException;
+import com.returnsoft.collection.exception.DataMaintenanceDuplicateException;
 import com.returnsoft.collection.exception.DataSaleNotFoundException;
 import com.returnsoft.collection.exception.DataSaleStateNoActiveException;
 import com.returnsoft.collection.exception.FileColumnsTotalException;
-import com.returnsoft.collection.exception.FileRowsZeroException;
-import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.FileExtensionException;
 import com.returnsoft.collection.exception.FileNotFoundException;
-import com.returnsoft.collection.exception.DataMaintenanceDuplicateException;
+import com.returnsoft.collection.exception.FileRowsZeroException;
+import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
+import com.returnsoft.collection.service.CommerceService;
 import com.returnsoft.collection.service.MaintenanceService;
+import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 
 @ManagedBean
@@ -69,6 +70,12 @@ public class LoadMaintenancesController implements Serializable {
 	@EJB
 	private MaintenanceService maintenanceService;
 	
+	@EJB
+	private SaleService saleService;
+	
+	@EJB
+	private CommerceService commerceService;
+	
 	private FacesUtil facesUtil;
 
 	public LoadMaintenancesController() {
@@ -93,7 +100,7 @@ try {
 					
 				Short bankId = (Short) sessionBean.getBank().getId();
 				
-				commerces = maintenanceService.findCommercesByBankId(bankId);
+				commerces = commerceService.findByBank(bankId);
 				
 				return null;
 				
@@ -355,7 +362,7 @@ try {
 				for (Map<String, String> data : dataList) {
 
 
-						Sale sale = maintenanceService.findSaleByCode(data
+						Sale sale = saleService.findByCode(data
 								.get("code"));
 
 						// VALIDA SI LA VENTA EXISTE
@@ -429,7 +436,7 @@ try {
 					try {
 						// / SE CREA LA VENTA
 						
-						Sale sale = maintenanceService.findSaleByCode(data.get("code"));
+						Sale sale = saleService.findByCode(data.get("code"));
 						
 						SaleState maintenance = new SaleState();
 						//maintenance.setCode(data.get("code"));

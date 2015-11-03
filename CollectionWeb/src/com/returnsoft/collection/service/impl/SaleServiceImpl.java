@@ -16,16 +16,11 @@ import com.returnsoft.collection.eao.PayerEao;
 import com.returnsoft.collection.eao.ProductEao;
 import com.returnsoft.collection.eao.RepaymentEao;
 import com.returnsoft.collection.eao.SaleEao;
-import com.returnsoft.collection.entity.Bank;
-import com.returnsoft.collection.entity.Collection;
-import com.returnsoft.collection.entity.Commerce;
 import com.returnsoft.collection.entity.CreditCard;
-import com.returnsoft.collection.entity.Notification;
 import com.returnsoft.collection.entity.Payer;
-import com.returnsoft.collection.entity.Product;
-import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.SaleState;
+import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
@@ -101,26 +96,6 @@ public class SaleServiceImpl implements SaleService{
 	}
 	
 	
-	
-	/*@EJB
-	private MailingEao mailingEao;*/
-	
-	/*public String load(List<Sale> sales) throws ServiceException{
-		try {
-			for (Sale sale : sales) {
-				saleEao.add(sale);	
-			}
-			
-			return "success";
-
-		} catch (EaoException e) {
-			throw new ServiceException("EaoException:" + e.getMessage());
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new ServiceException("ServiceException:" + e.getMessage());
-		}
-	}*/
-	
 	public void add(Sale sale) throws ServiceException{
 		try {
 			
@@ -160,55 +135,7 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	public List<Commerce> findCommercesByBankId(Short bankId) throws ServiceException{
-		try {
-			
-			List<Commerce> commerces = commerceEao.findByBankId(bankId);
-			return commerces;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
 	
-	public List<Bank> getBanks() throws ServiceException {
-		try {
-
-			List<Bank> banks = bankEao.getBanks();
-
-			return banks;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
-	
-	public List<Product> getProducts() throws ServiceException {
-		try {
-
-			List<Product> products = productEao.getProducts();
-
-			return products;
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
 	
 	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException {
 		try {
@@ -241,6 +168,31 @@ public class SaleServiceImpl implements SaleService{
 			}
 		}
 	}
+	
+	public List<Sale> findSalesForNotifications(String searchType, Long nuicResponsible, Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType) throws ServiceException{
+		try {
+			
+			List<Sale> sales = null;
+			
+			if (searchType.equals("dni")) {
+				sales = saleEao.findByNuicResponsible(nuicResponsible);
+			} else if (searchType.equals("saleData")) {
+				sales = saleEao.findBySaleData2(saleDateStartedAt, saleDateEndedAt, affiliationDate,
+						sendingDate, notificationStates, bankId, saleState, notificationType);
+			}
+			
+			return sales;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
 	
 	public List<Sale> findSalesByCreditCardNumber(Long creditCardNumber) throws ServiceException {
 		try {
@@ -333,93 +285,6 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	/*public List<Notification> findMailings(Long saleId) throws ServiceException{
-		try {
-			
-			List<Notification> mailings = mailingEao.findBySaleId(saleId);
-
-			return mailings;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}*/
-	
-	public List<CreditCard> findUpdates(Long saleId) throws ServiceException{
-		try {
-			
-			List<CreditCard> creditCardUpdates = creditCardUpdateEao.findBySaleId(saleId);
-
-			return creditCardUpdates;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
-	
-	public List<Payer> findPayers(Long saleId) throws ServiceException{
-		try {
-			
-			List<Payer> payers = payerEao.findBySaleId(saleId);
-
-			return payers;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
-	
-	
-	public List<Collection> findCollections(Long saleId) throws ServiceException{
-		try {
-			
-			List<Collection> collections = collectionEao.findBySaleId(saleId);
-
-			return collections;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
-	
-	
-	public List<Repayment> findRepayments(Long saleId) throws ServiceException{
-		try {
-			
-			List<Repayment> repayments = repaymentEao.findBySaleId(saleId);
-
-			return repayments;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
-	
 	
 	public List<SaleState> findMaintenances(Long saleId) throws ServiceException{
 		try {
@@ -438,22 +303,6 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	public List<Notification> findNotifications(Long saleId) throws ServiceException{
-		try {
-			
-			List<Notification> notifications = notificationEao.findBySaleId(saleId);
-
-			return notifications;
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}
-	}
 	
 	
 	public Sale findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws ServiceException{
@@ -472,6 +321,29 @@ public class SaleServiceImpl implements SaleService{
 			}
 		}
 	}
+	
+	public Sale affiliate(String code, int userId, Date affiliationDate) throws ServiceException{
+		try {
+			
+			Sale sale = saleEao.findByCode(code);
+			sale.setAffiliation(true);
+			sale.setAffiliationDate(affiliationDate);
+			User user = new User();
+			user.setId(userId);
+			sale.setAffiliationUser(user);
+			sale = saleEao.update(sale);
+			
+			return sale;
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
 	
 	
 }

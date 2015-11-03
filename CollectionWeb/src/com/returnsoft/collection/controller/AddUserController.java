@@ -16,6 +16,7 @@ import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
 import com.returnsoft.collection.exception.ServiceException;
+import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
 
@@ -33,6 +34,9 @@ public class AddUserController implements Serializable {
 
 	@EJB
 	private UserService userService;
+	
+	@EJB
+	private BankService bankService;
 
 	private List<SelectItem> userTypes;
 	private String userTypeSelected;
@@ -85,7 +89,7 @@ public class AddUserController implements Serializable {
 				userTypes.add(item);
 			}
 			
-			List<Bank> banksEntity = userService.getBanks();
+			List<Bank> banksEntity = bankService.getAll();
 			banks = new ArrayList<SelectItem>();
 			for (Bank bank : banksEntity) {
 				SelectItem item = new SelectItem();

@@ -134,6 +134,27 @@ public class NotificationEaoImpl implements NotificationEao{
 		
 	}
 	
+	/*public Notification findLastBySaleId(Long saleId) throws EaoException{
+		try {
+			
+			String query = "SELECT n FROM Notification n left join n.sale s WHERE s.id = :saleId order by n.createdAt desc";
+			
+			TypedQuery<Notification> q = em.createQuery(query, Notification.class);
+			q.setParameter("saleId", saleId);
+			q.setMaxResults(1);
+			
+			return q.getSingleResult();
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+		
+	}*/
+	
+	
 	public Notification update(Notification notification) throws EaoException{
 		try {
 

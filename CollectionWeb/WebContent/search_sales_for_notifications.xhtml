@@ -47,10 +47,10 @@
 						update=":form:searchTypeOut :form:messages"></p:ajax>
 				</p:selectOneMenu>
 			</h:panelGrid>
+			
 			<p:outputPanel id="searchTypeOut">
 				<h:panelGrid columns="8" style="margin:auto;text-align:center;"
 					rendered="#{searchSalesForNotificationsController.searchByDateSaleRendered}">
-
 
 					<p:outputLabel value="Fecha venta desde:"></p:outputLabel>
 					<p:calendar navigator="true"
@@ -63,7 +63,6 @@
 						value="#{searchSalesForNotificationsController.dateOfSaleEnded}"
 						required="true" requiredMessage="Debe ingresar fecha venta hasta:"
 						pattern="dd-MM-yyyy"></p:calendar>
-
 
 					<p:outputLabel value="Banco"></p:outputLabel>
 					<p:selectOneMenu id="bank"
@@ -107,7 +106,6 @@
 
 				</h:panelGrid>
 
-
 				<h:panelGrid columns="2" style="margin:auto;text-align:center;"
 					rendered="#{searchSalesForNotificationsController.searchByDocumentNumberResponsibleRendered}">
 					<p:outputLabel value="NUIC responsable"></p:outputLabel>
@@ -137,18 +135,20 @@
 					value="Imprimir cartas" ajax="false"
 					actionListener="#{searchSalesForNotificationsController.printLetters}">
 				</p:commandButton>
-
-				<p:commandButton immediate="true" icon="ui-icon-plus"
-					value="Crear notificaciones físicas"
-					oncomplete="PF('createPhysicalsDialog').show()"
-					update=":formNotifications">
-				</p:commandButton>
-
+				
 				<p:commandButton immediate="true" icon="ui-icon-plus"
 				actionListener="#{searchSalesForNotificationsController.createVirtualNotifications}"
 					value="Crear notificaciones virtuales"
 					update=":form:searchTable :form:messages">
 				</p:commandButton>
+
+				<p:commandButton immediate="true" icon="ui-icon-plus"
+					value="Crear notificaciones físicas"
+					oncomplete="PF('createPhysicalsDialog').show()"
+					update=":form:searchTable :formNotifications">
+				</p:commandButton>
+
+				
 
 
 			</h:panelGrid>
@@ -203,12 +203,12 @@
 				</p:commandButton>
 
 				<p:commandButton id="notificationButtom" immediate="true"
-					actionListener="#{searchSalesForNotificationsController.addNotification}"
+					actionListener="#{searchSalesForNotificationsController.addPhysicalNotification}"
 					icon="ui-icon-plus" value="Agregar notificación física"
 					update=":form:messages"
 					disabled="#{searchSalesForNotificationsController.saleSelected==null}">
 					<p:ajax event="dialogReturn" update=":form:searchTable"
-						listener="#{searchSalesForNotificationsController.afterAddNotification}" />
+						listener="#{searchSalesForNotificationsController.afterAddPhysicalNotification}" />
 				</p:commandButton>
 
 			</h:panelGrid>

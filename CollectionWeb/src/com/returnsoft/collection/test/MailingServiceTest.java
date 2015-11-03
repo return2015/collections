@@ -7,8 +7,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.returnsoft.collection.exception.ServiceException;
-import com.returnsoft.collection.service.MailingService;
 import com.returnsoft.collection.util.CorbaUtil;
 
 public class MailingServiceTest {
@@ -38,12 +36,7 @@ public class MailingServiceTest {
 	public void test() {
 		try {
 			
-			MailingService mailingService = (MailingService)corbaUtil.getService("java:global/CollectionWeb/MailingServiceImpl!com.returnsoft.collection.service.MailingService");
 			
-			mailingService.mailerDaemon();
-			
-		} catch (ServiceException e) {
-			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

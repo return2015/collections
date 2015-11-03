@@ -16,6 +16,7 @@ import com.returnsoft.collection.enumeration.UserTypeEnum;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
+import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
 
@@ -35,6 +36,9 @@ public class SelectBankController implements Serializable {
 	
 	@EJB
 	private UserService userService;
+	
+	@EJB
+	private BankService bankService;
 	
 	private FacesUtil facesUtil;
 	
@@ -68,7 +72,7 @@ public class SelectBankController implements Serializable {
 					//sessionBean.setCurrentPage("home");
 					/*FacesContext.getCurrentInstance().getExternalContext()
 							.getSessionMap().put("sessionBean", sessionBean);*/
-				List<Bank> banksEntity = userService.findBanksByUserId(sessionBean.getUser().getId());
+				List<Bank> banksEntity = bankService.findByUser(sessionBean.getUser().getId());
 				banks = new ArrayList<SelectItem>();
 				for (Bank bank : banksEntity) {
 					SelectItem item = new SelectItem();
@@ -107,7 +111,7 @@ public class SelectBankController implements Serializable {
 			
 			if (bankSelected!=null && bankSelected.length()>0) {
 				
-				Bank bank = userService.findBankById(Short.parseShort(bankSelected));
+				Bank bank = bankService.findById(Short.parseShort(bankSelected));
 				
 				SessionBean sessionBean = (SessionBean) FacesContext
 						.getCurrentInstance().getExternalContext().getSessionMap()

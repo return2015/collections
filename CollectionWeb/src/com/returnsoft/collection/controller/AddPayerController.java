@@ -3,7 +3,6 @@ package com.returnsoft.collection.controller;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -13,10 +12,9 @@ import org.primefaces.context.RequestContext;
 
 import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.Sale;
-import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.User;
-import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.service.PayerService;
+import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 
 @ManagedBean
@@ -33,25 +31,25 @@ public class AddPayerController implements Serializable{
 	@EJB
 	private PayerService payerService;
 	
+	@EJB
+	private SaleService saleService;
+	
 	private FacesUtil facesUtil;
 	
 	public AddPayerController(){
-		System.out.println("Ingreso a AddPayerController...");
+		
 		facesUtil = new FacesUtil();
 	}
 	
 	
 	public void initialize() {
-		System.out.println("ingreso a initialize en AddPayer");
 		try {
 
-			System.out.println("Ingreso a initialize");
-			
 			String saleId = FacesContext.getCurrentInstance()
 					.getExternalContext().getRequestParameterMap()
 					.get("saleId");
 			
-			Sale saleSelected = payerService.findSaleById(Long.parseLong(saleId));
+			Sale saleSelected = saleService.findById(Long.parseLong(saleId));
 			
 			payerSelected = new Payer();
 			Sale sale = new Sale();
@@ -94,7 +92,9 @@ public class AddPayerController implements Serializable{
 			
 			payerService.add(payerSelected);
 			
-			Sale saleReturn = payerService.findSaleById(payerSelected.getSale().getId());
+			// RETORNA VENTA ACTUALIZADA
+			
+			Sale saleReturn = saleService.findById(payerSelected.getSale().getId());
 			
 			RequestContext.getCurrentInstance().closeDialog(saleReturn);
 

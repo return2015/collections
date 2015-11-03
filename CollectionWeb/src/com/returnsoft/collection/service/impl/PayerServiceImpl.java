@@ -1,5 +1,7 @@
 package com.returnsoft.collection.service.impl;
 
+import java.util.List;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
@@ -38,13 +40,12 @@ public class PayerServiceImpl implements PayerService{
 		}
 	}
 	
-	public Sale findSaleById(Long id) throws ServiceException {
+		
+	public List<Payer> findBySale(Long saleId) throws ServiceException{
 		try {
-
-			Sale sale = saleEao.findById(id);
-
-			return sale;
-
+			
+			return payerEao.findBySaleId(saleId);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {

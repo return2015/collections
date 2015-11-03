@@ -50,6 +50,8 @@ import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
 import com.returnsoft.collection.service.CollectionService;
+import com.returnsoft.collection.service.CommerceService;
+import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 
 @ManagedBean
@@ -79,6 +81,12 @@ public class LoadCollectionsController implements Serializable {
 	@EJB
 	private CollectionService collectionService;
 	
+	@EJB
+	private SaleService saleService;
+	
+	@EJB
+	private CommerceService commerceService;
+	
 	private FacesUtil facesUtil;
 	
 	
@@ -105,7 +113,7 @@ public class LoadCollectionsController implements Serializable {
 					
 				Short bankId = (Short) sessionBean.getBank().getId();
 				
-				commerces = collectionService.findCommercesByBankId(bankId);
+				commerces = commerceService.findByBank(bankId);
 				
 				return null;
 				
@@ -537,7 +545,7 @@ public class LoadCollectionsController implements Serializable {
 
 				for (Map<String, String> data : dataList) {
 
-						Sale sale = collectionService.findByCode(data.get("code"));
+						Sale sale = saleService.findByCode(data.get("code"));
 
 						// VALIDA SI LA VENTA EXISTE
 						if (sale != null && sale.getId() > 0) {

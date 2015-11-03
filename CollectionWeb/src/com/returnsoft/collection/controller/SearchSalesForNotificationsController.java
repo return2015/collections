@@ -55,8 +55,10 @@ import com.returnsoft.collection.exception.PayerDataNullException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
-import com.returnsoft.collection.service.MailingService;
+import com.returnsoft.collection.service.BankService;
+import com.returnsoft.collection.service.CommerceService;
 import com.returnsoft.collection.service.NotificationService;
+import com.returnsoft.collection.service.PayerService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
@@ -76,16 +78,30 @@ public class SearchSalesForNotificationsController implements Serializable {
 	 * Esta clase busca ventas para gestionar notificaciones.
 	 */
 	private static final long serialVersionUID = 1L;
-
+	
+	@EJB
+	private BankService bankService;
+	
+	@EJB
+	private CommerceService commerceService;
+	
 	@EJB
 	private SaleService saleService;
+	
+	@EJB
+	private PayerService payerService;
+	
+	//////
+
+	
 	@EJB
 	private UserService userService;
+	
 	@EJB
 	private NotificationService notificationService;
 	
-	@EJB
-	private MailingService mailingService;
+	/*@EJB
+	private MailingService mailingService;*/
 
 	// VENTAS ENCONTRADAS
 	private List<Sale> sales;
@@ -154,20 +170,14 @@ public class SearchSalesForNotificationsController implements Serializable {
 					throw new UserPermissionNotFoundException();
 				}
 
-				/*
-				 * Short bankId = (Short) FacesContext.getCurrentInstance()
-				 * .getExternalContext().getSessionMap().get("bankId");
-				 */
-
+				//SI EXISTE EL BANCO SE BUSCAN SUS CODIGOS DE COMERCIO
 				if (sessionBean.getBank() != null && sessionBean.getBank().getId() != null) {
 					Short bankId = sessionBean.getBank().getId();
-					System.out.println("id de banco" + bankId);
-					commerces = saleService.findCommercesByBankId(bankId);
-					// System.out.println("cantidad de commerce
-					// encontrados:"+commerces.size());
+					commerces = commerceService.findByBank(bankId);
 				}
-
-				List<Bank> banksEntity = saleService.getBanks();
+				
+				//SE BUSCAN BANCOS
+				List<Bank> banksEntity = bankService.getAll();
 				banks = new ArrayList<SelectItem>();
 				for (Bank bank : banksEntity) {
 					SelectItem item = new SelectItem();
@@ -175,23 +185,15 @@ public class SearchSalesForNotificationsController implements Serializable {
 					item.setLabel(bank.getName());
 					banks.add(item);
 				}
-
-				/*
-				 * List<Product> productsEntity = saleService.getProducts();
-				 * products = new ArrayList<SelectItem>(); for (Product product
-				 * : productsEntity) { SelectItem item = new SelectItem();
-				 * item.setValue(product.getId().toString());
-				 * item.setLabel(product.getName()); products.add(item); }
-				 */
-
+				
+				//SOLO PUEDEN BUSCARSE VENTAS ACTIVAS
 				saleStates = new ArrayList<SelectItem>();
-				// for (SaleStateEnum saleStateEnum : SaleStateEnum.values()) {
 				SelectItem saleStateItem = new SelectItem();
 				saleStateItem.setValue(SaleStateEnum.ACTIVE.getId());
 				saleStateItem.setLabel(SaleStateEnum.ACTIVE.getName());
 				saleStates.add(saleStateItem);
-				// }
-
+				
+				// SE BUSCAN TIPOS DE NOTIFICACION
 				notificationTypes = new ArrayList<SelectItem>();
 				for (NotificationTypeEnum notificationTypeEnum : NotificationTypeEnum.values()) {
 					SelectItem item = new SelectItem();
@@ -200,6 +202,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 					notificationTypes.add(item);
 				}
 
+				//SE BUSCAN ESTADOS DE NOTIFICACION
 				notificationStates = new ArrayList<SelectItem>();
 				for (NotificationStateEnum notificationStateEnum : NotificationStateEnum.values()) {
 					SelectItem item = new SelectItem();
@@ -208,9 +211,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 					notificationStates.add(item);
 				}
 
+				//SE RESETEA EL TIPO DE BUSQUEDA
 				searchTypeSelected = "";
-
-				System.out.println("searchTypeSelected:" + searchTypeSelected);
 
 				return null;
 
@@ -236,12 +238,9 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 	public void onChangeSearchType() {
 		try {
-			// if (fromRequest) {
+
 			searchTypeSelected = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap()
 					.get("form:searchType_input");
-			// }
-
-			System.out.println("onChangeSearchBy" + searchTypeSelected);
 
 			if (searchTypeSelected.equals("dni")) {
 				searchByDocumentNumberResponsibleRendered = true;
@@ -264,43 +263,43 @@ public class SearchSalesForNotificationsController implements Serializable {
 		try {
 
 			saleSelected = null;
-
-			if (searchTypeSelected.equals("dni")) {
-				Long nuicResponsibleLong = Long.parseLong(nuicResponsible);
-				sales = saleService.findSalesByNuicResponsible(nuicResponsibleLong);
-			} else if (searchTypeSelected.equals("saleData")) {
-
-				// ESTADOS DE NOTIFICACION
-				List<NotificationStateEnum> notificationStatesEnum = new ArrayList<NotificationStateEnum>();
-				if (notificationStatesSelected != null && notificationStatesSelected.size() > 0) {
-					for (String notificationStateSelected : notificationStatesSelected) {
-						NotificationStateEnum notificationStateEnum = NotificationStateEnum
-								.findById(Short.parseShort(notificationStateSelected));
-						notificationStatesEnum.add(notificationStateEnum);
-					}
-				}
-
-				// BANCO
-				Short bankId = null;
-				if (bankSelected != null && bankSelected.length() > 0) {
-					bankId = Short.parseShort(bankSelected);
-				}
-
-				// ESTADO DE VENTA
-				SaleStateEnum saleState = null;
-				if (saleStateSelected != null && saleStateSelected.length() > 0) {
-					saleState = SaleStateEnum.findById(Short.parseShort(saleStateSelected));
-				}
-
-				// TIPO DE NOTIFICACIÓN
-				NotificationTypeEnum notificationType = null;
-				if (notificationTypeSelected != null && notificationTypeSelected.length() > 0) {
-					notificationType = NotificationTypeEnum.findById(Short.parseShort(notificationTypeSelected));
-				}
-
-				sales = saleService.findSalesBySaleData2(dateOfSaleStarted, dateOfSaleEnded, affiliationDate,
-						sendingDate, notificationStatesEnum, bankId, saleState, notificationType);
+			
+			// NUIC RESPONSIBLE
+			Long nuicResponsibleLong = null;
+			if (nuicResponsible!=null) {
+				nuicResponsibleLong = Long.parseLong(nuicResponsible);	
 			}
+			
+			// ESTADOS DE NOTIFICACION
+			List<NotificationStateEnum> notificationStatesEnum = new ArrayList<NotificationStateEnum>();
+			if (notificationStatesSelected != null && notificationStatesSelected.size() > 0) {
+				for (String notificationStateSelected : notificationStatesSelected) {
+					NotificationStateEnum notificationStateEnum = NotificationStateEnum
+							.findById(Short.parseShort(notificationStateSelected));
+					notificationStatesEnum.add(notificationStateEnum);
+				}
+			}
+			
+			// BANCO
+			Short bankId = null;
+			if (bankSelected != null && bankSelected.length() > 0) {
+				bankId = Short.parseShort(bankSelected);
+			}
+
+			// ESTADO DE VENTA
+			SaleStateEnum saleState = null;
+			if (saleStateSelected != null && saleStateSelected.length() > 0) {
+				saleState = SaleStateEnum.findById(Short.parseShort(saleStateSelected));
+			}
+
+			// TIPO DE NOTIFICACIÓN
+			NotificationTypeEnum notificationType = null;
+			if (notificationTypeSelected != null && notificationTypeSelected.length() > 0) {
+				notificationType = NotificationTypeEnum.findById(Short.parseShort(notificationTypeSelected));
+			}
+			
+			sales = saleService.findSalesForNotifications(searchTypeSelected,nuicResponsibleLong,dateOfSaleStarted, dateOfSaleEnded, affiliationDate,
+					sendingDate, notificationStatesEnum, bankId, saleState, notificationType);
 
 		} catch (Exception e) {
 
@@ -316,10 +315,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 			search();
 
-			// SimpleDateFormat sdf1 = new SimpleDateFormat("MM/yyyy");
 			SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
-			// SimpleDateFormat sdf3 = new SimpleDateFormat("dd/MM/yyyy
-			// HH:mm:ss");
 
 			XSSFWorkbook wb = new XSSFWorkbook();
 			XSSFSheet sheet = wb.createSheet();
@@ -387,15 +383,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 			}
 
-			/*
-			 * HSSFWorkbook workbook = new HSSFWorkbook(); HSSFSheet sheet =
-			 * workbook.createSheet(); HSSFRow row = sheet.createRow(0);
-			 * HSSFCell cell = row.createCell(0); cell.setCellValue(0.0);
-			 */
-
 			FacesContext facesContext = FacesContext.getCurrentInstance();
 			ExternalContext externalContext = facesContext.getExternalContext();
-			// externalContext.setResponseContentType("application/vnd.ms-excel");
 			externalContext.setResponseContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 			externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"ventas.xlsx\"");
 
@@ -414,9 +403,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 		try {
 
-			System.out.println("Ingreso a showNotifications " + saleSelected);
-			notifications = saleService.findNotifications(saleSelected.getId());
-			System.out.println("notifications: " + notifications.size());
+			notifications = notificationService.findBySale(saleSelected.getId());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -476,8 +463,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 				Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
 				ArrayList<String> paramList = new ArrayList<>();
-				paramList.add(String.valueOf(saleSelected.getId()));
-				paramMap.put("saleId", paramList);
+				paramList.add(String.valueOf(saleSelected.getNotification().getId()));
+				paramMap.put("notificationId", paramList);
 				RequestContext.getCurrentInstance().openDialog("edit_notification_by_sale", options, paramMap);
 
 			}
@@ -492,17 +479,9 @@ public class SearchSalesForNotificationsController implements Serializable {
 	public void afterEditNotification(SelectEvent event) {
 
 		Sale saleReturn = (Sale) event.getObject();
-
 		for (int i = 0; i < sales.size(); i++) {
 			Sale sale = sales.get(i);
-			System.out.println("1" + sale.getId());
-			System.out.println("2" + saleReturn.getId());
 			if (sale.getId().equals(saleReturn.getId())) {
-				System.out.println("INGRESOOOOOOOO");
-				/*
-				 * System.out.println(saleReturn.getDownUser());
-				 * System.out.println(saleReturn.getDownObservation());
-				 */
 				sales.set(i, saleReturn);
 				saleSelected = saleReturn;
 				break;
@@ -515,11 +494,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 		try {
 
-			System.out.println("Ingreso a showDatas " + saleSelected);
-			payers = saleService.findPayers(saleSelected.getId());
-			System.out.println("payers: " + payers.size());
-			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
-
+			payers = payerService.findBySale(saleSelected.getId());
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
@@ -529,7 +505,6 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 	public void addPayer() {
 		try {
-			System.out.println("Ingreso a addPayer");
 
 			Boolean validate = true;
 
@@ -559,11 +534,13 @@ public class SearchSalesForNotificationsController implements Serializable {
 			}
 
 			if (validate) {
+				
 				Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
 				ArrayList<String> paramList = new ArrayList<>();
 				paramList.add(String.valueOf(saleSelected.getId()));
 				paramMap.put("saleId", paramList);
 				RequestContext.getCurrentInstance().openDialog("add_payer", null, paramMap);
+				
 			}
 
 		} catch (Exception e) {
@@ -587,10 +564,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 	}
 
-	public void addNotification() {
+	public void addPhysicalNotification() {
 		try {
-			System.out.println("Ingreso a addNotification");
-			System.out.println("1");
 
 			Boolean validate = true;
 
@@ -725,20 +700,12 @@ public class SearchSalesForNotificationsController implements Serializable {
 		}
 	}
 
-	public void afterAddNotification(SelectEvent event) {
+	public void afterAddPhysicalNotification(SelectEvent event) {
 
 		Sale saleReturn = (Sale) event.getObject();
-
 		for (int i = 0; i < sales.size(); i++) {
 			Sale sale = sales.get(i);
-			System.out.println("1" + sale.getId());
-			System.out.println("2" + saleReturn.getId());
 			if (sale.getId().equals(saleReturn.getId())) {
-				System.out.println("INGRESOOOOOOOO");
-				/*
-				 * System.out.println(saleReturn.getDownUser());
-				 * System.out.println(saleReturn.getDownObservation());
-				 */
 				sales.set(i, saleReturn);
 				saleSelected = saleReturn;
 				break;
@@ -748,12 +715,13 @@ public class SearchSalesForNotificationsController implements Serializable {
 	}
 
 	public void createPhysicalNotifications() {
+		
 		try {
 
-			System.out.println("Ingreso a createPhysicalNotifications");
-
+			search();
+			
 			Boolean validate = true;
-
+			
 			// VALIDA SELECCION DE BANCO
 			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
 					.getSessionMap().get("sessionBean");
@@ -796,7 +764,6 @@ public class SearchSalesForNotificationsController implements Serializable {
 						}
 
 						// VALIDA DATOS DE RESPONSABLE
-
 						if (sale.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
 							errors.add(new SaleStateNoActiveException(sale.getCode()));
 						}
@@ -878,8 +845,6 @@ public class SearchSalesForNotificationsController implements Serializable {
 							}
 						}
 
-						search();
-
 						RequestContext context = RequestContext.getCurrentInstance();
 						context.execute("PF('createPhysicalsDialog').hide()");
 						context.update("form:messages");
@@ -913,6 +878,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 		try {
 
 			System.out.println("Ingreso a createVirtualNotifications");
+			
+			search();
 
 			Boolean validate = true;
 
@@ -1008,20 +975,6 @@ public class SearchSalesForNotificationsController implements Serializable {
 						List<Exception> errors2 = new ArrayList<Exception>();
 						for (Sale sale : sales) {
 							
-							// SE ENVIA EL EMAIL
-							
-							String email = sale.getPayer().getMail();
-							
-							String code = sale.getCode();
-							
-							String names = sale.getPayer().getFirstnameResponsible() + " "
-							+ sale.getPayer().getLastnamePaternalResponsible() + " "
-							+ sale.getPayer().getLastnameMaternalResponsible();
-							
-							Short bankId = sale.getCommerce().getBank().getId();
-							
-							mailingService.sendMail(email, names, code, bankId);
-							
 							//	SE CREA LA NOTIFICACION VIRTUAL
 							Notification notification = new Notification();
 							notification.setSendingAt(new Date());
@@ -1038,10 +991,10 @@ public class SearchSalesForNotificationsController implements Serializable {
 							}
 						}
 
-						search();
+						
 
 						RequestContext context = RequestContext.getCurrentInstance();
-						context.execute("PF('createPhysicalsDialog').hide()");
+						//context.execute("PF('createPhysicalsDialog').hide()");
 						context.update("form:messages");
 
 						if (errors2.size() > 0) {
@@ -1074,15 +1027,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 			System.out.println("Ingreso a printNotification");
 
-			// VALIDA BANK
-			/*
-			 * SessionBean sessionBean = (SessionBean) FacesContext
-			 * .getCurrentInstance().getExternalContext().getSessionMap()
-			 * .get("sessionBean");
-			 */
-
-			// if (sessionBean.getBank()!=null &&
-			// sessionBean.getBank().getId()!=null) {
+			search();
+			
 			List<Exception> errors = new ArrayList<Exception>();
 
 			if (sales != null && sales.size() > 0) {
