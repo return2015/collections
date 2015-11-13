@@ -17,7 +17,6 @@ import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.EaoException;
-//import org.eclipse.persistence.exceptions.IntegrityException;
 
 @Stateless
 public class SaleEaoImpl implements SaleEao {
@@ -29,11 +28,8 @@ public class SaleEaoImpl implements SaleEao {
 		try {
 			
 			Long maxIdByProduct = getMaxSaleIdByProduct(sale.getCommerce().getProduct().getId());
-			
 			String code = sale.getCommerce().getCode()+""+sale.getCommerce().getProduct().getCode()+""+sale.getCommerce().getPaymentMethod().getCode(); 
-			
 			if (maxIdByProduct!=null && maxIdByProduct>0) {
-				//Long maxIdByProductLong = Long.parseLong(maxIdByProduct);
 				code += (maxIdByProduct+1);
 			}else{
 				code += 1; 
@@ -54,6 +50,29 @@ public class SaleEaoImpl implements SaleEao {
 		}
 	}
 	
+	public Long getMaxSaleIdByProduct(Short productId) throws EaoException{
+		try {
+			
+			String query = "SELECT max(cast(substring(s.code,15) as signed)) "
+					+ "FROM Sale s "
+					+ "left join s.commerce c "
+					+ "left join c.product p "
+					+ "WHERE p.id=:productId ";
+			
+			Query q = em.createQuery(query);
+			q.setParameter("productId", productId);
+
+			return (Long)q.getSingleResult();
+			
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+	}
+	
+	
 	public Sale update(Sale sale) throws EaoException{
 		try {
 			
@@ -69,19 +88,16 @@ public class SaleEaoImpl implements SaleEao {
 		}
 	}
 	
-	public List<Sale> findBySaleData2(Date saleDateStartedAt,Date saleDateEndedAt, Date affiliationDate, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType)  throws EaoException {
+	public List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAt, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification)  throws EaoException {
 		try {
 			
 			String query = "SELECT s FROM Sale s "
 					+ "left join s.saleState ss "
 					+ "left join s.commerce c "
+					+ "left join s.payer p "
 					+ "left join c.bank b "
 					+ "left join s.notification n "
 					+ "WHERE s.dateOfSale between :saleDateStartedAt and :saleDateEndedAt ";
-			
-			if (affiliationDate!=null) {
-				query+=" and s.affiliationDate between :affiliationDateStart and  :affiliationDateEnd";
-			}
 			
 			if (sendingDate!=null) {
 				query+=" and n.sendingAt between :sendingDateStart and  :sendingDateEnd";
@@ -102,6 +118,18 @@ public class SaleEaoImpl implements SaleEao {
 				query+=" and n.state in :notificationStates ";
 			}
 			
+			if (withoutAddress) {
+				query+=" and (p.address is not null and p.address <> '') ";
+			}
+			
+			if (withoutMail) {
+				query+=" and (p.mail is not null and p.mail <> '') ";
+			}
+			
+			if (withoutNotification) {
+				query+=" and n.id is null ";
+			}
+			
 			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
 			q.setParameter("saleDateStartedAt", saleDateStartedAt);
 			q.setParameter("saleDateEndedAt", saleDateEndedAt);
@@ -113,12 +141,6 @@ public class SaleEaoImpl implements SaleEao {
 				q.setParameter("sendingDateEnd", sdf2.parse(sdf.format(sendingDate)+" 23:59:59"));
 			}
 			
-			if (affiliationDate!=null ) {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				q.setParameter("affiliationDateStart", sdf2.parse(sdf.format(affiliationDate)+" 00:00:00"));
-				q.setParameter("affiliationDateEnd", sdf2.parse(sdf.format(affiliationDate)+" 23:59:59"));
-			}
 			
 			if (notificationStates!=null && notificationStates.size()>0) {
 				q.setParameter("notificationStates", notificationStates);
@@ -236,7 +258,7 @@ public class SaleEaoImpl implements SaleEao {
 
 	}
 	
-	public List<Sale> getNotConditioned() throws EaoException {
+	/*public List<Sale> getNotConditioned() throws EaoException {
 		
 		try {
 			
@@ -260,7 +282,7 @@ public class SaleEaoImpl implements SaleEao {
 			throw new EaoException(e.getMessage());
 		}
 
-	}
+	}*/
 	
 	
 	
@@ -281,19 +303,17 @@ public class SaleEaoImpl implements SaleEao {
 	}
 	
 	
-	public Sale findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws EaoException{
+	public Long findIdByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws EaoException{
 		
 		try {
 			
-			String query = "SELECT s FROM Sale s WHERE s.nuicInsured = :nuicInsured and s.dateOfSale = :dateOfSale ";
+			String query = "SELECT s.id FROM Sale s WHERE s.nuicInsured = :nuicInsured and s.dateOfSale = :dateOfSale ";
 			
-			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
+			TypedQuery<Long> q = em.createQuery(query, Long.class);
 			q.setParameter("nuicInsured", nuicInsured);
 			q.setParameter("dateOfSale", dateOfSale);
 			
-			Sale sale = q.getSingleResult();
-			
-			return sale;
+			return q.getSingleResult();
 			
 		} catch (NoResultException e) {
 			return null;
@@ -485,28 +505,7 @@ public class SaleEaoImpl implements SaleEao {
 
 	}
 	
-	public Long getMaxSaleIdByProduct(Short productId) throws EaoException{
-		try {
-			
-			String query = "SELECT max(cast(substring(s.code,15) as signed)) FROM Sale s "
-					+ "left join s.commerce c "
-					+ "left join c.product p "
-					+ "WHERE p.id=:productId ";
-			
-			Query q = em.createQuery(query);
-			q.setParameter("productId", productId);
-			
-			Long maxIdProduct= (Long)q.getSingleResult();
-			
-			return maxIdProduct;
-			
-		} catch (NoResultException e) {
-			return null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new EaoException(e.getMessage());
-		}
-	}
+	
 	
 
 }

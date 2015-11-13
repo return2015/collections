@@ -10,12 +10,13 @@ import com.returnsoft.collection.eao.BankEao;
 import com.returnsoft.collection.eao.CollectionEao;
 import com.returnsoft.collection.eao.CommerceEao;
 import com.returnsoft.collection.eao.CreditCardEao;
-import com.returnsoft.collection.eao.MaintenanceEao;
 import com.returnsoft.collection.eao.NotificationEao;
 import com.returnsoft.collection.eao.PayerEao;
 import com.returnsoft.collection.eao.ProductEao;
 import com.returnsoft.collection.eao.RepaymentEao;
 import com.returnsoft.collection.eao.SaleEao;
+import com.returnsoft.collection.eao.SaleStateEao;
+import com.returnsoft.collection.entity.Commerce;
 import com.returnsoft.collection.entity.CreditCard;
 import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.Sale;
@@ -53,7 +54,7 @@ public class SaleServiceImpl implements SaleService{
 	private RepaymentEao repaymentEao;
 	
 	@EJB
-	private MaintenanceEao maintenanceEao;
+	private SaleStateEao saleStateEao;
 	
 	@EJB
 	private NotificationEao notificationEao;
@@ -100,9 +101,7 @@ public class SaleServiceImpl implements SaleService{
 		try {
 			
 			SaleState saleState = sale.getSaleState();
-			
 			CreditCard creditCard = sale.getCreditCard();
-			
 			Payer payer = sale.getPayer();
 			
 			sale.setSaleState(null);
@@ -112,7 +111,7 @@ public class SaleServiceImpl implements SaleService{
 			saleEao.add(sale);
 			
 			saleState.setSale(sale);
-			maintenanceEao.add(saleState);
+			saleStateEao.add(saleState);
 			
 			creditCard.setSale(sale);
 			creditCardUpdateEao.add(creditCard);
@@ -153,9 +152,10 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	public List<Sale> findSalesBySaleData2(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType) throws ServiceException {
+	public List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification) throws ServiceException {
 		try {
-			List<Sale> sales = saleEao.findBySaleData2(saleDateStartedAt, saleDateEndedAt,  affiliationDate, sendingDate, notificationStates,bankId, saleState, notificationType);
+			
+			List<Sale> sales = saleEao.findForNotifications(saleDateStartedAt, saleDateEndedAt,  sendingDate, notificationStates,bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification);
 
 			return sales;
 
@@ -169,7 +169,7 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	public List<Sale> findSalesForNotifications(String searchType, Long nuicResponsible, Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType) throws ServiceException{
+	/*public List<Sale> findSalesForNotifications(String searchType, Long nuicResponsible, Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType) throws ServiceException{
 		try {
 			
 			List<Sale> sales = null;
@@ -191,7 +191,7 @@ public class SaleServiceImpl implements SaleService{
 				throw new ServiceException();
 			}
 		}
-	}
+	}*/
 	
 	
 	public List<Sale> findSalesByCreditCardNumber(Long creditCardNumber) throws ServiceException {
@@ -289,7 +289,7 @@ public class SaleServiceImpl implements SaleService{
 	public List<SaleState> findMaintenances(Long saleId) throws ServiceException{
 		try {
 			
-			List<SaleState> maintenances = maintenanceEao.findBySaleId(saleId);
+			List<SaleState> maintenances = saleStateEao.findBySaleId(saleId);
 
 			return maintenances;
 			
@@ -305,12 +305,10 @@ public class SaleServiceImpl implements SaleService{
 	
 	
 	
-	public Sale findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws ServiceException{
+	public Long findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws ServiceException{
 		try {
 			
-			Sale sale = saleEao.findByNuicInsuredAndDateOfSale(nuicInsured, dateOfSale);
-			
-			return sale;
+			return saleEao.findIdByNuicInsuredAndDateOfSale(nuicInsured, dateOfSale);
 			
 		} catch (Exception e) {
 			e.printStackTrace();

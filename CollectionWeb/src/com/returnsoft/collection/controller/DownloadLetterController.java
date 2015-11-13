@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.ejb.EJB;
@@ -28,6 +29,7 @@ import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 
 import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -122,6 +124,7 @@ public class DownloadLetterController implements Serializable {
 										+ sale.getPayer().getLastnamePaternalResponsible() + " "
 										+ sale.getPayer().getLastnameMaternalResponsible());
 						parameters.put("ROOT_DIR", rootDir);
+						parameters.put(JRParameter.REPORT_LOCALE, new Locale("es", "pe"));
 						System.out.println(rootDir);
 
 						JasperReport report = JasperCompileManager.compileReport(fileName);

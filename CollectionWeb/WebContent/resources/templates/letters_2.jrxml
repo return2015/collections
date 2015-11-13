@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="plantillaFalabella" language="groovy" pageWidth="595" pageHeight="841" columnWidth="425" leftMargin="85" rightMargin="85" topMargin="30" bottomMargin="0" uuid="bc7a153f-e446-477a-b9d6-b75b03d25dfa">
 	<property name="ireport.zoom" value="2.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="1114"/>
+	<property name="ireport.y" value="48"/>
 	<parameter name="names" class="java.lang.String"/>
 	<parameter name="ROOT_DIR" class="java.lang.String"/>
 	<detail>

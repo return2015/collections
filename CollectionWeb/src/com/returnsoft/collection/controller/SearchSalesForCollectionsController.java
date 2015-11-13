@@ -45,10 +45,10 @@ import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.CollectionService;
 import com.returnsoft.collection.service.CommerceService;
 import com.returnsoft.collection.service.CreditCardService;
-import com.returnsoft.collection.service.MaintenanceService;
 import com.returnsoft.collection.service.ProductService;
 import com.returnsoft.collection.service.RepaymentService;
 import com.returnsoft.collection.service.SaleService;
+import com.returnsoft.collection.service.SaleStateService;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
 
@@ -94,7 +94,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 	private CollectionService collectionService;
 	
 	@EJB
-	private MaintenanceService maintenanceService;
+	private SaleStateService saleStateService;
 
 	private String searchTypeSelected;
 	private String personTypeSelected;
@@ -700,7 +700,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 		try {
 
 			System.out.println("Ingreso a showMaintenances " + saleSelected);
-			maintenances = maintenanceService.findBySale(saleSelected.getId());
+			maintenances = saleStateService.findBySale(saleSelected.getId());
 			System.out.println("maintenances: " + maintenances.size());
 			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
 

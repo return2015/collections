@@ -458,8 +458,8 @@ public class NotificationServiceImpl implements NotificationService {
 						} finally {
 						    br.close();
 						}
-						String urlConditioned="http://172.28.0.23:8080/collectionWeb/faces/download_conditioned.xhtml?code="+code;
-						String urlLetter="http://172.28.0.23:8080/collectionWeb/faces/download_letter.xhtml?code="+code;
+						String urlConditioned="http://190.107.180.164:9096/siscob/faces/download_conditioned.xhtml?code="+code;
+						String urlLetter="http://190.107.180.164:9096/siscob/faces/download_letter.xhtml?code="+code;
 						htmlText=String.format(htmlText, names,urlLetter,urlConditioned);
 						
 						//

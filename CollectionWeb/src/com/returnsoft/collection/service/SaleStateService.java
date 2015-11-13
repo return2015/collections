@@ -5,7 +5,7 @@ import java.util.List;
 import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.exception.ServiceException;
 
-public interface MaintenanceService {
+public interface SaleStateService {
 	
 	public void add(SaleState maintenance) throws ServiceException;
 	

@@ -8,12 +8,12 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
-import com.returnsoft.collection.eao.MaintenanceEao;
+import com.returnsoft.collection.eao.SaleStateEao;
 import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.exception.EaoException;
 
 @Stateless
-public class MaintenanceEaoImpl implements MaintenanceEao {
+public class SaleStateEaoImpl implements SaleStateEao {
 	
 	@PersistenceContext
 	private EntityManager em;

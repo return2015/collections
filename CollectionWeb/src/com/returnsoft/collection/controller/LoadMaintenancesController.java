@@ -41,7 +41,7 @@ import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
 import com.returnsoft.collection.service.CommerceService;
-import com.returnsoft.collection.service.MaintenanceService;
+import com.returnsoft.collection.service.SaleStateService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 
@@ -68,7 +68,7 @@ public class LoadMaintenancesController implements Serializable {
 	//private final String[] saleStates = { "ACTIVO", "BAJA" };
 	
 	@EJB
-	private MaintenanceService maintenanceService;
+	private SaleStateService saleStateService;
 	
 	@EJB
 	private SaleService saleService;
@@ -452,7 +452,7 @@ try {
 						maintenance.setCreatedBy(user);
 						maintenance.setCreatedAt(current);
 
-						maintenanceService.add(maintenance);
+						saleStateService.add(maintenance);
 
 						//salesCreated++;
 

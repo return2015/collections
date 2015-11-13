@@ -19,10 +19,10 @@ public class CreditCardEaoImpl implements CreditCardEao{
 	@PersistenceContext
 	private EntityManager em;
 	
-	public void add(CreditCard creditCardUpdate) throws EaoException{
+	public void add(CreditCard creditCard) throws EaoException{
 		try {
 
-			em.persist(creditCardUpdate);
+			em.persist(creditCard);
 			em.flush();
 
 			

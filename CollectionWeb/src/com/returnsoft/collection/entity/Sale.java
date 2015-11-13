@@ -503,6 +503,6 @@ public class Sale implements Serializable{
 	public void setVirtualNotifications(Short virtualNotifications) {
 		this.virtualNotifications = virtualNotifications;
 	}
-
+	
 	
 }

@@ -6,7 +6,7 @@ import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.exception.EaoException;
 
 
-public interface MaintenanceEao {
+public interface SaleStateEao {
 	
 	public void add(SaleState maintenance) throws EaoException;
 	

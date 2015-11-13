@@ -17,7 +17,7 @@ public interface SaleEao{
 	
 	public List<Sale> findBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Short bankId, Short productId, SaleStateEnum saleState) throws EaoException;
 	
-	public List<Sale> findBySaleData2(Date saleDateStartedAt,Date saleDateEndedAt, Date affiliationDate, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType)  throws EaoException;
+	public List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAt, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification)  throws EaoException;
 	
 	//public List<Sale> findByCreditCardNumber(Long creditCardNumber) throws EaoException;
 	
@@ -33,9 +33,9 @@ public interface SaleEao{
 	
 	public List<Sale> findByNamesContractor(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws EaoException;
 	
-	public Sale findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws EaoException;
+	public Long findIdByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws EaoException;
 	
-	public List<Sale> getNotConditioned() throws EaoException;
+	//public List<Sale> getNotConditioned() throws EaoException;
 
 
 }

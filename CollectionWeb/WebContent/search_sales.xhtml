@@ -24,20 +24,24 @@
 		</script>
  -->
 		<div class="title ui-widget-header ui-corner-all">
-			<h:panelGrid style="margin:auto;">
-		BUSCAR VENTAS
-		</h:panelGrid>
+			<h:panelGrid columns="2" style="margin:auto;">
+		BUSCAR VENTAS <h:form id="form0">
+					<p:commandLink icon="ui-icon-document" ajax="false"
+						action="#{loadSalesController.download}"
+						value="(Descargar formato de trama)">
+					</p:commandLink>
+				</h:form>
+			</h:panelGrid>
 
 		</div>
 
-		<h:form id="form">
 
-			<h:panelGrid style="margin:auto;">
+		<h:panelGrid style="margin:auto;text-align:center;">
+			<p:messages id="messages" showDetail="true"></p:messages>
+		</h:panelGrid>
 
-				<h:panelGrid style="margin:auto;text-align:center;">
-					<p:messages id="messages" showDetail="true"></p:messages>
-				</h:panelGrid>
-
+		<h:panelGrid style="margin:auto;">
+			<h:form id="form">
 				<h:panelGrid columns="3">
 					<h:panelGrid columns="2">
 						<p:outputLabel value="Tipo de busqueda:"></p:outputLabel>
@@ -56,7 +60,7 @@
 								itemValue="personalData" />
 							<p:ajax immediate="true" process=":form:searchType"
 								listener="#{searchSalesController.onChangeSearchType}"
-								update=":form:searchTypeOut :form:messages"></p:ajax>
+								update=":form:searchTypeOut :messages"></p:ajax>
 						</p:selectOneMenu>
 					</h:panelGrid>
 					<p:outputPanel id="searchTypeOut">
@@ -209,9 +213,7 @@
 					<p:commandButton icon="ui-icon-search"
 						actionListener="#{searchSalesController.search}" value="Buscar"
 						process="@form"
-						update=":form:searchTypeOut :form:searchTable :form:saleId :form:salesCount :form:messages 
-						:form:updatesButtom :form:collectionsButtom :form:maintenancesButtom  
-						:form:stateButtom :form:repaymentsButtom">
+						update=":form:searchTypeOut :formTable:searchTable :formTable:saleId :formTable:salesCount :messages">
 					</p:commandButton>
 
 					<p:commandButton action="#{searchSalesController.exportExcel}"
@@ -219,38 +221,69 @@
 					</p:commandButton>
 
 				</h:panelGrid>
-			</h:panelGrid>
+			</h:form>
+		</h:panelGrid>
 
-			<h:panelGrid style="margin:auto;">
+
+
+		<h:panelGrid columns="2" >
+
+			<h:form id="formUpload" enctype="multipart/form-data;charset=UTF-8">
+				<p:fileUpload id="inputFile" mode="advanced"
+					widgetVar="inputFileSales" value="#{searchSalesController.file}"
+					auto="true"
+					update=":formUpload:inputFile :formUpload2:loadSaleButton :messages"
+					fileUploadListener="#{searchSalesController.handleFileUpload}"
+					label="Cargar Archivo" fileLimit="1">
+				</p:fileUpload>
+			</h:form>
+
+			<h:form id="formUpload2">
+				<h:panelGrid columns="2" style="width:100%;">
+					<p:commandButton id="loadSaleButton" widgetVar="loadButton"
+						disabled="#{searchSalesController.dataList==null}"
+						value="Cargar #{searchSalesController.dataList!=null?searchSalesController.dataList.size():''} Ventas"
+						process="@this" oncomplete="enableChoosing();"
+						update=":formUpload2:loadSaleButton :formUpload2:pbLoadSales :formUpload:inputFile :messages"
+						actionListener="#{searchSalesController.load}"
+						onclick="PF('pbLoad').start();PF('loadButton').disable();disableChoosing();">
+						<p:confirm header="Confirmación" message="¿Está seguro?"
+							icon="ui-icon-alert" />
+					</p:commandButton>
+					<p:progressBar widgetVar="pbLoad" ajax="true" id="pbLoadSales" style="width:200px;"
+						value="#{searchSalesController.progress}" labelTemplate="{value}%"
+						styleClass="animated" global="false">
+					</p:progressBar>
+				</h:panelGrid>
+			</h:form>
+
+		</h:panelGrid>
+
+		
+
+
+			<h:form id="formTable">
 
 				<h:panelGrid columns="2" style="width:100%;">
-
 					<p:outputLabel id="saleId"
 						value="Venta seleccionada: #{searchSalesController.saleSelected!=null?searchSalesController.saleSelected.code:''}">
 					</p:outputLabel>
-
-
-						<h:panelGrid style="width:100%;">
-							<p:outputLabel id="salesCount"
-								value="Se encontraron #{searchSalesController.sales!=null?searchSalesController.sales.size():'0'} ventas.">
-							</p:outputLabel>
-						</h:panelGrid>
-
+					<h:panelGrid style="width:100%;">
+						<p:outputLabel id="salesCount"
+							value="Se encontraron #{searchSalesController.sales!=null?searchSalesController.sales.size():'0'} ventas.">
+						</p:outputLabel>
+					</h:panelGrid>
 				</h:panelGrid>
 
 				
-
-
-				<p:dataTable value="#{searchSalesController.sales}" var="s"
-					scrollable="true" scrollWidth="900" paginator="true" rows="10"
-					selectionMode="single"
+				<p:dataTable style="width:100%;" value="#{searchSalesController.sales}" var="s"
+					scrollable="true" scrollWidth="100%" paginator="true" rows="10"
+					selectionMode="single" 
 					selection="#{searchSalesController.saleSelected}" rowKey="#{s.id}"
 					id="searchTable">
 
-					<p:ajax event="rowSelect"
-						update=":form:updatesButtom :form:collectionsButtom :form:maintenancesButtom :form:stateButtom :form:repaymentsButtom :form:saleId" />
-					<p:ajax event="rowUnselect"
-						update=":form:updatesButtom :form:collectionsButtom :form:maintenancesButtom :form:stateButtom :form:repaymentsButtom :form:saleId" />
+					<p:ajax event="rowSelect" update=":formTable:saleId" />
+					<p:ajax event="rowUnselect" update=":formTable:saleId" />
 
 
 					<p:column headerText="CODIGO" width="100">
@@ -505,14 +538,42 @@
 						<h:outputText value="#{s.createdBy.username}"></h:outputText>
 					</p:column>
 
-					
+
 
 				</p:dataTable>
 
-			</h:panelGrid>
+			</h:form>
 
-		</h:form>
 
+		
+
+
+		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+			<p:commandButton value="Sí" type="button"
+				styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+			<p:commandButton value="No" type="button"
+				styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+		</p:confirmDialog>
+
+
+
+		<script type="text/javascript">
+			function disableChoosing() {
+				PF('inputFileSales').disableButton(
+						PF('inputFileSales').chooseButton);
+				PF('inputFileSales').chooseButton.find('input[type="file"]')
+						.attr('disabled', 'disabled');
+			}
+
+			function enableChoosing() {
+				if (!PF('inputFileSales').files.length) {
+					PF('inputFileSales').enableButton(
+							PF('inputFileSales').chooseButton);
+					PF('inputFileSales').chooseButton
+							.find('input[type="file"]').removeAttr('disabled');
+				}
+			}
+		</script>
 
 	</ui:define>
 

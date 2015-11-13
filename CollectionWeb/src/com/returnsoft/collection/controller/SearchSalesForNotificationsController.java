@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.ejb.EJB;
@@ -64,6 +65,7 @@ import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
 
 import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -116,7 +118,6 @@ public class SearchSalesForNotificationsController implements Serializable {
 	// BUSQUEDA POR DATOS DE LA VENTA
 	private Date dateOfSaleStarted;
 	private Date dateOfSaleEnded;
-	private Date affiliationDate;
 	private Date sendingDate;
 	private List<SelectItem> notificationStates;
 	private List<String> notificationStatesSelected;
@@ -126,6 +127,10 @@ public class SearchSalesForNotificationsController implements Serializable {
 	private String saleStateSelected;
 	private List<SelectItem> notificationTypes;
 	private String notificationTypeSelected;
+	
+	private Boolean withoutMail;
+	private Boolean withoutAddress;
+	private Boolean withoutNotification;
 
 	// BÚSQUEDA POR NUIC DE RESPONSABLE
 	private String nuicResponsible;
@@ -245,7 +250,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 			if (searchTypeSelected.equals("dni")) {
 				searchByDocumentNumberResponsibleRendered = true;
 				searchByDateSaleRendered = false;
-			} else if (searchTypeSelected.equals("saleData")) {
+			} else if (searchTypeSelected.equals("notificationData")) {
 				searchByDocumentNumberResponsibleRendered = false;
 				searchByDateSaleRendered = true;
 			} else {
@@ -264,43 +269,50 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 			saleSelected = null;
 			
-			// NUIC RESPONSIBLE
-			Long nuicResponsibleLong = null;
-			if (nuicResponsible!=null) {
-				nuicResponsibleLong = Long.parseLong(nuicResponsible);	
-			}
-			
-			// ESTADOS DE NOTIFICACION
-			List<NotificationStateEnum> notificationStatesEnum = new ArrayList<NotificationStateEnum>();
-			if (notificationStatesSelected != null && notificationStatesSelected.size() > 0) {
-				for (String notificationStateSelected : notificationStatesSelected) {
-					NotificationStateEnum notificationStateEnum = NotificationStateEnum
-							.findById(Short.parseShort(notificationStateSelected));
-					notificationStatesEnum.add(notificationStateEnum);
+			if (searchTypeSelected.equals("dni")) {
+				// NUIC RESPONSIBLE
+				Long nuicResponsibleLong = null;
+				if (nuicResponsible!=null) {
+					nuicResponsibleLong = Long.parseLong(nuicResponsible);	
 				}
+				
+				sales = saleService.findSalesByNuicResponsible(nuicResponsibleLong);
+				
+			} else if (searchTypeSelected.equals("notificationData")) {
+				
+				// ESTADOS DE NOTIFICACION
+				List<NotificationStateEnum> notificationStatesEnum = new ArrayList<NotificationStateEnum>();
+				if (notificationStatesSelected != null && notificationStatesSelected.size() > 0) {
+					for (String notificationStateSelected : notificationStatesSelected) {
+						NotificationStateEnum notificationStateEnum = NotificationStateEnum
+								.findById(Short.parseShort(notificationStateSelected));
+						notificationStatesEnum.add(notificationStateEnum);
+					}
+				}
+				
+				// BANCO
+				Short bankId = null;
+				if (bankSelected != null && bankSelected.length() > 0) {
+					bankId = Short.parseShort(bankSelected);
+				}
+
+				// ESTADO DE VENTA
+				SaleStateEnum saleState = null;
+				if (saleStateSelected != null && saleStateSelected.length() > 0) {
+					saleState = SaleStateEnum.findById(Short.parseShort(saleStateSelected));
+				}
+
+				// TIPO DE NOTIFICACIÓN
+				NotificationTypeEnum notificationType = null;
+				if (notificationTypeSelected != null && notificationTypeSelected.length() > 0) {
+					notificationType = NotificationTypeEnum.findById(Short.parseShort(notificationTypeSelected));
+				}
+				
+				sales = saleService.findForNotifications(dateOfSaleStarted, dateOfSaleEnded, 
+						sendingDate, notificationStatesEnum, bankId, saleState, notificationType,withoutMail,withoutAddress,withoutNotification);
 			}
 			
-			// BANCO
-			Short bankId = null;
-			if (bankSelected != null && bankSelected.length() > 0) {
-				bankId = Short.parseShort(bankSelected);
-			}
-
-			// ESTADO DE VENTA
-			SaleStateEnum saleState = null;
-			if (saleStateSelected != null && saleStateSelected.length() > 0) {
-				saleState = SaleStateEnum.findById(Short.parseShort(saleStateSelected));
-			}
-
-			// TIPO DE NOTIFICACIÓN
-			NotificationTypeEnum notificationType = null;
-			if (notificationTypeSelected != null && notificationTypeSelected.length() > 0) {
-				notificationType = NotificationTypeEnum.findById(Short.parseShort(notificationTypeSelected));
-			}
 			
-			sales = saleService.findSalesForNotifications(searchTypeSelected,nuicResponsibleLong,dateOfSaleStarted, dateOfSaleEnded, affiliationDate,
-					sendingDate, notificationStatesEnum, bankId, saleState, notificationType);
-
 		} catch (Exception e) {
 
 			e.printStackTrace();
@@ -631,7 +643,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 			// VALIDA EL ESTADO DE LA ULTIMA NOTIFICACION
 			if (validate) {
 				if (saleSelected.getNotification() != null) {
-					if (saleSelected.getNotification().getState().getPending() == true) {
+					if (saleSelected.getNotification().getType().equals(NotificationTypeEnum.PHYSICAL)
+							&& saleSelected.getNotification().getState().getPending() == true) {
 						Exception e = new NotificationPendingException(saleSelected.getCode());
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 						validate = false;
@@ -753,7 +766,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 						// VALIDA EL ESTADO DE LA ULTIMA NOTIFICACION
 						if (sale.getNotification() != null) {
-							if (sale.getNotification().getState().getPending() == true) {
+							if (sale.getNotification().getType().equals(NotificationTypeEnum.PHYSICAL)
+									&& sale.getNotification().getState().getPending() == true) {
 								errors.add(new NotificationPendingException(sale.getCode()));
 							}
 						}
@@ -1119,6 +1133,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 					parameters.put("sales", sales);
 					parameters.put("ROOT_DIR", rootDir);
+					parameters.put(JRParameter.REPORT_LOCALE, new Locale("es", "pe")); 
 
 					JasperReport report = JasperCompileManager.compileReport(fileName);
 					JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
@@ -1169,26 +1184,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 		this.dateOfSaleEnded = dateOfSaleEnded;
 	}
 
-	/*
-	 * public List<SelectItem> getBanks() { return banks; }
-	 * 
-	 * public void setBanks(List<SelectItem> banks) { this.banks = banks; }
-	 * 
-	 * public String getBankSelected() { return bankSelected; }
-	 * 
-	 * public void setBankSelected(String bankSelected) { this.bankSelected =
-	 * bankSelected; }
-	 * 
-	 * public List<SelectItem> getProducts() { return products; }
-	 * 
-	 * public void setProducts(List<SelectItem> products) { this.products =
-	 * products; }
-	 * 
-	 * public String getProductSelected() { return productSelected; }
-	 * 
-	 * public void setProductSelected(String productSelected) {
-	 * this.productSelected = productSelected; }
-	 */
+	
 
 	public String getSearchTypeSelected() {
 		return searchTypeSelected;
@@ -1222,16 +1218,6 @@ public class SearchSalesForNotificationsController implements Serializable {
 		this.saleSelected = saleSelected;
 	}
 
-	/*
-	 * public String getSaleStateSelected() { return saleStateSelected; }
-	 * 
-	 * public void setSaleStateSelected(String saleStateSelected) {
-	 * this.saleStateSelected = saleStateSelected; }
-	 */
-
-	public Date getAffiliationDate() {
-		return affiliationDate;
-	}
 
 	public List<SelectItem> getNotificationStates() {
 		return notificationStates;
@@ -1249,16 +1235,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 		this.notificationStatesSelected = notificationStatesSelected;
 	}
 
-	public void setAffiliationDate(Date affiliationDate) {
-		this.affiliationDate = affiliationDate;
-	}
-
-	/*
-	 * public List<SelectItem> getSaleStates() { return saleStates; }
-	 * 
-	 * public void setSaleStates(List<SelectItem> saleStates) { this.saleStates
-	 * = saleStates; }
-	 */
+	
 
 	public String getPasswordSupervisor() {
 		return passwordSupervisor;
@@ -1370,6 +1347,30 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 	public void setNotificationTypeSelected(String notificationTypeSelected) {
 		this.notificationTypeSelected = notificationTypeSelected;
+	}
+
+	public Boolean getWithoutMail() {
+		return withoutMail;
+	}
+
+	public void setWithoutMail(Boolean withoutMail) {
+		this.withoutMail = withoutMail;
+	}
+
+	public Boolean getWithoutAddress() {
+		return withoutAddress;
+	}
+
+	public void setWithoutAddress(Boolean withoutAddress) {
+		this.withoutAddress = withoutAddress;
+	}
+
+	public Boolean getWithoutNotification() {
+		return withoutNotification;
+	}
+
+	public void setWithoutNotification(Boolean withoutNotification) {
+		this.withoutNotification = withoutNotification;
 	}
 
 }

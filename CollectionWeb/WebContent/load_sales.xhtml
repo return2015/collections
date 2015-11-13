@@ -11,45 +11,104 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewAction action="#{loadSalesController.initialize}"/>
-		</f:metadata>	
+			<f:viewAction action="#{loadSalesController.initialize}" />
+		</f:metadata>
 	</ui:define>
 
 	<ui:define name="content">
 
 		<div class="title ui-widget-header ui-corner-all">
-			<h:panelGrid style="margin:auto;">
+			<h:panelGrid columns="2" style="margin:auto;">
 		CARGAR VENTAS
-		</h:panelGrid>
+		<h:form id="form0">
+					<p:commandLink icon="ui-icon-document" ajax="false"
+						action="#{loadSalesController.download}"
+						value="(Descargar formato de trama)">
+					</p:commandLink>
+				</h:form>
+			</h:panelGrid>
 
 		</div>
 
-		<h:form id="form" enctype="multipart/form-data">
-			<h:panelGrid style="margin:auto;">
 
-				<h:panelGrid style="margin:auto;text-align:center;">
-					<p:messages id="messages" showDetail="true"></p:messages>
-				</h:panelGrid>
+		<h:panelGrid style="margin:auto;">
 
-
-				<h:panelGrid columns="3" style="margin:auto;text-align:center;">
-
-					<p:fileUpload mode="simple" value="#{loadSalesController.file}" />
-					
-					<p:commandButton icon="ui-icon-document" ajax="false"
-						action="#{loadSalesController.load}" value="Cargar Ventas">
-					</p:commandButton>
-					
-					<p:commandButton icon="ui-icon-document" ajax="false"
-						action="#{loadSalesController.download}" value="Descargar plantilla">
-					</p:commandButton>
-
-				</h:panelGrid>
-
+			<h:panelGrid style="margin:auto;text-align:center;">
+				<p:messages id="messages" showDetail="true"></p:messages>
 			</h:panelGrid>
 
 
-		</h:form>
+			<h:panelGrid columns="3" style="margin:auto;text-align:center;">
+
+				<h:form id="form" enctype="multipart/form-data">
+					<p:fileUpload id="inputFile" mode="advanced"
+						widgetVar="inputFileSales" value="#{loadSalesController.file}"
+						auto="true"
+						update=":form:inputFile :form2:loadSaleButton  :messages"
+						fileUploadListener="#{loadSalesController.handleFileUpload}"
+						label="Seleccione archivo" fileLimit="1">
+					</p:fileUpload>
+				</h:form>
+
+				<h:form id="form2">
+					<h:panelGrid columns="2">
+						<p:commandButton id="loadSaleButton" widgetVar="loadButton"
+							disabled="#{loadSalesController.dataList==null}"
+							value="Cargar #{loadSalesController.dataList!=null?loadSalesController.dataList.size():''} Ventas"
+							process="@this" oncomplete="enableChoosing();"
+							update=":form2:loadSaleButton :form2:pbLoadSales :form:inputFile :messages"
+							actionListener="#{loadSalesController.load}"
+							onclick="PF('pbLoad').start();PF('loadButton').disable();disableChoosing();">
+							<p:confirm header="Confirmación" message="¿Está seguro?"
+								icon="ui-icon-alert" />
+						</p:commandButton>
+						<p:progressBar widgetVar="pbLoad" ajax="true" id="pbLoadSales"
+							value="#{loadSalesController.progress}" labelTemplate="{value}%"
+							styleClass="animated" global="false">
+						</p:progressBar>
+					</h:panelGrid>
+				</h:form>
+
+
+
+
+			</h:panelGrid>
+
+			<br />
+			<br />
+
+		</h:panelGrid>
+
+
+
+
+
+		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+			<p:commandButton value="Sí" type="button"
+				styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+			<p:commandButton value="No" type="button"
+				styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+		</p:confirmDialog>
+
+		<script type="text/javascript">
+			function disableChoosing() {
+				PF('inputFileSales').disableButton(
+						PF('inputFileSales').chooseButton);
+				PF('inputFileSales').chooseButton.find('input[type="file"]')
+						.attr('disabled', 'disabled');
+			}
+
+			function enableChoosing() {
+				if (!PF('inputFileSales').files.length) {
+					PF('inputFileSales').enableButton(
+							PF('inputFileSales').chooseButton);
+					PF('inputFileSales').chooseButton
+							.find('input[type="file"]').removeAttr('disabled');
+				}
+			}
+		</script>
+
+
 	</ui:define>
 
 </ui:composition>

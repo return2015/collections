@@ -40,8 +40,8 @@
 					<f:selectItem itemLabel="Seleccione..." itemValue="" />
 					<f:selectItem itemLabel="Buscar por NUIC responsable."
 						itemValue="dni" />
-					<f:selectItem itemLabel="Buscar por datos de venta."
-						itemValue="saleData" />
+					<f:selectItem itemLabel="Buscar por datos de notificación"
+						itemValue="notificationData" />
 					<p:ajax immediate="true" process=":form:searchType"
 						listener="#{searchSalesForNotificationsController.onChangeSearchType}"
 						update=":form:searchTypeOut :form:messages"></p:ajax>
@@ -49,7 +49,7 @@
 			</h:panelGrid>
 			
 			<p:outputPanel id="searchTypeOut">
-				<h:panelGrid columns="8" style="margin:auto;text-align:center;"
+				<h:panelGrid columns="8" style="margin:auto;"
 					rendered="#{searchSalesForNotificationsController.searchByDateSaleRendered}">
 
 					<p:outputLabel value="Fecha venta desde:"></p:outputLabel>
@@ -84,11 +84,6 @@
 						value="#{searchSalesForNotificationsController.sendingDate}"
 						pattern="dd-MM-yyyy"></p:calendar>
 
-					<p:outputLabel value="Fecha afiliación"></p:outputLabel>
-					<p:calendar navigator="true"
-						value="#{searchSalesForNotificationsController.affiliationDate}"
-						pattern="dd-MM-yyyy"></p:calendar>
-
 					<p:outputLabel value="Tipo notificación"></p:outputLabel>
 					<p:selectOneMenu id="notificationType"
 						value="#{searchSalesForNotificationsController.notificationTypeSelected}">
@@ -96,6 +91,12 @@
 						<f:selectItems
 							value="#{searchSalesForNotificationsController.notificationTypes}"></f:selectItems>
 					</p:selectOneMenu>
+					
+					
+        			
+        			<p:outputLabel value="Sin notificación:"></p:outputLabel>
+					<p:selectBooleanCheckbox value="#{searchSalesForNotificationsController.withoutNotification}">
+        			</p:selectBooleanCheckbox>
 
 					<p:outputLabel value="Estado notificación:"></p:outputLabel>
 					<p:selectManyMenu id="notificationState"
@@ -103,6 +104,15 @@
 						<f:selectItems
 							value="#{searchSalesForNotificationsController.notificationStates}"></f:selectItems>
 					</p:selectManyMenu>
+					
+					<p:outputLabel value="Excluir sin dirección:"></p:outputLabel>
+					<p:selectBooleanCheckbox value="#{searchSalesForNotificationsController.withoutAddress}">
+        			</p:selectBooleanCheckbox>
+        			
+        			<p:outputLabel value="Excluir sin correo:"></p:outputLabel>
+					<p:selectBooleanCheckbox value="#{searchSalesForNotificationsController.withoutMail}">
+        			</p:selectBooleanCheckbox>
+        			
 
 				</h:panelGrid>
 
@@ -140,16 +150,15 @@
 				actionListener="#{searchSalesForNotificationsController.createVirtualNotifications}"
 					value="Crear notificaciones virtuales"
 					update=":form:searchTable :form:messages">
+					<p:confirm header="Confirmación" message="¿Está seguro?" icon="ui-icon-alert" />
 				</p:commandButton>
 
 				<p:commandButton immediate="true" icon="ui-icon-plus"
 					value="Crear notificaciones físicas"
 					oncomplete="PF('createPhysicalsDialog').show()"
 					update=":form:searchTable :formNotifications">
+					<p:confirm header="Confirmación" message="¿Está seguro?" icon="ui-icon-alert" />
 				</p:commandButton>
-
-				
-
 
 			</h:panelGrid>
 
@@ -217,7 +226,7 @@
 
 			<p:dataTable style="width:100%;"
 				value="#{searchSalesForNotificationsController.sales}" var="s"
-				scrollable="true" scrollWidth="100%" paginator="true" rows="10"
+				scrollable="true" scrollWidth="100%" paginator="true" rows="300"
 				selectionMode="single"
 				selection="#{searchSalesForNotificationsController.saleSelected}"
 				rowKey="#{s.id}" id="searchTable">
@@ -232,101 +241,86 @@
 					<h:outputText value="#{s.code}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Tipo documento responsable" width="80">
+				<p:column headerText="Tipo doc." width="20">
 					<h:outputText value="#{s.documentType}"></h:outputText>
 				</p:column>
-
-				<p:column headerText="NUIC responsable" width="80">
+				
+				<p:column headerText="NUIC" width="40">
 					<h:outputText value="#{s.payer.nuicResponsible}"></h:outputText>
 				</p:column>
-
-				<p:column headerText="Apellido paterno responsable" width="80">
-					<h:outputText value="#{s.payer.lastnamePaternalResponsible}"></h:outputText>
+				
+				<p:column headerText="Nombres completos" width="120" style="white-space:nowrap;">
+					<h:outputText value="#{s.payer.lastnamePaternalResponsible} #{s.payer.lastnameMaternalResponsible} #{s.payer.firstnameResponsible}"></h:outputText>
 				</p:column>
-
-				<p:column headerText="Apellido materno responsable" width="80">
-					<h:outputText value="#{s.payer.lastnameMaternalResponsible}"></h:outputText>
-				</p:column>
-
-				<p:column headerText="Nombres responsable" width="80">
-					<h:outputText value="#{s.payer.firstnameResponsible}"></h:outputText>
-				</p:column>
-
-				<p:column headerText="Correo" width="120">
+				
+				<p:column headerText="Correo" width="120" style="white-space:nowrap;">
 					<h:outputText value="#{s.payer.mail}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Departamento" width="80">
+				<p:column headerText="Departamento" width="50" style="white-space:nowrap;">
 					<h:outputText value="#{s.payer.department}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Provincia" width="80">
+				<p:column headerText="Provincia" width="50" style="white-space:nowrap;">
 					<h:outputText value="#{s.payer.province}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Distrito" width="80">
+				<p:column headerText="Distrito" width="50" style="white-space:nowrap;">
 					<h:outputText value="#{s.payer.district}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Dirección" width="80"
-					style="white-space:nowrap;">
+				<p:column headerText="Dirección" width="80" style="white-space:nowrap;">
 					<h:outputText value="#{s.payer.address}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Fecha venta" width="80">
+				<p:column headerText="Fecha venta" width="50">
 					<h:outputText value="#{s.dateOfSale}" width="80">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
 
-				<p:column headerText="Estado venta" width="80">
+				<p:column headerText="Estado venta" width="40">
 					<h:outputText value="#{s.saleState.state.name}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Banco" width="80">
+				<p:column headerText="Banco" width="40" style="white-space:nowrap;">
 					<h:outputText value="#{s.commerce.bank.name}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Fecha afiliación" width="80">
-					<h:outputText value="#{s.affiliationDate}" width="80">
-						<f:convertDateTime pattern="dd/MM/yyyy hh:mm:ss" />
-					</h:outputText>
-				</p:column>
-
-				<p:column headerText="Notificaciones virtuales" width="80">
+				<p:column headerText="Notif. email" width="20">
 					<h:outputText value="#{s.virtualNotifications}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Notificaciones físicas" width="80">
+				<p:column headerText="Notif. courier" width="20">
 					<h:outputText value="#{s.physicalNotifications}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Tipo notificación" width="80">
+				<p:column headerText="Notif. Tipo" width="30">
 					<h:outputText value="#{s.notification.type.name}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Estado Notificación" width="80">
+				<p:column headerText="Notif. estado" width="50">
 					<h:outputText value="#{s.notification.state.name}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Fecha envío notificación" width="80">
+				<p:column headerText="Notif. fecha envío" width="50">
 					<h:outputText value="#{s.notification.sendingAt}">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
 
-				<p:column headerText="Fecha respuesta notificación" width="80">
+				<p:column headerText="Notif. fecha respuesta" width="50">
 					<h:outputText value="#{s.notification.answeringAt}">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
 
-				<p:column headerText="Número orden notificación" width="80">
+				<p:column headerText="Notif. # orden" width="40">
 					<h:outputText value="#{s.notification.orderNumber}">
 					</h:outputText>
 				</p:column>
 
-				<p:column headerText="Número correlativo notificación" width="80">
+				<p:column headerText="Notif. # correlativo" width="40">
 					<h:outputText value="#{s.notification.correlativeNumber}">
 					</h:outputText>
 				</p:column>
@@ -510,7 +504,10 @@
 			</h:form>
 		</p:dialog>
 
-
+	<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+        <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+    </p:confirmDialog>
 
 	</ui:define>
 

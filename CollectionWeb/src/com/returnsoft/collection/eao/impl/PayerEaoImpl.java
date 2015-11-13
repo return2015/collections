@@ -10,7 +10,6 @@ import javax.persistence.TypedQuery;
 
 import com.returnsoft.collection.eao.PayerEao;
 import com.returnsoft.collection.entity.Payer;
-import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.exception.EaoException;
 
 @Stateless

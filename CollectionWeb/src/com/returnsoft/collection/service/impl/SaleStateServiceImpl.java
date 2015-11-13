@@ -6,15 +6,15 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
 import com.returnsoft.collection.eao.CommerceEao;
-import com.returnsoft.collection.eao.MaintenanceEao;
 import com.returnsoft.collection.eao.SaleEao;
+import com.returnsoft.collection.eao.SaleStateEao;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.exception.ServiceException;
-import com.returnsoft.collection.service.MaintenanceService;
+import com.returnsoft.collection.service.SaleStateService;
 
 @Stateless
-public class MaintenanceServiceImpl implements MaintenanceService {
+public class SaleStateServiceImpl implements SaleStateService {
 
 	@EJB
 	private SaleEao saleEao;
@@ -24,13 +24,13 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 	private CommerceEao commerceEao;
 
 	@EJB
-	private MaintenanceEao maintenanceEao;
+	private SaleStateEao saleStateEao;
 
 	
 	public void add(SaleState maintenance) throws ServiceException {
 		try {
 			
-			maintenanceEao.add(maintenance);
+			saleStateEao.add(maintenance);
 
 			Sale sale = saleEao.findById(maintenance.getSale().getId());
 			
@@ -52,7 +52,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 	public List<SaleState> findBySale(Long saleId) throws ServiceException{
 		try {
 			
-			List<SaleState> maintenances = maintenanceEao.findBySaleId(saleId);
+			List<SaleState> maintenances = saleStateEao.findBySaleId(saleId);
 
 			return maintenances;
 			

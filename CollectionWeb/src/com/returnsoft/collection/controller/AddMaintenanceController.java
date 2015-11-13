@@ -18,8 +18,8 @@ import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
-import com.returnsoft.collection.service.MaintenanceService;
 import com.returnsoft.collection.service.SaleService;
+import com.returnsoft.collection.service.SaleStateService;
 import com.returnsoft.collection.util.FacesUtil;
 
 @ManagedBean
@@ -41,7 +41,7 @@ public class AddMaintenanceController implements Serializable{
 	private String saleStateSelected;
 	
 	@EJB
-	private MaintenanceService maintenanceService;
+	private SaleStateService saleStateService;
 	
 	@EJB
 	private SaleService saleService;
@@ -111,7 +111,7 @@ public class AddMaintenanceController implements Serializable{
 			maintenanceSelected.setCreatedAt(current);
 			maintenanceSelected.setCreatedBy(user);
 			
-			maintenanceService.add(maintenanceSelected);
+			saleStateService.add(maintenanceSelected);
 			
 			Sale saleReturn = saleService.findById(maintenanceSelected.getSale().getId());
 			
