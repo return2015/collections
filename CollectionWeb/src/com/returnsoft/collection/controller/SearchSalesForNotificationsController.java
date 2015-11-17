@@ -1,6 +1,7 @@
 package com.returnsoft.collection.controller;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -193,10 +195,13 @@ public class SearchSalesForNotificationsController implements Serializable {
 				
 				//SOLO PUEDEN BUSCARSE VENTAS ACTIVAS
 				saleStates = new ArrayList<SelectItem>();
-				SelectItem saleStateItem = new SelectItem();
-				saleStateItem.setValue(SaleStateEnum.ACTIVE.getId());
-				saleStateItem.setLabel(SaleStateEnum.ACTIVE.getName());
-				saleStates.add(saleStateItem);
+				for (SaleStateEnum saleStateEnum : SaleStateEnum.values()) {
+					SelectItem saleStateItem = new SelectItem();
+					saleStateItem.setValue(saleStateEnum.getId());
+					saleStateItem.setLabel(saleStateEnum.getName());
+					saleStates.add(saleStateItem);
+				}
+				
 				
 				// SE BUSCAN TIPOS DE NOTIFICACION
 				notificationTypes = new ArrayList<SelectItem>();
@@ -307,9 +312,10 @@ public class SearchSalesForNotificationsController implements Serializable {
 				if (notificationTypeSelected != null && notificationTypeSelected.length() > 0) {
 					notificationType = NotificationTypeEnum.findById(Short.parseShort(notificationTypeSelected));
 				}
-				
+				System.out.println("INICIA LA CONSULTA AL SERVICE");
 				sales = saleService.findForNotifications(dateOfSaleStarted, dateOfSaleEnded, 
 						sendingDate, notificationStatesEnum, bankId, saleState, notificationType,withoutMail,withoutAddress,withoutNotification);
+				System.out.println("TERMINA LA CONSULTA AL SERVICE");
 			}
 			
 			
@@ -319,6 +325,110 @@ public class SearchSalesForNotificationsController implements Serializable {
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 		}
 
+	}
+	
+	public void exportCSV() throws IOException {
+		
+		try {
+			
+			StringBuilder cadena = new StringBuilder();
+			String separator = "|";
+			String header = "";
+			
+			
+			header+="Código único"+separator;
+			header+="Tipo documento"+separator;
+			header+="NUIC responsable"+separator;
+			header+="Apellido paterno responsable"+separator;
+			header+="Apellido materno responsable"+separator;
+			header+="Nombres responsable"+separator;
+
+			header+="Correo"+separator;
+			header+="Departamento"+separator;
+			header+="Provincia"+separator;
+			header+="Distrito"+separator;
+			header+="Dirección"+separator;
+			header+="Fecha venta"+separator;
+			header+="Estado venta"+separator;
+			header+="Banco"+separator;
+			header+="Fecha afiliación"+separator;
+			header+="Notificaciones virtuales"+separator;
+			header+="Notificaciones físicas"+separator;
+			header+="Tipo notificación"+separator;
+			header+="Fecha envío notificación"+separator;
+			header+="Fecha respuesta notificación"+separator;
+			header+="# orden notificación"+separator;
+			header+="# correlativo notificación";
+			
+			cadena.append(header);
+			cadena.append("\r\n");
+			
+			search();
+
+			//SimpleDateFormat sdf1 = new SimpleDateFormat("MM/yyyy");
+			SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
+			//SimpleDateFormat sdf3 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			
+			
+			for (Sale sale : sales) {
+				
+		
+				cadena.append(sale.getCode()+separator);
+				cadena.append(sale.getDocumentType()+separator);
+				cadena.append(sale.getPayer().getNuicResponsible()+separator);
+				cadena.append(sale.getPayer().getLastnamePaternalResponsible()+separator);
+				cadena.append(sale.getPayer().getLastnameMaternalResponsible()+separator);
+				cadena.append(sale.getPayer().getFirstnameResponsible()+separator);
+
+				cadena.append(sale.getPayer().getMail()+separator);
+				cadena.append(sale.getPayer().getDepartment()+separator);
+				cadena.append(sale.getPayer().getProvince()+separator);
+				cadena.append(sale.getPayer().getDistrict()+separator);
+				cadena.append(sale.getPayer().getAddress()+separator);
+				cadena.append(sdf2.format(sale.getDateOfSale())+separator);
+				cadena.append(sale.getSaleState().getState().getName()+separator);
+				cadena.append(sale.getCommerce().getBank().getName()+separator);
+
+				cadena.append(sale.getAffiliationDate() != null ? sdf2.format(sale.getAffiliationDate())+separator : separator);
+				cadena.append(sale.getVirtualNotifications()+separator);
+				cadena.append(sale.getPhysicalNotifications()+separator);
+				cadena.append(sale.getNotification() != null ? sale.getNotification().getType().getName()+separator : separator);
+				cadena.append(
+						sale.getNotification() != null ? sdf2.format(sale.getNotification().getSendingAt())+separator : separator);
+				cadena.append(sale.getNotification() != null ? sale.getNotification().getAnsweringAt() != null
+								? sdf2.format(sale.getNotification().getAnsweringAt())+separator : separator : separator);
+				cadena.append(sale.getNotification() != null ? sale.getNotification().getOrderNumber()+separator : separator);
+				cadena.append(
+						sale.getNotification() != null ? sale.getNotification().getCorrelativeNumber() : separator);
+				cadena.append("\r\n");
+				
+			}
+			
+			FacesContext fc = FacesContext.getCurrentInstance();
+	        HttpServletResponse response = (HttpServletResponse) fc.getExternalContext().getResponse();
+
+	        response.reset();
+	        response.setContentType("text/comma-separated-values");
+	        response.setHeader("Content-Disposition", "attachment; filename=\"notificaciones.csv\"");
+
+	        OutputStream output = response.getOutputStream();
+
+	        //for (String s : strings) {
+	            output.write(cadena.toString().getBytes());
+	       // }
+
+	        output.flush();
+	        output.close();
+
+	        fc.responseComplete();
+			
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+		}
+		
 	}
 
 	public void exportExcel() throws IOException {
@@ -358,6 +468,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 			row.createCell(21).setCellValue("# correlativo notificación");
 
 			for (int i = 0; i < sales.size(); i++) {
+				
 				Sale sale = sales.get(i);
 				XSSFRow rowBody = sheet.createRow(i + 1);
 

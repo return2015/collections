@@ -16,7 +16,17 @@
 		</f:metadata>
 	</ui:define>
 
+	<ui:define name="library">
+
+		<h:outputStylesheet library="css"
+			name="search_sales_for_notifications.css" />
+
+
+	</ui:define>
+
 	<ui:define name="content">
+
+
 
 		<div class="title ui-widget-header ui-corner-all">
 			<h:panelGrid style="margin:auto;">
@@ -32,139 +42,172 @@
 				<p:messages id="messages" showDetail="true"></p:messages>
 			</h:panelGrid>
 
-			<h:panelGrid columns="2" style="margin:auto;text-align:center;">
-				<p:outputLabel value="Tipo de búsqueda:"></p:outputLabel>
-				<p:selectOneMenu id="searchType"
-					value="#{searchSalesForNotificationsController.searchTypeSelected}"
-					required="true" requiredMessage="Debe seleccionar tipo de búsqueda">
-					<f:selectItem itemLabel="Seleccione..." itemValue="" />
-					<f:selectItem itemLabel="Buscar por NUIC responsable."
-						itemValue="dni" />
-					<f:selectItem itemLabel="Buscar por datos de notificación"
-						itemValue="notificationData" />
-					<p:ajax immediate="true" process=":form:searchType"
-						listener="#{searchSalesForNotificationsController.onChangeSearchType}"
-						update=":form:searchTypeOut :form:messages"></p:ajax>
-				</p:selectOneMenu>
-			</h:panelGrid>
-			
-			<p:outputPanel id="searchTypeOut">
-				<h:panelGrid columns="8" style="margin:auto;"
-					rendered="#{searchSalesForNotificationsController.searchByDateSaleRendered}">
-
-					<p:outputLabel value="Fecha venta desde:"></p:outputLabel>
-					<p:calendar navigator="true"
-						value="#{searchSalesForNotificationsController.dateOfSaleStarted}"
-						required="true" requiredMessage="Debe ingresar fecha venta desde:"
-						pattern="dd-MM-yyyy"></p:calendar>
-
-					<p:outputLabel value="Fecha venta hasta:"></p:outputLabel>
-					<p:calendar navigator="true"
-						value="#{searchSalesForNotificationsController.dateOfSaleEnded}"
-						required="true" requiredMessage="Debe ingresar fecha venta hasta:"
-						pattern="dd-MM-yyyy"></p:calendar>
-
-					<p:outputLabel value="Banco"></p:outputLabel>
-					<p:selectOneMenu id="bank"
-						value="#{searchSalesForNotificationsController.bankSelected}">
+			<h:panelGrid columns="2" style="text-align:center;">
+				<h:panelGrid columns="2">
+					<p:outputLabel value="Tipo de búsqueda:"></p:outputLabel>
+					<p:selectOneMenu id="searchType"
+						value="#{searchSalesForNotificationsController.searchTypeSelected}"
+						required="true"
+						requiredMessage="Debe seleccionar tipo de búsqueda">
 						<f:selectItem itemLabel="Seleccione..." itemValue="" />
-						<f:selectItems
-							value="#{searchSalesForNotificationsController.banks}"></f:selectItems>
+						<f:selectItem itemLabel="Buscar por NUIC responsable."
+							itemValue="dni" />
+						<f:selectItem itemLabel="Buscar por datos de notificación"
+							itemValue="notificationData" />
+						<p:ajax immediate="true" process=":form:searchType"
+							listener="#{searchSalesForNotificationsController.onChangeSearchType}"
+							update=":form:searchTypeOut :form:searchTypeOut2 :form:messages"></p:ajax>
 					</p:selectOneMenu>
-
-					<p:outputLabel value="Estado venta:"></p:outputLabel>
-					<p:selectOneMenu id="saleState"
-						value="#{searchSalesForNotificationsController.saleStateSelected}">
-						<f:selectItems
-							value="#{searchSalesForNotificationsController.saleStates}"></f:selectItems>
-					</p:selectOneMenu>
-
-					<p:outputLabel value="Fecha envío notificación"></p:outputLabel>
-					<p:calendar navigator="true"
-						value="#{searchSalesForNotificationsController.sendingDate}"
-						pattern="dd-MM-yyyy"></p:calendar>
-
-					<p:outputLabel value="Tipo notificación"></p:outputLabel>
-					<p:selectOneMenu id="notificationType"
-						value="#{searchSalesForNotificationsController.notificationTypeSelected}">
-						<f:selectItem itemLabel="Seleccione..." itemValue="" />
-						<f:selectItems
-							value="#{searchSalesForNotificationsController.notificationTypes}"></f:selectItems>
-					</p:selectOneMenu>
-					
-					
-        			
-        			<p:outputLabel value="Sin notificación:"></p:outputLabel>
-					<p:selectBooleanCheckbox value="#{searchSalesForNotificationsController.withoutNotification}">
-        			</p:selectBooleanCheckbox>
-
-					<p:outputLabel value="Estado notificación:"></p:outputLabel>
-					<p:selectManyMenu id="notificationState"
-						value="#{searchSalesForNotificationsController.notificationStatesSelected}">
-						<f:selectItems
-							value="#{searchSalesForNotificationsController.notificationStates}"></f:selectItems>
-					</p:selectManyMenu>
-					
-					<p:outputLabel value="Excluir sin dirección:"></p:outputLabel>
-					<p:selectBooleanCheckbox value="#{searchSalesForNotificationsController.withoutAddress}">
-        			</p:selectBooleanCheckbox>
-        			
-        			<p:outputLabel value="Excluir sin correo:"></p:outputLabel>
-					<p:selectBooleanCheckbox value="#{searchSalesForNotificationsController.withoutMail}">
-        			</p:selectBooleanCheckbox>
-        			
-
 				</h:panelGrid>
+				<p:outputPanel id="searchTypeOut2">
+					<h:panelGrid columns="2"
+						rendered="#{searchSalesForNotificationsController.searchByDocumentNumberResponsibleRendered}">
+						<p:outputLabel value="NUIC responsable"></p:outputLabel>
+						<p:inputText style="width: 120px;" required="true"
+							requiredMessage="Debe ingresar NUIC Responsable"
+							value="#{searchSalesForNotificationsController.nuicResponsible}"></p:inputText>
+					</h:panelGrid>
 
-				<h:panelGrid columns="2" style="margin:auto;text-align:center;"
-					rendered="#{searchSalesForNotificationsController.searchByDocumentNumberResponsibleRendered}">
-					<p:outputLabel value="NUIC responsable"></p:outputLabel>
-					<p:inputText style="width: 120px;" required="true"
-						requiredMessage="Debe ingresar NUIC Responsable"
-						value="#{searchSalesForNotificationsController.nuicResponsible}"></p:inputText>
+					<h:panelGrid columns="2"
+						rendered="#{searchSalesForNotificationsController.searchByDateSaleRendered}">
+						<p:outputLabel value="Banco"></p:outputLabel>
+						<p:selectOneMenu id="bank"
+							value="#{searchSalesForNotificationsController.bankSelected}">
+							<f:selectItem itemLabel="Seleccione..." itemValue="" />
+							<f:selectItems
+								value="#{searchSalesForNotificationsController.banks}"></f:selectItems>
+						</p:selectOneMenu>
+					</h:panelGrid>
+
+
+				</p:outputPanel>
+			</h:panelGrid>
+
+			<p:outputPanel id="searchTypeOut">
+				<h:panelGrid columns="3" rowClasses="panelgrid_center_row"
+					rendered="#{searchSalesForNotificationsController.searchByDateSaleRendered}">
+					<p:fieldset legend="DATOS VENTAS" >
+						<h:panelGrid columns="2">
+							<p:outputLabel value="Fecha venta desde:"></p:outputLabel>
+							<p:calendar navigator="true"
+								value="#{searchSalesForNotificationsController.dateOfSaleStarted}"
+								required="true"
+								requiredMessage="Debe ingresar fecha venta desde:"
+								pattern="dd-MM-yyyy"></p:calendar>
+
+							<p:outputLabel value="Fecha venta hasta:"></p:outputLabel>
+							<p:calendar navigator="true"
+								value="#{searchSalesForNotificationsController.dateOfSaleEnded}"
+								required="true"
+								requiredMessage="Debe ingresar fecha venta hasta:"
+								pattern="dd-MM-yyyy"></p:calendar>
+
+							<p:outputLabel value="Estado venta:"></p:outputLabel>
+							<p:selectOneMenu id="saleState"
+								value="#{searchSalesForNotificationsController.saleStateSelected}">
+								<f:selectItems
+									value="#{searchSalesForNotificationsController.saleStates}"></f:selectItems>
+							</p:selectOneMenu>
+						</h:panelGrid>
+					</p:fieldset>
+					<p:fieldset legend="EXCLUIR DATOS" >
+						<h:panelGrid columns="2">
+
+							<p:outputLabel value="Excluir sin dirección:"></p:outputLabel>
+							<p:selectBooleanCheckbox
+								value="#{searchSalesForNotificationsController.withoutAddress}">
+							</p:selectBooleanCheckbox>
+
+							<p:outputLabel value="Excluir sin correo:"></p:outputLabel>
+							<p:selectBooleanCheckbox
+								value="#{searchSalesForNotificationsController.withoutMail}">
+							</p:selectBooleanCheckbox>
+
+							<p:outputLabel value="Excluir notificados:"></p:outputLabel>
+							<p:selectBooleanCheckbox
+								value="#{searchSalesForNotificationsController.withoutNotification}">
+							</p:selectBooleanCheckbox>
+
+						</h:panelGrid>
+					</p:fieldset>
+					<p:fieldset legend="NOTIFICACIONES">
+						<h:panelGrid columns="2">
+
+							<h:panelGrid columns="2">
+
+								<p:outputLabel value="Tipo notificación"></p:outputLabel>
+								<p:selectOneMenu id="notificationType"
+									value="#{searchSalesForNotificationsController.notificationTypeSelected}">
+									<f:selectItem itemLabel="Seleccione..." itemValue="" />
+									<f:selectItems
+										value="#{searchSalesForNotificationsController.notificationTypes}"></f:selectItems>
+								</p:selectOneMenu>
+
+								<p:outputLabel value="Fecha envío notificación"></p:outputLabel>
+								<p:calendar navigator="true"
+									value="#{searchSalesForNotificationsController.sendingDate}"
+									pattern="dd-MM-yyyy"></p:calendar>
+							</h:panelGrid>
+							<h:panelGrid>
+								<p:outputLabel value="Estado notificación:"></p:outputLabel>
+								<p:selectManyMenu id="notificationState"
+									value="#{searchSalesForNotificationsController.notificationStatesSelected}">
+									<f:selectItems
+										value="#{searchSalesForNotificationsController.notificationStates}"></f:selectItems>
+								</p:selectManyMenu>
+							</h:panelGrid>
+						</h:panelGrid>
+					</p:fieldset>
+
 
 				</h:panelGrid>
 
 			</p:outputPanel>
 
 
-			<h:panelGrid columns="5" style="margin:auto;text-align:center;">
+			<h:panelGrid columns="6" style="text-align:center;">
+			
 				<p:commandButton icon="ui-icon-search"
 					actionListener="#{searchSalesForNotificationsController.search}"
 					value="Buscar" process="@form"
 					update=":form:searchTypeOut :form:searchTable :form:saleId :form:salesCount :form:messages 
 						:form:notificationsButtom :form:notificationButtom :form:dataButtom :form:payersButtom :form:editNotificationButtom ">
 				</p:commandButton>
-
-				<p:commandButton
-					action="#{searchSalesForNotificationsController.exportExcel}"
-					value="Exportar a excel" process="@form" ajax="false">
-				</p:commandButton>
-
+				
+				<p:spacer width="100" height="1"></p:spacer>
+				
 				<p:commandButton immediate="true" icon="ui-icon-print"
 					value="Imprimir cartas" ajax="false"
 					actionListener="#{searchSalesForNotificationsController.printLetters}">
 				</p:commandButton>
+
 				
 				<p:commandButton immediate="true" icon="ui-icon-plus"
-				actionListener="#{searchSalesForNotificationsController.createVirtualNotifications}"
+					actionListener="#{searchSalesForNotificationsController.createVirtualNotifications}"
 					value="Crear notificaciones virtuales"
 					update=":form:searchTable :form:messages">
-					<p:confirm header="Confirmación" message="¿Está seguro?" icon="ui-icon-alert" />
+					<p:confirm header="Confirmación" message="¿Está seguro?"
+						icon="ui-icon-alert" />
 				</p:commandButton>
 
 				<p:commandButton immediate="true" icon="ui-icon-plus"
 					value="Crear notificaciones físicas"
 					oncomplete="PF('createPhysicalsDialog').show()"
 					update=":form:searchTable :formNotifications">
-					<p:confirm header="Confirmación" message="¿Está seguro?" icon="ui-icon-alert" />
+					<p:confirm header="Confirmación" message="¿Está seguro?"
+						icon="ui-icon-alert" />
+				</p:commandButton>
+				
+				<p:commandButton
+					action="#{searchSalesForNotificationsController.exportCSV}"
+					value="Exportar" process="@form" ajax="false">
 				</p:commandButton>
 
 			</h:panelGrid>
 
 
 
-			<h:panelGrid columns="1" style="width:100%;text-align:center;">
+			<h:panelGrid columns="2">
 
 				<p:outputLabel id="salesCount"
 					value="Se encontraron #{searchSalesForNotificationsController.sales!=null?searchSalesForNotificationsController.sales.size():'0'} ventas.">
@@ -176,7 +219,7 @@
 
 			</h:panelGrid>
 
-			<h:panelGrid columns="5" style="width:100%; text-align:center;">
+			<h:panelGrid columns="5">
 
 				<p:commandButton id="dataButtom" immediate="true"
 					icon="ui-icon-pencil" value="Editar datos" update=":form:messages"
@@ -193,7 +236,7 @@
 					update=":formPayer:payersDetail"
 					disabled="#{searchSalesForNotificationsController.saleSelected==null}">
 				</p:commandButton>
-				
+
 				<p:commandButton id="notificationsButtom"
 					actionListener="#{searchSalesForNotificationsController.showNotifications}"
 					icon="ui-icon-search" value="Ver notificaciones"
@@ -244,32 +287,39 @@
 				<p:column headerText="Tipo doc." width="20">
 					<h:outputText value="#{s.documentType}"></h:outputText>
 				</p:column>
-				
+
 				<p:column headerText="NUIC" width="40">
 					<h:outputText value="#{s.payer.nuicResponsible}"></h:outputText>
 				</p:column>
-				
-				<p:column headerText="Nombres completos" width="120" style="white-space:nowrap;">
-					<h:outputText value="#{s.payer.lastnamePaternalResponsible} #{s.payer.lastnameMaternalResponsible} #{s.payer.firstnameResponsible}"></h:outputText>
+
+				<p:column headerText="Nombres completos" width="120"
+					style="white-space:nowrap;">
+					<h:outputText
+						value="#{s.payer.lastnamePaternalResponsible} #{s.payer.lastnameMaternalResponsible} #{s.payer.firstnameResponsible}"></h:outputText>
 				</p:column>
-				
-				<p:column headerText="Correo" width="120" style="white-space:nowrap;">
+
+				<p:column headerText="Correo" width="120"
+					style="white-space:nowrap;">
 					<h:outputText value="#{s.payer.mail}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Departamento" width="50" style="white-space:nowrap;">
+				<p:column headerText="Departamento" width="50"
+					style="white-space:nowrap;">
 					<h:outputText value="#{s.payer.department}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Provincia" width="50" style="white-space:nowrap;">
+				<p:column headerText="Provincia" width="50"
+					style="white-space:nowrap;">
 					<h:outputText value="#{s.payer.province}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Distrito" width="50" style="white-space:nowrap;">
+				<p:column headerText="Distrito" width="50"
+					style="white-space:nowrap;">
 					<h:outputText value="#{s.payer.district}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Dirección" width="80" style="white-space:nowrap;">
+				<p:column headerText="Dirección" width="80"
+					style="white-space:nowrap;">
 					<h:outputText value="#{s.payer.address}"></h:outputText>
 				</p:column>
 
@@ -429,7 +479,8 @@
 					<h:panelGrid style="margin:auto;text-align:center;">
 						<p:commandButton
 							actionListener="#{searchSalesForNotificationsController.createPhysicalNotifications}"
-							update=":formNotifications:messagesNotifications :form:searchTable" value="Crear">
+							update=":formNotifications:messagesNotifications :form:searchTable"
+							value="Crear">
 						</p:commandButton>
 					</h:panelGrid>
 				</h:panelGrid>
@@ -448,7 +499,7 @@
 						<p:dataTable
 							value="#{searchSalesForNotificationsController.notifications}"
 							var="n" paginator="true" rows="5" id="notificationsTable">
-							
+
 							<p:column headerText="Código único" width="100">
 								<h:outputText value="#{n.sale.code}"></h:outputText>
 							</p:column>
@@ -504,10 +555,14 @@
 			</h:form>
 		</p:dialog>
 
-	<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
-        <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
-        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
-    </p:confirmDialog>
+		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+			<p:commandButton value="Sí" type="button"
+				styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+			<p:commandButton value="No" type="button"
+				styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+		</p:confirmDialog>
+
+
 
 	</ui:define>
 

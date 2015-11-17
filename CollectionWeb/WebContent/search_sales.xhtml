@@ -216,8 +216,8 @@
 						update=":form:searchTypeOut :formTable:searchTable :formTable:saleId :formTable:salesCount :messages">
 					</p:commandButton>
 
-					<p:commandButton action="#{searchSalesController.exportExcel}"
-						value="Exportar a excel" process="@form" ajax="false">
+					<p:commandButton action="#{searchSalesController.exportCSV}"
+						value="Exportar" process="@form" ajax="false">
 					</p:commandButton>
 
 				</h:panelGrid>
@@ -324,7 +324,7 @@
 						</h:outputText>
 					</p:column>
 
-					<p:column headerText="ESTADO" width="80">
+					<p:column headerText="ESTADO TC" width="80">
 						<h:outputText value="#{s.creditCard.state}"></h:outputText>
 					</p:column>
 

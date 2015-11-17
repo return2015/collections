@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -25,6 +26,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -142,8 +144,6 @@ public class SearchSalesController implements Serializable {
 	private List<Commerce> commerces;
 	
 	private FacesUtil facesUtil;
-		
-	
 	
 	private Integer salesCount;
 	
@@ -207,9 +207,20 @@ public class SearchSalesController implements Serializable {
 
 		BufferedReader br = null;
 		try {
+			InputStreamReader isr = new InputStreamReader(file.getInputstream());
+			System.out.println("------------------------------------");
+			System.out.println(isr.getEncoding());
+			System.out.println("------------------------------------");
+			
+			InputStreamReader isr2 = new InputStreamReader(file.getInputstream(),StandardCharsets.UTF_8);
+			System.out.println("------------------------------------");
+			System.out.println(isr2.getEncoding());
+			System.out.println("------------------------------------");
+			
 			//br = new BufferedReader(new InputStreamReader(file.getInputStream()));
 			br = new BufferedReader(new InputStreamReader(file.getInputstream(),StandardCharsets.UTF_8));
-		} catch (IOException e1) {
+			//System.out.println("charset:"+StandardCharsets.UTF_8);
+		} catch (IOException e1) { 
 			e1.printStackTrace();
 			facesUtil.sendErrorMessage(e1.getClass().getSimpleName(), e1.getMessage());
 		} catch (Exception e1) {
@@ -1583,6 +1594,193 @@ public class SearchSalesController implements Serializable {
 
 	}
 
+	public void exportCSV() throws IOException {
+		
+		try {
+			
+			StringBuilder cadena = new StringBuilder();
+			String separator = "|";
+			String header = "";
+			
+			
+			header+="COD UNICO"+separator;
+			header+="TIPO DOC"+separator;
+			header+="NUIC RESP PAGO"+separator;
+			header+="AP PAT RESP PAGO"+separator;
+			header+="AP MAT RESP PAGO"+separator;
+			header+="NOMBRES RESP PAGO"+separator;
+			header+="N° TARJETA DE CREDITO"+separator;
+			header+="N° DE CUENTA"+separator;
+			header+="FECHA VENC TARJETA"+separator;
+			header+="DIAS MORA"+separator;
+			header+="NUIC CONTRATANTE"+separator;
+			header+="AP PAT CONTRATANTE"+separator;
+			header+="AP MAT CONTRATANTE"+separator;
+			header+="NOMBRES CONTRATANTE"+separator;
+			header+="NUIC ASEGURADO"+separator;
+			header+="AP PAT ASEGURADO"+separator;
+			header+="AP MAT ASEGURADO"+separator;
+			header+="NOMBRES ASEGURADO"+separator;
+			header+="TELEFONO 1"+separator;
+			header+="TELEFONO 2"+separator;
+			header+="E-MAIL"+separator;
+			header+="DEPARTAMENTO"+separator;
+			header+="PROVINCIA"+separator;
+			header+="DISTRITO"+separator;
+			header+="DIRECCION"+separator;
+			header+="FECHA DE VENTA"+separator;
+			header+="CANAL DE VENTA"+separator;
+			header+="LUGAR DE VENTA"+separator;
+			header+="COD DE VENDEDOR"+separator;
+			header+="NOMBRE DE VENDEDOR"+separator;
+			header+="# DE POLIZA"+separator;
+			header+="# CERTIFICADO"+separator;
+			header+="# PROPUESTA"+separator;
+			header+="CODIGO DE COMERCIO"+separator;
+			header+="PRODUCTO"+separator;
+			header+="DESCRIPCION DEL PRODUCTO"+separator;
+			header+="PERIODO DE COBRO"+separator;
+			header+="TIPO DE COBRO"+separator;
+			header+="MEDIO DE PAGO"+separator;
+			header+="PRIMA"+separator;
+			header+="FECHA DE AUDITORIA"+separator;
+			header+="USUARIO DE AUDITORIA"+separator;
+			header+="ESTADO"+separator;
+			header+="FECHA ESTADO"+separator;
+			header+="USUARIO BAJA"+separator;
+			header+="CANAL BAJA"+separator;
+			header+="MOTIVO BAJA"+separator;
+			header+="OBSERVACION BAJA"+separator;
+			header+="FECHA ACT TC"+separator;
+			header+="BANCO"+separator;
+			header+="FECHA CREACION"+separator;
+			header+="USUARIO CREACION";
+		
+			
+			cadena.append(header);
+			cadena.append("\r\n");
+			
+			search();
+
+			SimpleDateFormat sdf1 = new SimpleDateFormat("MM/yyyy");
+			SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
+			SimpleDateFormat sdf3 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			
+			
+			for (Sale sale : sales) {
+				
+				
+				cadena.append(sale.getCode()+separator);
+				cadena.append(sale.getDocumentType()+separator);
+				cadena.append(sale.getPayer().getNuicResponsible()+separator);
+				cadena.append(
+						sale.getPayer().getLastnamePaternalResponsible()+separator);
+				cadena.append(
+						sale.getPayer().getLastnameMaternalResponsible()+separator);
+				cadena.append(
+						sale.getPayer().getFirstnameResponsible()+separator);
+				cadena.append(
+						sale.getCreditCard().getNumber() +separator);
+				cadena.append(sale.getAccountNumber() +separator);
+				cadena.append(
+						sale.getCreditCard().getExpirationDate() != null ? sdf1
+								.format(sale.getCreditCard().getExpirationDate())+separator
+								: separator);
+				cadena.append(
+						sale.getCreditCard().getDaysOfDefault() != null
+						?sale.getCreditCard().getDaysOfDefault().toString()+separator:separator);
+				
+				cadena.append(sale.getNuicContractor()!=null?sale.getNuicContractor().toString()+separator:separator);
+				cadena.append(
+						sale.getLastnamePaternalContractor()+separator);
+				cadena.append(
+						sale.getLastnameMaternalContractor()+separator);
+				cadena.append(
+						sale.getFirstnameContractor()+separator);
+				cadena.append(sale.getNuicInsured()+separator);
+				cadena.append(
+						sale.getLastnamePaternalInsured()+separator);
+				cadena.append(
+						sale.getLastnameMaternalInsured()+separator);
+				cadena.append(sale.getFirstnameInsured()+separator);
+				cadena.append(sale.getPhone1()+separator);
+				cadena.append(sale.getPhone2()+separator);
+				cadena.append(sale.getPayer().getMail()+separator);
+				cadena.append(sale.getPayer().getDepartment()+separator);
+				cadena.append(sale.getPayer().getProvince()+separator);
+				cadena.append(sale.getPayer().getDistrict()+separator);
+				cadena.append(sale.getPayer().getAddress()+separator);
+				cadena.append(
+						sdf2.format(sale.getDateOfSale())+separator);
+				cadena.append(sale.getChannelOfSale()+separator);
+				cadena.append(sale.getPlaceOfSale()+separator);
+				cadena.append(sale.getVendorCode()+separator);
+				cadena.append(sale.getVendorName()+separator);
+				cadena.append(sale.getPolicyNumber()+separator);
+				cadena.append(sale.getCertificateNumber()+separator);
+				cadena.append(sale.getProposalNumber()+separator);
+				cadena.append(sale.getCommerce().getCode()+separator);
+				cadena.append(sale.getCommerce().getProduct().getName()+separator);
+				cadena.append(
+						sale.getProductDescription()+separator);
+				cadena.append(sale.getCollectionPeriod()+separator);
+				cadena.append(sale.getCollectionType()+separator);
+				cadena.append(
+						sale.getCommerce().getPaymentMethod().getName()+separator);
+				cadena.append(
+						sale.getInsurancePremium().doubleValue()+separator);
+				cadena.append(
+						sdf2.format(sale.getAuditDate())+separator);
+				cadena.append(sale.getAuditUser()+separator);
+				cadena.append(sale.getSaleState().getState().getName()+separator);
+				cadena.append(
+						sale.getSaleState().getDate() != null ? sdf2.format(sale
+								.getSaleState().getDate())+separator : separator);
+				cadena.append(sale.getSaleState().getDownUser()+separator);
+				cadena.append(sale.getSaleState().getDownChannel()+separator);
+				cadena.append(sale.getSaleState().getDownReason()+separator);
+				cadena.append(sale.getSaleState().getDownObservation()+separator);
+				cadena.append(
+						sale.getCreditCard().getUpdateDate() != null ? sdf2
+								.format(sale.getCreditCard().getUpdateDate()) +separator: separator);
+
+				cadena.append(sale.getCommerce().getBank().getName()+separator);
+				cadena.append(
+						sdf3.format(sale.getCreatedAt())+separator);
+				cadena.append(
+						sale.getCreatedBy().getUsername());
+				cadena.append("\r\n");
+				
+				
+			}
+			
+			FacesContext fc = FacesContext.getCurrentInstance();
+	        HttpServletResponse response = (HttpServletResponse) fc.getExternalContext().getResponse();
+
+	        response.reset();
+	        response.setContentType("text/comma-separated-values");
+	        response.setHeader("Content-Disposition", "attachment; filename=\"ventas.csv\"");
+
+	        OutputStream output = response.getOutputStream();
+
+	        //for (String s : strings) {
+	            output.write(cadena.toString().getBytes());
+	       // }
+
+	        output.flush();
+	        output.close();
+
+	        fc.responseComplete();
+			
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+					e.getMessage());
+		}
+		
+	}
 	public void exportExcel() throws IOException {
 
 		try {
@@ -1651,9 +1849,15 @@ public class SearchSalesController implements Serializable {
 			row.createCell(50).setCellValue("FECHA CREACION");
 			row.createCell(51).setCellValue("USUARIO CREACION");
 
-			for (int i = 0; i < sales.size(); i++) {
-				Sale sale = sales.get(i);
-				XSSFRow rowBody = sheet.createRow(i + 1);
+			//for (int i = 0; i < sales.size(); i++) {
+			
+			int lineNumber=1;
+			
+			for (Sale sale :sales) {
+				
+				System.out.println("Procesando a excel:"+lineNumber);
+				//Sale sale = sales.get(i);
+				XSSFRow rowBody = sheet.createRow(lineNumber);
 
 				rowBody.createCell(0).setCellValue(sale.getCode());
 				rowBody.createCell(1).setCellValue(sale.getDocumentType());
@@ -1664,7 +1868,6 @@ public class SearchSalesController implements Serializable {
 						sale.getPayer().getLastnameMaternalResponsible());
 				rowBody.createCell(5).setCellValue(
 						sale.getPayer().getFirstnameResponsible());
-				// System.out.println("credi card number: "+sale.getCreditCardNumber());
 				rowBody.createCell(6).setCellValue(
 						sale.getCreditCard().getNumber() + "");
 				rowBody.createCell(7)
@@ -1673,11 +1876,11 @@ public class SearchSalesController implements Serializable {
 						sale.getCreditCard().getExpirationDate() != null ? sdf1
 								.format(sale.getCreditCard().getExpirationDate())
 								: null);
-				rowBody.createCell(9).setCellValue(""/*
+				rowBody.createCell(9).setCellValue(
 						sale.getCreditCard().getDaysOfDefault() != null
-						?sale.getCreditCard().getDaysOfDefault():null*/);
+						?sale.getCreditCard().getDaysOfDefault().toString():"");
 				
-				rowBody.createCell(10).setCellValue(""/*sale.getNuicContractor()*/);
+				rowBody.createCell(10).setCellValue(sale.getNuicContractor()!=null?sale.getNuicContractor().toString():"");
 				rowBody.createCell(11).setCellValue(
 						sale.getLastnamePaternalContractor());
 				rowBody.createCell(12).setCellValue(
@@ -1738,15 +1941,12 @@ public class SearchSalesController implements Serializable {
 						sdf3.format(sale.getCreatedAt()));
 				rowBody.createCell(51).setCellValue(
 						sale.getCreatedBy().getUsername());
+				
+				lineNumber++;
 
 			}
 
-			/*
-			 * HSSFWorkbook workbook = new HSSFWorkbook(); HSSFSheet sheet =
-			 * workbook.createSheet(); HSSFRow row = sheet.createRow(0);
-			 * HSSFCell cell = row.createCell(0); cell.setCellValue(0.0);
-			 */
-
+			
 			FacesContext facesContext = FacesContext.getCurrentInstance();
 			ExternalContext externalContext = facesContext.getExternalContext();
 			// externalContext.setResponseContentType("application/vnd.ms-excel");

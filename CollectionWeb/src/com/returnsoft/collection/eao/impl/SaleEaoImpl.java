@@ -92,9 +92,9 @@ public class SaleEaoImpl implements SaleEao {
 		try {
 			
 			String query = "SELECT s FROM Sale s "
-					+ "left join s.saleState ss "
+					+ "left join fetch s.saleState ss "
 					+ "left join s.commerce c "
-					+ "left join s.payer p "
+					+ "left join fetch s.payer p "
 					+ "left join c.bank b "
 					+ "left join s.notification n "
 					+ "WHERE s.dateOfSale between :saleDateStartedAt and :saleDateEndedAt ";
@@ -178,7 +178,9 @@ public class SaleEaoImpl implements SaleEao {
 					+ "left join s.commerce c "
 					+ "left join c.product p "
 					+ "left join c.bank b "
-					+ "left join s.saleState ss "
+					+ "left join fetch s.payer pa "
+					+ "left join fetch s.creditCard cc "
+					+ "left join fetch s.saleState ss "
 					+ "WHERE s.dateOfSale between :saleDateStartedAt and :saleDateEndedAt ";
 			
 			if (bankId!=null && bankId>0) {
@@ -368,19 +370,21 @@ public class SaleEaoImpl implements SaleEao {
 	public List<Sale> findByNamesResponsible(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible) throws EaoException{
 		try {
 			
-			String query = "SELECT s FROM Sale s WHERE s.id > 0 ";
+			System.out.println("Ingreso a buscar findByNamesResponsible");
+			
+			String query = "SELECT s FROM Sale s left join s.payer p WHERE s.id > 0 ";
 			
 			if (nuicResponsible!=null && nuicResponsible>0) {
-				query+=" and s.nuicResponsible = :nuicResponsible ";
+				query+=" and p.nuicResponsible = :nuicResponsible ";
 			}
 			if (firstnameResponsible!=null && firstnameResponsible.length()>0) {
-				query+=" and s.firstnameResponsible = :firstnameResponsible ";
+				query+=" and p.firstnameResponsible = :firstnameResponsible ";
 			}
 			if (lastnamePaternalResponsible!=null && lastnamePaternalResponsible.length()>0) {
-				query+=" and s.lastnamePaternalResponsible = :lastnamePaternalResponsible ";
+				query+=" and p.lastnamePaternalResponsible = :lastnamePaternalResponsible ";
 			}
 			if (lastnameMaternalResponsible!=null && lastnameMaternalResponsible.length()>0) {
-				query+=" and s.lastnameMaternalResponsible = :lastnameMaternalResponsible ";
+				query+=" and p.lastnameMaternalResponsible = :lastnameMaternalResponsible ";
 			}
 			
 			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
