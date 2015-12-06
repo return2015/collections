@@ -10,8 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -34,9 +33,6 @@ public class SaleState implements Serializable {
 	@Column(name = "salsta_id")
 	private Integer id;
 	
-	//@Transient
-	//private String code;
-	
 	@Column(name = "salsta_state")
 	@Convert(converter=SaleStateConverter.class)
 	private SaleStateEnum state;
@@ -46,27 +42,18 @@ public class SaleState implements Serializable {
 	private Date date;
 	
 	@Column(name = "salsta_user")
-	private String downUser;
+	private String user;
 	
 	@Column(name = "salsta_channel")
-	private String downChannel;
+	private String channel;
 	
 	@Column(name = "salsta_reason")
-	private String downReason;
+	private String reason;
 	
 	@Column(name = "salsta_observation")
-	private String downObservation;
+	private String observation;
 	
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "salsta_created_at")
-	private Date createdAt;
-	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "salsta_created_by")
-	private User createdBy;
-	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "salsta_sal_id")
+	@OneToOne(fetch=FetchType.LAZY,mappedBy="saleState")
 	private Sale sale;
 	
 
@@ -101,52 +88,40 @@ public class SaleState implements Serializable {
 		this.state = state;
 	}
 
-	public String getDownUser() {
-		return downUser;
+	
+
+	
+
+	public String getUser() {
+		return user;
 	}
 
-	public void setDownUser(String downUser) {
-		this.downUser = downUser;
+	public void setUser(String user) {
+		this.user = user;
 	}
 
-	public String getDownChannel() {
-		return downChannel;
+	public String getChannel() {
+		return channel;
 	}
 
-	public void setDownChannel(String downChannel) {
-		this.downChannel = downChannel;
+	public void setChannel(String channel) {
+		this.channel = channel;
 	}
 
-	public String getDownReason() {
-		return downReason;
+	public String getReason() {
+		return reason;
 	}
 
-	public void setDownReason(String downReason) {
-		this.downReason = downReason;
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 
-	public String getDownObservation() {
-		return downObservation;
+	public String getObservation() {
+		return observation;
 	}
 
-	public void setDownObservation(String downObservation) {
-		this.downObservation = downObservation;
-	}
-
-	public Date getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public User getCreatedBy() {
-		return createdBy;
-	}
-
-	public void setCreatedBy(User createdBy) {
-		this.createdBy = createdBy;
+	public void setObservation(String observation) {
+		this.observation = observation;
 	}
 
 	public Sale getSale() {

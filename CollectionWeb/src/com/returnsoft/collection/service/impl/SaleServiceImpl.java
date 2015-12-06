@@ -2,26 +2,30 @@ package com.returnsoft.collection.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Future;
 
+import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
+import javax.ejb.Local;
 import javax.ejb.Stateless;
 
 import com.returnsoft.collection.eao.BankEao;
 import com.returnsoft.collection.eao.CollectionEao;
 import com.returnsoft.collection.eao.CommerceEao;
 import com.returnsoft.collection.eao.CreditCardEao;
+import com.returnsoft.collection.eao.LoteEao;
 import com.returnsoft.collection.eao.NotificationEao;
 import com.returnsoft.collection.eao.PayerEao;
 import com.returnsoft.collection.eao.ProductEao;
 import com.returnsoft.collection.eao.RepaymentEao;
 import com.returnsoft.collection.eao.SaleEao;
 import com.returnsoft.collection.eao.SaleStateEao;
-import com.returnsoft.collection.entity.Commerce;
 import com.returnsoft.collection.entity.CreditCard;
+import com.returnsoft.collection.entity.Lote;
 import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.SaleState;
-import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
@@ -40,12 +44,11 @@ public class SaleServiceImpl implements SaleService{
 	@EJB
 	private ProductEao productEao;
 	
-	
 	@EJB
 	private CommerceEao commerceEao;
 	
 	@EJB
-	private CreditCardEao creditCardUpdateEao;
+	private CreditCardEao creditCardEao;
 	
 	@EJB
 	private CollectionEao collectionEao;
@@ -61,6 +64,8 @@ public class SaleServiceImpl implements SaleService{
 	
 	@EJB
 	private PayerEao payerEao;
+	
+	
 	
 	public Sale findById(Long saleId) throws ServiceException {
 		try {
@@ -96,6 +101,81 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
+	//@Asynchronous
+	public Future<Integer> add(List<Sale> sales, String filename) /*throws ServiceException*/{
+		//try {
+			
+			System.out.println("ingreso a addSalesService.........");
+			
+			//Lote lote = new Lote();
+			//lote.setName(filename);
+			//loteEao.add(lote);
+			
+			Integer row=1;
+			
+			/*for (Sale sale : sales) {
+				
+				System.out.println("row:"+row);
+				
+				System.out.println("sale.getPayer().getNuicResponsible():"+sale.getPayer().getNuicResponsible());
+				
+				SaleState saleState = sale.getSaleState();
+				CreditCard creditCard = sale.getCreditCard();
+				Payer payer = sale.getPayer();
+				
+				sale.setSaleState(null);
+				sale.setCreditCard(null);
+				sale.setPayer(null);
+				sale.setLote(lote);
+				
+				saleEao.add(sale);
+				
+				//saleState.setSale(sale);
+				saleStateEao.add(saleState);
+				
+				//creditCard.setSale(sale);
+				creditCardUpdateEao.add(creditCard);
+				
+				//payer.setSale(sale);
+				payerEao.add(payer);
+				
+				sale.setSaleState(saleState);
+				sale.setCreditCard(creditCard);
+				sale.setPayer(payer);
+				sale.setLote(lote);
+				
+				row++;
+			}*/
+			
+			
+			 try {
+		            Thread.sleep(10000);
+		            System.out.println("Termino el procesoXXX.... ");
+		            row = 10;
+		        } catch (InterruptedException e) {
+		            e.printStackTrace(); 
+		        }
+			 
+			
+			return new AsyncResult<Integer>(row);
+			
+			
+		/*} catch (Exception e) {
+			System.out.println("exception.........");
+			System.out.println("exception.........");
+			System.out.println("exception.........");
+			System.out.println("exception.........");
+			System.out.println("exception.........");
+			e.printStackTrace();
+			return new AsyncResult<Integer>(0);
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}*/
+	}
+	
 	
 	public void add(Sale sale) throws ServiceException{
 		try {
@@ -103,25 +183,30 @@ public class SaleServiceImpl implements SaleService{
 			SaleState saleState = sale.getSaleState();
 			CreditCard creditCard = sale.getCreditCard();
 			Payer payer = sale.getPayer();
+			//Lote lote = sale.getLote();
 			
 			sale.setSaleState(null);
 			sale.setCreditCard(null);
 			sale.setPayer(null);
+			//sale.setLote(null);
 			
 			saleEao.add(sale);
 			
-			saleState.setSale(sale);
+			//saleState.setSale(sale);
 			saleStateEao.add(saleState);
 			
-			creditCard.setSale(sale);
-			creditCardUpdateEao.add(creditCard);
+			//creditCard.setSale(sale);
+			creditCardEao.add(creditCard);
 			
-			payer.setSale(sale);
+			//payer.setSale(sale);
 			payerEao.add(payer);
+			
+			//loteEao.add(lote);
 			
 			sale.setSaleState(saleState);
 			sale.setCreditCard(creditCard);
 			sale.setPayer(payer);
+			//sale.setLote(lote);
 			
 			
 		} catch (Exception e) {
@@ -136,9 +221,9 @@ public class SaleServiceImpl implements SaleService{
 	
 	
 	
-	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException {
+	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException {
 		try {
-			List<Sale> sales = saleEao.findBySaleData(saleDateStartedAt, saleDateEndedAt,  affiliationDate, bankId, productId, saleState);
+			List<Sale> sales = saleEao.findBySaleData(saleDateStartedAt, saleDateEndedAt, bankId, productId, saleState);
 
 			return sales;
 
@@ -204,7 +289,7 @@ public class SaleServiceImpl implements SaleService{
 				sales.add(sale);
 			}*/
 			
-			List<Sale> sales2 = creditCardUpdateEao.findSalesByCreditCardNumber(creditCardNumber);
+			List<Sale> sales2 = creditCardEao.findSalesByCreditCardNumber(creditCardNumber);
 			/*for (Sale sale : sales2) {
 				sales.add(sale);
 			}*/
@@ -305,10 +390,13 @@ public class SaleServiceImpl implements SaleService{
 	
 	
 	
-	public Long findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws ServiceException{
+	//public Long findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws ServiceException{
+	public Boolean checkIfExistSale(Integer nuicInsured, Date dateOfSale, Short bankId, Short productId, Short collectionPeriodId) throws ServiceException{	
 		try {
 			
-			return saleEao.findIdByNuicInsuredAndDateOfSale(nuicInsured, dateOfSale);
+			//return saleEao.findIdByNuicInsuredAndDateOfSale(nuicInsured, dateOfSale);
+			
+			return saleEao.checkExistSale(nuicInsured, dateOfSale, bankId, productId, collectionPeriodId);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -320,7 +408,7 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	public Sale affiliate(String code, int userId, Date affiliationDate) throws ServiceException{
+	/*public Sale affiliate(String code, int userId, Date affiliationDate) throws ServiceException{
 		try {
 			
 			Sale sale = saleEao.findByCode(code);
@@ -340,7 +428,7 @@ public class SaleServiceImpl implements SaleService{
 				throw new ServiceException();
 			}
 		}
-	}
+	}*/
 	
 	
 	

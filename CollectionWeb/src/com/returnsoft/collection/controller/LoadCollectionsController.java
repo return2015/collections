@@ -373,7 +373,7 @@ public class LoadCollectionsController implements Serializable {
 						
 					}
 
-					if (data.get("action").length() > 20) {
+					if (data.get("action").length() > 30) {
 						errors.add(new DataColumnLengthException(lineNumber,headers.get("action"),data.get("action").length(),20));
 						
 					}
@@ -551,9 +551,9 @@ public class LoadCollectionsController implements Serializable {
 						if (sale != null && sale.getId() > 0) {
 
 							// VALIDA SI LA VENTA ESTA DE BAJA
-							if (!sale.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
+							/*if (!sale.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
 								errors.add(new DataSaleStateNoActiveException(lineNumber, headers.get("code"),data.get("code")));
-							}
+							}*/
 
 							// VALIDA COMMERCIAL CODE
 							Commerce commercialCodeObject = null;
@@ -662,8 +662,11 @@ public class LoadCollectionsController implements Serializable {
 										}
 										
 										//MONTO A CARGAR DEBE SER CERO.
-										if (chargeAmount.intValue() != 0) {
+										/*if (chargeAmount.intValue() != 0) {
 											errors.add(new DataCollectionChargeAmountException(lineNumber,headers.get("chargeAmount"),headers.get("responseMessage")));
+										}*/
+										if (sale.getInsurancePremium().compareTo(chargeAmount)!=0) {
+											errors.add(new DataCollectionChargeAmountException(lineNumber,headers.get("chargeAmount"),sale.getInsurancePremium(),chargeAmount));
 										}
 										break;	
 

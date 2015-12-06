@@ -2,6 +2,8 @@ package com.returnsoft.collection.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Future;
+
 
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
@@ -13,13 +15,15 @@ public interface SaleService {
 	
 	public void add(Sale sale) throws ServiceException;
 	
+	//public Future<Integer> add(List<Sale> sale, String filename) /*throws ServiceException*/;
+	
 	public Sale findById(Long saleId) throws ServiceException;
 	
 	public Sale findByCode(String code) throws ServiceException;
 	
-	public Sale affiliate(String code, int userId, Date affiliateDate) throws ServiceException;
+	//public Sale affiliate(String code, int userId, Date affiliateDate) throws ServiceException;
 	
-	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Date affiliationDate, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException;
+	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException;
 	
 	public List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification) throws ServiceException;
 	
@@ -33,7 +37,9 @@ public interface SaleService {
 	
 	public List<Sale> findSalesByNamesContractor(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws ServiceException;
 	
-	public Long findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws ServiceException;
+	//public Long findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws ServiceException;
+	
+	public Boolean checkIfExistSale(Integer nuicInsured, Date dateOfSale, Short bankId, Short productId, Short collectionPeriodId) throws ServiceException;
 	
 	
 	

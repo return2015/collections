@@ -56,21 +56,21 @@ public class NotificationServiceImpl implements NotificationService {
 			//se agrega notification 
 			notificationEao.add(notification);
 			if (notification.getType().equals(NotificationTypeEnum.PHYSICAL)) {
-				saleFound.setPhysicalNotifications((short)(saleFound.getPhysicalNotifications()+1));	
+				//saleFound.setPhysicalNotifications((short)(saleFound.getPhysicalNotifications()+1));	
 			}else if (notification.getType().equals(NotificationTypeEnum.MAIL)) {
 				
-				saleFound.setVirtualNotifications((short)(saleFound.getVirtualNotifications()+1));
+				//saleFound.setVirtualNotifications((short)(saleFound.getVirtualNotifications()+1));
 				// SE ENVIA EL EMAIL
 				String email = saleFound.getPayer().getMail();
 				String code = saleFound.getCode();
 				String names = saleFound.getPayer().getFirstnameResponsible() + " "
 				+ saleFound.getPayer().getLastnamePaternalResponsible() + " "
 				+ saleFound.getPayer().getLastnameMaternalResponsible();
-				Short bankId = saleFound.getCommerce().getBank().getId();
+				Short bankId = saleFound.getBank().getId();
 				sendMail(email, names, code, bankId);
 			}
 			
-			saleFound.setNotification(notification);
+			//saleFound.setNotification(notification);
 			saleFound = saleEao.update(saleFound);
 			
 
@@ -433,7 +433,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 						MimeMessage message = new MimeMessage(sessionSelected);
 						message.setFrom(new InternetAddress(sessionSelected.getProperty("mail.from")));
-						InternetAddress[] address = { new InternetAddress(email) };
+						InternetAddress[] address = { new InternetAddress(email), new InternetAddress(sessionSelected.getProperty("mail.from"))};
 						message.setRecipients(Message.RecipientType.TO, address);
 						message.setSubject(bankLetterEnum.getSubject());
 						message.setSentDate(new Date());

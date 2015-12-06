@@ -34,11 +34,15 @@ public class Sale implements Serializable{
 	@Column(name = "sal_code")
 	private String code;
 	
-	@Column(name = "sal_document_type")
-	private String documentType;
+	
+	////////////////
+	
 	
 	@Column(name = "sal_account_number")
 	private Long accountNumber;
+	
+	
+	////////////////////////////
 	
 	@Column(name = "sal_nuic_contractor")
 	private Integer nuicContractor;
@@ -72,13 +76,13 @@ public class Sale implements Serializable{
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "sal_date")
-	private Date dateOfSale;
+	private Date date;
 	
 	@Column(name = "sal_channel")
-	private String channelOfSale;
+	private String channel;
 	
 	@Column(name = "sal_place")
-	private String placeOfSale;
+	private String place;
 	
 	@Column(name = "sal_vendor_code")
 	private String vendorCode;
@@ -98,8 +102,10 @@ public class Sale implements Serializable{
 	@Column(name = "sal_product_description")
 	private String productDescription;
 	
-	@Column(name = "sal_collection_period")
-	private String collectionPeriod;
+	/*@Column(name = "sal_collection_period")
+	private String collectionPeriod;*/
+	
+	
 	
 	@Column(name = "sal_collection_type")
 	private String collectionType;
@@ -113,6 +119,72 @@ public class Sale implements Serializable{
 	
 	@Column(name = "sal_audit_user")
 	private String auditUser;
+	
+	
+	
+	/*@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_com_id")
+	private Commerce commerce;*/
+	
+	@Column(name = "sal_commerce_code")
+	private String commerceCode;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_colper_id")
+	private CollectionPeriod collectionPeriod;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_pro_id")
+	private Product product;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_ban_id")
+	private Bank bank;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_lot_id")
+	private Lote lote;
+	
+	/*@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_paymet_id")
+	private PaymentMethod paymentMethod;*/
+	
+	////////////////////////////////////////////////
+	
+	/*@Column(name = "sal_affiliation")
+	private Boolean affiliation;*/
+	
+	/*@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "sal_affiliation_date")
+	private Date affiliationDate;*/
+	
+	/*@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_affiliation_usr_id")
+	private User affiliationUser;*/
+	
+	/*@Column(name = "sal_physical_notifications")
+	private Short physicalNotifications;
+	
+	@Column(name = "sal_virtual_notifications")
+	private Short virtualNotifications;*/
+	
+	/*@OneToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_not_id")
+	private Notification notification;*/
+	
+	///////////////////////////////////////////
+	
+	@OneToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_crecar_id")
+	private CreditCard creditCard;
+	
+	@OneToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_salsta_id")
+	private SaleState saleState;
+	
+	@OneToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_pay_id")
+	private Payer payer;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "sal_created_at")
@@ -129,43 +201,6 @@ public class Sale implements Serializable{
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "sal_updated_by")
 	private User updatedBy;
-	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_com_id")
-	private Commerce commerce;
-	
-	@Column(name = "sal_affiliation")
-	private Boolean affiliation;
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "sal_affiliation_date")
-	private Date affiliationDate;
-	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_affiliation_usr_id")
-	private User affiliationUser;
-	
-	@Column(name = "sal_physical_notifications")
-	private Short physicalNotifications;
-	
-	@Column(name = "sal_virtual_notifications")
-	private Short virtualNotifications;
-	
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_not_id")
-	private Notification notification;
-	
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_crecar_id")
-	private CreditCard creditCard;
-	
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_salsta_id")
-	private SaleState saleState;
-	
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_pay_id")
-	private Payer payer;
 	
 
 	public Long getId() {
@@ -184,13 +219,13 @@ public class Sale implements Serializable{
 		this.code = code;
 	}
 
-	public String getDocumentType() {
+	/*public String getDocumentType() {
 		return documentType;
 	}
 
 	public void setDocumentType(String documentType) {
 		this.documentType = documentType;
-	}
+	}*/
 
 	public String getFirstnameContractor() {
 		return firstnameContractor;
@@ -280,28 +315,32 @@ public class Sale implements Serializable{
 		this.phone2 = phone2;
 	}
 
-	public Date getDateOfSale() {
-		return dateOfSale;
+	
+
+	public Date getDate() {
+		return date;
 	}
 
-	public void setDateOfSale(Date dateOfSale) {
-		this.dateOfSale = dateOfSale;
+	public void setDate(Date date) {
+		this.date = date;
 	}
 
-	public String getChannelOfSale() {
-		return channelOfSale;
+	
+
+	public String getChannel() {
+		return channel;
 	}
 
-	public void setChannelOfSale(String channelOfSale) {
-		this.channelOfSale = channelOfSale;
+	public void setChannel(String channel) {
+		this.channel = channel;
 	}
 
-	public String getPlaceOfSale() {
-		return placeOfSale;
+	public String getPlace() {
+		return place;
 	}
 
-	public void setPlaceOfSale(String placeOfSale) {
-		this.placeOfSale = placeOfSale;
+	public void setPlace(String place) {
+		this.place = place;
 	}
 
 	public String getVendorCode() {
@@ -352,11 +391,13 @@ public class Sale implements Serializable{
 		this.productDescription = productDescription;
 	}
 
-	public String getCollectionPeriod() {
+	
+
+	public CollectionPeriod getCollectionPeriod() {
 		return collectionPeriod;
 	}
 
-	public void setCollectionPeriod(String collectionPeriod) {
+	public void setCollectionPeriod(CollectionPeriod collectionPeriod) {
 		this.collectionPeriod = collectionPeriod;
 	}
 
@@ -424,29 +465,17 @@ public class Sale implements Serializable{
 		this.updatedBy = updatedBy;
 	}
 
-	public Date getAffiliationDate() {
-		return affiliationDate;
-	}
+	
 
-	public void setAffiliationDate(Date affiliationDate) {
-		this.affiliationDate = affiliationDate;
-	}
-
-	public User getAffiliationUser() {
+	/*public User getAffiliationUser() {
 		return affiliationUser;
 	}
 
 	public void setAffiliationUser(User affiliationUser) {
 		this.affiliationUser = affiliationUser;
-	}
+	}*/
 
-	public Boolean getAffiliation() {
-		return affiliation;
-	}
-
-	public void setAffiliation(Boolean affiliation) {
-		this.affiliation = affiliation;
-	}
+	
 
 	public SaleState getSaleState() {
 		return saleState;
@@ -456,21 +485,41 @@ public class Sale implements Serializable{
 		this.saleState = saleState;
 	}
 
-	public Commerce getCommerce() {
+	/*public Commerce getCommerce() {
 		return commerce;
 	}
 
 	public void setCommerce(Commerce commerce) {
 		this.commerce = commerce;
-	}
+	}*/
+	
+	
 
-	public Notification getNotification() {
+	/*public Notification getNotification() {
 		return notification;
+	}*/
+
+	public Product getProduct() {
+		return product;
 	}
 
-	public void setNotification(Notification notification) {
-		this.notification = notification;
+	public void setProduct(Product product) {
+		this.product = product;
 	}
+
+	public Bank getBank() {
+		return bank;
+	}
+
+	public void setBank(Bank bank) {
+		this.bank = bank;
+	}
+
+	
+
+	/*public void setNotification(Notification notification) {
+		this.notification = notification;
+	}*/
 
 	public CreditCard getCreditCard() {
 		return creditCard;
@@ -488,7 +537,7 @@ public class Sale implements Serializable{
 		this.payer = payer;
 	}
 
-	public Short getPhysicalNotifications() {
+	/*public Short getPhysicalNotifications() {
 		return physicalNotifications;
 	}
 
@@ -502,7 +551,24 @@ public class Sale implements Serializable{
 
 	public void setVirtualNotifications(Short virtualNotifications) {
 		this.virtualNotifications = virtualNotifications;
+	}*/
+
+	public String getCommerceCode() {
+		return commerceCode;
 	}
+
+	public void setCommerceCode(String commerceCode) {
+		this.commerceCode = commerceCode;
+	}
+
+	public Lote getLote() {
+		return lote;
+	}
+
+	public void setLote(Lote lote) {
+		this.lote = lote;
+	}
+	
 	
 	
 }

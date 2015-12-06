@@ -369,9 +369,9 @@ try {
 						if (sale != null && sale.getId() > 0) {
 							
 							// VALIDA SI LA VENTA ESTA DE BAJA
-							if (!sale.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
+							/*if (!sale.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
 								errors.add(new DataSaleStateNoActiveException(lineNumber, headers.get("code"),data.get("code")));
-							}
+							}*/
 
 							
 

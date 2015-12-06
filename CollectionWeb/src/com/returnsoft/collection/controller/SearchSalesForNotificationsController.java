@@ -871,6 +871,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 								break;
 							}
 						}
+						
 						if (commercialCodeObject == null) {
 							errors.add(new CommerceCodeException(sale.getCode(), sale.getCommerce().getCode()));
 						}
@@ -1084,6 +1085,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 						// VALIDA CANTIDAD DE NOTIFICACIONES VIRTUALES ENVIADAS
 						// Solo puede tener 3 notificaciones virtuales.
 						if (sale.getVirtualNotifications() > 2) {
+							
 							errors.add(new NotificationLimit3Exception(sale.getCode()));
 						}
 						

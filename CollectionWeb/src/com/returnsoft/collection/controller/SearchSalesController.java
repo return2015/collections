@@ -14,9 +14,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
@@ -35,40 +37,116 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 
 import com.returnsoft.collection.entity.Bank;
-import com.returnsoft.collection.entity.Commerce;
+import com.returnsoft.collection.entity.CollectionPeriod;
 import com.returnsoft.collection.entity.CreditCard;
+import com.returnsoft.collection.entity.Lote;
 import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.Product;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.User;
-import com.returnsoft.collection.enumeration.CreditCardValidationEnum;
+import com.returnsoft.collection.enumeration.DocumentTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
 import com.returnsoft.collection.exception.BankNotSelectedException;
-import com.returnsoft.collection.exception.DataColumnDateException;
-import com.returnsoft.collection.exception.DataColumnDecimalException;
-import com.returnsoft.collection.exception.DataColumnLengthException;
-import com.returnsoft.collection.exception.DataColumnNullException;
-import com.returnsoft.collection.exception.DataColumnNumberException;
-import com.returnsoft.collection.exception.DataCommerceCodeException;
-import com.returnsoft.collection.exception.DataSaleCreateException;
-import com.returnsoft.collection.exception.DataSaleDuplicateException;
-import com.returnsoft.collection.exception.DataSalePaymentMethodException;
-import com.returnsoft.collection.exception.DataSaleProductException;
-import com.returnsoft.collection.exception.DataSaleStateNotFoundException;
-import com.returnsoft.collection.exception.FileColumnsTotalException;
+import com.returnsoft.collection.exception.CreditCardDateOverflowException;
+import com.returnsoft.collection.exception.CreditCardDaysOfDefaultFormatException;
+import com.returnsoft.collection.exception.CreditCardDaysOfDefaultOverflowException;
+import com.returnsoft.collection.exception.CreditCardExpirationDateFormatException;
+import com.returnsoft.collection.exception.CreditCardExpirationDateOverflowException;
+import com.returnsoft.collection.exception.CreditCardNumberFormatException;
+import com.returnsoft.collection.exception.CreditCardNumberOverflowException;
+import com.returnsoft.collection.exception.CreditCardStateOverflowException;
 import com.returnsoft.collection.exception.FileExtensionException;
 import com.returnsoft.collection.exception.FileNotFoundException;
 import com.returnsoft.collection.exception.FileRowsZeroException;
-import com.returnsoft.collection.exception.ServiceException;
+import com.returnsoft.collection.exception.PayerAddressOverflowException;
+import com.returnsoft.collection.exception.PayerDepartmentOverflowException;
+import com.returnsoft.collection.exception.PayerDistrictOverflowException;
+import com.returnsoft.collection.exception.PayerDocumentTypeInvalidException;
+import com.returnsoft.collection.exception.PayerDocumentTypeNullException;
+import com.returnsoft.collection.exception.PayerDocumentTypeOverflowException;
+import com.returnsoft.collection.exception.PayerFirstnameNullException;
+import com.returnsoft.collection.exception.PayerFirstnameOverflowException;
+import com.returnsoft.collection.exception.PayerLastnameMaternalNullException;
+import com.returnsoft.collection.exception.PayerLastnameMaternalOverflowException;
+import com.returnsoft.collection.exception.PayerLastnamePaternalNullException;
+import com.returnsoft.collection.exception.PayerLastnamePaternalOverflowException;
+import com.returnsoft.collection.exception.PayerMailOverflowException;
+import com.returnsoft.collection.exception.PayerNuicFormatException;
+import com.returnsoft.collection.exception.PayerNuicNullException;
+import com.returnsoft.collection.exception.PayerNuicOverflowException;
+import com.returnsoft.collection.exception.PayerProvinceOverflowException;
+import com.returnsoft.collection.exception.SaleAccountNumberFormatException;
+import com.returnsoft.collection.exception.SaleAccountNumberNullException;
+import com.returnsoft.collection.exception.SaleAccountNumberOverflowException;
+import com.returnsoft.collection.exception.SaleAlreadyExistException;
+import com.returnsoft.collection.exception.SaleAuditDateFormatException;
+import com.returnsoft.collection.exception.SaleAuditDateNullException;
+import com.returnsoft.collection.exception.SaleAuditDateOverflowException;
+import com.returnsoft.collection.exception.SaleAuditUserNullException;
+import com.returnsoft.collection.exception.SaleAuditUserOverflowException;
+import com.returnsoft.collection.exception.SaleBankInvalidException;
+import com.returnsoft.collection.exception.SaleBankNullException;
+import com.returnsoft.collection.exception.SaleBankOverflowException;
+import com.returnsoft.collection.exception.SaleCertificateNumberOverflowException;
+import com.returnsoft.collection.exception.SaleChannelOverflowException;
+import com.returnsoft.collection.exception.SaleCollectionPeriodInvalidException;
+import com.returnsoft.collection.exception.SaleCollectionPeriodNullException;
+import com.returnsoft.collection.exception.SaleCollectionPeriodOverflowException;
+import com.returnsoft.collection.exception.SaleCollectionTypeNullException;
+import com.returnsoft.collection.exception.SaleCollectionTypeOverflowException;
+import com.returnsoft.collection.exception.SaleCommercialCodeNullException;
+import com.returnsoft.collection.exception.SaleCommercialCodeOverflowException;
+import com.returnsoft.collection.exception.SaleCreditCardUpdatedAtFormatException;
+import com.returnsoft.collection.exception.SaleDateFormatException;
+import com.returnsoft.collection.exception.SaleDateNullException;
+import com.returnsoft.collection.exception.SaleDateOverflowException;
+import com.returnsoft.collection.exception.SaleDownChannelOverflowException;
+import com.returnsoft.collection.exception.SaleDownObservationOverflowException;
+import com.returnsoft.collection.exception.SaleDownReasonOverflowException;
+import com.returnsoft.collection.exception.SaleDownUserOverflowException;
+import com.returnsoft.collection.exception.SaleDuplicateException;
+import com.returnsoft.collection.exception.SaleFileRowsInvalidException;
+import com.returnsoft.collection.exception.SaleFirstnameContractorOverFlowException;
+import com.returnsoft.collection.exception.SaleFirstnameInsuredOverflowException;
+import com.returnsoft.collection.exception.SaleInsurancePremiumFormatException;
+import com.returnsoft.collection.exception.SaleInsurancePremiumNullException;
+import com.returnsoft.collection.exception.SaleInsurancePremiumOverflowException;
+import com.returnsoft.collection.exception.SaleLastnameMaternalContractorOverFlowException;
+import com.returnsoft.collection.exception.SaleLastnameMaternalInsuredOverflowException;
+import com.returnsoft.collection.exception.SaleLastnamePaternalContractorOverFlowException;
+import com.returnsoft.collection.exception.SaleLastnamePaternalInsuredOverflowException;
+import com.returnsoft.collection.exception.SaleNuicContractorFormatException;
+import com.returnsoft.collection.exception.SaleNuicContractorOverFlowException;
+import com.returnsoft.collection.exception.SaleNuicInsuredFormatException;
+import com.returnsoft.collection.exception.SaleNuicInsuredNullException;
+import com.returnsoft.collection.exception.SaleNuicInsuredOverflowException;
+import com.returnsoft.collection.exception.SalePhone1FormatException;
+import com.returnsoft.collection.exception.SalePhone1OverflowException;
+import com.returnsoft.collection.exception.SalePhone2FormatException;
+import com.returnsoft.collection.exception.SalePhone2OverflowException;
+import com.returnsoft.collection.exception.SalePlaceOverflowException;
+import com.returnsoft.collection.exception.SalePolicyNumberOverflowException;
+import com.returnsoft.collection.exception.SaleProductDescriptionOverflowException;
+import com.returnsoft.collection.exception.SaleProductInvalidException;
+import com.returnsoft.collection.exception.SaleProductNullException;
+import com.returnsoft.collection.exception.SaleProductOverflowException;
+import com.returnsoft.collection.exception.SaleProposalNumberOverflowException;
+import com.returnsoft.collection.exception.SaleStateDateFormatException;
+import com.returnsoft.collection.exception.SaleStateDateOverflowException;
+import com.returnsoft.collection.exception.SaleStateInvalidException;
+import com.returnsoft.collection.exception.SaleStateNullException;
+import com.returnsoft.collection.exception.SaleVendorCodeOverflowException;
+import com.returnsoft.collection.exception.SaleVendorNameOverflowException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
 import com.returnsoft.collection.service.BankService;
-import com.returnsoft.collection.service.CommerceService;
+import com.returnsoft.collection.service.CollectionPeriodService;
 import com.returnsoft.collection.service.ProductService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.service.UserService;
+import com.returnsoft.collection.service.impl.SaleServiceBackground;
 import com.returnsoft.collection.util.FacesUtil;
 
 @ManagedBean
@@ -78,14 +156,14 @@ public class SearchSalesController implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	
+	private static final long serialVersionUID = 7381792511876093798L;
+
 	@EJB
-	private CommerceService commerceService;
-	
+	private CollectionPeriodService collectionPeriodService;
+
 	@EJB
 	private BankService bankService;
-	
+
 	@EJB
 	private ProductService productService;
 
@@ -93,19 +171,22 @@ public class SearchSalesController implements Serializable {
 	private SaleService saleService;
 	
 	@EJB
+	private SaleServiceBackground saleServiceBackground;
+
+	@EJB
 	private UserService userService;
+
+	private FacesUtil facesUtil;
+
+	//////////// BUSCAR VENTAS
+	/////////////////////////////
 
 	private String searchTypeSelected;
 	private String personTypeSelected;
 
-	private List<Sale> sales;
-	private Sale saleSelected;
-
 	private String creditCardNumber;
 	private Date dateOfSaleStarted;
 	private Date dateOfSaleEnded;
-
-	private Date affiliationDate;
 
 	private String nuicResponsible;
 	private String lastnamePaternalResponsible;
@@ -128,7 +209,6 @@ public class SearchSalesController implements Serializable {
 	private List<SelectItem> products;
 	private String productSelected;
 
-	
 	private List<SelectItem> saleStates;
 	private String saleStateSelected;
 
@@ -141,1189 +221,51 @@ public class SearchSalesController implements Serializable {
 	private Boolean searchByInsuredRendered;
 	private Boolean searchByResponsibleRendered;
 
-	private List<Commerce> commerces;
-	
-	private FacesUtil facesUtil;
-	
+	private List<Sale> sales;
+	private Sale saleSelected;
 	private Integer salesCount;
-	
-	///////
-	
-	 private UploadedFile file;
-	 
-	 private Integer FILE_ROWS = 49;
 
-		private List<Exception> errors;
-		private Map<String, String> headers;
-		private List<Map<String, String>> dataList;
-		
-		private Integer progress;
+	///////
+	// CREAR VENTAS
+
+	private UploadedFile file;
+	private String filename;
+	private Integer FILE_ROWS = 49;
+
+	private List<String> errors;
+	private SaleFile headers;
+	private List<SaleFile> dataList;
+	private Integer salesFileCount;
+
+	private Integer progress;
+	
+	private Future<Integer> loadStatus;
+	
+
+	////////////////////////////
+	///////////////////
 
 	public SearchSalesController() {
 		System.out.println("Se construye SearchSaleController");
 		facesUtil = new FacesUtil();
 	}
-	
-	public void download() {
-		try {
-
-			ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext()
-					.getContext();
-			String separator = System.getProperty("file.separator");
-			String rootPath = servletContext.getRealPath(separator);
-			String fileName = rootPath + "resources" + separator + "templates" + separator + "tramas_ventas.xlsx";
-			File file = new File(fileName);
-			InputStream pdfInputStream = new FileInputStream(file);
-
-			FacesContext facesContext = FacesContext.getCurrentInstance();
-			ExternalContext externalContext = facesContext.getExternalContext();
-			externalContext.setResponseContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-			externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"tramas_ventas.xlsx\"");
-
-			// Read PDF contents and write them to the output
-			byte[] bytesBuffer = new byte[2048];
-			int bytesRead;
-
-			while ((bytesRead = pdfInputStream.read(bytesBuffer)) > 0) {
-				externalContext.getResponseOutputStream().write(bytesBuffer, 0, bytesRead);
-			}
-
-			externalContext.getResponseOutputStream().flush();
-			externalContext.getResponseOutputStream().close();
-			pdfInputStream.close();
-			facesContext.responseComplete();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-		}
-
-	}
-	
-	
-	public void getData() {
-
-		System.out.println("LoadSalesController: obteniendo datos desde archivo");
-
-		BufferedReader br = null;
-		try {
-			InputStreamReader isr = new InputStreamReader(file.getInputstream());
-			System.out.println("------------------------------------");
-			System.out.println(isr.getEncoding());
-			System.out.println("------------------------------------");
-			
-			InputStreamReader isr2 = new InputStreamReader(file.getInputstream(),StandardCharsets.UTF_8);
-			System.out.println("------------------------------------");
-			System.out.println(isr2.getEncoding());
-			System.out.println("------------------------------------");
-			
-			//br = new BufferedReader(new InputStreamReader(file.getInputStream()));
-			br = new BufferedReader(new InputStreamReader(file.getInputstream(),StandardCharsets.UTF_8));
-			//System.out.println("charset:"+StandardCharsets.UTF_8);
-		} catch (IOException e1) { 
-			e1.printStackTrace();
-			facesUtil.sendErrorMessage(e1.getClass().getSimpleName(), e1.getMessage());
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			facesUtil.sendErrorMessage(e1.getClass().getSimpleName(), e1.getMessage());
-		}
-
-		String strLine = null;
-		Integer lineNumber = 0;
-
-		errors = new ArrayList<Exception>();
-		headers = new HashMap<String, String>();
-		dataList = new ArrayList<Map<String, String>>();
-
-		try {
-			while ((strLine = br.readLine()) != null) {
-				
-				System.out.println("strLine2:"+strLine);
-
-				if (lineNumber == 0) {
-					// SE LEE CABECERA
-					String[] values = strLine.split("\\|", -1);
-					if (values.length != FILE_ROWS) {
-						// new DataColumnsTotalException(lineNumber,
-						// values.length, FILE_ROWS);
-						errors.add(new FileColumnsTotalException(lineNumber, values.length, FILE_ROWS));
-					} else {
-
-						headers.put("documentType", values[0]);
-						headers.put("nuicResponsible", values[1]);
-						headers.put("lastnamePaternalResponsible", values[2]);
-						headers.put("lastnameMaternalResponsible", values[3]);
-						headers.put("firstnameResponsible", values[4]);
-
-						headers.put("creditCardNumber", values[5]);
-						headers.put("accountNumber", values[6]);
-						headers.put("creditCardExpirationDate", values[7]);
-						headers.put("creditCardState", values[8]);
-						headers.put("creditCardDaysOfDefault", values[9]);
-
-						headers.put("nuicContractor", values[10]);
-						headers.put("lastnamePaternalContractor", values[11]);
-						headers.put("lastnameMaternalContractor", values[12]);
-						headers.put("firstnameContractor", values[13]);
-						headers.put("nuicInsured", values[14]);
-
-						headers.put("lastnamePaternalInsured", values[15]);
-						headers.put("lastnameMaternalInsured", values[16]);
-						headers.put("firstnameInsured", values[17]);
-						headers.put("phone1", values[18]);
-						headers.put("phone2", values[19]);
-
-						headers.put("mail", values[20]);
-						headers.put("department", values[21]);
-						headers.put("province", values[22]);
-						headers.put("district", values[23]);
-						headers.put("address", values[24]);
-
-						headers.put("dateOfSale", values[25]);
-						headers.put("channelOfSale", values[26]);
-						headers.put("placeOfSale", values[27]);
-						headers.put("vendorCode", values[28]);
-						headers.put("vendorName", values[29]);
-
-						headers.put("policyNumber", values[30]);
-						headers.put("certificateNumber", values[31]);
-						headers.put("proposalNumber", values[32]);
-						headers.put("commercialCode", values[33]);
-						headers.put("product", values[34]);
-
-						headers.put("productDescription", values[35]);
-						headers.put("collectionPeriod", values[36]);
-						headers.put("collectionType", values[37]);
-						headers.put("paymentMethod", values[38]);
-						headers.put("insurancePremium", values[39]);
-
-						headers.put("auditDate", values[40]);
-						headers.put("auditUser", values[41]);
-						headers.put("state", values[42]);
-						headers.put("stateDate", values[43]);
-						headers.put("downUser", values[44]);
-
-						headers.put("downChannel", values[45]);
-						headers.put("downReason", values[46]);
-						headers.put("downObservation", values[47]);
-						headers.put("creditCardUpdatedAt", values[48]);
-
-					}
-				} else {
-
-					String[] values = strLine.split("\\|", -1);
-
-					if (values.length != FILE_ROWS) {
-						// new DataColumnsTotalException(lineNumber,
-						// values.length, FILE_ROWS);
-						errors.add(new FileColumnsTotalException(lineNumber, values.length, FILE_ROWS));
-					} else {
-
-						Map<String, String> data = new HashMap<String, String>();
-
-						// data.put("lineNumber", lineNumber.toString());
-						data.put("documentType", values[0]);
-						data.put("nuicResponsible", values[1]);
-						data.put("lastnamePaternalResponsible", values[2]);
-						data.put("lastnameMaternalResponsible", values[3]);
-						data.put("firstnameResponsible", values[4]);
-
-						data.put("creditCardNumber", values[5]);
-						data.put("accountNumber", values[6]);
-						data.put("creditCardExpirationDate", values[7]);
-						data.put("creditCardState", values[8]);
-						data.put("creditCardDaysOfDefault", values[9]);
-
-						data.put("nuicContractor", values[10]);
-						data.put("lastnamePaternalContractor", values[11]);
-						data.put("lastnameMaternalContractor", values[12]);
-						data.put("firstnameContractor", values[13]);
-						data.put("nuicInsured", values[14]);
-
-						data.put("lastnamePaternalInsured", values[15]);
-						data.put("lastnameMaternalInsured", values[16]);
-						data.put("firstnameInsured", values[17]);
-						data.put("phone1", values[18]);
-						data.put("phone2", values[19]);
-
-						data.put("mail", values[20]);
-						data.put("department", values[21]);
-						data.put("province", values[22]);
-						data.put("district", values[23]);
-						data.put("address", values[24]);
-
-						data.put("dateOfSale", values[25]);
-						data.put("channelOfSale", values[26]);
-						data.put("placeOfSale", values[27]);
-						data.put("vendorCode", values[28]);
-						data.put("vendorName", values[29]);
-
-						data.put("policyNumber", values[30]);
-						data.put("certificateNumber", values[31]);
-						data.put("proposalNumber", values[32]);
-						data.put("commercialCode", values[33]);
-						data.put("product", values[34]);
-
-						data.put("productDescription", values[35]);
-						data.put("collectionPeriod", values[36]);
-						data.put("collectionType", values[37]);
-						data.put("paymentMethod", values[38]);
-						data.put("insurancePremium", values[39]);
-
-						data.put("auditDate", values[40]);
-						data.put("auditUser", values[41]);
-						data.put("state", values[42]);
-						data.put("stateDate", values[43]);
-						data.put("downUser", values[44]);
-
-						data.put("downChannel", values[45]);
-						data.put("downReason", values[46]);
-						data.put("downObservation", values[47]);
-						data.put("creditCardUpdatedAt", values[48]);
-
-						dataList.add(data);
-					}
-				}
-
-				lineNumber++;
-
-			}
-
-			System.out.println("datas:" + dataList.size());
-			System.out.println("errors:" + errors.size());
-			System.out.println("headers:" + headers.size());
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-		}
-
-	}
-
-	public void validateDuplicates() {
-
-		System.out.println("Validando duplicados");
-
-		// Integer lineNumber = 1;
-
-		System.out.println("tamaño de dataList:" + dataList.size());
-		for (int i = 0; i < dataList.size(); i++) {
-			System.out.println("i:" + i);
-			Map<String, String> data1 = dataList.get(i);
-			for (int j = i + 1; j < dataList.size(); j++) {
-				// System.out.println("j:"+j);
-				Map<String, String> data2 = dataList.get(j);
-				if (data1.get("nuicInsured").equals(data2.get("nuicInsured"))
-						&& data1.get("dateOfSale").equals(data2.get("dateOfSale"))) {
-					errors.add(new DataSaleDuplicateException(i, j, headers.get("nuicInsured"),
-							headers.get("dateOfSale"), data1.get("nuicInsured"), data1.get("dateOfSale")));
-				}
-
-			}
-
-			// lineNumber++;
-		}
-
-		System.out.println("errors:" + errors.size());
-
-	}
-
-	public void validateDataNull() {
-
-		System.out.println("LoadSalesController: validando valores requeridos");
-
-		Integer lineNumber = 1;
-
-		for (Map<String, String> data : dataList) {
-
-			// SE VALIDA NOT NULL
-
-			if (data.get("nuicResponsible").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("nuicResponsible")));
-			}
-
-			if (data.get("firstnameResponsible").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("firstnameResponsible")));
-			}
-
-			if (data.get("lastnamePaternalResponsible").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("lastnamePaternalResponsible")));
-			}
-
-			if (data.get("lastnameMaternalResponsible").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("lastnameMaternalResponsible")));
-			}
-
-			if (data.get("accountNumber").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("accountNumber")));
-			}
-
-			if (data.get("nuicInsured").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("nuicInsured")));
-			}
-
-			if (data.get("dateOfSale").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("dateOfSale")));
-			}
-
-			if (data.get("commercialCode").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("commercialCode")));
-			}
-
-			if (data.get("product").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("product")));
-			}
-
-			if (data.get("collectionPeriod").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("collectionPeriod")));
-			}
-
-			if (data.get("collectionType").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("collectionType")));
-			}
-
-			if (data.get("paymentMethod").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("paymentMethod")));
-			}
-
-			if (data.get("insurancePremium").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("insurancePremium")));
-			}
-
-			if (data.get("auditDate").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("auditDate")));
-			}
-
-			if (data.get("auditUser").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("auditUser")));
-			}
-
-			if (data.get("state").length() == 0) {
-				errors.add(new DataColumnNullException(lineNumber, headers.get("state")));
-			}
-
-			lineNumber++;
-
-		}
-
-		System.out.println("errors:" + errors.size());
-
-	}
-
-	public void validateDataSize() {
-
-		System.out.println("LoadSalesController: validando tamaño de los valores");
-
-		Integer lineNumber = 1;
-
-		for (Map<String, String> data : dataList) {
-
-			if (data.get("documentType").length() > 3) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("documentType"),
-						data.get("documentType").length(), 3));
-			}
-
-			if (data.get("nuicResponsible").length() > 8) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("nuicResponsible"),
-						data.get("nuicResponsible").length(), 8));
-			}
-
-			if (data.get("lastnamePaternalResponsible").length() > 50) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("lastnamePaternalResponsible"),
-						data.get("lastnamePaternalResponsible").length(), 50));
-			}
-
-			if (data.get("lastnameMaternalResponsible").length() > 50) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("lastnameMaternalResponsible"),
-						data.get("lastnameMaternalResponsible").length(), 50));
-			}
-
-			if (data.get("firstnameResponsible").length() > 50) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("firstnameResponsible"),
-						data.get("firstnameResponsible").length(), 50));
-			}
-
-			if (data.get("creditCardNumber").length() > 16) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("creditCardNumber"),
-						data.get("creditCardNumber").length(), 16));
-			}
-
-			if (data.get("accountNumber").length() > 10) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("accountNumber"),
-						data.get("accountNumber").length(), 10));
-			}
-
-			if (data.get("creditCardState").length() > 20) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("creditCardState"),
-						data.get("creditCardState").length(), 20));
-			}
-
-			if (data.get("creditCardDaysOfDefault").length() > 4) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("creditCardDaysOfDefault"),
-						data.get("creditCardDaysOfDefault").length(), 4));
-			}
-
-			if (data.get("nuicContractor").length() > 8) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("nuicContractor"),
-						data.get("nuicContractor").length(), 8));
-			}
-
-			if (data.get("lastnamePaternalContractor").length() > 50) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("lastnamePaternalContractor"),
-						data.get("lastnamePaternalContractor").length(), 50));
-			}
-
-			if (data.get("lastnameMaternalContractor").length() > 50) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("lastnameMaternalContractor"),
-						data.get("lastnameMaternalContractor").length(), 50));
-			}
-
-			if (data.get("firstnameContractor").length() > 50) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("firstnameContractor"),
-						data.get("firstnameContractor").length(), 50));
-			}
-
-			if (data.get("nuicInsured").length() > 8) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("nuicInsured"),
-						data.get("nuicInsured").length(), 8));
-			}
-
-			if (data.get("lastnamePaternalInsured").length() > 50) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("lastnamePaternalInsured"),
-						data.get("lastnamePaternalInsured").length(), 50));
-			}
-
-			if (data.get("lastnameMaternalInsured").length() > 50) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("lastnameMaternalInsured"),
-						data.get("lastnameMaternalInsured").length(), 50));
-			}
-
-			if (data.get("firstnameInsured").length() > 50) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("firstnameInsured"),
-						data.get("firstnameInsured").length(), 50));
-			}
-
-			if (data.get("phone1").length() > 9) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("phone1"), data.get("phone1").length(),
-						9));
-			}
-
-			if (data.get("phone2").length() > 9) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("phone2"), data.get("phone2").length(),
-						9));
-			}
-
-			if (data.get("mail").length() > 45) {
-				errors.add(
-						new DataColumnLengthException(lineNumber, headers.get("mail"), data.get("mail").length(), 45));
-			}
-
-			if (data.get("department").length() > 20) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("department"),
-						data.get("department").length(), 20));
-			}
-
-			if (data.get("province").length() > 20) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("province"),
-						data.get("province").length(), 20));
-			}
-
-			if (data.get("district").length() > 40) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("district"),
-						data.get("district").length(), 40));
-			}
-
-			if (data.get("address").length() > 150) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("address"),
-						data.get("address").length(), 150));
-			}
-
-			if (data.get("channelOfSale").length() > 15) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("channelOfSale"),
-						data.get("channelOfSale").length(), 15));
-			}
-
-			if (data.get("placeOfSale").length() > 25) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("placeOfSale"),
-						data.get("placeOfSale").length(), 25));
-			}
-
-			if (data.get("vendorCode").length() > 10) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("vendorCode"),
-						data.get("vendorCode").length(), 10));
-			}
-
-			if (data.get("vendorName").length() > 35) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("vendorName"),
-						data.get("vendorName").length(), 35));
-			}
-
-			if (data.get("policyNumber").length() > 10) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("policyNumber"),
-						data.get("policyNumber").length(), 10));
-			}
-
-			if (data.get("certificateNumber").length() > 10) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("certificateNumber"),
-						data.get("certificateNumber").length(), 10));
-			}
-
-			if (data.get("proposalNumber").length() > 10) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("proposalNumber"),
-						data.get("proposalNumber").length(), 10));
-			}
-
-			if (data.get("commercialCode").length() > 10) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("commercialCode"),
-						data.get("commercialCode").length(), 10));
-			}
-
-			if (data.get("product").length() > 45) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("product"),
-						data.get("product").length(), 45));
-			}
-
-			if (data.get("productDescription").length() > 45) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("productDescription"),
-						data.get("productDescription").length(), 45));
-			}
-
-			if (data.get("collectionPeriod").length() > 45) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("collectionPeriod"),
-						data.get("collectionPeriod").length(), 45));
-			}
-
-			if (data.get("collectionType").length() > 15) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("collectionType"),
-						data.get("collectionType").length(), 15));
-			}
-
-			if (data.get("paymentMethod").length() > 10) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("paymentMethod"),
-						data.get("paymentMethod").length(), 10));
-			}
-
-			if (data.get("auditUser").length() > 15) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("auditUser"),
-						data.get("auditUser").length(), 15));
-			}
-
-			if (data.get("downUser").length() > 15) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("downUser"),
-						data.get("downUser").length(), 15));
-			}
-
-			if (data.get("downChannel").length() > 15) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("downChannel"),
-						data.get("downChannel").length(), 15));
-			}
-
-			if (data.get("downReason").length() > 30) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("downReason"),
-						data.get("downReason").length(), 30));
-			}
-
-			if (data.get("downObservation").length() > 2500) {
-				errors.add(new DataColumnLengthException(lineNumber, headers.get("downObservation"),
-						data.get("downObservation").length(), 2500));
-			}
-
-			lineNumber++;
-
-		}
-
-		System.out.println("errors:" + errors.size());
-
-	}
-
-	public void validateDataType() {
-
-		System.out.println("LoadSalesController: validando tipos de dato");
-
-		Integer lineNumber = 1;
-
-		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
-		SimpleDateFormat sdf2 = new SimpleDateFormat("MM/yyyy");
-
-		for (Map<String, String> data : dataList) {
-
-			try {
-				Integer.parseInt(data.get("nuicResponsible"));
-			} catch (NumberFormatException e) {
-				errors.add(new DataColumnNumberException(lineNumber, headers.get("nuicResponsible")));
-			}
-
-			try {
-				if (data.get("creditCardNumber").length() > 0) {
-					Long.parseLong(data.get("creditCardNumber"));
-				}
-			} catch (NumberFormatException e) {
-				errors.add(new DataColumnNumberException(lineNumber, headers.get("creditCardNumber")));
-			}
-
-			try {
-				Long.parseLong(data.get("accountNumber"));
-			} catch (NumberFormatException e) {
-				errors.add(new DataColumnNumberException(lineNumber, headers.get("accountNumber")));
-			}
-
-			try {
-				if (data.get("creditCardExpirationDate").length() > 0) {
-					sdf2.parse(data.get("creditCardExpirationDate"));
-				}
-
-			} catch (ParseException e1) {
-				errors.add(new DataColumnDateException(lineNumber, headers.get("creditCardExpirationDate"), "mm/yyyy"));
-
-			}
-
-			try {
-
-				if (data.get("creditCardDaysOfDefault").length() > 0) {
-					Integer.parseInt(data.get("creditCardDaysOfDefault"));
-				}
-
-			} catch (NumberFormatException e) {
-				errors.add(new DataColumnNumberException(lineNumber, headers.get("creditCardDaysOfDefault")));
-			}
-
-			try {
-				if (data.get("nuicContractor").length() > 0) {
-					Integer.parseInt(data.get("nuicContractor"));
-				}
-
-			} catch (NumberFormatException e) {
-				errors.add(new DataColumnNumberException(lineNumber, headers.get("nuicContractor")));
-			}
-
-			try {
-				Integer.parseInt(data.get("nuicInsured"));
-			} catch (NumberFormatException e) {
-				errors.add(new DataColumnNumberException(lineNumber, headers.get("nuicInsured")));
-			}
-
-			try {
-				if (data.get("phone1").length() > 0) {
-					Integer.parseInt(data.get("phone1"));
-				}
-			} catch (NumberFormatException e) {
-				errors.add(new DataColumnNumberException(lineNumber, headers.get("phone1")));
-			}
-
-			try {
-				if (data.get("phone2").length() > 0) {
-					Integer.parseInt(data.get("phone2"));
-				}
-			} catch (NumberFormatException e) {
-				errors.add(new DataColumnNumberException(lineNumber, headers.get("phone2")));
-			}
-
-			try {
-				sdf1.parse(data.get("dateOfSale"));
-			} catch (ParseException e1) {
-				errors.add(new DataColumnDateException(lineNumber, headers.get("dateOfSale"), "dd/mm/yyyy"));
-			}
-
-			try {
-				Long.parseLong(data.get("commercialCode"));
-			} catch (NumberFormatException e) {
-				errors.add(new DataColumnNumberException(lineNumber, headers.get("commercialCode")));
-			}
-
-			try {
-				BigDecimal insurancePremium = new BigDecimal(data.get("insurancePremium"));
-				if (insurancePremium.scale() > 2) {
-					errors.add(new DataColumnDecimalException(lineNumber, headers.get("insurancePremium"), 2));
-				}
-			} catch (NumberFormatException e) {
-				errors.add(new DataColumnNumberException(lineNumber, headers.get("insurancePremium")));
-			}
-
-			try {
-				sdf1.parse(data.get("auditDate"));
-			} catch (ParseException e) {
-				errors.add(new DataColumnDateException(lineNumber, headers.get("auditDate"), "dd/mm/yyyy"));
-			}
-
-			try {
-				if (data.get("stateDate").length() > 0) {
-					sdf1.parse(data.get("stateDate"));
-				}
-			} catch (ParseException e) {
-				errors.add(new DataColumnDateException(lineNumber, headers.get("stateDate"), "dd/mm/yyyy"));
-			}
-
-			try {
-				if (data.get("creditCardUpdatedAt").length() > 0) {
-					sdf1.parse(data.get("creditCardUpdatedAt"));
-				}
-
-			} catch (ParseException e) {
-				errors.add(new DataColumnDateException(lineNumber, headers.get("creditCardUpdatedAt"), "dd/mm/yyyy"));
-			}
-
-			lineNumber++;
-
-		}
-
-		System.out.println("errors:" + errors.size());
-
-	}
-
-	/**
-	 * 
-	 */
-	public void validateData() {
-
-		try {
-
-			System.out.println("LoadSalesController: validando datos");
-
-			Integer lineNumber = 1;
-			SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
-
-			for (Map<String, String> data : dataList) {
-
-				// VALIDATE SALE STATE
-				SaleStateEnum saleState = SaleStateEnum.findByName(data.get("state"));
-				if (saleState == null) {
-					errors.add(new DataSaleStateNotFoundException(lineNumber, headers.get("state"), data.get("state")));
-				}
-
-				// VALIDATE COMMERCIAL CODE
-				Commerce commercialCodeObject = null;
-				for (Commerce commerce : commerces) {
-					if (data.get("commercialCode").equals(commerce.getCode())) {
-						commercialCodeObject = commerce;
-					}
-				}
-				if (commercialCodeObject == null) {
-					errors.add(new DataCommerceCodeException(lineNumber, headers.get("commercialCode"),
-							data.get("commercialCode")));
-				} else {
-
-					// VALIDATE PRODUCT
-					if (!data.get("product").equals(commercialCodeObject.getProduct().getName())) {
-						errors.add(
-								new DataSaleProductException(lineNumber, headers.get("product"), data.get("product")));
-					}
-
-					// VALIDATE PAYMENTMETHOS
-					if (!data.get("paymentMethod").equals(commercialCodeObject.getPaymentMethod().getName())) {
-						errors.add(new DataSalePaymentMethodException(lineNumber, headers.get("paymentMethod"),
-								data.get("paymentMethod")));
-					}
-
-				}
-
-				// VALIDATE IF EXIST
-				Integer nuicInsured = Integer.parseInt(data.get("nuicInsured"));
-				Date dateOfSale = sdf1.parse(data.get("dateOfSale"));
-				Long saleId = saleService.findByNuicInsuredAndDateOfSale(nuicInsured, dateOfSale);
-				if (saleId != null && saleId > 0) {
-					errors.add(new DataSaleDuplicateException(lineNumber, headers.get("nuicInsured"),
-							headers.get("dateOfSale"), data.get("nuicInsured"), data.get("dateOfSale")));
-				}
-
-				lineNumber++;
-
-			}
-
-			System.out.println("errors:" + errors.size());
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			errors.add(new ServiceException());
-
-		}
-
-	}
-
-	public void createSales() {
-
-		System.out.println("ingreso a createSales");
-
-		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
-		SimpleDateFormat sdf2 = new SimpleDateFormat("MM/yyyy");
-
-		/*
-		 * Integer salesCreated = 0; Integer salesNotCreated = 0;
-		 */
-
-		SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext().getSessionMap()
-				.get("sessionBean");
-
-		User user = new User();
-		user.setId(sessionBean.getUser().getId());
-
-		Date current = new Date();
-
-		Integer lineNumber = 1;
-
-		for (Map<String, String> data : dataList) {
-
-			System.out.println("lineNumber:" + lineNumber);
-
-			try {
-
-				// / SE CREA LA VENTA
-				Sale sale = new Sale();
-				sale.setAccountNumber(Long.parseLong(data.get("accountNumber")));
-
-				sale.setAuditDate(sdf1.parse(data.get("auditDate")));
-				sale.setAuditUser(data.get("auditUser"));
-
-				//////
-				CreditCard creditCard = new CreditCard();
-				creditCard.setExpirationDate(data.get("creditCardExpirationDate").length() > 0
-						? sdf2.parse(data.get("creditCardExpirationDate")) : null);
-				creditCard.setDaysOfDefault(data.get("creditCardDaysOfDefault").length() > 0
-						? Integer.parseInt(data.get("creditCardDaysOfDefault")) : null);
-				creditCard.setNumber(data.get("creditCardNumber").length() > 0
-						? Long.parseLong(data.get("creditCardNumber")) : null);
-				creditCard.setState(data.get("creditCardState"));
-
-				creditCard.setUpdateDate(!data.get("creditCardUpdatedAt").equals("")
-						? sdf1.parse(data.get("creditCardUpdatedAt")) : null);
-
-				creditCard.setValidation(CreditCardValidationEnum.UPDATE);
-
-				creditCard.setCreatedAt(current);
-				creditCard.setCreatedBy(user);
-
-				sale.setCreditCard(creditCard);
-
-				///////////
-
-				sale.setCertificateNumber(data.get("certificateNumber"));
-				sale.setChannelOfSale(data.get("channelOfSale"));
-				sale.setCollectionPeriod(data.get("collectionPeriod"));
-				sale.setCollectionType(data.get("collectionType"));
-				sale.setDateOfSale(sdf1.parse(data.get("dateOfSale")));
-
-				sale.setDocumentType(data.get("documentType"));
-				sale.setInsurancePremium(new BigDecimal(data.get("insurancePremium")));
-				sale.setLastnameMaternalContractor(data.get("lastnameMaternalContractor"));
-				sale.setLastnameMaternalInsured(data.get("lastnameMaternalInsured"));
-				sale.setLastnamePaternalContractor(data.get("lastnamePaternalContractor"));
-				sale.setLastnamePaternalInsured(data.get("lastnamePaternalInsured"));
-				sale.setFirstnameInsured(data.get("firstnameInsured"));
-				sale.setNuicContractor(
-						data.get("nuicContractor").length() > 0 ? Integer.parseInt(data.get("nuicContractor")) : null);
-				sale.setNuicInsured(Integer.parseInt(data.get("nuicInsured")));
-				sale.setFirstnameContractor(data.get("firstnameContractor"));
-				sale.setPhone1(data.get("phone1").length() > 0 ? Integer.parseInt(data.get("phone1")) : null);
-				sale.setPhone2(data.get("phone2").length() > 0 ? Integer.parseInt(data.get("phone2")) : null);
-				sale.setPlaceOfSale(data.get("placeOfSale"));
-				sale.setPolicyNumber(data.get("policyNumber"));
-
-				sale.setProductDescription(data.get("productDescription"));
-				sale.setProposalNumber(data.get("proposalNumber"));
-
-				sale.setVendorCode(data.get("vendorCode"));
-				sale.setVendorName(data.get("vendorName"));
-
-				/////////////
-
-				Payer payer = new Payer();
-
-				payer.setAddress(data.get("address"));
-
-				payer.setDepartment(data.get("department"));
-				payer.setDistrict(data.get("district"));
-				payer.setLastnameMaternalResponsible(data.get("lastnameMaternalResponsible"));
-				payer.setLastnamePaternalResponsible(data.get("lastnamePaternalResponsible"));
-				payer.setMail(data.get("mail"));
-				payer.setFirstnameResponsible(data.get("firstnameResponsible"));
-				payer.setNuicResponsible(data.get("nuicResponsible").length() > 0
-						? Integer.parseInt(data.get("nuicResponsible")) : null);
-				payer.setProvince(data.get("province"));
-
-				payer.setCreatedAt(current);
-				payer.setCreatedBy(user);
-
-				sale.setPayer(payer);
-
-				////////////////
-				SaleState saleState = new SaleState();
-				saleState.setDate(!data.get("stateDate").equals("") ? sdf1.parse(data.get("stateDate")) : null);
-
-				saleState.setDownUser(data.get("downUser"));
-				saleState.setDownChannel(data.get("downChannel"));
-				saleState.setDownReason(data.get("downReason"));
-				saleState.setDownObservation(data.get("downObservation"));
-				saleState.setState(SaleStateEnum.findByName(data.get("state")));
-
-				saleState.setCreatedAt(current);
-				saleState.setCreatedBy(user);
-
-				sale.setSaleState(saleState);
-
-				//////////////////
-
-				Commerce commercialCodeObject = null;
-				for (Commerce commerce : commerces) {
-					if (data.get("commercialCode").equals(commerce.getCode())) {
-						commercialCodeObject = commerce;
-					}
-				}
-				sale.setCommerce(commercialCodeObject);
-
-				// CAMPOS NUEVOS
-				sale.setVirtualNotifications((short) 0);
-				sale.setPhysicalNotifications((short) 0);
-
-				sale.setCreatedBy(user);
-				sale.setCreatedAt(current);
-
-				saleService.add(sale);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				errors.add(new DataSaleCreateException(lineNumber, e.getMessage()));
-
-			}
-			progress = (lineNumber * 100) / dataList.size();
-			lineNumber++;
-
-		}
-
-		
-
-	}
-
-	/*private String getFilename(Part part) {
-		for (String cd : part.getHeader("content-disposition").split(";")) {
-			if (cd.trim().startsWith("filename")) {
-				String filename = cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
-				return filename.substring(filename.lastIndexOf('/') + 1).substring(filename.lastIndexOf('\\') + 1); // MSIE
-																													// fix.
-			}
-		}
-		return null;
-	}*/
-
-	//public void handleFileUpload(/*AjaxBehaviorEvent event*/) {
-	/*System.out.println("file size: " + file.getSize());
-	System.out.println("file type: " + file.getContentType());
-	System.out.println("file info: " + file.getHeader("Content-Disposition"));*/
-	public void handleFileUpload(FileUploadEvent event) {
-			
-		System.out.println(event.getFile().getFileName());
-		
-		file = event.getFile();
-				
-
-		try {
-
-			//String fileName = getFilename(file);
-
-			//System.out.println("nombre del archivo: " + fileName);
-			
-			SessionBean sessionBean = (SessionBean) FacesContext
-					.getCurrentInstance().getExternalContext().getSessionMap()
-					.get("sessionBean");
-			
-			if (sessionBean.getBank()==null ) {
-				Exception e = new BankNotSelectedException();
-				facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-			}else{
-				if (file != null && file.getFileName().length() > 0) {
-
-					if (file.getFileName().endsWith(".csv") || file.getFileName().endsWith(".CSV")) {
-						System.out.println("file NO es nulo:" + file.getFileName());
-
-						getData();
-						if (dataList == null && dataList.size() == 0) {
-							Exception e = new FileRowsZeroException();
-							facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						} else if (errors != null && errors.size() > 0) {
-							dataList=null;
-							for (Exception e : errors) {
-								facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-							}
-						} else {
-							validateDuplicates();
-							if (errors != null && errors.size() > 0) {
-								dataList=null;
-								for (Exception e : errors) {
-									facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-								}
-							} else {
-								validateDataNull();
-								if (errors != null && errors.size() > 0) {
-									dataList=null;
-									for (Exception e : errors) {
-										facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-									}
-								} else {
-									validateDataSize();
-									if (errors != null && errors.size() > 0) {
-										dataList=null;
-										for (Exception e : errors) {
-											facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-										}
-									} else {
-										validateDataType();
-										if (errors != null && errors.size() > 0) {
-											for (Exception e : errors) {
-												dataList=null;
-												facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-											}
-										} else {
-											validateData();
-											if (errors != null && errors.size() > 0) {
-												dataList=null;
-												for (Exception e : errors) {
-													facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-															e.getMessage());
-												}
-											} else {
-												//facesUtil.sendConfirmMessage("", "Existen "+dataList.size()+" ventas en el archivo "+getFilename(file));
-												facesUtil.sendConfirmMessage("", "Existen "+dataList.size()+" ventas en el archivo "+file.getFileName());
-											}
-										}
-									}
-
-								}
-							}
-
-						}
-
-					} else {
-						throw new FileExtensionException();
-					}
-
-				} else {
-					throw new FileNotFoundException();
-				}
-			}
-			
-
-			
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-
-		}
-
-	}
-
-	public void load() {
-		try {
-
-
-			if (dataList == null && dataList.size() == 0) {
-				Exception e = new FileRowsZeroException();
-				facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-			} else if (errors != null && errors.size() > 0) {
-				dataList=null;
-				for (Exception e : errors) {
-					facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-				}
-			} else {
-				validateDuplicates();
-				if (errors != null && errors.size() > 0) {
-					dataList=null;
-					for (Exception e : errors) {
-						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-					}
-				} else {
-					validateDataNull();
-					if (errors != null && errors.size() > 0) {
-						dataList=null;
-						for (Exception e : errors) {
-							facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						}
-					} else {
-						validateDataSize();
-						if (errors != null && errors.size() > 0) {
-							dataList=null;
-							for (Exception e : errors) {
-								facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-							}
-						} else {
-							validateDataType();
-							if (errors != null && errors.size() > 0) {
-								dataList=null;
-								for (Exception e : errors) {
-									facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-								}
-							} else {
-								validateData();
-								if (errors != null && errors.size() > 0) {
-									dataList=null;
-									for (Exception e : errors) {
-										facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-									}
-								} else {
-									createSales();
-									
-									//
-									
-									if (errors != null && errors.size() > 0) {
-										dataList=null;
-										for (Exception e : errors) {
-											facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-										}
-									} else {
-										facesUtil.sendConfirmMessage("","Se crearon "+dataList.size()+" ventas.");
-										dataList=null;
-										progress=0;
-									}
-									
-									
-								}
-							}
-						}
-
-					}
-				}
-
-			}
-
-			/*
-			 * } else { throw new FileExtensionException(); }
-			 * 
-			 * } else { throw new FileNotFoundException(); }
-			 */
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-
-		}
-		//return null;
-
-	}
-	
 
 	public String initialize() {
-		
+
 		System.out.println("inicializando SearchSaleController");
 
 		try {
-			
-			SessionBean sessionBean = (SessionBean) FacesContext
-					.getCurrentInstance().getExternalContext().getSessionMap()
-					.get("sessionBean");
-			
-			if (sessionBean!=null && sessionBean.getUser()!=null && sessionBean.getUser().getId()>0) {
-				
+
+			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
+					.getSessionMap().get("sessionBean");
+
+			if (sessionBean != null && sessionBean.getUser() != null && sessionBean.getUser().getId() > 0) {
+
 				if (!sessionBean.getUser().getUserType().equals(UserTypeEnum.ADMIN)
 						&& !sessionBean.getUser().getUserType().equals(UserTypeEnum.AGENT)) {
 					throw new UserPermissionNotFoundException();
 				}
-				
-				if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
-					Short bankId = sessionBean.getBank().getId();
-					commerces = commerceService.findByBank(bankId);
-				}
-				
+
 				List<Bank> banksEntity = bankService.getAll();
 				banks = new ArrayList<SelectItem>();
 				for (Bank bank : banksEntity) {
@@ -1341,7 +283,7 @@ public class SearchSalesController implements Serializable {
 					item.setLabel(product.getName());
 					products.add(item);
 				}
-				
+
 				saleStates = new ArrayList<SelectItem>();
 				for (SaleStateEnum saleStateEnum : SaleStateEnum.values()) {
 					SelectItem item = new SelectItem();
@@ -1349,43 +291,1101 @@ public class SearchSalesController implements Serializable {
 					item.setLabel(saleStateEnum.getName());
 					saleStates.add(item);
 				}
-				
-				searchTypeSelected="";
-				
-				System.out.println("searchTypeSelected:"+searchTypeSelected);
-				
+
+				searchTypeSelected = "";
+
+				System.out.println("searchTypeSelected:" + searchTypeSelected);
+
 				return null;
-				
-			} else{
+
+			} else {
 				throw new UserLoggedNotFoundException();
 			}
 
-			
-
 		} catch (UserLoggedNotFoundException e) {
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 			return "login.xhtml?faces-redirect=true";
 		} catch (UserPermissionNotFoundException e) {
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-			return "login.xhtml?faces-redirect=true";		
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			return "login.xhtml?faces-redirect=true";
 		} catch (Exception e) {
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 			return null;
 		}
 
 	}
 
+	public void handleFileUpload(FileUploadEvent event) {
+
+		System.out.println(event.getFile().getFileName());
+		file = event.getFile();
+		dataList = null;
+		errors = null;
+		salesFileCount = 0;
+
+		try {
+
+			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
+					.getSessionMap().get("sessionBean");
+
+			if (sessionBean.getBank() == null) {
+				Exception e = new BankNotSelectedException();
+				facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			} else if (file != null && file.getFileName().length() > 0) {
+				if (file.getFileName().endsWith(".csv") || file.getFileName().endsWith(".CSV")) {
+
+					////
+					dataList = new ArrayList<SaleFile>();
+					errors = new ArrayList<String>();
+					filename = file.getFileName();
+
+					getFileData();
+
+					if (dataList.size() == 0) {
+						dataList = null;
+						Exception e = new FileRowsZeroException();
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+					} else if (errors.size() > 0) {
+						dataList = null;
+						for (String error : errors) {
+							facesUtil.sendErrorMessage("", error);
+						}
+					} else {
+						salesFileCount = dataList.size();
+						facesUtil.sendConfirmMessage("",
+								"Existen " + dataList.size() + " ventas en el archivo " + file.getFileName());
+					}
+				} else {
+					dataList = null;
+					throw new FileExtensionException();
+				}
+			} else {
+				dataList = null;
+				throw new FileNotFoundException();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			dataList = null;
+			if (e.getMessage() == null || e.getMessage().length() == 0) {
+				facesUtil.sendErrorMessage("", "Existen valores nulos.");
+			} else {
+				facesUtil.sendErrorMessage("", e.getMessage());
+			}
+
+		}
+
+	}
+
+	public void getFileData() {
+
+		System.out.println("ingreso a getData()");
+
+		/*
+		 * BufferedReader br = null; try {
+		 */
+		/*
+		 * InputStreamReader isr = new InputStreamReader(file.getInputstream());
+		 * System.out.println("------------------------------------");
+		 * System.out.println(isr.getEncoding());
+		 * System.out.println("------------------------------------");
+		 * 
+		 * InputStreamReader isr2 = new
+		 * InputStreamReader(file.getInputstream(),StandardCharsets.UTF_8);
+		 * System.out.println("------------------------------------");
+		 * System.out.println(isr2.getEncoding());
+		 * System.out.println("------------------------------------");
+		 */
+
+		// br = new BufferedReader(new
+		// InputStreamReader(file.getInputStream()));
+		// br = new BufferedReader(new InputStreamReader(file.getInputstream(),
+		// StandardCharsets.UTF_8));
+
+		/*
+		 * } catch (IOException e1) { e1.printStackTrace();
+		 * facesUtil.sendErrorMessage(e1.getClass().getSimpleName(),
+		 * e1.getMessage()); } catch (Exception e1) { e1.printStackTrace();
+		 * facesUtil.sendErrorMessage(e1.getClass().getSimpleName(),
+		 * e1.getMessage()); }
+		 */
+
+		String strLine = null;
+		Integer lineNumber = 0;
+
+		errors = new ArrayList<String>();
+		headers = new SaleFile();
+		dataList = new ArrayList<SaleFile>();
+
+		try {
+
+			BufferedReader br = new BufferedReader(
+					new InputStreamReader(file.getInputstream(), StandardCharsets.UTF_8));
+
+			while ((strLine = br.readLine()) != null) {
+
+				System.out.println("strLine2:" + strLine);
+
+				if (lineNumber == 0) {
+					// SE LEE CABECERA
+					String[] values = strLine.split("\\|", -1);
+					if (values.length != FILE_ROWS) {
+						Exception ex = new SaleFileRowsInvalidException(FILE_ROWS);
+						errors.add(generateErrorMessageHeader(0) + ex.getMessage());
+
+					} else {
+
+						headers.setDocumentType(values[0]);
+						headers.setNuicResponsible(values[1]);
+						headers.setLastnamePaternalResponsible(values[2]);
+						headers.setLastnameMaternalResponsible(values[3]);
+						headers.setFirstnameResponsible(values[4]);
+
+						headers.setCreditCardNumber(values[5]);
+						headers.setAccountNumber(values[6]);
+						headers.setCreditCardExpirationDate(values[7]);
+						headers.setCreditCardState(values[8]);
+						headers.setCreditCardDaysOfDefault(values[9]);
+
+						headers.setNuicContractor(values[10]);
+						headers.setLastnamePaternalContractor(values[11]);
+						headers.setLastnameMaternalContractor(values[12]);
+						headers.setFirstnameContractor(values[13]);
+						headers.setNuicInsured(values[14]);
+
+						headers.setLastnamePaternalInsured(values[15]);
+						headers.setLastnameMaternalInsured(values[16]);
+						headers.setFirstnameInsured(values[17]);
+						headers.setPhone1(values[18]);
+						headers.setPhone2(values[19]);
+
+						headers.setMail(values[20]);
+						headers.setDepartment(values[21]);
+						headers.setProvince(values[22]);
+						headers.setDistrict(values[23]);
+						headers.setAddress(values[24]);
+
+						headers.setDate(values[25]);
+						headers.setChannel(values[26]);
+						headers.setPlace(values[27]);
+						headers.setVendorCode(values[28]);
+						headers.setVendorName(values[29]);
+
+						headers.setPolicyNumber(values[30]);
+						headers.setCertificateNumber(values[31]);
+						headers.setProposalNumber(values[32]);
+						headers.setCommercialCode(values[33]);
+						headers.setProduct(values[34]);
+
+						headers.setProductDescription(values[35]);
+						headers.setCollectionPeriod(values[36]);
+						headers.setCollectionType(values[37]);
+						headers.setBank(values[38]);
+						headers.setInsurancePremium(values[39]);
+
+						headers.setAuditDate(values[40]);
+						headers.setAuditUser(values[41]);
+						headers.setState(values[42]);
+						headers.setStateDate(values[43]);
+						headers.setDownUser(values[44]);
+
+						headers.setDownChannel(values[45]);
+						headers.setDownReason(values[46]);
+						headers.setDownObservation(values[47]);
+						headers.setCreditCardUpdatedAt(values[48]);
+
+					}
+				} else {
+
+					String[] values = strLine.split("\\|", -1);
+
+					if (values.length != FILE_ROWS) {
+						Exception ex = new SaleFileRowsInvalidException(FILE_ROWS);
+						errors.add(generateErrorMessageHeader(0) + ex.getMessage());
+					} else {
+
+						SaleFile saleFile = new SaleFile();
+						saleFile.setDocumentType(values[0].trim());
+						saleFile.setNuicResponsible(values[1].trim());
+						saleFile.setLastnamePaternalResponsible(values[2].trim());
+						saleFile.setLastnameMaternalResponsible(values[3].trim());
+						saleFile.setFirstnameResponsible(values[4].trim());
+						saleFile.setCreditCardNumber(values[5].trim());
+						saleFile.setAccountNumber(values[6].trim());
+						saleFile.setCreditCardExpirationDate(values[7].trim());
+						saleFile.setCreditCardState(values[8].trim());
+						saleFile.setCreditCardDaysOfDefault(values[9].trim());
+						saleFile.setNuicContractor(values[10].trim());
+						saleFile.setLastnamePaternalContractor(values[11].trim());
+						saleFile.setLastnameMaternalContractor(values[12].trim());
+						saleFile.setFirstnameContractor(values[13].trim());
+						saleFile.setNuicInsured(values[14].trim());
+						saleFile.setLastnamePaternalInsured(values[15].trim());
+						saleFile.setLastnameMaternalInsured(values[16].trim());
+						saleFile.setFirstnameInsured(values[17].trim());
+						saleFile.setPhone1(values[18].trim());
+						saleFile.setPhone2(values[19].trim());
+						saleFile.setMail(values[20].trim());
+						saleFile.setDepartment(values[21].trim());
+						saleFile.setProvince(values[22].trim());
+						saleFile.setDistrict(values[23].trim());
+						saleFile.setAddress(values[24].trim());
+						saleFile.setDate(values[25].trim());
+						saleFile.setChannel(values[26].trim());
+						saleFile.setPlace(values[27].trim());
+						saleFile.setVendorCode(values[28].trim());
+						saleFile.setVendorName(values[29].trim());
+						saleFile.setPolicyNumber(values[30].trim());
+						saleFile.setCertificateNumber(values[31].trim());
+						saleFile.setProposalNumber(values[32].trim());
+						saleFile.setCommercialCode(values[33].trim());
+						saleFile.setProduct(values[34].trim());
+						saleFile.setProductDescription(values[35].trim());
+						saleFile.setCollectionPeriod(values[36].trim());
+						saleFile.setCollectionType(values[37].trim());
+						saleFile.setBank(values[38].trim());
+						saleFile.setInsurancePremium(values[39].trim());
+						saleFile.setAuditDate(values[40].trim());
+						saleFile.setAuditUser(values[41].trim());
+						saleFile.setState(values[42].trim());
+						saleFile.setStateDate(values[43].trim());
+						saleFile.setDownUser(values[44].trim());
+						saleFile.setDownChannel(values[45].trim());
+						saleFile.setDownReason(values[46].trim());
+						saleFile.setDownObservation(values[47].trim());
+						saleFile.setCreditCardUpdatedAt(values[48].trim());
+
+						dataList.add(saleFile);
+
+					}
+				}
+
+				lineNumber++;
+
+			}
+
+			System.out.println("getData dataList:" + dataList.size());
+			System.out.println("getData errors:" + errors.size());
+
+			if (dataList.size() > 0) {
+
+				////////// VALIDANDO DUPLICADOS
+				/////////////////////////////
+				Set<String> dataSet = new HashSet<String>();
+				Set<Integer> errorSet = new HashSet<Integer>();
+				lineNumber = 1;
+
+				for (SaleFile saleFile : dataList) {
+					String dataString = saleFile.getNuicInsured() + saleFile.getDate() + saleFile.getProduct()
+							+ saleFile.getBank() + saleFile.getCollectionPeriod();
+					lineNumber++;
+					if (!dataSet.add(dataString)) {
+						errorSet.add(lineNumber);
+					}
+				}
+
+				for (Integer errorLineNumber : errorSet) {
+					Exception ex = new SaleDuplicateException();
+					errors.add(generateErrorMessageHeader(errorLineNumber) + ex.getMessage());
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage() == null || e.getMessage().length() == 0) {
+				errors.add("Existen valores nulos.");
+			} else {
+				errors.add(e.getMessage());
+			}
+		}
+
+	}
+
+	public void loadData() {
+		try {
+
+			if (dataList == null && dataList.size() == 0) {
+				Exception e = new FileRowsZeroException();
+				facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+				dataList = null;
+				salesFileCount = 0;
+			} else {
+				List<Sale> sales = validateData();
+				if (errors != null && errors.size() > 0) {
+					dataList = null;
+					salesFileCount = 0;
+					for (String error : errors) {
+						facesUtil.sendErrorMessage("", error);
+					}
+				} else {
+					createSales(sales);
+					if (errors != null && errors.size() > 0) {
+						dataList = null;
+						salesFileCount = 0;
+						for (String error : errors) {
+							facesUtil.sendErrorMessage("", error);
+						}
+					} else {
+						System.out.println("en la 628!");
+						facesUtil.sendConfirmMessage("", "Se crearon " + sales.size() + " ventas.");
+						//facesUtil.sendConfirmMessage("", "Se crearon ventas.");
+						dataList = null;
+						salesFileCount = 0;
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			dataList = null;
+			salesFileCount = 0;
+			if (e.getMessage() == null || e.getMessage().length() == 0) {
+				facesUtil.sendErrorMessage("", "Existen valores nulos3333.");
+			} else {
+				facesUtil.sendErrorMessage("", e.getMessage());
+			}
+		}
+	}
+
+	public List<Sale> validateData() {
+
+		System.out.println("Validando vacíos");
+
+		Integer lineNumber = 1;
+
+		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
+		SimpleDateFormat sdf2 = new SimpleDateFormat("MM/yyyy");
+
+		try {
+
+			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
+					.getSessionMap().get("sessionBean");
+			/*
+			 * Short bankId = sessionBean.getBank().getId(); String bankName =
+			 * sessionBean.getBank().getName();
+			 */
+			Bank bank = sessionBean.getBank();
+			User user = sessionBean.getUser();
+			Date currentDate = new Date();
+			List<Product> productsEntity = productService.getAll();
+			List<CollectionPeriod> collectionPeriodsEntity = collectionPeriodService.getAll();
+
+			Lote lote = new Lote();
+			lote.setName(filename);
+
+			List<Sale> sales = new ArrayList<Sale>();
+
+			for (SaleFile saleFile : dataList) {
+
+				Sale sale = new Sale();
+				Payer payer = new Payer();
+				SaleState saleState = new SaleState();
+				CreditCard creditCard = new CreditCard();
+
+				// DOCUMENT_TYPE
+				if (saleFile.getDocumentType().length() == 0) {
+					Exception ex = new PayerDocumentTypeNullException();
+					errors.add(generateErrorMessageHeader(headers.getDocumentType(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getDocumentType().length() != 3) {
+					Exception ex = new PayerDocumentTypeOverflowException(3);
+					errors.add(generateErrorMessageHeader(headers.getDocumentType(), lineNumber) + ex.getMessage());
+				} else {
+					DocumentTypeEnum documentTypeEnum = DocumentTypeEnum.findByName(saleFile.getDocumentType());
+					if (documentTypeEnum == null) {
+						Exception ex = new PayerDocumentTypeInvalidException();
+						errors.add(generateErrorMessageHeader(headers.getDocumentType(), lineNumber) + ex.getMessage());
+					} else {
+						payer.setDocumentType(documentTypeEnum);
+					}
+				}
+
+				// NUIC RESPONSIBLE
+				if (saleFile.getNuicResponsible().length() == 0) {
+					Exception ex = new PayerNuicNullException();
+					errors.add(generateErrorMessageHeader(headers.getNuicResponsible(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getNuicResponsible().length() > 11) {
+					Exception ex = new PayerNuicOverflowException(11);
+					errors.add(generateErrorMessageHeader(headers.getNuicResponsible(), lineNumber) + ex.getMessage());
+				} else {
+					try {
+						Long nuicResponsible = Long.parseLong(saleFile.getNuicResponsible());
+						payer.setNuicResponsible(nuicResponsible);
+					} catch (NumberFormatException e) {
+						Exception ex = new PayerNuicFormatException();
+						errors.add(
+								generateErrorMessageHeader(headers.getNuicResponsible(), lineNumber) + ex.getMessage());
+					}
+				}
+
+				// APELLIDO PATERNO RESPONSABLE DE PAGO
+				if (saleFile.getLastnamePaternalResponsible().length() == 0) {
+					Exception ex = new PayerLastnamePaternalNullException();
+					errors.add(generateErrorMessageHeader(headers.getLastnamePaternalResponsible(), lineNumber)
+							+ ex.getMessage());
+				} else if (saleFile.getLastnamePaternalResponsible().length() > 50) {
+					Exception ex = new PayerLastnamePaternalOverflowException(50);
+					errors.add(generateErrorMessageHeader(headers.getLastnamePaternalResponsible(), lineNumber)
+							+ ex.getMessage());
+				} else {
+					payer.setLastnamePaternalResponsible(saleFile.getLastnamePaternalResponsible());
+				}
+
+				// APELLIDO MATERNO RESPONSABLE DE PAGO
+				if (saleFile.getLastnameMaternalResponsible().length() == 0) {
+					Exception ex = new PayerLastnameMaternalNullException();
+					errors.add(generateErrorMessageHeader(headers.getLastnameMaternalResponsible(), lineNumber)
+							+ ex.getMessage());
+				} else if (saleFile.getLastnameMaternalResponsible().length() > 50) {
+					Exception ex = new PayerLastnameMaternalOverflowException(50);
+					errors.add(generateErrorMessageHeader(headers.getLastnameMaternalResponsible(), lineNumber)
+							+ ex.getMessage());
+				} else {
+					payer.setLastnameMaternalResponsible(saleFile.getLastnameMaternalResponsible());
+				}
+
+				// NOMBRES DE RESPONSABLE DE PAGO
+				if (saleFile.getFirstnameResponsible().length() == 0) {
+					Exception ex = new PayerFirstnameNullException();
+					errors.add(generateErrorMessageHeader(headers.getFirstnameResponsible(), lineNumber)
+							+ ex.getMessage());
+				} else if (saleFile.getFirstnameResponsible().length() > 50) {
+					Exception ex = new PayerFirstnameOverflowException(50);
+					errors.add(generateErrorMessageHeader(headers.getFirstnameResponsible(), lineNumber)
+							+ ex.getMessage());
+				} else {
+					payer.setFirstnameResponsible(saleFile.getFirstnameResponsible());
+				}
+
+				// NUMERO TARJETA DE CREDITO
+				if (saleFile.getCreditCardNumber().length() > 0 && saleFile.getCreditCardNumber().length() != 16) {
+					Exception ex = new CreditCardNumberOverflowException(16);
+					errors.add(generateErrorMessageHeader(headers.getCreditCardNumber(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getCreditCardNumber().length() > 0) {
+					try {
+						Long creditCardNumber = Long.parseLong(saleFile.getCreditCardNumber());
+						creditCard.setNumber(creditCardNumber);
+					} catch (NumberFormatException e) {
+						Exception ex = new CreditCardNumberFormatException();
+						errors.add(generateErrorMessageHeader(headers.getCreditCardNumber(), lineNumber)
+								+ ex.getMessage());
+					}
+				}
+
+				// NUMERO DE CUENTA
+				if (saleFile.getAccountNumber().length() == 0) {
+					Exception ex = new SaleAccountNumberNullException();
+					errors.add(generateErrorMessageHeader(headers.getAccountNumber(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getAccountNumber().length() > 10) {
+					Exception ex = new SaleAccountNumberOverflowException(10);
+					errors.add(generateErrorMessageHeader(headers.getAccountNumber(), lineNumber) + ex.getMessage());
+				} else {
+					try {
+						Long accountNumber = Long.parseLong(saleFile.getAccountNumber());
+						sale.setAccountNumber(accountNumber);
+					} catch (NumberFormatException e) {
+						Exception ex = new SaleAccountNumberFormatException();
+						errors.add(
+								generateErrorMessageHeader(headers.getAccountNumber(), lineNumber) + ex.getMessage());
+					}
+				}
+
+				// FECHA DE VENCIMIENTO DE TARJETA
+				if (saleFile.getCreditCardExpirationDate().length() > 0
+						&& saleFile.getCreditCardExpirationDate().length() != 7) {
+					Exception ex = new CreditCardExpirationDateOverflowException(7);
+					errors.add(generateErrorMessageHeader(headers.getCreditCardExpirationDate(), lineNumber)
+							+ ex.getMessage());
+				} else {
+					try {
+						Date expirationDate = sdf2.parse(saleFile.getCreditCardExpirationDate());
+						creditCard.setExpirationDate(expirationDate);
+					} catch (ParseException e1) {
+						Exception ex = new CreditCardExpirationDateFormatException();
+						errors.add(generateErrorMessageHeader(headers.getCreditCardExpirationDate(), lineNumber)
+								+ ex.getMessage());
+					}
+				}
+
+				// ESTADO DE TARJETA DE CREDITO
+				if (saleFile.getCreditCardState().length() > 20) {
+					Exception ex = new CreditCardStateOverflowException(20);
+					errors.add(generateErrorMessageHeader(headers.getCreditCardState(), lineNumber) + ex.getMessage());
+				} else {
+					creditCard.setState(saleFile.getCreditCardState());
+				}
+
+				// DIAS DE MORA
+				if (saleFile.getCreditCardDaysOfDefault().length() > 4) {
+					Exception ex = new CreditCardDaysOfDefaultOverflowException(4);
+					errors.add(generateErrorMessageHeader(headers.getCreditCardDaysOfDefault(), lineNumber)
+							+ ex.getMessage());
+				} else if (saleFile.getCreditCardDaysOfDefault().length() > 0) {
+					try {
+						Integer daysOfDefault = Integer.parseInt(saleFile.getCreditCardDaysOfDefault());
+						creditCard.setDaysOfDefault(daysOfDefault);
+					} catch (NumberFormatException e) {
+						Exception ex = new CreditCardDaysOfDefaultFormatException();
+						errors.add(generateErrorMessageHeader(headers.getCreditCardDaysOfDefault(), lineNumber)
+								+ ex.getMessage());
+					}
+				}
+
+				// NUIC DE CONTRATANTE
+				if (saleFile.getNuicContractor().length() > 8) {
+					Exception ex = new SaleNuicContractorOverFlowException(8);
+					errors.add(generateErrorMessageHeader(headers.getNuicContractor(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getNuicContractor().length() > 0) {
+					try {
+						Integer nuicContractor = Integer.parseInt(saleFile.getNuicContractor());
+						sale.setNuicContractor(nuicContractor);
+					} catch (NumberFormatException e) {
+						Exception ex = new SaleNuicContractorFormatException();
+						errors.add(
+								generateErrorMessageHeader(headers.getNuicContractor(), lineNumber) + ex.getMessage());
+					}
+				}
+
+				// APELLIDO PATERNO DE CONTRATANTE
+				if (saleFile.getLastnamePaternalContractor().length() > 50) {
+					Exception ex = new SaleLastnamePaternalContractorOverFlowException(50);
+					errors.add(generateErrorMessageHeader(headers.getLastnamePaternalContractor(), lineNumber)
+							+ ex.getMessage());
+				} else {
+					sale.setLastnamePaternalContractor(saleFile.getLastnamePaternalContractor());
+				}
+
+				// APELLIDO MATERNO CONTRATANTE
+				if (saleFile.getLastnameMaternalContractor().length() > 50) {
+					Exception ex = new SaleLastnameMaternalContractorOverFlowException(50);
+					errors.add(generateErrorMessageHeader(headers.getLastnameMaternalContractor(), lineNumber)
+							+ ex.getMessage());
+				} else {
+					sale.setLastnameMaternalContractor(saleFile.getLastnameMaternalContractor());
+				}
+
+				// NOMBRES DE CONTRATANTE
+				//System.out.println("saleFile.getFirstnameContractor()" + saleFile.getFirstnameContractor());
+				if (saleFile.getFirstnameContractor().length() > 50) {
+					Exception ex = new SaleFirstnameContractorOverFlowException(50);
+					errors.add(
+							generateErrorMessageHeader(headers.getFirstnameContractor(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setFirstnameContractor(saleFile.getFirstnameContractor());
+				}
+
+				// NUIC DE ASEGURADO
+				//System.out.println("saleFile.getNuicInsured():" + saleFile.getNuicInsured());
+				if (saleFile.getNuicInsured().length() == 0) {
+					Exception ex = new SaleNuicInsuredNullException();
+					errors.add(generateErrorMessageHeader(headers.getNuicInsured(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getNuicInsured().length() > 8) {
+					Exception ex = new SaleNuicInsuredOverflowException(8);
+					errors.add(generateErrorMessageHeader(headers.getNuicInsured(), lineNumber) + ex.getMessage());
+				} else {
+					try {
+						Integer nuicInsured = Integer.parseInt(saleFile.getNuicInsured());
+						sale.setNuicInsured(nuicInsured);
+					} catch (NumberFormatException e) {
+						Exception ex = new SaleNuicInsuredFormatException();
+						errors.add(generateErrorMessageHeader(headers.getNuicInsured(), lineNumber) + ex.getMessage());
+					}
+				}
+
+				// APELLIDO PATERNO ASEGURADO
+				if (saleFile.getLastnamePaternalInsured().length() > 50) {
+					Exception ex = new SaleLastnamePaternalInsuredOverflowException(50);
+					errors.add(generateErrorMessageHeader(headers.getLastnamePaternalInsured(), lineNumber)
+							+ ex.getMessage());
+				} else {
+					sale.setLastnamePaternalInsured(saleFile.getLastnamePaternalInsured());
+				}
+
+				// APELLIDO MATERNO ASEGURADO
+				if (saleFile.getLastnameMaternalInsured().length() > 50) {
+					Exception ex = new SaleLastnameMaternalInsuredOverflowException(50);
+					errors.add(generateErrorMessageHeader(headers.getLastnameMaternalInsured(), lineNumber)
+							+ ex.getMessage());
+				} else {
+					sale.setLastnameMaternalInsured(saleFile.getLastnameMaternalInsured());
+				}
+
+				// NOMBRES ASEGURADO
+				if (saleFile.getFirstnameInsured().length() > 50) {
+					Exception ex = new SaleFirstnameInsuredOverflowException(50);
+					errors.add(generateErrorMessageHeader(headers.getFirstnameInsured(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setFirstnameInsured(saleFile.getFirstnameInsured());
+				}
+
+				// TELEFONO1
+				if (saleFile.getPhone1().length() > 9) {
+					Exception ex = new SalePhone1OverflowException(9);
+					errors.add(generateErrorMessageHeader(headers.getPhone1(), lineNumber) + ex.getMessage());
+				} else {
+					if (saleFile.getPhone1().length() > 0) {
+						try {
+							Integer phone1 = Integer.parseInt(saleFile.getPhone1());
+							sale.setPhone1(phone1);
+						} catch (NumberFormatException e) {
+							Exception ex = new SalePhone1FormatException();
+							errors.add(generateErrorMessageHeader(headers.getPhone1(), lineNumber) + ex.getMessage());
+						}
+					}
+				}
+
+				// TELEFONO2
+				if (saleFile.getPhone2().length() > 9) {
+					Exception ex = new SalePhone2OverflowException(9);
+					errors.add(generateErrorMessageHeader(headers.getPhone2(), lineNumber) + ex.getMessage());
+				} else {
+					if (saleFile.getPhone2().length() > 0) {
+						try {
+							Integer phone2 = Integer.parseInt(saleFile.getPhone2());
+							sale.setPhone2(phone2);
+						} catch (NumberFormatException e) {
+							Exception ex = new SalePhone2FormatException();
+							errors.add(generateErrorMessageHeader(headers.getPhone2(), lineNumber) + ex.getMessage());
+						}
+					}
+				}
+
+				// MAIL
+				if (saleFile.getMail().length() > 45) {
+					Exception ex = new PayerMailOverflowException(45);
+					errors.add(generateErrorMessageHeader(headers.getMail(), lineNumber) + ex.getMessage());
+				} else {
+					payer.setMail(saleFile.getMail());
+				}
+
+				// DEPARTAMENTO
+				if (saleFile.getDepartment().length() > 20) {
+					Exception ex = new PayerDepartmentOverflowException(20);
+					errors.add(generateErrorMessageHeader(headers.getDepartment(), lineNumber) + ex.getMessage());
+				} else {
+					payer.setDepartment(saleFile.getDepartment());
+				}
+
+				// PROVINCIA
+				if (saleFile.getProvince().length() > 20) {
+					Exception ex = new PayerProvinceOverflowException(20);
+					errors.add(generateErrorMessageHeader(headers.getProvince(), lineNumber) + ex.getMessage());
+				} else {
+					payer.setProvince(saleFile.getProvince());
+				}
+
+				// DISTRITO
+				if (saleFile.getDistrict().length() > 40) {
+					Exception ex = new PayerDistrictOverflowException(40);
+					errors.add(generateErrorMessageHeader(headers.getDistrict(), lineNumber) + ex.getMessage());
+				} else {
+					payer.setDistrict(saleFile.getDistrict());
+				}
+
+				// DIRECCION
+				if (saleFile.getAddress().length() > 150) {
+					Exception ex = new PayerAddressOverflowException(150);
+					errors.add(generateErrorMessageHeader(headers.getAddress(), lineNumber) + ex.getMessage());
+				} else {
+					payer.setAddress(saleFile.getAddress());
+				}
+
+				// FECHA DE VENTA
+				if (saleFile.getDate().length() == 0) {
+					Exception ex = new SaleDateNullException();
+					errors.add(generateErrorMessageHeader(headers.getDate(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getDate().length() != 10) {
+					Exception ex = new SaleDateOverflowException(10);
+					errors.add(generateErrorMessageHeader(headers.getDate(), lineNumber) + ex.getMessage());
+				} else {
+					try {
+						Date saleDate = sdf1.parse(saleFile.getDate());
+						sale.setDate(saleDate);
+					} catch (ParseException e1) {
+						Exception ex = new SaleDateFormatException();
+						errors.add(generateErrorMessageHeader(headers.getDate(), lineNumber) + ex.getMessage());
+					}
+				}
+
+				// CANAL DE VENTA
+				if (saleFile.getChannel().length() > 15) {
+					Exception ex = new SaleChannelOverflowException(15);
+					errors.add(generateErrorMessageHeader(headers.getChannel(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setChannel(saleFile.getChannel());
+				}
+
+				// LUGAR DE VENTA
+				if (saleFile.getPlace().length() > 25) {
+					Exception ex = new SalePlaceOverflowException(25);
+					errors.add(generateErrorMessageHeader(headers.getPlace(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setPlace(saleFile.getPlace());
+				}
+
+				// CODIGO DE VENDEDOR
+				if (saleFile.getVendorCode().length() > 10) {
+					Exception ex = new SaleVendorCodeOverflowException(10);
+					errors.add(generateErrorMessageHeader(headers.getVendorCode(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setVendorCode(saleFile.getVendorCode());
+				}
+
+				// NOMBRE DE VENDEDOR
+				if (saleFile.getVendorName().length() > 35) {
+					Exception ex = new SaleVendorNameOverflowException(35);
+					errors.add(generateErrorMessageHeader(headers.getVendorName(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setVendorName(saleFile.getVendorName());
+				}
+
+				// NUMERO DE POLIZA
+				if (saleFile.getPolicyNumber().length() > 10) {
+					Exception ex = new SalePolicyNumberOverflowException(10);
+					errors.add(generateErrorMessageHeader(headers.getPolicyNumber(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setPolicyNumber(saleFile.getPolicyNumber());
+				}
+
+				// NUMERO DE CERTIFICADO
+				if (saleFile.getCertificateNumber().length() > 10) {
+					Exception ex = new SaleCertificateNumberOverflowException(10);
+					errors.add(
+							generateErrorMessageHeader(headers.getCertificateNumber(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setCertificateNumber(saleFile.getCertificateNumber());
+				}
+
+				// NUMERO DE PROPUESTA
+				if (saleFile.getProposalNumber().length() > 25) {
+					Exception ex = new SaleProposalNumberOverflowException(25);
+					errors.add(generateErrorMessageHeader(headers.getProposalNumber(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setProposalNumber(saleFile.getProposalNumber());
+				}
+
+				// CODIGO DE COMERCIO
+				if (saleFile.getCommercialCode().length() == 0) {
+					Exception ex = new SaleCommercialCodeNullException();
+					errors.add(generateErrorMessageHeader(headers.getCommercialCode(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getCommercialCode().length() > 10) {
+					Exception ex = new SaleCommercialCodeOverflowException(10);
+					errors.add(generateErrorMessageHeader(headers.getCommercialCode(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setCommerceCode(saleFile.getCommercialCode());
+				}
+
+				// PRODUCTO
+				if (saleFile.getProduct().length() == 0) {
+					Exception ex = new SaleProductNullException();
+					errors.add(generateErrorMessageHeader(headers.getProduct(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getProduct().length() != 2) {
+					Exception ex = new SaleProductOverflowException(2);
+					errors.add(generateErrorMessageHeader(headers.getProduct(), lineNumber) + ex.getMessage());
+				} else {
+					Product product = null;
+					for (Product productEntity : productsEntity) {
+						if (saleFile.getProduct().equals(productEntity.getCode())) {
+							product = productEntity;
+							break;
+						}
+					}
+					if (product == null) {
+						Exception ex = new SaleProductInvalidException();
+						errors.add(generateErrorMessageHeader(headers.getProduct(), lineNumber) + ex.getMessage());
+					} else {
+						sale.setProduct(product);
+					}
+				}
+
+				// DESCRIPCION DEL PRODUCTO
+				if (saleFile.getProductDescription().length() > 45) {
+					Exception ex = new SaleProductDescriptionOverflowException(45);
+					errors.add(
+							generateErrorMessageHeader(headers.getProductDescription(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setProductDescription(saleFile.getProductDescription());
+				}
+
+				// PERIODO DE COBRO
+				if (saleFile.getCollectionPeriod().length() == 0) {
+					Exception ex = new SaleCollectionPeriodNullException();
+					errors.add(generateErrorMessageHeader(headers.getCollectionPeriod(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getCollectionPeriod().length() > 45) {
+					Exception ex = new SaleCollectionPeriodOverflowException(45);
+					errors.add(generateErrorMessageHeader(headers.getCollectionPeriod(), lineNumber) + ex.getMessage());
+				} else {
+					CollectionPeriod collectionPeriod = null;
+					for (CollectionPeriod collectionPeriodEntity : collectionPeriodsEntity) {
+						if (saleFile.getCollectionPeriod().equals(collectionPeriodEntity.getName())) {
+							collectionPeriod = collectionPeriodEntity;
+							break;
+						}
+					}
+					if (collectionPeriod == null) {
+						Exception ex = new SaleCollectionPeriodInvalidException();
+						errors.add(generateErrorMessageHeader(headers.getCollectionPeriod(), lineNumber)
+								+ ex.getMessage());
+					} else {
+						sale.setCollectionPeriod(collectionPeriod);
+					}
+				}
+
+				// TIPO DE COBRO
+				if (saleFile.getCollectionType().length() == 0) {
+					Exception ex = new SaleCollectionTypeNullException();
+					errors.add(generateErrorMessageHeader(headers.getCollectionType(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getCollectionType().length() > 15) {
+					Exception ex = new SaleCollectionTypeOverflowException(15);
+					errors.add(generateErrorMessageHeader(headers.getCollectionType(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setCollectionType(saleFile.getCollectionType());
+				}
+
+				// BANCO
+				if (saleFile.getBank().length() == 0) {
+					Exception ex = new SaleBankNullException();
+					errors.add(generateErrorMessageHeader(headers.getBank(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getBank().length() != 2) {
+					Exception ex = new SaleBankOverflowException(10);
+					errors.add(generateErrorMessageHeader(headers.getBank(), lineNumber) + ex.getMessage());
+				} else if (!saleFile.getBank().equals(bank.getCode())) {
+					Exception ex = new SaleBankInvalidException();
+					errors.add(generateErrorMessageHeader(headers.getBank(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setBank(bank);
+				}
+
+				// PRIMA
+				if (saleFile.getInsurancePremium().length() == 0) {
+					Exception ex = new SaleInsurancePremiumNullException();
+					errors.add(generateErrorMessageHeader(headers.getInsurancePremium(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getInsurancePremium().length() > 8) {
+					Exception ex = new SaleInsurancePremiumOverflowException(8);
+					errors.add(generateErrorMessageHeader(headers.getInsurancePremium(), lineNumber) + ex.getMessage());
+				} else {
+					try {
+						BigDecimal insurancePremium = new BigDecimal(saleFile.getInsurancePremium());
+						if (insurancePremium.scale() > 2) {
+							Exception ex = new SaleInsurancePremiumFormatException(2);
+							errors.add(generateErrorMessageHeader(headers.getInsurancePremium(), lineNumber)
+									+ ex.getMessage());
+						} else {
+							sale.setInsurancePremium(insurancePremium);
+						}
+					} catch (NumberFormatException e) {
+						Exception ex = new SaleInsurancePremiumFormatException();
+						errors.add(generateErrorMessageHeader(headers.getInsurancePremium(), lineNumber)
+								+ ex.getMessage());
+					}
+				}
+
+				// FECHA DE AUDITORIA
+				if (saleFile.getAuditDate().length() == 0) {
+					Exception ex = new SaleAuditDateNullException();
+					errors.add(generateErrorMessageHeader(headers.getAuditDate(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getAuditDate().length() != 10) {
+					Exception ex = new SaleAuditDateOverflowException(10);
+					errors.add(generateErrorMessageHeader(headers.getAuditDate(), lineNumber) + ex.getMessage());
+				} else {
+					try {
+						Date auditDate = sdf1.parse(saleFile.getAuditDate());
+						sale.setAuditDate(auditDate);
+					} catch (ParseException e) {
+						Exception ex = new SaleAuditDateFormatException();
+						errors.add(generateErrorMessageHeader(headers.getAuditDate(), lineNumber) + ex.getMessage());
+					}
+				}
+
+				// USUARIO DE AUDITORIA
+				if (saleFile.getAuditUser().length() == 0) {
+					Exception ex = new SaleAuditUserNullException();
+					errors.add(generateErrorMessageHeader(headers.getAuditUser(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getAuditUser().length() > 15) {
+					Exception ex = new SaleAuditUserOverflowException(15);
+					errors.add(generateErrorMessageHeader(headers.getAuditUser(), lineNumber) + ex.getMessage());
+				} else {
+					sale.setAuditUser(saleFile.getAuditUser());
+				}
+
+				// ESTADO DE VENTA
+				if (saleFile.getState().length() == 0) {
+					Exception ex = new SaleStateNullException();
+					errors.add(generateErrorMessageHeader(headers.getState(), lineNumber) + ex.getMessage());
+				} else {
+					SaleStateEnum saleStateEnum = SaleStateEnum.findByName(saleFile.getState());
+					if (saleStateEnum == null) {
+						Exception ex = new SaleStateInvalidException();
+						errors.add(generateErrorMessageHeader(headers.getState(), lineNumber) + ex.getMessage());
+					} else {
+						saleState.setState(saleStateEnum);
+					}
+				}
+
+				// FECHA DE ESTADO DE VENTA
+				if (saleFile.getStateDate().length() > 0 && saleFile.getStateDate().length() != 10) {
+					Exception ex = new SaleStateDateOverflowException(10);
+					errors.add(generateErrorMessageHeader(headers.getStateDate(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getStateDate().length() > 0) {
+					try {
+						Date stateDate = sdf1.parse(saleFile.getStateDate());
+						saleState.setDate(stateDate);
+					} catch (ParseException e) {
+						Exception ex = new SaleStateDateFormatException();
+						errors.add(generateErrorMessageHeader(headers.getStateDate(), lineNumber) + ex.getMessage());
+					}
+				}
+
+				// USUARIO DE ESTADO
+				if (saleFile.getDownUser().length() > 15) {
+					Exception ex = new SaleDownUserOverflowException(15);
+					errors.add(generateErrorMessageHeader(headers.getDownUser(), lineNumber) + ex.getMessage());
+				} else {
+					saleState.setUser(saleFile.getDownUser());
+				}
+
+				// CANAL DE ESTADO
+				if (saleFile.getDownChannel().length() > 15) {
+					Exception ex = new SaleDownChannelOverflowException(15);
+					errors.add(generateErrorMessageHeader(headers.getDownChannel(), lineNumber) + ex.getMessage());
+				} else {
+					saleState.setChannel(saleFile.getDownChannel());
+				}
+
+				// MOTIVO DE ESTADO
+				if (saleFile.getDownReason().length() > 30) {
+					Exception ex = new SaleDownReasonOverflowException(30);
+					errors.add(generateErrorMessageHeader(headers.getDownReason(), lineNumber) + ex.getMessage());
+				} else {
+					saleState.setReason(saleFile.getDownReason());
+				}
+
+				// OBSERVACION DE ESTADO
+				if (saleFile.getDownObservation().length() > 2500) {
+					Exception ex = new SaleDownObservationOverflowException(2500);
+					errors.add(generateErrorMessageHeader(headers.getDownObservation(), lineNumber) + ex.getMessage());
+				} else {
+					saleState.setObservation(saleFile.getDownObservation());
+				}
+
+				// FECHA DE ACTUALIZACION DE TARJETA
+				if (saleFile.getCreditCardUpdatedAt().length() != 10) {
+					Exception ex = new CreditCardDateOverflowException(10);
+					errors.add(
+							generateErrorMessageHeader(headers.getCreditCardUpdatedAt(), lineNumber) + ex.getMessage());
+				} else if (saleFile.getCreditCardUpdatedAt().length() > 0) {
+					try {
+						Date creditCardDate = sdf1.parse(saleFile.getCreditCardUpdatedAt());
+						creditCard.setDate(creditCardDate);
+					} catch (ParseException e) {
+						Exception ex = new SaleCreditCardUpdatedAtFormatException();
+						errors.add(generateErrorMessageHeader(headers.getCreditCardUpdatedAt(), lineNumber)
+								+ ex.getMessage());
+					}
+				}
+
+				// VERIFICA SI EXISTE LA VENTA
+				Boolean saleExist = saleService.checkIfExistSale(sale.getNuicInsured(), sale.getDate(),
+						sale.getBank().getId(), sale.getProduct().getId(), sale.getCollectionPeriod().getId());
+				if (saleExist) {
+					Exception ex = new SaleAlreadyExistException();
+					errors.add(generateErrorMessageHeader(lineNumber) + ex.getMessage());
+				}
+
+				sale.setCreatedBy(user);
+				sale.setCreatedAt(currentDate);
+				sale.setPayer(payer);
+				sale.setCreditCard(creditCard);
+				sale.setSaleState(saleState);
+				sale.setLote(lote);
+
+				sales.add(sale);
+
+				lineNumber++;
+
+			}
+
+			System.out.println("errors:" + errors.size());
+
+			return sales;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage() == null || e.getMessage().length() == 0) {
+				errors.add("Existen valores nulos.");
+			} else {
+				errors.add(e.getMessage());
+			}
+			return null;
+		}
+
+	}
+
+	public void createSales(List<Sale> sales) {
+
+		System.out.println("ingreso a createSales");
+
+		// Integer lineNumber = 1;
+		progress = 0;
+
+		// for (Sale sale : sales) {
+		// System.out.println("lineNumber:" + lineNumber);
+		try {
+			
+			/*loadStatus =*/ saleServiceBackground.add(sales, filename);
+			
+			
+		} catch (Exception e) {
+			System.out.println("EXXXXXXX");
+			System.out.println("EXXXXXXX");
+			System.out.println("EXXXXXXX");
+			System.out.println("EXXXXXXX");
+			System.out.println("EXXXXXXX");
+			
+			loadStatus=null;
+			if (e.getMessage() == null || e.getMessage().length() == 0) {
+				errors.add("Existen valores nulos2.");
+			} else {
+				errors.add(e.getMessage());
+			}
+		}
+		// progress = (lineNumber * 100) / sales.size();
+		// lineNumber++;
+		// }
+
+		progress = 0;
+	}
+
+	public String generateErrorMessageHeader(String columnName, int row) {
+		return "Error en la fila " + row + " y columna " + columnName + ": ";
+	}
+
+	public String generateErrorMessageHeader(int row) {
+		return "Error en la fila " + row + ": ";
+	}
+
+	/*
+	 * private String getFilename(Part part) { for (String cd :
+	 * part.getHeader("content-disposition").split(";")) { if
+	 * (cd.trim().startsWith("filename")) { String filename =
+	 * cd.substring(cd.indexOf('=') + 1).trim().replace("\"", ""); return
+	 * filename.substring(filename.lastIndexOf('/') +
+	 * 1).substring(filename.lastIndexOf('\\') + 1); // MSIE // fix. } } return
+	 * null; }
+	 */
+
+	// public void handleFileUpload(/*AjaxBehaviorEvent event*/) {
+	/*
+	 * System.out.println("file size: " + file.getSize()); System.out.println(
+	 * "file type: " + file.getContentType()); System.out.println("file info: "
+	 * + file.getHeader("Content-Disposition"));
+	 */
+
 	public void onChangeSearchType() {
 		try {
 			// if (fromRequest) {
-			searchTypeSelected = FacesContext.getCurrentInstance()
-					.getExternalContext().getRequestParameterMap()
+			searchTypeSelected = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap()
 					.get("form:searchType_input");
 			// }
 
@@ -1424,16 +1424,14 @@ public class SearchSalesController implements Serializable {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 		}
 	}
 
 	public void onChangePersonType() {
 		try {
 			// if (fromRequest) {
-			personTypeSelected = FacesContext.getCurrentInstance()
-					.getExternalContext().getRequestParameterMap()
+			personTypeSelected = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap()
 					.get("form:personType_input");
 			// }
 
@@ -1457,25 +1455,22 @@ public class SearchSalesController implements Serializable {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 		}
 	}
 
 	public void search() {
 
 		try {
-			
-			saleSelected=null;
+
+			saleSelected = null;
 
 			if (searchTypeSelected.equals("creditCard")) {
 				Long creditCardNumberLong = Long.parseLong(creditCardNumber);
-				sales = saleService
-						.findSalesByCreditCardNumber(creditCardNumberLong);
+				sales = saleService.findSalesByCreditCardNumber(creditCardNumberLong);
 			} else if (searchTypeSelected.equals("dni")) {
 				Long nuicResponsibleLong = Long.parseLong(nuicResponsible);
-				sales = saleService
-						.findSalesByNuicResponsible(nuicResponsibleLong);
+				sales = saleService.findSalesByNuicResponsible(nuicResponsibleLong);
 			} else if (searchTypeSelected.equals("saleData")) {
 				Short productId = null;
 				if (productSelected != null && productSelected.length() > 0) {
@@ -1489,35 +1484,32 @@ public class SearchSalesController implements Serializable {
 				if (saleStateSelected != null && saleStateSelected.length() > 0) {
 					saleState = SaleStateEnum.findById(Short.parseShort(saleStateSelected));
 				}
-				sales = saleService.findSalesBySaleData(dateOfSaleStarted,
-						dateOfSaleEnded, affiliationDate, bankId, productId,
-						saleState);
+				
+				System.out.println("Se inicia la busqueda XXX");
+				
+				sales = saleService.findSalesBySaleData(dateOfSaleStarted, dateOfSaleEnded, bankId,
+						productId, saleState);
+				
+				System.out.println("Se termina la busqueda XXX");
 
 			} else if (searchTypeSelected.equals("personalData")) {
 				if (personTypeSelected.equals("contractor")) {
 
 					if ((nuicContractor != null && nuicContractor.length() > 0)
-							|| (firstnameContractor != null && firstnameContractor
-									.length() > 0)
-							|| (lastnamePaternalContractor != null && lastnamePaternalContractor
-									.length() > 0)
-							|| (lastnameMaternalContractor != null && lastnameMaternalContractor
-									.length() > 0)) {
+							|| (firstnameContractor != null && firstnameContractor.length() > 0)
+							|| (lastnamePaternalContractor != null && lastnamePaternalContractor.length() > 0)
+							|| (lastnameMaternalContractor != null && lastnameMaternalContractor.length() > 0)) {
 
 						Long nuicContractorLong = null;
-						if (nuicContractor != null
-								&& nuicContractor.length() > 0) {
+						if (nuicContractor != null && nuicContractor.length() > 0) {
 							nuicContractorLong = Long.parseLong(nuicContractor);
 						}
 
-						sales = saleService.findSalesByNamesContractor(
-								nuicContractorLong, firstnameContractor,
-								lastnamePaternalContractor,
-								lastnameMaternalContractor);
+						sales = saleService.findSalesByNamesContractor(nuicContractorLong, firstnameContractor,
+								lastnamePaternalContractor, lastnameMaternalContractor);
 
 					} else {
-						FacesMessage msg = new FacesMessage(
-								"Debe ingresar al menos un dato");
+						FacesMessage msg = new FacesMessage("Debe ingresar al menos un dato");
 						msg.setSeverity(FacesMessage.SEVERITY_ERROR);
 						FacesContext.getCurrentInstance().addMessage(null, msg);
 					}
@@ -1525,26 +1517,20 @@ public class SearchSalesController implements Serializable {
 				} else if (personTypeSelected.equals("insured")) {
 
 					if ((nuicInsured != null && nuicInsured.length() > 0)
-							|| (firstnameInsured != null && firstnameInsured
-									.length() > 0)
-							|| (lastnamePaternalInsured != null && lastnamePaternalInsured
-									.length() > 0)
-							|| (lastnameMaternalInsured != null && lastnameMaternalInsured
-									.length() > 0)) {
+							|| (firstnameInsured != null && firstnameInsured.length() > 0)
+							|| (lastnamePaternalInsured != null && lastnamePaternalInsured.length() > 0)
+							|| (lastnameMaternalInsured != null && lastnameMaternalInsured.length() > 0)) {
 
 						Long nuicInsuredLong = null;
 						if (nuicInsured != null && nuicInsured.length() > 0) {
 							nuicInsuredLong = Long.parseLong(nuicInsured);
 						}
 
-						sales = saleService.findSalesByNamesInsured(
-								nuicInsuredLong, firstnameInsured,
-								lastnamePaternalInsured,
-								lastnameMaternalInsured);
+						sales = saleService.findSalesByNamesInsured(nuicInsuredLong, firstnameInsured,
+								lastnamePaternalInsured, lastnameMaternalInsured);
 
 					} else {
-						FacesMessage msg = new FacesMessage(
-								"Debe ingresar al menos un dato");
+						FacesMessage msg = new FacesMessage("Debe ingresar al menos un dato");
 						msg.setSeverity(FacesMessage.SEVERITY_ERROR);
 						FacesContext.getCurrentInstance().addMessage(null, msg);
 					}
@@ -1552,235 +1538,193 @@ public class SearchSalesController implements Serializable {
 				} else if (personTypeSelected.equals("responsible")) {
 
 					if ((nuicResponsible != null && nuicResponsible.length() > 0)
-							|| (firstnameResponsible != null && firstnameResponsible
-									.length() > 0)
-							|| (lastnamePaternalResponsible != null && lastnamePaternalResponsible
-									.length() > 0)
-							|| (lastnameMaternalResponsible != null && lastnameMaternalResponsible
-									.length() > 0)) {
+							|| (firstnameResponsible != null && firstnameResponsible.length() > 0)
+							|| (lastnamePaternalResponsible != null && lastnamePaternalResponsible.length() > 0)
+							|| (lastnameMaternalResponsible != null && lastnameMaternalResponsible.length() > 0)) {
 
 						Long nuicResponsibleLong = null;
-						if (nuicResponsible != null
-								&& nuicResponsible.length() > 0) {
-							nuicResponsibleLong = Long
-									.parseLong(nuicResponsible);
+						if (nuicResponsible != null && nuicResponsible.length() > 0) {
+							nuicResponsibleLong = Long.parseLong(nuicResponsible);
 						}
 
-						sales = saleService.findSalesByNamesResponsible(
-								nuicResponsibleLong, firstnameResponsible,
-								lastnamePaternalResponsible,
-								lastnameMaternalResponsible);
+						sales = saleService.findSalesByNamesResponsible(nuicResponsibleLong, firstnameResponsible,
+								lastnamePaternalResponsible, lastnameMaternalResponsible);
 
 					} else {
-						FacesMessage msg = new FacesMessage(
-								"Debe ingresar al menos un dato");
+						FacesMessage msg = new FacesMessage("Debe ingresar al menos un dato");
 						msg.setSeverity(FacesMessage.SEVERITY_ERROR);
 						FacesContext.getCurrentInstance().addMessage(null, msg);
 					}
 				}
-				
-				
 
 			}
-			
-			
 
 		} catch (Exception e) {
 
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 		}
 
 	}
 
 	public void exportCSV() throws IOException {
-		
+
 		try {
-			
+
 			StringBuilder cadena = new StringBuilder();
 			String separator = "|";
 			String header = "";
-			
-			
-			header+="COD UNICO"+separator;
-			header+="TIPO DOC"+separator;
-			header+="NUIC RESP PAGO"+separator;
-			header+="AP PAT RESP PAGO"+separator;
-			header+="AP MAT RESP PAGO"+separator;
-			header+="NOMBRES RESP PAGO"+separator;
-			header+="N° TARJETA DE CREDITO"+separator;
-			header+="N° DE CUENTA"+separator;
-			header+="FECHA VENC TARJETA"+separator;
-			header+="DIAS MORA"+separator;
-			header+="NUIC CONTRATANTE"+separator;
-			header+="AP PAT CONTRATANTE"+separator;
-			header+="AP MAT CONTRATANTE"+separator;
-			header+="NOMBRES CONTRATANTE"+separator;
-			header+="NUIC ASEGURADO"+separator;
-			header+="AP PAT ASEGURADO"+separator;
-			header+="AP MAT ASEGURADO"+separator;
-			header+="NOMBRES ASEGURADO"+separator;
-			header+="TELEFONO 1"+separator;
-			header+="TELEFONO 2"+separator;
-			header+="E-MAIL"+separator;
-			header+="DEPARTAMENTO"+separator;
-			header+="PROVINCIA"+separator;
-			header+="DISTRITO"+separator;
-			header+="DIRECCION"+separator;
-			header+="FECHA DE VENTA"+separator;
-			header+="CANAL DE VENTA"+separator;
-			header+="LUGAR DE VENTA"+separator;
-			header+="COD DE VENDEDOR"+separator;
-			header+="NOMBRE DE VENDEDOR"+separator;
-			header+="# DE POLIZA"+separator;
-			header+="# CERTIFICADO"+separator;
-			header+="# PROPUESTA"+separator;
-			header+="CODIGO DE COMERCIO"+separator;
-			header+="PRODUCTO"+separator;
-			header+="DESCRIPCION DEL PRODUCTO"+separator;
-			header+="PERIODO DE COBRO"+separator;
-			header+="TIPO DE COBRO"+separator;
-			header+="MEDIO DE PAGO"+separator;
-			header+="PRIMA"+separator;
-			header+="FECHA DE AUDITORIA"+separator;
-			header+="USUARIO DE AUDITORIA"+separator;
-			header+="ESTADO"+separator;
-			header+="FECHA ESTADO"+separator;
-			header+="USUARIO BAJA"+separator;
-			header+="CANAL BAJA"+separator;
-			header+="MOTIVO BAJA"+separator;
-			header+="OBSERVACION BAJA"+separator;
-			header+="FECHA ACT TC"+separator;
-			header+="BANCO"+separator;
-			header+="FECHA CREACION"+separator;
-			header+="USUARIO CREACION";
-		
-			
+
+			header += "COD UNICO" + separator;
+			header += "TIPO DOC" + separator;
+			header += "NUIC RESP PAGO" + separator;
+			header += "AP PAT RESP PAGO" + separator;
+			header += "AP MAT RESP PAGO" + separator;
+			header += "NOMBRES RESP PAGO" + separator;
+			header += "N° TARJETA DE CREDITO" + separator;
+			header += "N° DE CUENTA" + separator;
+			header += "FECHA VENC TARJETA" + separator;
+			header += "DIAS MORA" + separator;
+			header += "NUIC CONTRATANTE" + separator;
+			header += "AP PAT CONTRATANTE" + separator;
+			header += "AP MAT CONTRATANTE" + separator;
+			header += "NOMBRES CONTRATANTE" + separator;
+			header += "NUIC ASEGURADO" + separator;
+			header += "AP PAT ASEGURADO" + separator;
+			header += "AP MAT ASEGURADO" + separator;
+			header += "NOMBRES ASEGURADO" + separator;
+			header += "TELEFONO 1" + separator;
+			header += "TELEFONO 2" + separator;
+			header += "E-MAIL" + separator;
+			header += "DEPARTAMENTO" + separator;
+			header += "PROVINCIA" + separator;
+			header += "DISTRITO" + separator;
+			header += "DIRECCION" + separator;
+			header += "FECHA DE VENTA" + separator;
+			header += "CANAL DE VENTA" + separator;
+			header += "LUGAR DE VENTA" + separator;
+			header += "COD DE VENDEDOR" + separator;
+			header += "NOMBRE DE VENDEDOR" + separator;
+			header += "# DE POLIZA" + separator;
+			header += "# CERTIFICADO" + separator;
+			header += "# PROPUESTA" + separator;
+			header += "CODIGO DE COMERCIO" + separator;
+			header += "PRODUCTO" + separator;
+			header += "DESCRIPCION DEL PRODUCTO" + separator;
+			header += "PERIODO DE COBRO" + separator;
+			header += "TIPO DE COBRO" + separator;
+			header += "BANCO" + separator;
+			header += "PRIMA" + separator;
+			header += "FECHA DE AUDITORIA" + separator;
+			header += "USUARIO DE AUDITORIA" + separator;
+			header += "ESTADO" + separator;
+			header += "FECHA ESTADO" + separator;
+			header += "USUARIO BAJA" + separator;
+			header += "CANAL BAJA" + separator;
+			header += "MOTIVO BAJA" + separator;
+			header += "OBSERVACION BAJA" + separator;
+			header += "FECHA ACT TC" + separator;
+			header += "FECHA CREACION" + separator;
+			header += "USUARIO CREACION";
+
 			cadena.append(header);
 			cadena.append("\r\n");
-			
+
 			search();
 
 			SimpleDateFormat sdf1 = new SimpleDateFormat("MM/yyyy");
 			SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
 			SimpleDateFormat sdf3 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-			
-			
+
 			for (Sale sale : sales) {
-				
-				
-				cadena.append(sale.getCode()+separator);
-				cadena.append(sale.getDocumentType()+separator);
-				cadena.append(sale.getPayer().getNuicResponsible()+separator);
-				cadena.append(
-						sale.getPayer().getLastnamePaternalResponsible()+separator);
-				cadena.append(
-						sale.getPayer().getLastnameMaternalResponsible()+separator);
-				cadena.append(
-						sale.getPayer().getFirstnameResponsible()+separator);
-				cadena.append(
-						sale.getCreditCard().getNumber() +separator);
-				cadena.append(sale.getAccountNumber() +separator);
-				cadena.append(
-						sale.getCreditCard().getExpirationDate() != null ? sdf1
-								.format(sale.getCreditCard().getExpirationDate())+separator
-								: separator);
-				cadena.append(
-						sale.getCreditCard().getDaysOfDefault() != null
-						?sale.getCreditCard().getDaysOfDefault().toString()+separator:separator);
-				
-				cadena.append(sale.getNuicContractor()!=null?sale.getNuicContractor().toString()+separator:separator);
-				cadena.append(
-						sale.getLastnamePaternalContractor()+separator);
-				cadena.append(
-						sale.getLastnameMaternalContractor()+separator);
-				cadena.append(
-						sale.getFirstnameContractor()+separator);
-				cadena.append(sale.getNuicInsured()+separator);
-				cadena.append(
-						sale.getLastnamePaternalInsured()+separator);
-				cadena.append(
-						sale.getLastnameMaternalInsured()+separator);
-				cadena.append(sale.getFirstnameInsured()+separator);
-				cadena.append(sale.getPhone1()+separator);
-				cadena.append(sale.getPhone2()+separator);
-				cadena.append(sale.getPayer().getMail()+separator);
-				cadena.append(sale.getPayer().getDepartment()+separator);
-				cadena.append(sale.getPayer().getProvince()+separator);
-				cadena.append(sale.getPayer().getDistrict()+separator);
-				cadena.append(sale.getPayer().getAddress()+separator);
-				cadena.append(
-						sdf2.format(sale.getDateOfSale())+separator);
-				cadena.append(sale.getChannelOfSale()+separator);
-				cadena.append(sale.getPlaceOfSale()+separator);
-				cadena.append(sale.getVendorCode()+separator);
-				cadena.append(sale.getVendorName()+separator);
-				cadena.append(sale.getPolicyNumber()+separator);
-				cadena.append(sale.getCertificateNumber()+separator);
-				cadena.append(sale.getProposalNumber()+separator);
-				cadena.append(sale.getCommerce().getCode()+separator);
-				cadena.append(sale.getCommerce().getProduct().getName()+separator);
-				cadena.append(
-						sale.getProductDescription()+separator);
-				cadena.append(sale.getCollectionPeriod()+separator);
-				cadena.append(sale.getCollectionType()+separator);
-				cadena.append(
-						sale.getCommerce().getPaymentMethod().getName()+separator);
-				cadena.append(
-						sale.getInsurancePremium().doubleValue()+separator);
-				cadena.append(
-						sdf2.format(sale.getAuditDate())+separator);
-				cadena.append(sale.getAuditUser()+separator);
-				cadena.append(sale.getSaleState().getState().getName()+separator);
-				cadena.append(
-						sale.getSaleState().getDate() != null ? sdf2.format(sale
-								.getSaleState().getDate())+separator : separator);
-				cadena.append(sale.getSaleState().getDownUser()+separator);
-				cadena.append(sale.getSaleState().getDownChannel()+separator);
-				cadena.append(sale.getSaleState().getDownReason()+separator);
-				cadena.append(sale.getSaleState().getDownObservation()+separator);
-				cadena.append(
-						sale.getCreditCard().getUpdateDate() != null ? sdf2
-								.format(sale.getCreditCard().getUpdateDate()) +separator: separator);
 
-				cadena.append(sale.getCommerce().getBank().getName()+separator);
+				cadena.append(sale.getCode() + separator);
+				cadena.append(sale.getPayer().getDocumentType().getName() + separator);
+				cadena.append(sale.getPayer().getNuicResponsible() + separator);
+				cadena.append(sale.getPayer().getLastnamePaternalResponsible() + separator);
+				cadena.append(sale.getPayer().getLastnameMaternalResponsible() + separator);
+				cadena.append(sale.getPayer().getFirstnameResponsible() + separator);
+				cadena.append(sale.getCreditCard().getNumber() + separator);
+				cadena.append(sale.getAccountNumber() + separator);
+				cadena.append(sale.getCreditCard().getExpirationDate() != null
+						? sdf1.format(sale.getCreditCard().getExpirationDate()) + separator : separator);
+				cadena.append(sale.getCreditCard().getDaysOfDefault() != null
+						? sale.getCreditCard().getDaysOfDefault().toString() + separator : separator);
+
 				cadena.append(
-						sdf3.format(sale.getCreatedAt())+separator);
-				cadena.append(
-						sale.getCreatedBy().getUsername());
+						sale.getNuicContractor() != null ? sale.getNuicContractor().toString() + separator : separator);
+				cadena.append(sale.getLastnamePaternalContractor() + separator);
+				cadena.append(sale.getLastnameMaternalContractor() + separator);
+				cadena.append(sale.getFirstnameContractor() + separator);
+				cadena.append(sale.getNuicInsured() + separator);
+				cadena.append(sale.getLastnamePaternalInsured() + separator);
+				cadena.append(sale.getLastnameMaternalInsured() + separator);
+				cadena.append(sale.getFirstnameInsured() + separator);
+				cadena.append(sale.getPhone1() + separator);
+				cadena.append(sale.getPhone2() + separator);
+				cadena.append(sale.getPayer().getMail() + separator);
+				cadena.append(sale.getPayer().getDepartment() + separator);
+				cadena.append(sale.getPayer().getProvince() + separator);
+				cadena.append(sale.getPayer().getDistrict() + separator);
+				cadena.append(sale.getPayer().getAddress() + separator);
+				cadena.append(sdf2.format(sale.getDate()) + separator);
+				cadena.append(sale.getChannel() + separator);
+				cadena.append(sale.getPlace() + separator);
+				cadena.append(sale.getVendorCode() + separator);
+				cadena.append(sale.getVendorName() + separator);
+				cadena.append(sale.getPolicyNumber() + separator);
+				cadena.append(sale.getCertificateNumber() + separator);
+				cadena.append(sale.getProposalNumber() + separator);
+				cadena.append(sale.getCommerceCode() + separator);
+				cadena.append(sale.getProduct().getName() + separator);
+				cadena.append(sale.getProductDescription() + separator);
+				cadena.append(sale.getCollectionPeriod() + separator);
+				cadena.append(sale.getCollectionType() + separator);
+				cadena.append(sale.getBank().getName() + separator);
+				cadena.append(sale.getInsurancePremium().doubleValue() + separator);
+				cadena.append(sdf2.format(sale.getAuditDate()) + separator);
+				cadena.append(sale.getAuditUser() + separator);
+				cadena.append(sale.getSaleState().getState().getName() + separator);
+				cadena.append(sale.getSaleState().getDate() != null
+						? sdf2.format(sale.getSaleState().getDate()) + separator : separator);
+				cadena.append(sale.getSaleState().getUser() + separator);
+				cadena.append(sale.getSaleState().getChannel() + separator);
+				cadena.append(sale.getSaleState().getReason() + separator);
+				cadena.append(sale.getSaleState().getObservation() + separator);
+				cadena.append(sale.getCreditCard().getDate() != null
+						? sdf2.format(sale.getCreditCard().getDate()) + separator : separator);
+
+				cadena.append(sdf3.format(sale.getCreatedAt()) + separator);
+				cadena.append(sale.getCreatedBy().getUsername());
 				cadena.append("\r\n");
-				
-				
+
 			}
-			
+
 			FacesContext fc = FacesContext.getCurrentInstance();
-	        HttpServletResponse response = (HttpServletResponse) fc.getExternalContext().getResponse();
+			HttpServletResponse response = (HttpServletResponse) fc.getExternalContext().getResponse();
 
-	        response.reset();
-	        response.setContentType("text/comma-separated-values");
-	        response.setHeader("Content-Disposition", "attachment; filename=\"ventas.csv\"");
+			response.reset();
+			response.setContentType("text/comma-separated-values");
+			response.setHeader("Content-Disposition", "attachment; filename=\"ventas.csv\"");
 
-	        OutputStream output = response.getOutputStream();
+			OutputStream output = response.getOutputStream();
 
-	        //for (String s : strings) {
-	            output.write(cadena.toString().getBytes());
-	       // }
+			// for (String s : strings) {
+			output.write(cadena.toString().getBytes());
+			// }
 
-	        output.flush();
-	        output.close();
+			output.flush();
+			output.close();
 
-	        fc.responseComplete();
-			
-			
-			
+			fc.responseComplete();
+
 		} catch (Exception e) {
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 		}
-		
+
 	}
+
 	public void exportExcel() throws IOException {
 
 		try {
@@ -1833,7 +1777,7 @@ public class SearchSalesController implements Serializable {
 			row.createCell(35).setCellValue("DESCRIPCION DEL PRODUCTO");
 			row.createCell(36).setCellValue("PERIODO DE COBRO");
 			row.createCell(37).setCellValue("TIPO DE COBRO");
-			row.createCell(38).setCellValue("MEDIO DE PAGO");
+			row.createCell(38).setCellValue("BANCO");
 			row.createCell(39).setCellValue("PRIMA");
 			row.createCell(40).setCellValue("FECHA DE AUDITORIA");
 			row.createCell(41).setCellValue("USUARIO DE AUDITORIA");
@@ -1845,53 +1789,40 @@ public class SearchSalesController implements Serializable {
 			row.createCell(47).setCellValue("OBSERVACION BAJA");
 			row.createCell(48).setCellValue("FECHA ACT TC");
 
-			row.createCell(49).setCellValue("BANCO");
-			row.createCell(50).setCellValue("FECHA CREACION");
-			row.createCell(51).setCellValue("USUARIO CREACION");
+			row.createCell(49).setCellValue("FECHA CREACION");
+			row.createCell(50).setCellValue("USUARIO CREACION");
 
-			//for (int i = 0; i < sales.size(); i++) {
-			
-			int lineNumber=1;
-			
-			for (Sale sale :sales) {
-				
-				System.out.println("Procesando a excel:"+lineNumber);
-				//Sale sale = sales.get(i);
+			// for (int i = 0; i < sales.size(); i++) {
+
+			int lineNumber = 1;
+
+			for (Sale sale : sales) {
+
+				System.out.println("Procesando a excel:" + lineNumber);
+				// Sale sale = sales.get(i);
 				XSSFRow rowBody = sheet.createRow(lineNumber);
 
 				rowBody.createCell(0).setCellValue(sale.getCode());
-				rowBody.createCell(1).setCellValue(sale.getDocumentType());
+				rowBody.createCell(1).setCellValue(sale.getPayer().getDocumentType().getName());
 				rowBody.createCell(2).setCellValue(sale.getPayer().getNuicResponsible());
-				rowBody.createCell(3).setCellValue(
-						sale.getPayer().getLastnamePaternalResponsible());
-				rowBody.createCell(4).setCellValue(
-						sale.getPayer().getLastnameMaternalResponsible());
-				rowBody.createCell(5).setCellValue(
-						sale.getPayer().getFirstnameResponsible());
-				rowBody.createCell(6).setCellValue(
-						sale.getCreditCard().getNumber() + "");
-				rowBody.createCell(7)
-						.setCellValue(sale.getAccountNumber() + "");
-				rowBody.createCell(8).setCellValue(
-						sale.getCreditCard().getExpirationDate() != null ? sdf1
-								.format(sale.getCreditCard().getExpirationDate())
-								: null);
-				rowBody.createCell(9).setCellValue(
-						sale.getCreditCard().getDaysOfDefault() != null
-						?sale.getCreditCard().getDaysOfDefault().toString():"");
-				
-				rowBody.createCell(10).setCellValue(sale.getNuicContractor()!=null?sale.getNuicContractor().toString():"");
-				rowBody.createCell(11).setCellValue(
-						sale.getLastnamePaternalContractor());
-				rowBody.createCell(12).setCellValue(
-						sale.getLastnameMaternalContractor());
-				rowBody.createCell(13).setCellValue(
-						sale.getFirstnameContractor());
+				rowBody.createCell(3).setCellValue(sale.getPayer().getLastnamePaternalResponsible());
+				rowBody.createCell(4).setCellValue(sale.getPayer().getLastnameMaternalResponsible());
+				rowBody.createCell(5).setCellValue(sale.getPayer().getFirstnameResponsible());
+				rowBody.createCell(6).setCellValue(sale.getCreditCard().getNumber() + "");
+				rowBody.createCell(7).setCellValue(sale.getAccountNumber() + "");
+				rowBody.createCell(8).setCellValue(sale.getCreditCard().getExpirationDate() != null
+						? sdf1.format(sale.getCreditCard().getExpirationDate()) : null);
+				rowBody.createCell(9).setCellValue(sale.getCreditCard().getDaysOfDefault() != null
+						? sale.getCreditCard().getDaysOfDefault().toString() : "");
+
+				rowBody.createCell(10)
+						.setCellValue(sale.getNuicContractor() != null ? sale.getNuicContractor().toString() : "");
+				rowBody.createCell(11).setCellValue(sale.getLastnamePaternalContractor());
+				rowBody.createCell(12).setCellValue(sale.getLastnameMaternalContractor());
+				rowBody.createCell(13).setCellValue(sale.getFirstnameContractor());
 				rowBody.createCell(14).setCellValue(sale.getNuicInsured());
-				rowBody.createCell(15).setCellValue(
-						sale.getLastnamePaternalInsured());
-				rowBody.createCell(16).setCellValue(
-						sale.getLastnameMaternalInsured());
+				rowBody.createCell(15).setCellValue(sale.getLastnamePaternalInsured());
+				rowBody.createCell(16).setCellValue(sale.getLastnameMaternalInsured());
 				rowBody.createCell(17).setCellValue(sale.getFirstnameInsured());
 				rowBody.createCell(18).setCellValue(sale.getPhone1());
 				rowBody.createCell(19).setCellValue(sale.getPhone2());
@@ -1900,78 +1831,92 @@ public class SearchSalesController implements Serializable {
 				rowBody.createCell(22).setCellValue(sale.getPayer().getProvince());
 				rowBody.createCell(23).setCellValue(sale.getPayer().getDistrict());
 				rowBody.createCell(24).setCellValue(sale.getPayer().getAddress());
-				rowBody.createCell(25).setCellValue(
-						sdf2.format(sale.getDateOfSale()));
-				rowBody.createCell(26).setCellValue(sale.getChannelOfSale());
-				rowBody.createCell(27).setCellValue(sale.getPlaceOfSale());
+				rowBody.createCell(25).setCellValue(sdf2.format(sale.getDate()));
+				rowBody.createCell(26).setCellValue(sale.getChannel());
+				rowBody.createCell(27).setCellValue(sale.getPlace());
 				rowBody.createCell(28).setCellValue(sale.getVendorCode());
 				rowBody.createCell(29).setCellValue(sale.getVendorName());
 				rowBody.createCell(30).setCellValue(sale.getPolicyNumber());
-				rowBody.createCell(31)
-						.setCellValue(sale.getCertificateNumber());
+				rowBody.createCell(31).setCellValue(sale.getCertificateNumber());
 				rowBody.createCell(32).setCellValue(sale.getProposalNumber());
-				rowBody.createCell(33).setCellValue(sale.getCommerce().getCode());
-				rowBody.createCell(34)
-						.setCellValue(sale.getCommerce().getProduct().getName());
-				rowBody.createCell(35).setCellValue(
-						sale.getProductDescription());
-				rowBody.createCell(36).setCellValue(sale.getCollectionPeriod());
+				rowBody.createCell(33).setCellValue(sale.getCommerceCode());
+				rowBody.createCell(34).setCellValue(sale.getProduct().getName());
+				rowBody.createCell(35).setCellValue(sale.getProductDescription());
+				rowBody.createCell(36).setCellValue(sale.getCollectionPeriod().getName());
 				rowBody.createCell(37).setCellValue(sale.getCollectionType());
-				rowBody.createCell(38).setCellValue(
-						sale.getCommerce().getPaymentMethod().getName());
-				rowBody.createCell(39).setCellValue(
-						sale.getInsurancePremium().doubleValue());
-				rowBody.createCell(40).setCellValue(
-						sdf2.format(sale.getAuditDate()));
+				rowBody.createCell(38).setCellValue(sale.getBank().getName());
+				rowBody.createCell(39).setCellValue(sale.getInsurancePremium().doubleValue());
+				rowBody.createCell(40).setCellValue(sdf2.format(sale.getAuditDate()));
 				rowBody.createCell(41).setCellValue(sale.getAuditUser());
 				rowBody.createCell(42).setCellValue(sale.getSaleState().getState().getName());
 				rowBody.createCell(43).setCellValue(
-						sale.getSaleState().getDate() != null ? sdf2.format(sale
-								.getSaleState().getDate()) : "");
-				rowBody.createCell(44).setCellValue(sale.getSaleState().getDownUser());
-				rowBody.createCell(45).setCellValue(sale.getSaleState().getDownChannel());
-				rowBody.createCell(46).setCellValue(sale.getSaleState().getDownReason());
-				rowBody.createCell(47).setCellValue(sale.getSaleState().getDownObservation());
+						sale.getSaleState().getDate() != null ? sdf2.format(sale.getSaleState().getDate()) : "");
+				rowBody.createCell(44).setCellValue(sale.getSaleState().getUser());
+				rowBody.createCell(45).setCellValue(sale.getSaleState().getChannel());
+				rowBody.createCell(46).setCellValue(sale.getSaleState().getReason());
+				rowBody.createCell(47).setCellValue(sale.getSaleState().getObservation());
 				rowBody.createCell(48).setCellValue(
-						sale.getCreditCard().getUpdateDate() != null ? sdf2
-								.format(sale.getCreditCard().getUpdateDate()) : "");
+						sale.getCreditCard().getDate() != null ? sdf2.format(sale.getCreditCard().getDate()) : "");
 
-				rowBody.createCell(49).setCellValue(sale.getCommerce().getBank().getName());
-				rowBody.createCell(50).setCellValue(
-						sdf3.format(sale.getCreatedAt()));
-				rowBody.createCell(51).setCellValue(
-						sale.getCreatedBy().getUsername());
-				
+				rowBody.createCell(49).setCellValue(sdf3.format(sale.getCreatedAt()));
+				rowBody.createCell(50).setCellValue(sale.getCreatedBy().getUsername());
+
 				lineNumber++;
 
 			}
 
-			
 			FacesContext facesContext = FacesContext.getCurrentInstance();
 			ExternalContext externalContext = facesContext.getExternalContext();
 			// externalContext.setResponseContentType("application/vnd.ms-excel");
-			externalContext
-					.setResponseContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-			externalContext.setResponseHeader("Content-Disposition",
-					"attachment; filename=\"ventas.xlsx\"");
+			externalContext.setResponseContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"ventas.xlsx\"");
 
 			wb.write(externalContext.getResponseOutputStream());
+			wb.close();
 			facesContext.responseComplete();
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 		}
 
 	}
 
-	
+	public void download() {
+		try {
 
-	
-	
-	
-	
+			ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext()
+					.getContext();
+			String separator = System.getProperty("file.separator");
+			String rootPath = servletContext.getRealPath(separator);
+			String fileName = rootPath + "resources" + separator + "templates" + separator + "tramas_ventas.xlsx";
+			File file = new File(fileName);
+			InputStream pdfInputStream = new FileInputStream(file);
+
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+			ExternalContext externalContext = facesContext.getExternalContext();
+			externalContext.setResponseContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"tramas_ventas.xlsx\"");
+
+			// Read PDF contents and write them to the output
+			byte[] bytesBuffer = new byte[2048];
+			int bytesRead;
+
+			while ((bytesRead = pdfInputStream.read(bytesBuffer)) > 0) {
+				externalContext.getResponseOutputStream().write(bytesBuffer, 0, bytesRead);
+			}
+
+			externalContext.getResponseOutputStream().flush();
+			externalContext.getResponseOutputStream().close();
+			pdfInputStream.close();
+			facesContext.responseComplete();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+		}
+
+	}
 
 	public List<Sale> getSales() {
 		return sales;
@@ -2009,8 +1954,7 @@ public class SearchSalesController implements Serializable {
 		return lastnamePaternalResponsible;
 	}
 
-	public void setLastnamePaternalResponsible(
-			String lastnamePaternalResponsible) {
+	public void setLastnamePaternalResponsible(String lastnamePaternalResponsible) {
 		this.lastnamePaternalResponsible = lastnamePaternalResponsible;
 	}
 
@@ -2018,8 +1962,7 @@ public class SearchSalesController implements Serializable {
 		return lastnameMaternalResponsible;
 	}
 
-	public void setLastnameMaternalResponsible(
-			String lastnameMaternalResponsible) {
+	public void setLastnameMaternalResponsible(String lastnameMaternalResponsible) {
 		this.lastnameMaternalResponsible = lastnameMaternalResponsible;
 	}
 
@@ -2123,8 +2066,7 @@ public class SearchSalesController implements Serializable {
 		return searchByCreditCardNumberRendered;
 	}
 
-	public void setSearchByCreditCardNumberRendered(
-			Boolean searchByCreditCardNumberRendered) {
+	public void setSearchByCreditCardNumberRendered(Boolean searchByCreditCardNumberRendered) {
 		this.searchByCreditCardNumberRendered = searchByCreditCardNumberRendered;
 	}
 
@@ -2132,8 +2074,7 @@ public class SearchSalesController implements Serializable {
 		return searchByDocumentNumberResponsibleRendered;
 	}
 
-	public void setSearchByDocumentNumberResponsibleRendered(
-			Boolean searchByDocumentNumberResponsibleRendered) {
+	public void setSearchByDocumentNumberResponsibleRendered(Boolean searchByDocumentNumberResponsibleRendered) {
 		this.searchByDocumentNumberResponsibleRendered = searchByDocumentNumberResponsibleRendered;
 	}
 
@@ -2181,8 +2122,7 @@ public class SearchSalesController implements Serializable {
 		return searchByResponsibleRendered;
 	}
 
-	public void setSearchByResponsibleRendered(
-			Boolean searchByResponsibleRendered) {
+	public void setSearchByResponsibleRendered(Boolean searchByResponsibleRendered) {
 		this.searchByResponsibleRendered = searchByResponsibleRendered;
 	}
 
@@ -2210,8 +2150,6 @@ public class SearchSalesController implements Serializable {
 		this.nuicInsured = nuicInsured;
 	}
 
-	
-
 	public Sale getSaleSelected() {
 		return saleSelected;
 	}
@@ -2228,15 +2166,6 @@ public class SearchSalesController implements Serializable {
 		this.saleStateSelected = saleStateSelected;
 	}
 
-	
-
-	public Date getAffiliationDate() {
-		return affiliationDate;
-	}
-
-	public void setAffiliationDate(Date affiliationDate) {
-		this.affiliationDate = affiliationDate;
-	}
 
 
 	public List<SelectItem> getSaleStates() {
@@ -2246,8 +2175,6 @@ public class SearchSalesController implements Serializable {
 	public void setSaleStates(List<SelectItem> saleStates) {
 		this.saleStates = saleStates;
 	}
-
-	
 
 	public Integer getSalesCount() {
 		return salesCount;
@@ -2265,21 +2192,34 @@ public class SearchSalesController implements Serializable {
 		this.file = file;
 	}
 
-	public List<Map<String, String>> getDataList() {
-		return dataList;
-	}
-
-	public void setDataList(List<Map<String, String>> dataList) {
-		this.dataList = dataList;
-	}
-
 	public Integer getProgress() {
-		return progress;
+		if (loadStatus!=null) {
+			try {
+				return loadStatus.get();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				return progress;
+				
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+				return progress;
+			}
+		}else{
+			return progress;
+		}
+		
 	}
 
 	public void setProgress(Integer progress) {
 		this.progress = progress;
 	}
-	
+
+	public Integer getSalesFileCount() {
+		return salesFileCount;
+	}
+
+	public void setSalesFileCount(Integer salesFileCount) {
+		this.salesFileCount = salesFileCount;
+	}
 
 }

@@ -26,7 +26,7 @@ public class CollectionEaoImpl implements CollectionEao {
 	public void add(Collection collection) throws EaoException{
 		try {
 			
-			String maxIdByProduct = getMaxCollectionIdByProduct(collection.getSale().getCommerce().getProduct().getId());
+			String maxIdByProduct = getMaxCollectionIdByProduct(collection.getSale().getProduct().getId());
 			
 			String receiptNumber = ""; 
 			
@@ -57,10 +57,9 @@ public class CollectionEaoImpl implements CollectionEao {
 	public String getMaxCollectionIdByProduct(Short productId) throws EaoException{
 		try {
 			
-			String query = "SELECT max(c.receiptNumber) FROM Collection c "
+			String query = "SELECT max(cast(c.receiptNumber as signed)) FROM Collection c "
 					+ " left join c.sale s "
-					+ " left join s.commerce co "
-					+ " left join co.product p "
+					+ " left join s.product p "
 					+ "WHERE p.id=:productId ";
 			
 			Query q = em.createQuery(query);

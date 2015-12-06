@@ -10,8 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -56,21 +55,20 @@ public class CreditCard implements Serializable{
 	@Convert(converter=CreditCardValidationConverter.class)
 	private CreditCardValidationEnum validation;
 
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "crecar_sal_id")
+	@OneToOne(fetch=FetchType.LAZY,mappedBy="creditCard")
 	private Sale sale;
 	
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "crecar_update_date")
-	private Date updateDate;
+	@Column(name = "crecar_date")
+	private Date date;
 	
-	@Temporal(TemporalType.TIMESTAMP)
+	/*@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "crecar_created_at")
-	private Date createdAt;
+	private Date createdAt;*/
 	
-	@ManyToOne(fetch=FetchType.LAZY)
+	/*@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "crecar_created_by")
-	private User createdBy;
+	private User createdBy;*/
 
 
 	public Long getId() {
@@ -156,34 +154,44 @@ public class CreditCard implements Serializable{
 	}
 
 
-	public Date getCreatedAt() {
+	public Date getDate() {
+		return date;
+	}
+
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+
+	/*public Date getCreatedAt() {
 		return createdAt;
 	}
 
 
 	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
-	}
+	}*/
 
 
-	public User getCreatedBy() {
+	/*public User getCreatedBy() {
 		return createdBy;
 	}
 
 
 	public void setCreatedBy(User createdBy) {
 		this.createdBy = createdBy;
-	}
+	}*/
 
 
-	public Date getUpdateDate() {
+	/*public Date getUpdateDate() {
 		return updateDate;
 	}
 
 
 	public void setUpdateDate(Date updateDate) {
 		this.updateDate = updateDate;
-	}
+	}*/
 
 
 

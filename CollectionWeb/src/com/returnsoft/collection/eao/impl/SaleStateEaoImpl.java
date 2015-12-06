@@ -21,6 +21,15 @@ public class SaleStateEaoImpl implements SaleStateEao {
 	public void add(SaleState maintenance) throws EaoException{
 		try {
 			
+//			System.out.println("-----------------------");
+//			System.out.println(maintenance.getChannel());
+//			System.out.println(maintenance.getObservation());
+//			System.out.println(maintenance.getReason());
+//			System.out.println(maintenance.getDate());
+//			System.out.println(maintenance.getState().getName());
+//			System.out.println(maintenance.getUser());
+//			System.out.println("-----------------------");
+			
 			em.persist(maintenance);
 			em.flush();
 			

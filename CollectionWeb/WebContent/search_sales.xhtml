@@ -95,12 +95,6 @@
 								<f:selectItems value="#{searchSalesController.products}"></f:selectItems>
 							</p:selectOneMenu>
 
-							<p:outputLabel value="F. Afiliacion"></p:outputLabel>
-							<p:calendar navigator="true"
-								value="#{searchSalesController.affiliationDate}"
-								pattern="dd-MM-yyyy"></p:calendar>
-
-
 							<p:outputLabel value="Estado:"></p:outputLabel>
 							<p:selectOneMenu id="state"
 								value="#{searchSalesController.saleStateSelected}">
@@ -241,11 +235,11 @@
 			<h:form id="formUpload2">
 				<h:panelGrid columns="2" style="width:100%;">
 					<p:commandButton id="loadSaleButton" widgetVar="loadButton"
-						disabled="#{searchSalesController.dataList==null}"
-						value="Cargar #{searchSalesController.dataList!=null?searchSalesController.dataList.size():''} Ventas"
+						disabled="#{searchSalesController.salesFileCount==null or searchSalesController.salesFileCount==0}"
+						value="Cargar #{searchSalesController.salesFileCount} Ventas"
 						process="@this" oncomplete="enableChoosing();"
 						update=":formUpload2:loadSaleButton :formUpload2:pbLoadSales :formUpload:inputFile :messages"
-						actionListener="#{searchSalesController.load}"
+						actionListener="#{searchSalesController.loadData}"
 						onclick="PF('pbLoad').start();PF('loadButton').disable();disableChoosing();">
 						<p:confirm header="Confirmación" message="¿Está seguro?"
 							icon="ui-icon-alert" />
@@ -270,7 +264,7 @@
 					</p:outputLabel>
 					<h:panelGrid style="width:100%;">
 						<p:outputLabel id="salesCount"
-							value="Se encontraron #{searchSalesController.sales!=null?searchSalesController.sales.size():'0'} ventas.">
+							value="Se encontraron #{searchSalesController.salesCount} ventas.">
 						</p:outputLabel>
 					</h:panelGrid>
 				</h:panelGrid>
@@ -291,7 +285,7 @@
 					</p:column>
 
 					<p:column headerText="TIPO DE DOCUMENTO" width="80">
-						<h:outputText value="#{s.documentType}"></h:outputText>
+						<h:outputText value="#{s.payer.documentType.name}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="NUIC RESP PAGO" width="80">
@@ -332,8 +326,6 @@
 						<h:outputText value="#{s.creditCard.daysOfDefault}"></h:outputText>
 					</p:column>
 
-
-
 					<p:column headerText="NUIC CONTRATANTE" width="80">
 						<h:outputText value="#{s.nuicContractor}"></h:outputText>
 					</p:column>
@@ -349,7 +341,6 @@
 					<p:column headerText="NOMBRES CONTRATANTE" width="80">
 						<h:outputText value="#{s.firstnameContractor}"></h:outputText>
 					</p:column>
-
 
 					<p:column headerText="NUIC ASEGURADO" width="80">
 						<h:outputText value="#{s.nuicInsured}"></h:outputText>
@@ -396,23 +387,18 @@
 						<h:outputText value="#{s.payer.address}"></h:outputText>
 					</p:column>
 
-
-
-
-
-
 					<p:column headerText="FECHA DE VENTA" width="80">
-						<h:outputText value="#{s.dateOfSale}" width="80">
+						<h:outputText value="#{s.date}" width="80">
 							<f:convertDateTime pattern="dd/MM/yyyy" />
 						</h:outputText>
 					</p:column>
 
 					<p:column headerText="CANAL DE VENTA" width="80">
-						<h:outputText value="#{s.channelOfSale}"></h:outputText>
+						<h:outputText value="#{s.channel}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="LUGAR DE VENTA" width="80">
-						<h:outputText value="#{s.placeOfSale}"></h:outputText>
+						<h:outputText value="#{s.place}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="CODIGO DE VENDEDOR" width="80">
@@ -436,12 +422,12 @@
 					</p:column>
 
 					<p:column headerText="CODIGO DE COMERCIO" width="80">
-						<h:outputText value="#{s.commerce.code}"></h:outputText>
+						<h:outputText value="#{s.commerceCode}"></h:outputText>
 					</p:column>
 
 
 					<p:column headerText="PRODUCTO" width="80">
-						<h:outputText value="#{s.commerce.product.name}"></h:outputText>
+						<h:outputText value="#{s.product.name}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="DESCRIPCION DE PRODUCTO" width="80">
@@ -449,15 +435,15 @@
 					</p:column>
 
 					<p:column headerText="PERIODO DE COBRO" width="80">
-						<h:outputText value="#{s.collectionPeriod}"></h:outputText>
+						<h:outputText value="#{s.collectionPeriod.name}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="TIPO DE COBRO" width="80">
 						<h:outputText value="#{s.collectionType}"></h:outputText>
 					</p:column>
 
-					<p:column headerText="MEDIO DE PAGO" width="80">
-						<h:outputText value="#{s.commerce.paymentMethod.name}"></h:outputText>
+					<p:column headerText="BANCO" width="80">
+						<h:outputText value="#{s.bank.name}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="PRIMA" width="80">
@@ -485,48 +471,32 @@
 					</p:column>
 
 					<p:column headerText="USUARIO ESTADO" width="80">
-						<h:outputText value="#{s.saleState.downUser}"></h:outputText>
+						<h:outputText value="#{s.saleState.user}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="CANAL ESTADO" width="80">
-						<h:outputText value="#{s.saleState.downChannel}"></h:outputText>
+						<h:outputText value="#{s.saleState.channel}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="MOTIVO ESTADO" width="80">
-						<h:outputText value="#{s.saleState.downReason}"></h:outputText>
+						<h:outputText value="#{s.saleState.reason}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="OBSERVACIONES ESTADO" width="80"
 						style="white-space:nowrap;">
-						<h:outputText value="#{s.saleState.downObservation}"></h:outputText>
+						<h:outputText value="#{s.saleState.observation}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="FECHA ACT TC" width="80">
-						<h:outputText value="#{s.creditCard.updateDate}" width="80">
+						<h:outputText value="#{s.creditCard.date}" width="80">
 							<f:convertDateTime pattern="dd/MM/yyyy" />
 						</h:outputText>
 					</p:column>
-
-					<p:column headerText="AFILIADO" width="80">
-						<h:outputText value="#{s.affiliation==true?'Si':'No'}" width="80">
+					
+					<p:column headerText="LOTE" width="80">
+						<h:outputText value="#{s.lote.name}">
 						</h:outputText>
 					</p:column>
-
-					<p:column headerText="FECHA DE AFILIACION" width="80">
-						<h:outputText value="#{s.affiliationDate}" width="80">
-							<f:convertDateTime pattern="dd/MM/yyyy hh:mm:ss" />
-						</h:outputText>
-					</p:column>
-
-					<p:column headerText="AFILIADO USUARIO" width="80">
-						<h:outputText value="#{s.affiliationUser.username}" width="80">
-						</h:outputText>
-					</p:column>
-
-					<p:column headerText="BANCO" width="80">
-						<h:outputText value="#{s.commerce.bank.name}"></h:outputText>
-					</p:column>
-
 
 					<p:column headerText="FECHA CREACION" width="80">
 						<h:outputText value="#{s.createdAt}">
@@ -537,8 +507,6 @@
 					<p:column headerText="USUARIO CREACION" width="80">
 						<h:outputText value="#{s.createdBy.username}"></h:outputText>
 					</p:column>
-
-
 
 				</p:dataTable>
 

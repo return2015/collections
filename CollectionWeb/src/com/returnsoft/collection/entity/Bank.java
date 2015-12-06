@@ -25,6 +25,9 @@ public class Bank implements Serializable{
 	@Column(name = "ban_id")
 	private Short id;
 	
+	@Column(name = "ban_code")
+	private String code;
+	
 	@Column(name = "ban_name")
 	private String name;
 	
@@ -55,6 +58,14 @@ public class Bank implements Serializable{
 
 	public void setUsers(List<User> users) {
 		this.users = users;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 	
 	

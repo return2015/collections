@@ -1,19 +1,19 @@
 package com.returnsoft.collection.entity;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+
+import com.returnsoft.collection.converter.DocumentTypeConverter;
+import com.returnsoft.collection.enumeration.DocumentTypeEnum;
 
 @Entity 
 @Table(name = "payer")
@@ -29,8 +29,12 @@ public class Payer implements Serializable{
 	@Column(name = "pay_id")
 	private Long id;
 	
+	@Column(name = "pay_document_type_id")
+	@Convert(converter=DocumentTypeConverter.class)
+	private DocumentTypeEnum documentType;
+	
 	@Column(name = "pay_nuic")
-	private Integer nuicResponsible;
+	private Long nuicResponsible;
 	
 	@Column(name = "pay_lastname_paternal")
 	private String lastnamePaternalResponsible;
@@ -56,17 +60,16 @@ public class Payer implements Serializable{
 	@Column(name = "pay_address")
 	private String address;
 	
-	@Temporal(TemporalType.TIMESTAMP)
+	/*@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "pay_created_at")
-	private Date createdAt;
+	private Date createdAt;*/
 	
-	@ManyToOne(fetch=FetchType.LAZY)
+	/*@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "pay_created_by")
-	private User createdBy;
+	private User createdBy;*/
 	
 	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "pay_sal_id")
+	@OneToOne(fetch=FetchType.LAZY,mappedBy="payer")
 	private Sale sale;
 
 	public Long getId() {
@@ -77,11 +80,13 @@ public class Payer implements Serializable{
 		this.id = id;
 	}
 
-	public Integer getNuicResponsible() {
+	
+
+	public Long getNuicResponsible() {
 		return nuicResponsible;
 	}
 
-	public void setNuicResponsible(Integer nuicResponsible) {
+	public void setNuicResponsible(Long nuicResponsible) {
 		this.nuicResponsible = nuicResponsible;
 	}
 
@@ -157,21 +162,29 @@ public class Payer implements Serializable{
 		this.sale = sale;
 	}
 
-	public Date getCreatedAt() {
+	public DocumentTypeEnum getDocumentType() {
+		return documentType;
+	}
+
+	public void setDocumentType(DocumentTypeEnum documentType) {
+		this.documentType = documentType;
+	}
+
+	/*public Date getCreatedAt() {
 		return createdAt;
 	}
 
 	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
-	}
+	}*/
 
-	public User getCreatedBy() {
+	/*public User getCreatedBy() {
 		return createdBy;
 	}
 
 	public void setCreatedBy(User createdBy) {
 		this.createdBy = createdBy;
-	}
+	}*/
 	
 	
 	

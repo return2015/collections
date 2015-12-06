@@ -27,20 +27,15 @@ public class SaleEaoImpl implements SaleEao {
 	public void add(Sale sale) throws EaoException{
 		try {
 			
-			Long maxIdByProduct = getMaxSaleIdByProduct(sale.getCommerce().getProduct().getId());
-			String code = sale.getCommerce().getCode()+""+sale.getCommerce().getProduct().getCode()+""+sale.getCommerce().getPaymentMethod().getCode(); 
-			if (maxIdByProduct!=null && maxIdByProduct>0) {
-				code += (maxIdByProduct+1);
-			}else{
-				code += 1; 
+			Long newCorrelative = generateNewCorrelative(sale.getProduct().getId(),sale.getBank().getId());
+			String code = newCorrelative.toString(); 
+			while (code.length()<6) {
+				code="0"+code;
 			}
-			
+			code = sale.getBank().getCode()+sale.getProduct().getCode()+code;
 			sale.setCode(code);
-
 			em.persist(sale);
-			
 			em.flush();
-			
 			
 		} catch (Exception e) {
 			
@@ -50,19 +45,33 @@ public class SaleEaoImpl implements SaleEao {
 		}
 	}
 	
-	public Long getMaxSaleIdByProduct(Short productId) throws EaoException{
+	//public Long getMaxSaleIdByProduct(Short productId) throws EaoException{
+		public Long generateNewCorrelative(Short productId, Short bankId) throws EaoException{
 		try {
 			
-			String query = "SELECT max(cast(substring(s.code,15) as signed)) "
+			String query = "SELECT max(cast(substring(s.code,5) as signed)) "
 					+ "FROM Sale s "
-					+ "left join s.commerce c "
-					+ "left join c.product p "
-					+ "WHERE p.id=:productId ";
+					+ "left join s.product p "
+					+ "left join s.bank b "
+					+ "WHERE p.id=:productId "
+					+ " and b.id=:bankId";
 			
 			Query q = em.createQuery(query);
 			q.setParameter("productId", productId);
+			q.setParameter("bankId", bankId);
 
-			return (Long)q.getSingleResult();
+			Long maxCorrelative = (Long)q.getSingleResult();
+			
+			Long newCorrelative;
+			
+			if (maxCorrelative!=null && maxCorrelative>0) {
+				newCorrelative = maxCorrelative+1;
+			}else{
+				newCorrelative = new Long(1); 
+			}
+
+			return newCorrelative;
+			
 			
 		} catch (NoResultException e) {
 			return null;
@@ -171,17 +180,16 @@ public class SaleEaoImpl implements SaleEao {
 	}
 	
 	
-	public List<Sale> findBySaleData(Date saleDateStartedAt,Date saleDateEndedAt, Date affiliationDate,Short bankId, Short productId, SaleStateEnum saleState)  throws EaoException {
+	public List<Sale> findBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Short bankId, Short productId, SaleStateEnum saleState)  throws EaoException {
 		try {
 			
 			String query = "SELECT s FROM Sale s "
-					+ "left join s.commerce c "
-					+ "left join c.product p "
-					+ "left join c.bank b "
+					+ "left join s.product p "
+					+ "left join s.bank b "
 					+ "left join fetch s.payer pa "
 					+ "left join fetch s.creditCard cc "
 					+ "left join fetch s.saleState ss "
-					+ "WHERE s.dateOfSale between :saleDateStartedAt and :saleDateEndedAt ";
+					+ "WHERE s.date between :saleDateStartedAt and :saleDateEndedAt ";
 			
 			if (bankId!=null && bankId>0) {
 				query+=" and b.id=:bankId ";
@@ -189,10 +197,6 @@ public class SaleEaoImpl implements SaleEao {
 			
 			if (productId!=null && productId>0) {
 				query+=" and p.id=:productId ";
-			}
-			
-			if (affiliationDate!=null) {
-				query+=" and s.affiliationDate between :affiliationDateStart and  :affiliationDateEnd";
 			}
 			
 			if (saleState!=null) {
@@ -211,7 +215,7 @@ public class SaleEaoImpl implements SaleEao {
 				q.setParameter("productId", productId);
 			}
 			
-			if (affiliationDate!=null ) {
+			/*if (affiliationDate!=null ) {
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				System.out.println(sdf2.parse(sdf.format(affiliationDate)+" 00:00:00"));
@@ -219,7 +223,7 @@ public class SaleEaoImpl implements SaleEao {
 				System.out.println(sdf2.parse(sdf.format(affiliationDate)+" 23:59:59"));
 				q.setParameter("affiliationDateEnd", sdf2.parse(sdf.format(affiliationDate)+" 23:59:59"));
 				
-			}
+			}*/
 			
 			if (saleState!=null) {
 				q.setParameter("saleState", saleState);
@@ -305,47 +309,46 @@ public class SaleEaoImpl implements SaleEao {
 	}
 	
 	
-	public Long findIdByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws EaoException{
+	//public Long findIdByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws EaoException{
+	public Boolean checkExistSale(Integer nuicInsured, Date dateOfSale, Short bankId, Short productId, Short collectionPeriodId) throws EaoException{
 		
 		try {
 			
-			String query = "SELECT s.id FROM Sale s WHERE s.nuicInsured = :nuicInsured and s.dateOfSale = :dateOfSale ";
+			String query = "SELECT s.id FROM "
+					+ "Sale s "
+					+ "left join s.bank b "
+					+ "left join s.product p "
+					+ "left join s.collectionPeriod cp "
+					+ "WHERE s.nuicInsured = :nuicInsured "
+					+ "and s.date = :dateOfSale "
+					+ "and p.id  = :productId "
+					+ "and b.id = :bankId "
+					+ "and cp.id = :collectionPeriodId ";
 			
 			TypedQuery<Long> q = em.createQuery(query, Long.class);
 			q.setParameter("nuicInsured", nuicInsured);
 			q.setParameter("dateOfSale", dateOfSale);
+			q.setParameter("productId", productId);
+			q.setParameter("bankId", bankId);
+			q.setParameter("collectionPeriodId", collectionPeriodId);
 			
-			return q.getSingleResult();
+			Long saleId = (Long)q.getSingleResult();
+			
+			if (saleId!=null && saleId>0) {
+				return true;
+			}else{
+				return false;
+			}
 			
 		} catch (NoResultException e) {
-			return null;
+			return false;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new EaoException(e.getMessage());
 		}
 	}
 	
-	/*public List<Sale> findByCreditCardNumber(Long creditCardNumber) throws EaoException{
-		try {
-			
-			String query = "SELECT s FROM Sale s "
-					+" left join s.creditCard cd "
-					+ "WHERE cd.number = :creditCardNumber ";
-			
-			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
-			q.setParameter("creditCardNumber", creditCardNumber);
-			
-			List<Sale> sales = q.getResultList();
-			return sales;
-
-		} catch (NoResultException e) {
-			return null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new EaoException(e.getMessage());
-		}
-
-	}*/
+	
 	
 	public List<Sale> findByNuicResponsible(Long nuicResponsible) throws EaoException {
 		try {

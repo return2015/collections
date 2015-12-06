@@ -68,12 +68,10 @@ public class DownloadLetterController implements Serializable {
 				Sale sale = saleService.findByCode(code);
 				if (sale != null && sale.getId() != null) {
 
-					Short bankId = sale.getCommerce().getBank().getId();
-					String bankName = sale.getCommerce().getBank().getName();
-					BankLetterEnum bankLetterEnum = BankLetterEnum.findById(bankId);
+					BankLetterEnum bankLetterEnum = BankLetterEnum.findById(sale.getBank().getId());
 
 					if (bankLetterEnum == null) {
-						errors.add(new BankLetterNotFoundException(sale.getCode(), bankName));
+						errors.add(new BankLetterNotFoundException(sale.getCode(), sale.getBank().getName()));
 					}
 					if (sale.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
 						errors.add(new SaleStateNoActiveException(sale.getCode()));

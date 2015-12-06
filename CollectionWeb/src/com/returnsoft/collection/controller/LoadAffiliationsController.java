@@ -52,7 +52,10 @@ public class LoadAffiliationsController implements Serializable {
 
 	private UploadedFile file;
 
-	private List<Commerce> commerces;
+	//private List<Commerce> commerces;
+	
+	
+	
 	private Integer FILE_ROWS = 1;
 
 	private List<Exception> errors;
