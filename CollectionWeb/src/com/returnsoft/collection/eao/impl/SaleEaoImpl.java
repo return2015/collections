@@ -34,8 +34,13 @@ public class SaleEaoImpl implements SaleEao {
 			}
 			code = sale.getBank().getCode()+sale.getProduct().getCode()+code;
 			sale.setCode(code);
+			
+			//System.out.println("RECIEN SE CREA LA VENTA");
+			
 			em.persist(sale);
 			em.flush();
+			
+			//System.out.println("RECIEN SE CREA LA VENTA");
 			
 		} catch (Exception e) {
 			

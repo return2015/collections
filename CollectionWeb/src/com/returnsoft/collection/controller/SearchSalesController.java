@@ -139,6 +139,7 @@ import com.returnsoft.collection.exception.SaleStateInvalidException;
 import com.returnsoft.collection.exception.SaleStateNullException;
 import com.returnsoft.collection.exception.SaleVendorCodeOverflowException;
 import com.returnsoft.collection.exception.SaleVendorNameOverflowException;
+import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
 import com.returnsoft.collection.service.BankService;
@@ -613,8 +614,20 @@ public class SearchSalesController implements Serializable {
 				dataList = null;
 				salesFileCount = 0;
 			} else {
-				List<Sale> sales = validateData();
-				if (errors != null && errors.size() > 0) {
+				//List<Sale> sales = validateData();
+				
+				//saleServiceBackground.add(sales, filename);
+				
+				SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
+						.getSessionMap().get("sessionBean");
+				/*
+				 * Short bankId = sessionBean.getBank().getId(); String bankName =
+				 * sessionBean.getBank().getName();
+				 */
+				
+				saleServiceBackground.add(dataList, filename, headers, sessionBean.getUser().getId(), sessionBean.getBank().getId());
+				
+				/*if (errors != null && errors.size() > 0) {
 					dataList = null;
 					salesFileCount = 0;
 					for (String error : errors) {
@@ -629,23 +642,38 @@ public class SearchSalesController implements Serializable {
 							facesUtil.sendErrorMessage("", error);
 						}
 					} else {
-						System.out.println("en la 628!");
+						//System.out.println("en la 628!");
 						facesUtil.sendConfirmMessage("", "Se crearon " + sales.size() + " ventas.");
 						//facesUtil.sendConfirmMessage("", "Se crearon ventas.");
 						dataList = null;
 						salesFileCount = 0;
 					}
-				}
+				}*/
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.out.println("EXXCEPTION!!!!!!!!!!!!!!!!!!!!");
+			System.out.println("EXXCEPTION!!!!!!!!!!!!!!!!!!!!");
+			
+			System.out.println(e instanceof ServiceException);
+			System.out.println("EXXCEPTION!!!!!!!!!!!!!!!!!!!!");
+			System.out.println("EXXCEPTION!!!!!!!!!!!!!!!!!!!!");
+			System.out.println("EXXCEPTION!!!!!!!!!!!!!!!!!!!!");
 			dataList = null;
 			salesFileCount = 0;
-			if (e.getMessage() == null || e.getMessage().length() == 0) {
+			
+			if (e instanceof ServiceException) {
+				if (((ServiceException) e).getErrors()!=null) {
+					for (String error : ((ServiceException) e).getErrors()) {
+						facesUtil.sendErrorMessage("", error);
+					}
+				}
+			}else if (e.getMessage() == null || e.getMessage().length() == 0) {
 				facesUtil.sendErrorMessage("", "Existen valores nulos3333.");
 			} else {
 				facesUtil.sendErrorMessage("", e.getMessage());
 			}
+			
 		}
 	}
 
@@ -678,6 +706,8 @@ public class SearchSalesController implements Serializable {
 			List<Sale> sales = new ArrayList<Sale>();
 
 			for (SaleFile saleFile : dataList) {
+				
+				System.out.println("verificando ..");
 
 				Sale sale = new Sale();
 				Payer payer = new Payer();
@@ -1286,12 +1316,15 @@ public class SearchSalesController implements Serializable {
 				}
 
 				// VERIFICA SI EXISTE LA VENTA
-				Boolean saleExist = saleService.checkIfExistSale(sale.getNuicInsured(), sale.getDate(),
-						sale.getBank().getId(), sale.getProduct().getId(), sale.getCollectionPeriod().getId());
-				if (saleExist) {
-					Exception ex = new SaleAlreadyExistException();
-					errors.add(generateErrorMessageHeader(lineNumber) + ex.getMessage());
+				if (sale.getBank()!=null && sale.getProduct()!=null && sale.getCollectionPeriod() !=null) {
+					Boolean saleExist = saleService.checkIfExistSale(sale.getNuicInsured(), sale.getDate(),
+							sale.getBank().getId(), sale.getProduct().getId(), sale.getCollectionPeriod().getId());
+					if (saleExist) {
+						Exception ex = new SaleAlreadyExistException();
+						errors.add(generateErrorMessageHeader(lineNumber) + ex.getMessage());
+					}
 				}
+				
 
 				sale.setCreatedBy(user);
 				sale.setCreatedAt(currentDate);
@@ -1303,6 +1336,8 @@ public class SearchSalesController implements Serializable {
 				sales.add(sale);
 
 				lineNumber++;
+				
+				System.out.println("termino de verificar"+lineNumber);
 
 			}
 
