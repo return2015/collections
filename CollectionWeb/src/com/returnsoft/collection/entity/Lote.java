@@ -25,6 +25,15 @@ public class Lote implements Serializable{
 	
 	@Column(name = "lot_name")
 	private String name;
+	
+	@Column(name = "lot_total")
+	private Integer total;
+	
+	@Column(name = "lot_process")
+	private Integer process;
+	
+	@Column(name = "lot_state")
+	private String state;
 
 	public Integer getId() {
 		return id;
@@ -40,6 +49,30 @@ public class Lote implements Serializable{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Integer getTotal() {
+		return total;
+	}
+
+	public void setTotal(Integer total) {
+		this.total = total;
+	}
+
+	public Integer getProcess() {
+		return process;
+	}
+
+	public void setProcess(Integer process) {
+		this.process = process;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
 	}
 	
 	

@@ -1368,7 +1368,27 @@ public class SearchSalesController implements Serializable {
 		// System.out.println("lineNumber:" + lineNumber);
 		try {
 			
-			/*loadStatus =*/ saleServiceBackground.add(sales, filename);
+			
+			
+			//saleServiceBackground.add(sales, filename);
+			
+			if (loadStatus!=null) {
+				System.out.println("SSSSSSSSSSSSSSSSSSSSSSSS"+loadStatus.get());
+				System.out.println("SSSSSSSSSSSSSSSSSSSSSSSS"+loadStatus.get());
+				System.out.println("SSSSSSSSSSSSSSSSSSSSSSSS"+loadStatus.get());
+				System.out.println("SSSSSSSSSSSSSSSSSSSSSSSS"+loadStatus.get());
+				System.out.println("SSSSSSSSSSSSSSSSSSSSSSSS"+loadStatus.get());
+				System.out.println("SSSSSSSSSSSSSSSSSSSSSSSS"+loadStatus.get());
+			}else{
+				System.out.println("SSSSSSSSSSSSSSSSSSSSSSSS es nulo");
+				System.out.println("SSSSSSSSSSSSSSSSSSSSSSSS es nulo");
+				System.out.println("SSSSSSSSSSSSSSSSSSSSSSSS es nulo");
+				System.out.println("SSSSSSSSSSSSSSSSSSSSSSSS es nulo");
+				System.out.println("SSSSSSSSSSSSSSSSSSSSSSSS es nulo");
+				System.out.println("SSSSSSSSSSSSSSSSSSSSSSSS es nulo");
+				
+			}
+			
 			
 			
 		} catch (Exception e) {
@@ -1389,7 +1409,7 @@ public class SearchSalesController implements Serializable {
 		// lineNumber++;
 		// }
 
-		progress = 0;
+		//progress = 0;
 	}
 
 	public String generateErrorMessageHeader(String columnName, int row) {
@@ -2228,20 +2248,44 @@ public class SearchSalesController implements Serializable {
 	}
 
 	public Integer getProgress() {
-		if (loadStatus!=null) {
-			try {
-				return loadStatus.get();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				return progress;
-				
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-				return progress;
-			}
+		System.out.println("Ingreso a getProgress");
+		
+		List<Future<Lote>> futures = saleServiceBackground.getFutures();
+		
+		if (futures.size()>0) {
+			for (Future<Lote> future : futures) {
+				try {
+					System.out.println("GETPROCESS"+future.get().getProcess());
+					System.out.println("GETPROCESS"+future.get().getProcess());
+					System.out.println("GETPROCESS"+future.get().getProcess());
+					System.out.println("GETPROCESS"+future.get().getProcess());
+					System.out.println("GETPROCESS"+future.get().getProcess());
+				} catch (Exception e) {
+					e.printStackTrace();
+				} 
+			}	
 		}else{
-			return progress;
+			System.out.println("FUTURES SON NULOS");
 		}
+		
+		
+		
+		return progress;
+		
+//		if (loadStatus!=null) {
+//			try {
+//				System.out.println("loadStatus"+loadStatus.get());
+//				return loadStatus.get();
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//				System.out.println("en el catch");
+//				return progress;
+//				
+//			}
+//		}else{
+//			System.out.println("loadStatus es nulo");
+//			return progress;
+//		}
 		
 	}
 
