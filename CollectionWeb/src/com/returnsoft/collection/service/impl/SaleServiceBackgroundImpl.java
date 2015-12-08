@@ -6,15 +6,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Future;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
-import javax.ejb.LocalBean;
-import javax.ejb.Singleton;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.transaction.UserTransaction;
@@ -126,17 +124,17 @@ import com.returnsoft.collection.exception.SaleStateNullException;
 import com.returnsoft.collection.exception.SaleVendorCodeOverflowException;
 import com.returnsoft.collection.exception.SaleVendorNameOverflowException;
 import com.returnsoft.collection.exception.ServiceException;
+import com.returnsoft.collection.service.LoteService;
 
-@Singleton
-@TransactionManagement(TransactionManagementType.BEAN)
-@LocalBean
-public class SaleServiceBackground {
+@Stateless
+//@TransactionManagement(TransactionManagementType.BEAN)
+// @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+public class SaleServiceBackgroundImpl implements com.returnsoft.collection.service.SaleServiceBackground {
 
-	@Resource
-	private UserTransaction userTransaction;
+	//@Resource
+	//private UserTransaction userTransaction;
 
-	@EJB
-	private LoteEao loteEao;
+	
 
 	@EJB
 	private PayerEao payerEao;
@@ -166,116 +164,65 @@ public class SaleServiceBackground {
 	@EJB
 	private BankEao bankEao;
 
-	private List<Future<Lote>> futures;
+	//private List<Lote> lotes;
 	
 	
-	@PostConstruct
+	/*@PostConstruct
 	private void initialize(){
-		futures = new ArrayList<Future<Lote>>();
-	}
-
-//	@Asynchronous
-//	// @AccessTimeout(value=240000)
-//	public Future<Integer> add(List<Sale> sales, String filename) throws ServiceException {
-//		try {
-//
-//			System.out.println("ingreso a addSalesServiceBackground.........");
-//
-//			Lote lote = new Lote();
-//			lote.setName(filename);
-//			loteEao.add(lote);
-//
-//			Integer row = 1;
-//
-//			for (Sale sale : sales) {
-//
-//				System.out.println("row:" + row);
-//
-//				// System.out.println("sale.getPayer().getNuicResponsible():"+sale.getPayer().getNuicResponsible());
-//
-//				SaleState saleState = sale.getSaleState();
-//				CreditCard creditCard = sale.getCreditCard();
-//				Payer payer = sale.getPayer();
-//
-//				System.out.println("SE AGREGA EL ESTADO DE LA VENTA");
-//
-//				saleStateEao.add(saleState);
-//				// saleStateEao.add(sale.getSaleState());
-//				System.out.println("SE AGREGA LA TARJETA DE CREDITO");
-//				// creditCard.setSale(sale);
-//
-//				// creditCardEao.add(sale.getCreditCard());
-//				creditCardEao.add(creditCard);
-//				System.out.println("SE AGREGA EL RESPONSABLE");
-//				// payer.setSale(sale);
-//				// payerEao.add(sale.getPayer());
-//				payerEao.add(payer);
-//
-//				/*
-//				 * sale.setSaleState(null); sale.setCreditCard(null);
-//				 * sale.setPayer(null); sale.setLote(lote);
-//				 */
-//
-//				// System.out.println("SE AGREGA LA VENTA");
-//
-//				// saleEao.add(sale);
-//
-//				// saleState.setSale(sale);
-//
-//				// System.out.println("SE ASIGNAN LOS DATOS A LA VENTA");
-//				sale.setSaleState(saleState);
-//				sale.setCreditCard(creditCard);
-//				sale.setPayer(payer);
-//				sale.setLote(lote);
-//
-//				saleEao.add(sale);
-//
-//				System.out.println("FINALIZA");
-//				row++;
-//			}
-//
-//			/*
-//			 * try { Thread.sleep(10000); System.out.println(
-//			 * "Termino el procesoXXX.... "); row = 10; } catch
-//			 * (InterruptedException e) { e.printStackTrace(); }
-//			 */
-//			System.out.println("Termino el procesoXXX.... ");
-//
-//			return new AsyncResult<Integer>(row);
-//
-//		} catch (Exception e) {
-//			System.out.println("exception.........");
-//			System.out.println("exception.........");
-//			System.out.println("exception.........");
-//			System.out.println("exception.........");
-//			System.out.println("exception.........");
-//			e.printStackTrace();
-//			// return new AsyncResult<Integer>(0);
-//			if (e.getMessage() != null && e.getMessage().trim().length() > 0) {
-//				throw new ServiceException(e.getMessage(), e);
-//			} else {
-//				throw new ServiceException();
-//			}
-//		}
-//	}
+		lotes = new ArrayList<Lote>();
+	}*/
+	
+	@EJB
+	private LoteEao loteEao;
+	
 
 	
 	@Asynchronous
+	@Override
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void add(List<SaleFile> dataList, String filename, SaleFile headers, Integer userId, Short bankId)
-			throws ServiceException {
+			 {
 
+		System.out.println("Agregar masivamente");
+		System.out.println("Agregar masivamente");
+		System.out.println("Agregar masivamente");
+		System.out.println("Agregar masivamente");
 		System.out.println("Agregar masivamente");
 
 		List<String> errors = new ArrayList<>();
-		Future<Lote> future =  null;
+		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
+		SimpleDateFormat sdf2 = new SimpleDateFormat("MM/yyyy");
 
 		try {
 			
-			userTransaction.begin();
+			
+			
+			//userTransaction.begin();
+			
+			
+			
+			Lote lote = new Lote();
+			lote.setName(filename);
+			lote.setTotal(dataList.size());
+			lote.setProcess(0);
+			lote.setState("En progreso");
+			loteEao.add(lote);
+			
+			System.out.println("ID LOTEEEEE"+lote.getId());
+			System.out.println("ID LOTEEEEE"+lote.getId());
+			System.out.println("ID LOTEEEEE"+lote.getId());
+			System.out.println("ID LOTEEEEE"+lote.getId());
+			System.out.println("ID LOTEEEEE"+lote.getId());
+			System.out.println("ID LOTEEEEE"+lote.getId());
+			
+			
+			
+			//userTransaction.commit();
+			
+			//userTransaction.begin();
 			
 
-			SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
-			SimpleDateFormat sdf2 = new SimpleDateFormat("MM/yyyy");
+			
 
 			Bank bank = bankEao.findById(bankId);
 			User user = userEao.findById(userId);
@@ -926,16 +873,14 @@ public class SaleServiceBackground {
 			if (errors.size() == 0) {
 
 				//try {
-					Lote lote = new Lote();
+					/*Lote lote = new Lote();
 					lote.setName(filename);
 					lote.setTotal(sales.size());
 					lote.setProcess(0);
 					lote.setState("En progreso");
-					loteEao.add(lote);
+					loteEao.add(lote);*/
 					
-					future = new AsyncResult<Lote>(lote);
-					
-					futures.add(future);
+					//lotes.add(lote);
 
 					lineNumber = 1;
 					
@@ -943,7 +888,17 @@ public class SaleServiceBackground {
 
 						System.out.println("INSERTANDO"+lineNumber);
 						
-						lote.setProcess(lineNumber/sales.size());
+						//userTransaction.begin();
+						
+						//System.out.println(lineNumber);
+						//System.out.println(sales.size());
+						//System.out.println(lineNumber*100/sales.size());
+						
+						
+						lote.setProcess(lineNumber*100/sales.size());
+						
+						lote = loteEao.update(lote);
+						
 						
 						/*progress = lineNumber/sales.size();*/
 						lineNumber++;
@@ -959,10 +914,13 @@ public class SaleServiceBackground {
 						sale.setSaleState(saleState);
 						sale.setCreditCard(creditCard);
 						sale.setPayer(payer);
-						sale.setLote(lote);
+						sale.setLote(null);
+						//sale.setLote(lote);
 						saleEao.add(sale);
 
 					}
+					
+					lote.setState("Terminado..");
 
 					//userTransaction.commit();
 
@@ -973,9 +931,9 @@ public class SaleServiceBackground {
 					throw new ServiceException(errors);
 				}*/
 					
-					userTransaction.commit();
+					//userTransaction.commit();
 
-					futures.remove(future);
+					//futures.remove(future);
 
 			} else {
 				throw new ServiceException(errors);
@@ -985,19 +943,19 @@ public class SaleServiceBackground {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			futures.remove(future);
+			//lotes.remove(lote);
 			if (e.getMessage() == null || e.getMessage().length() == 0) {
 				errors.add("Existen valores nulos.");
 			} else {
 				errors.add(e.getMessage());
 			}
-			try {
+			/*try {
 				userTransaction.setRollbackOnly();
 			} catch (Exception e2) {
 				errors.add(e2.getMessage());
 				e2.printStackTrace();
-			} 
-			throw new ServiceException(errors);
+			} */
+			
 		}
 		
 		
@@ -1014,9 +972,12 @@ public class SaleServiceBackground {
 		return "Error en la fila " + row + ": ";
 	}
 
-	public List<Future<Lote>> getFutures() {
-		return futures;
-	}
+
+	/*public List<Lote> getLotes() {
+		return lotes;
+	}*/
+
+	
 	
 	
 	

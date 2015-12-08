@@ -6,5 +6,7 @@ import com.returnsoft.collection.exception.EaoException;
 public interface LoteEao {
 	
 	public void add(Lote lote) throws EaoException;
+	
+	public Lote update(Lote lote) throws EaoException;
 
 }

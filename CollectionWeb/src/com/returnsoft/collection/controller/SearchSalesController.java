@@ -146,8 +146,9 @@ import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.CollectionPeriodService;
 import com.returnsoft.collection.service.ProductService;
 import com.returnsoft.collection.service.SaleService;
+import com.returnsoft.collection.service.SaleServiceBackground;
 import com.returnsoft.collection.service.UserService;
-import com.returnsoft.collection.service.impl.SaleServiceBackground;
+import com.returnsoft.collection.service.impl.SaleServiceBackgroundImpl;
 import com.returnsoft.collection.util.FacesUtil;
 
 @ManagedBean
@@ -2250,7 +2251,7 @@ public class SearchSalesController implements Serializable {
 	public Integer getProgress() {
 		System.out.println("Ingreso a getProgress");
 		
-		List<Future<Lote>> futures = saleServiceBackground.getFutures();
+		/*List<Future<Lote>> futures = saleServiceBackground.getFutures();
 		
 		if (futures.size()>0) {
 			for (Future<Lote> future : futures) {
@@ -2266,7 +2267,7 @@ public class SearchSalesController implements Serializable {
 			}	
 		}else{
 			System.out.println("FUTURES SON NULOS");
-		}
+		}*/
 		
 		
 		
