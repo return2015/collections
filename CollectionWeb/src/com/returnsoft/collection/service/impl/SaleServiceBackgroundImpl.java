@@ -127,12 +127,11 @@ import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.LoteService;
 
 @Stateless
-//@TransactionManagement(TransactionManagementType.BEAN)
-// @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+@TransactionManagement(TransactionManagementType.BEAN)
 public class SaleServiceBackgroundImpl implements com.returnsoft.collection.service.SaleServiceBackground {
 
-	//@Resource
-	//private UserTransaction userTransaction;
+	@Resource
+	private UserTransaction userTransaction;
 
 	
 
@@ -164,66 +163,30 @@ public class SaleServiceBackgroundImpl implements com.returnsoft.collection.serv
 	@EJB
 	private BankEao bankEao;
 
-	//private List<Lote> lotes;
-	
-	
-	/*@PostConstruct
-	private void initialize(){
-		lotes = new ArrayList<Lote>();
-	}*/
-	
 	@EJB
 	private LoteEao loteEao;
 	
-
-	
 	@Asynchronous
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void add(List<SaleFile> dataList, String filename, SaleFile headers, Integer userId, Short bankId)
 			 {
-
-		System.out.println("Agregar masivamente");
-		System.out.println("Agregar masivamente");
-		System.out.println("Agregar masivamente");
-		System.out.println("Agregar masivamente");
-		System.out.println("Agregar masivamente");
 
 		List<String> errors = new ArrayList<>();
 		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
 		SimpleDateFormat sdf2 = new SimpleDateFormat("MM/yyyy");
 
 		try {
-			
-			
-			
-			//userTransaction.begin();
-			
-			
+				
+			userTransaction.begin();
 			
 			Lote lote = new Lote();
 			lote.setName(filename);
 			lote.setTotal(dataList.size());
 			lote.setProcess(0);
 			lote.setState("En progreso");
+			
 			loteEao.add(lote);
 			
-			System.out.println("ID LOTEEEEE"+lote.getId());
-			System.out.println("ID LOTEEEEE"+lote.getId());
-			System.out.println("ID LOTEEEEE"+lote.getId());
-			System.out.println("ID LOTEEEEE"+lote.getId());
-			System.out.println("ID LOTEEEEE"+lote.getId());
-			System.out.println("ID LOTEEEEE"+lote.getId());
-			
-			
-			
-			//userTransaction.commit();
-			
-			//userTransaction.begin();
-			
-
-			
-
 			Bank bank = bankEao.findById(bankId);
 			User user = userEao.findById(userId);
 			Date currentDate = new Date();
@@ -872,36 +835,11 @@ public class SaleServiceBackgroundImpl implements com.returnsoft.collection.serv
 
 			if (errors.size() == 0) {
 
-				//try {
-					/*Lote lote = new Lote();
-					lote.setName(filename);
-					lote.setTotal(sales.size());
-					lote.setProcess(0);
-					lote.setState("En progreso");
-					loteEao.add(lote);*/
-					
-					//lotes.add(lote);
-
 					lineNumber = 1;
 					
 					for (Sale sale : sales) {
 
 						System.out.println("INSERTANDO"+lineNumber);
-						
-						//userTransaction.begin();
-						
-						//System.out.println(lineNumber);
-						//System.out.println(sales.size());
-						//System.out.println(lineNumber*100/sales.size());
-						
-						
-						lote.setProcess(lineNumber*100/sales.size());
-						
-						lote = loteEao.update(lote);
-						
-						
-						/*progress = lineNumber/sales.size();*/
-						lineNumber++;
 
 						SaleState saleState = sale.getSaleState();
 						CreditCard creditCard = sale.getCreditCard();
@@ -914,13 +852,17 @@ public class SaleServiceBackgroundImpl implements com.returnsoft.collection.serv
 						sale.setSaleState(saleState);
 						sale.setCreditCard(creditCard);
 						sale.setPayer(payer);
-						sale.setLote(null);
-						//sale.setLote(lote);
 						saleEao.add(sale);
+						
+						lote.setProcess(lineNumber);
+						lote = loteEao.update(lote);
+												
+						lineNumber++;
+						
 
 					}
 					
-					lote.setState("Terminado..");
+					lote.setState("Terminado");
 
 					//userTransaction.commit();
 
@@ -931,7 +873,7 @@ public class SaleServiceBackgroundImpl implements com.returnsoft.collection.serv
 					throw new ServiceException(errors);
 				}*/
 					
-					//userTransaction.commit();
+					userTransaction.commit();
 
 					//futures.remove(future);
 
@@ -949,12 +891,12 @@ public class SaleServiceBackgroundImpl implements com.returnsoft.collection.serv
 			} else {
 				errors.add(e.getMessage());
 			}
-			/*try {
+			try {
 				userTransaction.setRollbackOnly();
 			} catch (Exception e2) {
 				errors.add(e2.getMessage());
 				e2.printStackTrace();
-			} */
+			} 
 			
 		}
 		
@@ -972,10 +914,6 @@ public class SaleServiceBackgroundImpl implements com.returnsoft.collection.serv
 		return "Error en la fila " + row + ": ";
 	}
 
-
-	/*public List<Lote> getLotes() {
-		return lotes;
-	}*/
 
 	
 	
