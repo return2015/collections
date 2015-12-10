@@ -133,7 +133,6 @@ public class SaleServiceBackgroundImpl implements com.returnsoft.collection.serv
 	@Resource
 	private UserTransaction userTransaction;
 
-	
 
 	@EJB
 	private PayerEao payerEao;

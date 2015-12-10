@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/BasicTemplate.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{searchLoteController.initialize}" />
+		</f:metadata>
+	</ui:define>
+
+
+	<ui:define name="content">
+
+		<div class="title ui-widget-header ui-corner-all">
+			<h:panelGrid style="margin:auto;">
+		GESTIÓN DE LOTES
+		</h:panelGrid>
+
+		</div>
+
+		<h:panelGrid style="margin:auto;text-align:center;">
+			<p:messages id="messages"></p:messages>
+		</h:panelGrid>
+
+		<h:form id="form">
+			<h:panelGrid style="margin:auto;">
+
+				<h:panelGrid columns="4">
+
+					<p:outputLabel value="Fecha"></p:outputLabel>
+					<p:calendar navigator="true"
+						value="#{searchLoteController.loteDate}" required="true"
+						requiredMessage="Debe ingresar fecha:" pattern="dd-MM-yyyy"></p:calendar>
+
+				</h:panelGrid>
+				<h:panelGrid style="margin:auto;text-align:center;">
+					<p:commandButton icon="ui-icon-search"
+						actionListener="#{searchLoteController.search}" value="Buscar"
+						process="@form" update=":searchTable :messages">
+					</p:commandButton>
+				</h:panelGrid>
+			</h:panelGrid>
+		</h:form>
+
+		<h:panelGrid columns="2">
+
+			<h:form id="formUpload" enctype="multipart/form-data" prependId="false">
+				
+				<h:inputFile value="#{searchLoteController.file}">
+				</h:inputFile>
+				
+				<h:commandButton value="Cargar ventas" action="#{searchLoteController.validateFile}">
+				</h:commandButton>
+
+			</h:form>
+
+
+		</h:panelGrid>
+
+
+		<p:dataTable value="#{searchLoteController.lotes}" var="r"
+			rowKey="#{r.id}" paginator="true" rows="10" id="searchTable"
+			selectionMode="single"
+			selection="#{searchLoteController.loteSelected}">
+
+
+			<p:column headerText="Id">
+				<h:outputText value="#{r.id}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Nombre">
+				<h:outputText value="#{r.name}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Total">
+				<h:outputText value="#{r.total}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Procesado">
+				<h:outputText value="#{r.process}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Estado">
+				<h:outputText value="#{r.state}"></h:outputText>
+			</p:column>
+
+			<p:column headerText="Fecha">
+				<h:outputText value="#{r.date}"></h:outputText>
+			</p:column>
+
+		</p:dataTable>
+
+
+	</ui:define>
+
+</ui:composition>
+</html>

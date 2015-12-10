@@ -1,6 +1,7 @@
 package com.returnsoft.collection.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "lote")
@@ -34,6 +37,23 @@ public class Lote implements Serializable{
 	
 	@Column(name = "lot_state")
 	private String state;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "lot_date")
+	private Date date;
+	
+	@Column(name = "lot_errors")
+	private String errors;
+	
+	
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
 
 	public Integer getId() {
 		return id;
@@ -73,6 +93,14 @@ public class Lote implements Serializable{
 
 	public void setState(String state) {
 		this.state = state;
+	}
+
+	public String getErrors() {
+		return errors;
+	}
+
+	public void setErrors(String errors) {
+		this.errors = errors;
 	}
 	
 	
