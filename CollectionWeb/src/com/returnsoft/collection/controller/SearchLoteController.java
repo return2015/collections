@@ -15,11 +15,15 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ejb.EJB;
+import javax.enterprise.context.ConversationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
+import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.Part;
 
 import org.primefaces.event.FileUploadEvent;
@@ -140,8 +144,8 @@ import com.returnsoft.collection.service.ProductService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 
-@ManagedBean
-@ViewScoped
+@Named
+@RequestScoped
 public class SearchLoteController implements Serializable{
 	
 	/**
@@ -152,6 +156,7 @@ public class SearchLoteController implements Serializable{
 	@EJB
 	private LoteService loteService;
 	
+	@Inject
 	private FacesUtil facesUtil;
 	
 	private Date loteDate;
@@ -188,7 +193,7 @@ public class SearchLoteController implements Serializable{
 	
 	public SearchLoteController(){
 		System.out.println("Se construye SearchLoteController");
-		facesUtil = new FacesUtil();
+		//facesUtil = new FacesUtil();
 	}
 	
 	public String initialize() {
@@ -264,7 +269,7 @@ public class SearchLoteController implements Serializable{
 				throw new BankNotSelectedException();
 				
 			} else if (file != null && file.getSize() > 0) {
-				if (file.getName().endsWith(".csv") || file.getName().endsWith(".CSV")) {
+				if (file.getContentType().equals("text/plain")) {
 
 					getFileData(file.getName());
 

@@ -2,7 +2,10 @@ package com.returnsoft.collection.util;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-
+import javax.inject.Named;
+import javax.inject.Singleton;
+@Named
+@Singleton
 public class FacesUtil {
 	
 	
