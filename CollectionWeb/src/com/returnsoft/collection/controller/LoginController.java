@@ -3,16 +3,17 @@ package com.returnsoft.collection.controller;
 import java.io.Serializable;
 
 import javax.ejb.EJB;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.exception.SessionTypeInvalidException;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
 
-@ManagedBean
+@Named
 @RequestScoped
 public class LoginController implements Serializable {
 
@@ -27,11 +28,15 @@ public class LoginController implements Serializable {
 	@EJB
 	private UserService userService;
 	
+	@Inject
 	private FacesUtil facesUtil;
+	
+	@Inject
+	private SessionBean sessionBean;
 
 	public LoginController() {
 		
-		facesUtil = new FacesUtil();
+		
 
 	}
 
@@ -43,7 +48,7 @@ public class LoginController implements Serializable {
 			// BUSCA USUARIO Y CLAVE
 			User user = userService.loginUser(username, password);
 			
-			SessionBean sessionBean = null;
+			//SessionBean sessionBean = null;
 				
 			/*FacesContext.getCurrentInstance().getExternalContext()
 			.getSessionMap().put("name", user.getFirstname() + " "
@@ -55,19 +60,19 @@ public class LoginController implements Serializable {
 			
 			switch (user.getUserType()) {
 			case ADMIN:
-				sessionBean = new SessionBean();
+				//sessionBean = new SessionBean();
 				sessionBean.setUser(user);
 				sessionBean.setIsAdmin(true);
 				/*FacesContext.getCurrentInstance().getExternalContext()
 				.getSessionMap().put("isAdmin", true);*/
-				FacesContext.getCurrentInstance().getExternalContext()
-				.getSessionMap().put("sessionBean", sessionBean);
+				/*FacesContext.getCurrentInstance().getExternalContext()
+				.getSessionMap().put("sessionBean", sessionBean);*/
 				return "home?faces-redirect=true";
 			case AGENT:
-				sessionBean = new SessionBean();
+				//sessionBean = new SessionBean();
 				sessionBean.setUser(user);
-				FacesContext.getCurrentInstance().getExternalContext()
-				.getSessionMap().put("sessionBean", sessionBean);
+				/*FacesContext.getCurrentInstance().getExternalContext()
+				.getSessionMap().put("sessionBean", sessionBean);*/
 				
 				return "select_bank?faces-redirect=true";
 				
@@ -81,7 +86,7 @@ public class LoginController implements Serializable {
 		}  catch (Exception e) {
 			
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
+			facesUtil.sendErrorMessage(e.getMessage());
 			return null;
 		}
 
@@ -98,7 +103,7 @@ public class LoginController implements Serializable {
 		}  catch (Exception e) {
 			//System.out.println(e.getMessage());
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
+			facesUtil.sendErrorMessage(e.getMessage());
 			return null;
 		}
 

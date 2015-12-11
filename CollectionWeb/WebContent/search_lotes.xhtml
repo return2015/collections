@@ -51,14 +51,10 @@
 
 		<h:panelGrid columns="2">
 
-			<h:form id="formUpload" enctype="multipart/form-data" prependId="false">
-				
-				<h:inputFile value="#{searchLoteController.file}">
+			<h:form id="formUploadSales" enctype="multipart/form-data" prependId="false">
+				<h:inputFile value="#{searchLoteController.file}" >
+				<f:ajax listener="#{searchLoteController.validateFile}" render="@form :messages" />
 				</h:inputFile>
-				
-				<h:commandButton value="Cargar ventas" action="#{searchLoteController.validateFile}">
-				</h:commandButton>
-
 			</h:form>
 
 

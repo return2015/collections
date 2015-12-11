@@ -17,7 +17,11 @@ public class SessionBean implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 5403281786762357734L;
+	/**
+	 * 
+	 */
+	
 	
 	private User user;
 	private Bank bank;

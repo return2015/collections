@@ -238,6 +238,8 @@ public class LoteServiceImpl implements LoteService {
 			throws ServiceException {
 
 		try {
+			
+			userTransaction.begin();
 
 			/// COMPLETE FOREIGNS
 			List<Product> productsEntity = productEao.getProducts();
@@ -269,7 +271,7 @@ public class LoteServiceImpl implements LoteService {
 
 			Integer lineNumber = 1;
 			
-			userTransaction.begin();
+			
 			
 			// lunes 10
 

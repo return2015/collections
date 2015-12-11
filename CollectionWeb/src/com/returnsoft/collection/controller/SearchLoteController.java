@@ -55,6 +55,7 @@ import com.returnsoft.collection.exception.FileMultipleErrorsException;
 import com.returnsoft.collection.exception.FileExtensionException;
 import com.returnsoft.collection.exception.FileNotFoundException;
 import com.returnsoft.collection.exception.FileRowsZeroException;
+import com.returnsoft.collection.exception.MultipleErrorsException;
 import com.returnsoft.collection.exception.PayerAddressOverflowException;
 import com.returnsoft.collection.exception.PayerDepartmentOverflowException;
 import com.returnsoft.collection.exception.PayerDistrictOverflowException;
@@ -159,6 +160,9 @@ public class SearchLoteController implements Serializable{
 	@Inject
 	private FacesUtil facesUtil;
 	
+	@Inject
+	private SessionBean sessionBean;
+	
 	private Date loteDate;
 	
 	private List<Lote> lotes;
@@ -197,41 +201,17 @@ public class SearchLoteController implements Serializable{
 	}
 	
 	public String initialize() {
-
 		System.out.println("inicializando SearchLoteController");
-
 		try {
-
-			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
-					.getSessionMap().get("sessionBean");
-
-			if (sessionBean != null && sessionBean.getUser() != null && sessionBean.getUser().getId() > 0) {
-
-				if (!sessionBean.getUser().getUserType().equals(UserTypeEnum.ADMIN)
-						&& !sessionBean.getUser().getUserType().equals(UserTypeEnum.AGENT)) {
-					throw new UserPermissionNotFoundException();
-				}
-
-				return null;
-
-			} else {
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
 				throw new UserLoggedNotFoundException();
-			}
-
-		} catch (UserLoggedNotFoundException e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-			return "login.xhtml?faces-redirect=true";
-		} catch (UserPermissionNotFoundException e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-			return "login.xhtml?faces-redirect=true";
+			} 
+			return null;
 		} catch (Exception e) {
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-			return null;
+			facesUtil.sendErrorMessage(e.getMessage());
+			return "login.xhtml?faces-redirect=true";
 		}
-
 	}
 	
 	public void search(){
@@ -247,54 +227,39 @@ public class SearchLoteController implements Serializable{
 	
 	
 	//public void validateFile(FileUploadEvent event) {
-	public String validateFile() {
+	public void validateFile(AjaxBehaviorEvent event) {
 
 		System.out.println("validateFile");
-
 		try {
-			
-			//file = event.getFile();
-			//file = (Part)value;
-			System.out.println("fielname"+file.getName());
-			System.out.println("fielname"+file.getSubmittedFileName());
-			System.out.println("fielname"+file.getHeaderNames());
-			System.out.println("fielname"+file.getSize());
-			System.out.println("fielname"+file.getContentType());
-
-			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
-					.getSessionMap().get("sessionBean");
-
 			if (sessionBean.getBank() == null) {
-				
 				throw new BankNotSelectedException();
-				
 			} else if (file != null && file.getSize() > 0) {
 				if (file.getContentType().equals("text/plain")) {
-
-					getFileData(file.getName());
-
+					loadFile(file.getSubmittedFileName());
 				} else {
 					throw new FileExtensionException();
 				}
 			} else {
 				throw new FileNotFoundException();
 			}
-
+		} catch (MultipleErrorsException e) {
+			e.printStackTrace();
+			for (Exception exception : e.getErrors()) {
+				facesUtil.sendErrorMessage(exception.getMessage());
+			}
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage("Existen valores nulos.");
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage() == null || e.getMessage().length() == 0) {
-				facesUtil.sendErrorMessage("Existen valores nulos.");
-			} else {
-				facesUtil.sendErrorMessage(e.getMessage());
-			}
+			facesUtil.sendErrorMessage(e.getMessage());
 		}
 		
-		return null;
 
 	}
 	
 	
-	public void getFileData(String filename) throws ControllerException {
+	public void loadFile(String filename) throws MultipleErrorsException {
 
 		System.out.println("getFileData");
 		
@@ -303,7 +268,6 @@ public class SearchLoteController implements Serializable{
 			BufferedReader 
 				br = new BufferedReader(
 						new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-			
 			
 			String strLine = null;
 			Integer numLine = 0;
@@ -489,23 +453,16 @@ public class SearchLoteController implements Serializable{
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ControllerException(e);
 		}
 
 	}
 	
-	public void validateData(SaleFile headers, List<SaleFile> dataList, String filename) throws ControllerException{
+	public void validateData(SaleFile headers, List<SaleFile> dataList, String filename) throws MultipleErrorsException{
 
 		System.out.println("Validando vacíos");
 
 		try {
 
-			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
-					.getSessionMap().get("sessionBean");
-			/*
-			 * Short bankId = sessionBean.getBank().getId(); String bankName =
-			 * sessionBean.getBank().getName();
-			 */
 			Bank bank = sessionBean.getBank();
 			User user = sessionBean.getUser();
 			Date currentDate = new Date();
@@ -1163,8 +1120,6 @@ public class SearchLoteController implements Serializable{
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new ControllerException(e);
-			
 		}
 
 	}
