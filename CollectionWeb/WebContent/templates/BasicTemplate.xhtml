@@ -21,7 +21,7 @@
 <!-- -->
 
 	<div style="float:right;" class="ui-widget">
-		<h:panelGrid style="margin:auto;">
+		<h:panelGrid id="pnl-bank" style="margin:auto;">
 			<h1>#{sessionBean.bank.name}</h1>
 		</h:panelGrid>
 	</div>
@@ -35,16 +35,7 @@
 			
 			<p:menuitem value="Lotes" outcome="search_lotes" icon="ui-icon-star" />
 			
-			<p:submenu label="Ventas" icon="ui-icon-star">
-			
-			<p:menuitem value="Buscar ventas" outcome="search_sales"
-					icon="ui-icon-star" />
-					
-			<p:menuitem value="Actualizar estados" outcome="load_maintenances"
-					rendered="#{sessionBean.bank.id!=null}"
-					icon="ui-icon-star" />
-					
-			</p:submenu>
+			<p:menuitem value="Ventas" outcome="search_sales" icon="ui-icon-star" />
 
 			<p:submenu label="Cobranzas" icon="ui-icon-star">
 			

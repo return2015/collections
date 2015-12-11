@@ -218,303 +218,261 @@
 			</h:form>
 		</h:panelGrid>
 
+		<h:form id="formTable">
 
-
-		<h:panelGrid columns="2" >
-
-			<h:form id="formUpload" enctype="multipart/form-data;charset=UTF-8">
-				<p:fileUpload id="inputFile" mode="advanced"
-					widgetVar="inputFileSales" value="#{searchSalesController.file}"
-					auto="true"
-					update=":formUpload:inputFile :formUpload2:loadSaleButton :messages"
-					fileUploadListener="#{searchSalesController.handleFileUpload}"
-					label="Cargar Archivo" fileLimit="1">
-				</p:fileUpload>
-			</h:form>
-
-			<h:form id="formUpload2">
-				<h:panelGrid columns="2" style="width:100%;">
-					<p:commandButton id="loadSaleButton" widgetVar="loadButton"
-						disabled="#{searchSalesController.salesFileCount==null or searchSalesController.salesFileCount==0}"
-						value="Cargar #{searchSalesController.salesFileCount} Ventas"
-						process="@this" oncomplete="enableChoosing();"
-						update=":formUpload2:loadSaleButton :formUpload2:pbLoadSales :formUpload:inputFile :messages"
-						actionListener="#{searchSalesController.loadData}"
-						onclick="PF('pbLoad').start();PF('loadButton').disable();disableChoosing();">
-						<p:confirm header="Confirmación" message="¿Está seguro?"
-							icon="ui-icon-alert" />
-					</p:commandButton>
-					<p:progressBar widgetVar="pbLoad" ajax="true" id="pbLoadSales" style="width:200px;"
-						value="#{searchSalesController.progress}" labelTemplate="{value}%"
-						styleClass="animated" global="false">
-					</p:progressBar>
-				</h:panelGrid>
-			</h:form>
-
-		</h:panelGrid>
-
-		
-
-
-			<h:form id="formTable">
-
-				<h:panelGrid columns="2" style="width:100%;">
-					<p:outputLabel id="saleId"
-						value="Venta seleccionada: #{searchSalesController.saleSelected!=null?searchSalesController.saleSelected.code:''}">
+			<h:panelGrid columns="2" style="width:100%;">
+				<p:outputLabel id="saleId"
+					value="Venta seleccionada: #{searchSalesController.saleSelected!=null?searchSalesController.saleSelected.code:''}">
+				</p:outputLabel>
+				<h:panelGrid style="width:100%;">
+					<p:outputLabel id="salesCount"
+						value="Se encontraron #{searchSalesController.salesCount} ventas.">
 					</p:outputLabel>
-					<h:panelGrid style="width:100%;">
-						<p:outputLabel id="salesCount"
-							value="Se encontraron #{searchSalesController.salesCount} ventas.">
-						</p:outputLabel>
-					</h:panelGrid>
 				</h:panelGrid>
-
-				
-				<p:dataTable style="width:100%;" value="#{searchSalesController.sales}" var="s"
-					scrollable="true" scrollWidth="100%" paginator="true" rows="10"
-					selectionMode="single" 
-					selection="#{searchSalesController.saleSelected}" rowKey="#{s.id}"
-					id="searchTable">
-
-					<p:ajax event="rowSelect" update=":formTable:saleId" />
-					<p:ajax event="rowUnselect" update=":formTable:saleId" />
+			</h:panelGrid>
 
 
-					<p:column headerText="CODIGO" width="100">
-						<h:outputText value="#{s.code}"></h:outputText>
-					</p:column>
+			<p:dataTable style="width:100%;"
+				value="#{searchSalesController.sales}" var="s" scrollable="true"
+				scrollWidth="100%" paginator="true" rows="10" selectionMode="single"
+				selection="#{searchSalesController.saleSelected}" rowKey="#{s.id}"
+				id="searchTable">
 
-					<p:column headerText="TIPO DE DOCUMENTO" width="80">
-						<h:outputText value="#{s.payer.documentType.name}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="NUIC RESP PAGO" width="80">
-						<h:outputText value="#{s.payer.nuicResponsible}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="AP PAT RESP PAGO" width="80">
-						<h:outputText value="#{s.payer.lastnamePaternalResponsible}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="AP MAT RESP PAGO" width="80">
-						<h:outputText value="#{s.payer.lastnameMaternalResponsible}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="NOMBRES RESP PAGO" width="80">
-						<h:outputText value="#{s.payer.firstnameResponsible}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="N° TARJETA DE CREDITO" width="100">
-						<h:outputText value="#{s.creditCard.number}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="N° DE CUENTA" width="80">
-						<h:outputText value="#{s.accountNumber}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="FECHA VENC TARJETA" width="80">
-						<h:outputText value="#{s.creditCard.expirationDate}">
-							<f:convertDateTime pattern="MM/yyyy" />
-						</h:outputText>
-					</p:column>
-
-					<p:column headerText="ESTADO TC" width="80">
-						<h:outputText value="#{s.creditCard.state}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="DIAS MORA" width="80">
-						<h:outputText value="#{s.creditCard.daysOfDefault}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="NUIC CONTRATANTE" width="80">
-						<h:outputText value="#{s.nuicContractor}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="AP PAT CONTRATANTE" width="80">
-						<h:outputText value="#{s.lastnamePaternalContractor}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="AP MAT CONTRATANTE" width="80">
-						<h:outputText value="#{s.lastnameMaternalContractor}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="NOMBRES CONTRATANTE" width="80">
-						<h:outputText value="#{s.firstnameContractor}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="NUIC ASEGURADO" width="80">
-						<h:outputText value="#{s.nuicInsured}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="AP PAT ASEGURADO" width="80">
-						<h:outputText value="#{s.lastnamePaternalInsured}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="AP MAT ASEGURADO" width="80">
-						<h:outputText value="#{s.lastnameMaternalInsured}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="NOMBRES ASEGURADO" width="80">
-						<h:outputText value="#{s.firstnameInsured}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="TELEFONO 1" width="80">
-						<h:outputText value="#{s.phone1}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="TELEFONO 2" width="80">
-						<h:outputText value="#{s.phone2}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="CORREO" width="120">
-						<h:outputText value="#{s.payer.mail}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="DEPARTAMENTO" width="80">
-						<h:outputText value="#{s.payer.department}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="PROVINCIA" width="80">
-						<h:outputText value="#{s.payer.province}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="DISTRITO" width="80">
-						<h:outputText value="#{s.payer.district}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="DIRECCION" width="80"
-						style="white-space:nowrap;">
-						<h:outputText value="#{s.payer.address}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="FECHA DE VENTA" width="80">
-						<h:outputText value="#{s.date}" width="80">
-							<f:convertDateTime pattern="dd/MM/yyyy" />
-						</h:outputText>
-					</p:column>
-
-					<p:column headerText="CANAL DE VENTA" width="80">
-						<h:outputText value="#{s.channel}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="LUGAR DE VENTA" width="80">
-						<h:outputText value="#{s.place}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="CODIGO DE VENDEDOR" width="80">
-						<h:outputText value="#{s.vendorCode}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="NOMBRE DE VENDEDOR" width="80">
-						<h:outputText value="#{s.vendorName}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="# DE POLIZA" width="80">
-						<h:outputText value="#{s.policyNumber}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="# DE CERTIFICADO" width="80">
-						<h:outputText value="#{s.certificateNumber}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="# DE PROPUESTA" width="80">
-						<h:outputText value="#{s.proposalNumber}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="CODIGO DE COMERCIO" width="80">
-						<h:outputText value="#{s.commerceCode}"></h:outputText>
-					</p:column>
+				<p:ajax event="rowSelect" update=":formTable:saleId" />
+				<p:ajax event="rowUnselect" update=":formTable:saleId" />
 
 
-					<p:column headerText="PRODUCTO" width="80">
-						<h:outputText value="#{s.product.name}"></h:outputText>
-					</p:column>
+				<p:column headerText="CODIGO" width="100">
+					<h:outputText value="#{s.code}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="DESCRIPCION DE PRODUCTO" width="80">
-						<h:outputText value="#{s.productDescription}"></h:outputText>
-					</p:column>
+				<p:column headerText="TIPO DE DOCUMENTO" width="80">
+					<h:outputText value="#{s.payer.documentType.name}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="PERIODO DE COBRO" width="80">
-						<h:outputText value="#{s.collectionPeriod.name}"></h:outputText>
-					</p:column>
+				<p:column headerText="NUIC RESP PAGO" width="80">
+					<h:outputText value="#{s.payer.nuicResponsible}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="TIPO DE COBRO" width="80">
-						<h:outputText value="#{s.collectionType}"></h:outputText>
-					</p:column>
+				<p:column headerText="AP PAT RESP PAGO" width="80">
+					<h:outputText value="#{s.payer.lastnamePaternalResponsible}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="BANCO" width="80">
-						<h:outputText value="#{s.bank.name}"></h:outputText>
-					</p:column>
+				<p:column headerText="AP MAT RESP PAGO" width="80">
+					<h:outputText value="#{s.payer.lastnameMaternalResponsible}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="PRIMA" width="80">
-						<h:outputText value="#{s.insurancePremium}"></h:outputText>
-					</p:column>
+				<p:column headerText="NOMBRES RESP PAGO" width="80">
+					<h:outputText value="#{s.payer.firstnameResponsible}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="FECHA DE AUDITORIA" width="80">
-						<h:outputText value="#{s.auditDate}">
-							<f:convertDateTime pattern="dd/MM/yyyy" />
-						</h:outputText>
-					</p:column>
+				<p:column headerText="N° TARJETA DE CREDITO" width="100">
+					<h:outputText value="#{s.creditCard.number}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="USUARIO DE AUDITORIA" width="80">
-						<h:outputText value="#{s.auditUser}"></h:outputText>
-					</p:column>
+				<p:column headerText="N° DE CUENTA" width="80">
+					<h:outputText value="#{s.accountNumber}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="ESTADO" width="80">
-						<h:outputText value="#{s.saleState.state.name}"></h:outputText>
-					</p:column>
+				<p:column headerText="FECHA VENC TARJETA" width="80">
+					<h:outputText value="#{s.creditCard.expirationDate}">
+						<f:convertDateTime pattern="MM/yyyy" />
+					</h:outputText>
+				</p:column>
 
-					<p:column headerText="FECHA ESTADO" width="80">
-						<h:outputText value="#{s.saleState.date}">
-							<f:convertDateTime pattern="dd/MM/yyyy" />
-						</h:outputText>
-					</p:column>
+				<p:column headerText="ESTADO TC" width="80">
+					<h:outputText value="#{s.creditCard.state}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="USUARIO ESTADO" width="80">
-						<h:outputText value="#{s.saleState.user}"></h:outputText>
-					</p:column>
+				<p:column headerText="DIAS MORA" width="80">
+					<h:outputText value="#{s.creditCard.daysOfDefault}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="CANAL ESTADO" width="80">
-						<h:outputText value="#{s.saleState.channel}"></h:outputText>
-					</p:column>
+				<p:column headerText="NUIC CONTRATANTE" width="80">
+					<h:outputText value="#{s.nuicContractor}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="MOTIVO ESTADO" width="80">
-						<h:outputText value="#{s.saleState.reason}"></h:outputText>
-					</p:column>
+				<p:column headerText="AP PAT CONTRATANTE" width="80">
+					<h:outputText value="#{s.lastnamePaternalContractor}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="OBSERVACIONES ESTADO" width="80"
-						style="white-space:nowrap;">
-						<h:outputText value="#{s.saleState.observation}"></h:outputText>
-					</p:column>
+				<p:column headerText="AP MAT CONTRATANTE" width="80">
+					<h:outputText value="#{s.lastnameMaternalContractor}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="FECHA ACT TC" width="80">
-						<h:outputText value="#{s.creditCard.date}" width="80">
-							<f:convertDateTime pattern="dd/MM/yyyy" />
-						</h:outputText>
-					</p:column>
-					
-					<p:column headerText="LOTE" width="80">
-						<h:outputText value="#{s.lote.name}">
-						</h:outputText>
-					</p:column>
+				<p:column headerText="NOMBRES CONTRATANTE" width="80">
+					<h:outputText value="#{s.firstnameContractor}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="FECHA CREACION" width="80">
-						<h:outputText value="#{s.createdAt}">
-							<f:convertDateTime pattern="dd-MM-yyyy hh:mm:ss a" />
-						</h:outputText>
-					</p:column>
+				<p:column headerText="NUIC ASEGURADO" width="80">
+					<h:outputText value="#{s.nuicInsured}"></h:outputText>
+				</p:column>
 
-					<p:column headerText="USUARIO CREACION" width="80">
-						<h:outputText value="#{s.createdBy.username}"></h:outputText>
-					</p:column>
+				<p:column headerText="AP PAT ASEGURADO" width="80">
+					<h:outputText value="#{s.lastnamePaternalInsured}"></h:outputText>
+				</p:column>
 
-				</p:dataTable>
+				<p:column headerText="AP MAT ASEGURADO" width="80">
+					<h:outputText value="#{s.lastnameMaternalInsured}"></h:outputText>
+				</p:column>
 
-			</h:form>
+				<p:column headerText="NOMBRES ASEGURADO" width="80">
+					<h:outputText value="#{s.firstnameInsured}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="TELEFONO 1" width="80">
+					<h:outputText value="#{s.phone1}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="TELEFONO 2" width="80">
+					<h:outputText value="#{s.phone2}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="CORREO" width="120">
+					<h:outputText value="#{s.payer.mail}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="DEPARTAMENTO" width="80">
+					<h:outputText value="#{s.payer.department}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="PROVINCIA" width="80">
+					<h:outputText value="#{s.payer.province}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="DISTRITO" width="80">
+					<h:outputText value="#{s.payer.district}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="DIRECCION" width="80"
+					style="white-space:nowrap;">
+					<h:outputText value="#{s.payer.address}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="FECHA DE VENTA" width="80">
+					<h:outputText value="#{s.date}" width="80">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="CANAL DE VENTA" width="80">
+					<h:outputText value="#{s.channel}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="LUGAR DE VENTA" width="80">
+					<h:outputText value="#{s.place}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="CODIGO DE VENDEDOR" width="80">
+					<h:outputText value="#{s.vendorCode}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="NOMBRE DE VENDEDOR" width="80">
+					<h:outputText value="#{s.vendorName}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="# DE POLIZA" width="80">
+					<h:outputText value="#{s.policyNumber}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="# DE CERTIFICADO" width="80">
+					<h:outputText value="#{s.certificateNumber}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="# DE PROPUESTA" width="80">
+					<h:outputText value="#{s.proposalNumber}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="CODIGO DE COMERCIO" width="80">
+					<h:outputText value="#{s.commerceCode}"></h:outputText>
+				</p:column>
 
 
-		
+				<p:column headerText="PRODUCTO" width="80">
+					<h:outputText value="#{s.product.name}"></h:outputText>
+				</p:column>
 
+				<p:column headerText="DESCRIPCION DE PRODUCTO" width="80">
+					<h:outputText value="#{s.productDescription}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="PERIODO DE COBRO" width="80">
+					<h:outputText value="#{s.collectionPeriod.name}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="TIPO DE COBRO" width="80">
+					<h:outputText value="#{s.collectionType}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="BANCO" width="80">
+					<h:outputText value="#{s.bank.name}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="PRIMA" width="80">
+					<h:outputText value="#{s.insurancePremium}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="FECHA DE AUDITORIA" width="80">
+					<h:outputText value="#{s.auditDate}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="USUARIO DE AUDITORIA" width="80">
+					<h:outputText value="#{s.auditUser}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="ESTADO" width="80">
+					<h:outputText value="#{s.saleState.state.name}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="FECHA ESTADO" width="80">
+					<h:outputText value="#{s.saleState.date}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="USUARIO ESTADO" width="80">
+					<h:outputText value="#{s.saleState.user}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="CANAL ESTADO" width="80">
+					<h:outputText value="#{s.saleState.channel}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="MOTIVO ESTADO" width="80">
+					<h:outputText value="#{s.saleState.reason}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="OBSERVACIONES ESTADO" width="80"
+					style="white-space:nowrap;">
+					<h:outputText value="#{s.saleState.observation}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="FECHA ACT TC" width="80">
+					<h:outputText value="#{s.creditCard.date}" width="80">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="LOTE" width="80">
+					<h:outputText value="#{s.lote.name}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="FECHA CREACION" width="80">
+					<h:outputText value="#{s.createdAt}">
+						<f:convertDateTime pattern="dd-MM-yyyy hh:mm:ss a" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="USUARIO CREACION" width="80">
+					<h:outputText value="#{s.createdBy.username}"></h:outputText>
+				</p:column>
+
+			</p:dataTable>
+
+		</h:form>
 
 		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
 			<p:commandButton value="Sí" type="button"

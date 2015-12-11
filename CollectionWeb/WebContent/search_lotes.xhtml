@@ -25,73 +25,93 @@
 
 		</div>
 
-		<h:panelGrid style="margin:auto;text-align:center;">
-			<p:messages id="messages"></p:messages>
-		</h:panelGrid>
 
-		<h:form id="form">
-			<h:panelGrid style="margin:auto;">
 
-				<h:panelGrid columns="4">
 
-					<p:outputLabel value="Fecha"></p:outputLabel>
-					<p:calendar navigator="true"
-						value="#{searchLoteController.loteDate}" required="true"
-						requiredMessage="Debe ingresar fecha:" pattern="dd-MM-yyyy"></p:calendar>
-
-				</h:panelGrid>
-				<h:panelGrid style="margin:auto;text-align:center;">
-					<p:commandButton icon="ui-icon-search"
-						actionListener="#{searchLoteController.search}" value="Buscar"
-						process="@form" update=":searchTable :messages">
-					</p:commandButton>
-				</h:panelGrid>
+		<h:panelGrid columns="2" style="margin:auto;"
+			columnClasses="topAligned,topAligned">
+			<h:panelGrid>
+				<p:accordionPanel id="acc_sales" style="width:400px;font-size:11px;">
+					<p:tab title="Cargar lote de ventas">
+						<h:form id="formUploadSales" enctype="multipart/form-data">
+							<h:panelGrid columns="2">
+								<h:inputFile id="file" value="#{searchLoteController.file}" >
+								</h:inputFile>
+								<h:commandButton  value="Cargar ventas" process="@form"
+									actionListener="#{searchLoteController.validateFile}">
+									<f:ajax execute="file" render=":acc_sales:messages_sales"/>
+									</h:commandButton>
+							</h:panelGrid>
+						</h:form>
+						<p:messages id="messages_sales"></p:messages>
+					</p:tab>
+					<p:tab title="Cargar lote de cobranzas">
+					</p:tab>
+					<p:tab title="Cargar lote de estados">
+					</p:tab>
+					<p:tab title="Cargar lote de TC">
+					</p:tab>
+				</p:accordionPanel>
 			</h:panelGrid>
-		</h:form>
 
-		<h:panelGrid columns="2">
+			<h:panelGrid>
+				<h:form id="form">
+					<h:panelGrid>
+						<p:messages id="messages"></p:messages>
+					</h:panelGrid>
+					<h:panelGrid columns="3">
+						<p:outputLabel value="Fecha"></p:outputLabel>
+						<p:calendar navigator="true"
+							value="#{searchLoteController.loteDate}" required="true"
+							requiredMessage="Debe ingresar fecha:" pattern="dd-MM-yyyy"></p:calendar>
+						<p:commandButton icon="ui-icon-search"
+							actionListener="#{searchLoteController.search}" value="Buscar"
+							process="@form" update=":searchTable :form:messages">
+						</p:commandButton>
+					</h:panelGrid>
 
-			<h:form id="formUploadSales" enctype="multipart/form-data" prependId="false">
-				<h:inputFile value="#{searchLoteController.file}" >
-				<f:ajax listener="#{searchLoteController.validateFile}" render="@form :messages" />
-				</h:inputFile>
-			</h:form>
+				</h:form>
+				<p:dataTable value="#{searchLoteController.lotes}" var="r"
+					rowKey="#{r.id}" paginator="true" rows="10" id="searchTable"
+					selectionMode="single"
+					selection="#{searchLoteController.loteSelected}">
+
+
+					<p:column headerText="Id">
+						<h:outputText value="#{r.id}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="Nombre">
+						<h:outputText value="#{r.name}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="Total">
+						<h:outputText value="#{r.total}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="Procesado">
+						<h:outputText value="#{r.process}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="Estado">
+						<h:outputText value="#{r.state}"></h:outputText>
+					</p:column>
+
+					<p:column headerText="Fecha">
+						<h:outputText value="#{r.date}">
+							<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+						</h:outputText>
+					</p:column>
+
+				</p:dataTable>
+			</h:panelGrid>
 
 
 		</h:panelGrid>
 
 
-		<p:dataTable value="#{searchLoteController.lotes}" var="r"
-			rowKey="#{r.id}" paginator="true" rows="10" id="searchTable"
-			selectionMode="single"
-			selection="#{searchLoteController.loteSelected}">
 
 
-			<p:column headerText="Id">
-				<h:outputText value="#{r.id}"></h:outputText>
-			</p:column>
-
-			<p:column headerText="Nombre">
-				<h:outputText value="#{r.name}"></h:outputText>
-			</p:column>
-
-			<p:column headerText="Total">
-				<h:outputText value="#{r.total}"></h:outputText>
-			</p:column>
-
-			<p:column headerText="Procesado">
-				<h:outputText value="#{r.process}"></h:outputText>
-			</p:column>
-
-			<p:column headerText="Estado">
-				<h:outputText value="#{r.state}"></h:outputText>
-			</p:column>
-
-			<p:column headerText="Fecha">
-				<h:outputText value="#{r.date}"></h:outputText>
-			</p:column>
-
-		</p:dataTable>
 
 
 	</ui:define>

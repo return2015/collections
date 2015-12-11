@@ -36,7 +36,7 @@ public class SelectBankController implements Serializable {
 	private String bankSelected;
 	private List<SelectItem> banks;
 	
-	private UIInput banksCOM;
+	//private UIInput banksCOM;
 
 	@EJB
 	private UserService userService;
@@ -68,7 +68,7 @@ public class SelectBankController implements Serializable {
 					item.setValue(bank.getId());
 					banks.add(item);
 				}
-				banksCOM.setv
+				//banksCOM.set
 			}
 			return null;
 
@@ -83,7 +83,7 @@ public class SelectBankController implements Serializable {
 		}
 	}
 
-	//@PostConstruct
+	@PostConstruct
 	public void start() {
 		try {
 
@@ -110,12 +110,11 @@ public class SelectBankController implements Serializable {
 		}
 	}
 
-	public String selectBank() {
+	public void selectBank() {
 		try {
 
 			System.out.println("bankSelected:" + bankSelected);
-			System.out.println("bankSelected:" + banksCOM.getClientId());
-			System.out.println("bankSelected:" + banksCOM.getSubmittedValue());
+			
 
 			if (bankSelected != null && bankSelected.length() > 0) {
 
@@ -144,20 +143,19 @@ public class SelectBankController implements Serializable {
 				 * .getSessionMap().put("sessionBean", sessionBean);
 				 */
 
-				return "home?faces-redirect=true";
+				//return "home?faces-redirect=true";
 
-			} else {
-				return null;
 			}
+			
 
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage("Existen valores nulos");
-			return null;
+			//return null;
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getMessage());
-			return null;
+			//turn null;
 		}
 	}
 
@@ -177,13 +175,7 @@ public class SelectBankController implements Serializable {
 		this.banks = banks;
 	}
 
-	public UIInput getBanksCOM() {
-		return banksCOM;
-	}
-
-	public void setBanksCOM(UIInput banksCOM) {
-		this.banksCOM = banksCOM;
-	}
+	
 
 	
 

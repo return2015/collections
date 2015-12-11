@@ -1,7 +1,6 @@
 package com.returnsoft.collection.controller;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -15,19 +14,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ejb.EJB;
-import javax.enterprise.context.ConversationScoped;
 import javax.enterprise.context.RequestScoped;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.Part;
-
-import org.primefaces.event.FileUploadEvent;
-import org.primefaces.model.UploadedFile;
 
 import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.CollectionPeriod;
@@ -40,9 +31,7 @@ import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.DocumentTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
-import com.returnsoft.collection.enumeration.UserTypeEnum;
 import com.returnsoft.collection.exception.BankNotSelectedException;
-import com.returnsoft.collection.exception.ControllerException;
 import com.returnsoft.collection.exception.CreditCardDateOverflowException;
 import com.returnsoft.collection.exception.CreditCardDaysOfDefaultFormatException;
 import com.returnsoft.collection.exception.CreditCardDaysOfDefaultOverflowException;
@@ -51,11 +40,10 @@ import com.returnsoft.collection.exception.CreditCardExpirationDateOverflowExcep
 import com.returnsoft.collection.exception.CreditCardNumberFormatException;
 import com.returnsoft.collection.exception.CreditCardNumberOverflowException;
 import com.returnsoft.collection.exception.CreditCardStateOverflowException;
-import com.returnsoft.collection.exception.FileMultipleErrorsException;
 import com.returnsoft.collection.exception.FileExtensionException;
+import com.returnsoft.collection.exception.FileMultipleErrorsException;
 import com.returnsoft.collection.exception.FileNotFoundException;
 import com.returnsoft.collection.exception.FileRowsZeroException;
-import com.returnsoft.collection.exception.MultipleErrorsException;
 import com.returnsoft.collection.exception.PayerAddressOverflowException;
 import com.returnsoft.collection.exception.PayerDepartmentOverflowException;
 import com.returnsoft.collection.exception.PayerDistrictOverflowException;
@@ -137,7 +125,6 @@ import com.returnsoft.collection.exception.SaleVendorCodeOverflowException;
 import com.returnsoft.collection.exception.SaleVendorNameOverflowException;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
-import com.returnsoft.collection.exception.UserPermissionNotFoundException;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.CollectionPeriodService;
 import com.returnsoft.collection.service.LoteService;
@@ -216,6 +203,7 @@ public class SearchLoteController implements Serializable{
 	
 	public void search(){
 		try {
+			System.out.println("loteDate:"+loteDate);
 			if (loteDate!=null) {
 				lotes = loteService.findByDate(loteDate);
 			}
@@ -227,25 +215,31 @@ public class SearchLoteController implements Serializable{
 	
 	
 	//public void validateFile(FileUploadEvent event) {
-	public void validateFile(AjaxBehaviorEvent event) {
-
+	public void validateFile() {
+		/*AjaxBehaviorEvent event*/
 		System.out.println("validateFile");
 		try {
 			if (sessionBean.getBank() == null) {
 				throw new BankNotSelectedException();
-			} else if (file != null && file.getSize() > 0) {
-				if (file.getContentType().equals("text/plain")) {
-					loadFile(file.getSubmittedFileName());
-				} else {
-					throw new FileExtensionException();
-				}
-			} else {
+			} 
+			
+			if (file == null) {
 				throw new FileNotFoundException();
 			}
-		} catch (MultipleErrorsException e) {
+			
+			if (!file.getContentType().equals("text/plain")) {
+				throw new FileExtensionException();
+			}
+			
+			loadFile(file.getSubmittedFileName());
+			
+			facesUtil.sendConfirmMessage("Se creó el lote satisfactorimente.");
+			
+			
+		} catch (FileMultipleErrorsException e) {
 			e.printStackTrace();
-			for (Exception exception : e.getErrors()) {
-				facesUtil.sendErrorMessage(exception.getMessage());
+			for (String err : e.getErrors()) {
+				facesUtil.sendErrorMessage(err);
 			}
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -259,11 +253,11 @@ public class SearchLoteController implements Serializable{
 	}
 	
 	
-	public void loadFile(String filename) throws MultipleErrorsException {
+	public void loadFile(String filename) throws Exception {
 
 		System.out.println("getFileData");
 		
-		try {
+		//try {
 
 			BufferedReader 
 				br = new BufferedReader(
@@ -451,17 +445,17 @@ public class SearchLoteController implements Serializable{
 				throw new FileRowsZeroException();
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		//} catch (Exception e) {
+		//	e.printStackTrace();
+		//}
 
 	}
 	
-	public void validateData(SaleFile headers, List<SaleFile> dataList, String filename) throws MultipleErrorsException{
+	public void validateData(SaleFile headers, List<SaleFile> dataList, String filename) throws Exception{
 
 		System.out.println("Validando vacíos");
 
-		try {
+		//try {
 
 			Bank bank = sessionBean.getBank();
 			User user = sessionBean.getUser();
@@ -1109,7 +1103,7 @@ public class SearchLoteController implements Serializable{
 				
 			}
 
-			//System.out.println("errors:" + errors.size());
+			System.out.println("errors:" + errors.size());
 			
 			if (errors.size()==0) {
 				loteService.add(sales, filename, headers, user.getId(), bank.getId());
@@ -1118,9 +1112,9 @@ public class SearchLoteController implements Serializable{
 				throw new FileMultipleErrorsException(errors);
 			}
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		//} catch (Exception e) {
+		//	e.printStackTrace();
+		//}
 
 	}
 	

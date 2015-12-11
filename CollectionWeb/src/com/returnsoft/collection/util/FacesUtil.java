@@ -30,5 +30,12 @@ public class FacesUtil {
 		msg.setSeverity(FacesMessage.SEVERITY_INFO);
 		FacesContext.getCurrentInstance().addMessage(null, msg);
 	}
+	
+	public void sendConfirmMessage(String messageSummary) {
+
+		FacesMessage msg = new FacesMessage(messageSummary, null);
+		msg.setSeverity(FacesMessage.SEVERITY_INFO);
+		FacesContext.getCurrentInstance().addMessage(null, msg);
+	}
 
 }
