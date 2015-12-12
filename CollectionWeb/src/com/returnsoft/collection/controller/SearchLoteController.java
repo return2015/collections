@@ -1,6 +1,9 @@
 package com.returnsoft.collection.controller;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -15,9 +18,12 @@ import java.util.Set;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.ServletContext;
 import javax.servlet.http.Part;
 
 import com.returnsoft.collection.entity.Bank;
@@ -1125,6 +1131,43 @@ public class SearchLoteController implements Serializable{
 	public String generateErrorMessageHeader(int row) {
 		return "Error en la fila " + row + ": ";
 	}
+	
+	public void download() {
+		try {
+
+			ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext()
+					.getContext();
+			String separator = System.getProperty("file.separator");
+			String rootPath = servletContext.getRealPath(separator);
+			String fileName = rootPath + "resources" + separator + "templates" + separator + "tramas_ventas.xlsx";
+			File file = new File(fileName);
+			InputStream pdfInputStream = new FileInputStream(file);
+
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+			ExternalContext externalContext = facesContext.getExternalContext();
+			externalContext.setResponseContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"tramas_ventas.xlsx\"");
+
+			// Read PDF contents and write them to the output
+			byte[] bytesBuffer = new byte[2048];
+			int bytesRead;
+
+			while ((bytesRead = pdfInputStream.read(bytesBuffer)) > 0) {
+				externalContext.getResponseOutputStream().write(bytesBuffer, 0, bytesRead);
+			}
+
+			externalContext.getResponseOutputStream().flush();
+			externalContext.getResponseOutputStream().close();
+			pdfInputStream.close();
+			facesContext.responseComplete();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+		}
+
+	}
+	
 
 
 	public Date getLoteDate() {

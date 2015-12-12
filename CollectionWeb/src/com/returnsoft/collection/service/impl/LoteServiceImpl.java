@@ -298,10 +298,17 @@ public class LoteServiceImpl implements LoteService {
 				lineNumber++;
 
 			}
+			
+			for (Sale sale : newSales) {
+				sale.setLote(lote);
+				saleEao.update(sale);
+			}
+			
+			userTransaction.commit();
 
 			lote.setState("Terminado");
 			loteService.update(lote);
-			userTransaction.commit();
+			
 
 		} catch (Exception e) {
 			e.printStackTrace();

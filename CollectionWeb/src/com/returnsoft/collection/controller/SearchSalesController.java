@@ -28,6 +28,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -375,14 +376,19 @@ public class SearchSalesController implements Serializable {
 		}
 	}
 
-	public void onChangePersonType() {
+	public void onChangePersonType(AjaxBehaviorEvent event) {
 		try {
 			// if (fromRequest) {
-			personTypeSelected = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap()
-					.get("form:personType_input");
+			/*personTypeSelected = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap()
+					.get("form:personType_input");*/
 			// }
+			
+			System.out.println("onChangePersonType:");
+			
+			
+			
 
-			System.out.println("onChangeSearchBy" + searchTypeSelected);
+			System.out.println("onChangePersonType:" + personTypeSelected);
 			if (personTypeSelected.equals("contractor")) {
 				searchByContractorRendered = true;
 				searchByInsuredRendered = false;

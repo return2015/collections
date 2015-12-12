@@ -3,7 +3,7 @@
 	<persistence-unit name="collectionWeb">
 	<jta-data-source>jdbc/collectiondb</jta-data-source>
 		<properties>
-			<property name="eclipselink.logging.level" value="FINE"/>
+			<property name="eclipselink.logging.level" value="OFF"/>
 			<property name="eclipselink.target-server" value="GlassFish" />
 			<property name="eclipselink.cache.shared.default" value="false"/>
 			<property name="eclipselink.target-database" value="MySQL"/>

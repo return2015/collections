@@ -136,78 +136,82 @@
 								<f:selectItem itemLabel="Responsable" itemValue="responsible" />
 								<f:selectItem itemLabel="Asegurado" itemValue="insured" />
 								<f:selectItem itemLabel="Contratante" itemValue="contractor" />
-								<p:ajax immediate="true"
-									listener="#{searchSalesController.onChangePersonType}"
-									update="@form"></p:ajax>
+								<p:ajax listener="#{searchSalesController.onChangePersonType}"></p:ajax>
 							</p:selectOneMenu>
 
 						</h:panelGrid>
 
-						<h:panelGrid columns="2"
-							rendered="#{searchSalesController.searchByContractorRendered}">
+						<p:outputPanel id="personalDataOut">
 
-							<p:outputLabel value="NUIC CONT."></p:outputLabel>
-							<p:inputText style="width: 230px;"
-								value="#{searchSalesController.nuicContractor}"></p:inputText>
+							<h:panelGrid columns="2"
+								rendered="#{searchSalesController.searchByContractorRendered}">
 
-							<p:outputLabel value="AP. PATERNO CONT."></p:outputLabel>
-							<p:inputText style="width: 230px;"
-								value="#{searchSalesController.lastnamePaternalContractor}"></p:inputText>
+								<p:outputLabel value="NUIC CONT."></p:outputLabel>
+								<p:inputText style="width: 230px;"
+									value="#{searchSalesController.nuicContractor}"></p:inputText>
 
-							<p:outputLabel value="AP. MATERNO CONT."></p:outputLabel>
-							<p:inputText style="width: 230px;"
-								value="#{searchSalesController.lastnameMaternalContractor}"></p:inputText>
+								<p:outputLabel value="AP. PATERNO CONT."></p:outputLabel>
+								<p:inputText style="width: 230px;"
+									value="#{searchSalesController.lastnamePaternalContractor}"></p:inputText>
 
-							<p:outputLabel value="NOMBRES CONT."></p:outputLabel>
-							<p:inputText style="width: 230px;"
-								value="#{searchSalesController.firstnameContractor}"></p:inputText>
+								<p:outputLabel value="AP. MATERNO CONT."></p:outputLabel>
+								<p:inputText style="width: 230px;"
+									value="#{searchSalesController.lastnameMaternalContractor}"></p:inputText>
 
-						</h:panelGrid>
-						<h:panelGrid columns="2"
-							rendered="#{searchSalesController.searchByInsuredRendered}">
+								<p:outputLabel value="NOMBRES CONT."></p:outputLabel>
+								<p:inputText style="width: 230px;"
+									value="#{searchSalesController.firstnameContractor}"></p:inputText>
 
-							<p:outputLabel value="NUIC ASEG."></p:outputLabel>
-							<p:inputText style="width: 230px;"
-								value="#{searchSalesController.nuicInsured}"></p:inputText>
+							</h:panelGrid>
 
-							<p:outputLabel value="AP. PATERNO ASEG."></p:outputLabel>
-							<p:inputText style="width: 230px;"
-								value="#{searchSalesController.lastnamePaternalInsured}"></p:inputText>
 
-							<p:outputLabel value="AP. MATERNO ASEG."></p:outputLabel>
-							<p:inputText style="width: 230px;"
-								value="#{searchSalesController.lastnameMaternalInsured}"></p:inputText>
 
-							<p:outputLabel value="NOMBRES ASEG."></p:outputLabel>
-							<p:inputText style="width: 230px;"
-								value="#{searchSalesController.firstnameInsured}"></p:inputText>
-						</h:panelGrid>
-						<h:panelGrid columns="2"
-							rendered="#{searchSalesController.searchByResponsibleRendered}">
+							<h:panelGrid columns="2"
+								rendered="#{searchSalesController.searchByInsuredRendered}">
 
-							<p:outputLabel value="NUIC RESP."></p:outputLabel>
-							<p:inputText style="width: 230px;"
-								value="#{searchSalesController.nuicResponsible}"></p:inputText>
+								<p:outputLabel value="NUIC ASEG."></p:outputLabel>
+								<p:inputText style="width: 230px;"
+									value="#{searchSalesController.nuicInsured}"></p:inputText>
 
-							<p:outputLabel value="AP. PATERNO RESP."></p:outputLabel>
-							<p:inputText style="width: 230px;"
-								value="#{searchSalesController.lastnamePaternalResponsible}"></p:inputText>
+								<p:outputLabel value="AP. PATERNO ASEG."></p:outputLabel>
+								<p:inputText style="width: 230px;"
+									value="#{searchSalesController.lastnamePaternalInsured}"></p:inputText>
 
-							<p:outputLabel value="AP. MATERNO RESP."></p:outputLabel>
-							<p:inputText style="width: 230px;"
-								value="#{searchSalesController.lastnameMaternalResponsible}"></p:inputText>
+								<p:outputLabel value="AP. MATERNO ASEG."></p:outputLabel>
+								<p:inputText style="width: 230px;"
+									value="#{searchSalesController.lastnameMaternalInsured}"></p:inputText>
 
-							<p:outputLabel value="NOMBRES RESP."></p:outputLabel>
-							<p:inputText style="width: 230px;"
-								value="#{searchSalesController.firstnameResponsible}"></p:inputText>
-						</h:panelGrid>
+								<p:outputLabel value="NOMBRES ASEG."></p:outputLabel>
+								<p:inputText style="width: 230px;"
+									value="#{searchSalesController.firstnameInsured}"></p:inputText>
+							</h:panelGrid>
+							<h:panelGrid columns="2"
+								rendered="#{searchSalesController.searchByResponsibleRendered}">
+
+								<p:outputLabel value="NUIC RESP."></p:outputLabel>
+								<p:inputText style="width: 230px;"
+									value="#{searchSalesController.nuicResponsible}"></p:inputText>
+
+								<p:outputLabel value="AP. PATERNO RESP."></p:outputLabel>
+								<p:inputText style="width: 230px;"
+									value="#{searchSalesController.lastnamePaternalResponsible}"></p:inputText>
+
+								<p:outputLabel value="AP. MATERNO RESP."></p:outputLabel>
+								<p:inputText style="width: 230px;"
+									value="#{searchSalesController.lastnameMaternalResponsible}"></p:inputText>
+
+								<p:outputLabel value="NOMBRES RESP."></p:outputLabel>
+								<p:inputText style="width: 230px;"
+									value="#{searchSalesController.firstnameResponsible}"></p:inputText>
+							</h:panelGrid>
+						</p:outputPanel>
 					</p:outputPanel>
 				</h:panelGrid>
 				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
 					<p:commandButton icon="ui-icon-search"
 						actionListener="#{searchSalesController.search}" value="Buscar"
 						process="@form"
-						update=":form:searchTypeOut :formTable:searchTable :formTable:saleId :formTable:salesCount :messages">
+						update=":formTable:searchTable :formTable:saleId :formTable:salesCount :messages">
 					</p:commandButton>
 
 					<p:commandButton action="#{searchSalesController.exportCSV}"
