@@ -1,14 +1,21 @@
 package com.returnsoft.collection.util;
 
+import java.io.Serializable;
+
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import javax.inject.Singleton;
 @Named
 @Singleton
-public class FacesUtil {
+public class FacesUtil implements Serializable {
 	
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5681511053396545948L;
+
 	public void sendErrorMessage(String messageSummary) {
 
 		FacesMessage msg = new FacesMessage(messageSummary, "");

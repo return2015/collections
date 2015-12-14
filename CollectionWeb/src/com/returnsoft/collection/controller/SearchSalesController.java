@@ -1,34 +1,27 @@
 package com.returnsoft.collection.controller;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
-import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import javax.faces.event.AjaxBehaviorEvent;
+import javax.faces.event.ComponentSystemEvent;
+import javax.faces.event.PreRenderComponentEvent;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -38,122 +31,19 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 
 import com.returnsoft.collection.entity.Bank;
-import com.returnsoft.collection.entity.CollectionPeriod;
-import com.returnsoft.collection.entity.CreditCard;
-import com.returnsoft.collection.entity.Lote;
-import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.Product;
 import com.returnsoft.collection.entity.Sale;
-import com.returnsoft.collection.entity.SaleState;
-import com.returnsoft.collection.entity.User;
-import com.returnsoft.collection.enumeration.DocumentTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
-import com.returnsoft.collection.enumeration.UserTypeEnum;
-import com.returnsoft.collection.exception.BankNotSelectedException;
-import com.returnsoft.collection.exception.CreditCardDateOverflowException;
-import com.returnsoft.collection.exception.CreditCardDaysOfDefaultFormatException;
-import com.returnsoft.collection.exception.CreditCardDaysOfDefaultOverflowException;
-import com.returnsoft.collection.exception.CreditCardExpirationDateFormatException;
-import com.returnsoft.collection.exception.CreditCardExpirationDateOverflowException;
-import com.returnsoft.collection.exception.CreditCardNumberFormatException;
-import com.returnsoft.collection.exception.CreditCardNumberOverflowException;
-import com.returnsoft.collection.exception.CreditCardStateOverflowException;
-import com.returnsoft.collection.exception.FileExtensionException;
-import com.returnsoft.collection.exception.FileNotFoundException;
-import com.returnsoft.collection.exception.FileRowsZeroException;
-import com.returnsoft.collection.exception.PayerAddressOverflowException;
-import com.returnsoft.collection.exception.PayerDepartmentOverflowException;
-import com.returnsoft.collection.exception.PayerDistrictOverflowException;
-import com.returnsoft.collection.exception.PayerDocumentTypeInvalidException;
-import com.returnsoft.collection.exception.PayerDocumentTypeNullException;
-import com.returnsoft.collection.exception.PayerDocumentTypeOverflowException;
-import com.returnsoft.collection.exception.PayerFirstnameNullException;
-import com.returnsoft.collection.exception.PayerFirstnameOverflowException;
-import com.returnsoft.collection.exception.PayerLastnameMaternalNullException;
-import com.returnsoft.collection.exception.PayerLastnameMaternalOverflowException;
-import com.returnsoft.collection.exception.PayerLastnamePaternalNullException;
-import com.returnsoft.collection.exception.PayerLastnamePaternalOverflowException;
-import com.returnsoft.collection.exception.PayerMailOverflowException;
-import com.returnsoft.collection.exception.PayerNuicFormatException;
-import com.returnsoft.collection.exception.PayerNuicNullException;
-import com.returnsoft.collection.exception.PayerNuicOverflowException;
-import com.returnsoft.collection.exception.PayerProvinceOverflowException;
-import com.returnsoft.collection.exception.SaleAccountNumberFormatException;
-import com.returnsoft.collection.exception.SaleAccountNumberNullException;
-import com.returnsoft.collection.exception.SaleAccountNumberOverflowException;
-import com.returnsoft.collection.exception.SaleAlreadyExistException;
-import com.returnsoft.collection.exception.SaleAuditDateFormatException;
-import com.returnsoft.collection.exception.SaleAuditDateNullException;
-import com.returnsoft.collection.exception.SaleAuditDateOverflowException;
-import com.returnsoft.collection.exception.SaleAuditUserNullException;
-import com.returnsoft.collection.exception.SaleAuditUserOverflowException;
-import com.returnsoft.collection.exception.SaleBankInvalidException;
-import com.returnsoft.collection.exception.SaleBankNullException;
-import com.returnsoft.collection.exception.SaleBankOverflowException;
-import com.returnsoft.collection.exception.SaleCertificateNumberOverflowException;
-import com.returnsoft.collection.exception.SaleChannelOverflowException;
-import com.returnsoft.collection.exception.SaleCollectionPeriodInvalidException;
-import com.returnsoft.collection.exception.SaleCollectionPeriodNullException;
-import com.returnsoft.collection.exception.SaleCollectionPeriodOverflowException;
-import com.returnsoft.collection.exception.SaleCollectionTypeNullException;
-import com.returnsoft.collection.exception.SaleCollectionTypeOverflowException;
-import com.returnsoft.collection.exception.SaleCommercialCodeNullException;
-import com.returnsoft.collection.exception.SaleCommercialCodeOverflowException;
-import com.returnsoft.collection.exception.SaleCreditCardUpdatedAtFormatException;
-import com.returnsoft.collection.exception.SaleDateFormatException;
-import com.returnsoft.collection.exception.SaleDateNullException;
-import com.returnsoft.collection.exception.SaleDateOverflowException;
-import com.returnsoft.collection.exception.SaleDownChannelOverflowException;
-import com.returnsoft.collection.exception.SaleDownObservationOverflowException;
-import com.returnsoft.collection.exception.SaleDownReasonOverflowException;
-import com.returnsoft.collection.exception.SaleDownUserOverflowException;
-import com.returnsoft.collection.exception.SaleDuplicateException;
-import com.returnsoft.collection.exception.SaleFileRowsInvalidException;
-import com.returnsoft.collection.exception.SaleFirstnameContractorOverFlowException;
-import com.returnsoft.collection.exception.SaleFirstnameInsuredOverflowException;
-import com.returnsoft.collection.exception.SaleInsurancePremiumFormatException;
-import com.returnsoft.collection.exception.SaleInsurancePremiumNullException;
-import com.returnsoft.collection.exception.SaleInsurancePremiumOverflowException;
-import com.returnsoft.collection.exception.SaleLastnameMaternalContractorOverFlowException;
-import com.returnsoft.collection.exception.SaleLastnameMaternalInsuredOverflowException;
-import com.returnsoft.collection.exception.SaleLastnamePaternalContractorOverFlowException;
-import com.returnsoft.collection.exception.SaleLastnamePaternalInsuredOverflowException;
-import com.returnsoft.collection.exception.SaleNuicContractorFormatException;
-import com.returnsoft.collection.exception.SaleNuicContractorOverFlowException;
-import com.returnsoft.collection.exception.SaleNuicInsuredFormatException;
-import com.returnsoft.collection.exception.SaleNuicInsuredNullException;
-import com.returnsoft.collection.exception.SaleNuicInsuredOverflowException;
-import com.returnsoft.collection.exception.SalePhone1FormatException;
-import com.returnsoft.collection.exception.SalePhone1OverflowException;
-import com.returnsoft.collection.exception.SalePhone2FormatException;
-import com.returnsoft.collection.exception.SalePhone2OverflowException;
-import com.returnsoft.collection.exception.SalePlaceOverflowException;
-import com.returnsoft.collection.exception.SalePolicyNumberOverflowException;
-import com.returnsoft.collection.exception.SaleProductDescriptionOverflowException;
-import com.returnsoft.collection.exception.SaleProductInvalidException;
-import com.returnsoft.collection.exception.SaleProductNullException;
-import com.returnsoft.collection.exception.SaleProductOverflowException;
-import com.returnsoft.collection.exception.SaleProposalNumberOverflowException;
-import com.returnsoft.collection.exception.SaleStateDateFormatException;
-import com.returnsoft.collection.exception.SaleStateDateOverflowException;
-import com.returnsoft.collection.exception.SaleStateInvalidException;
-import com.returnsoft.collection.exception.SaleStateNullException;
-import com.returnsoft.collection.exception.SaleVendorCodeOverflowException;
-import com.returnsoft.collection.exception.SaleVendorNameOverflowException;
-import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
-import com.returnsoft.collection.exception.UserPermissionNotFoundException;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.CollectionPeriodService;
 import com.returnsoft.collection.service.ProductService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.service.SaleServiceBackground;
 import com.returnsoft.collection.service.UserService;
-import com.returnsoft.collection.service.impl.SaleServiceBackgroundImpl;
 import com.returnsoft.collection.util.FacesUtil;
 
 @Named
@@ -252,18 +142,55 @@ public class SearchSalesController implements Serializable {
 	
 	private Future<Integer> loadStatus;
 	
+	private List<SelectItem> personTypes;
+	
+	private List<SelectItem> searchTypes;
+	
 
 	////////////////////////////
 	///////////////////
 
 	public SearchSalesController() {
 		System.out.println("Se construye SearchSaleController");
+		//searchByNamesRendered=true;
 		//facesUtil = new FacesUtil();
+		personTypes = new ArrayList<SelectItem>();
+		SelectItem pt1 = new SelectItem("responsible","Responsable");
+		SelectItem pt2 = new SelectItem("insured","Asegurado");
+		SelectItem pt3 = new SelectItem("contractor","Contratante");
+		personTypes.add(pt1);
+		personTypes.add(pt2);
+		personTypes.add(pt3);
+		
+		searchTypes = new ArrayList<SelectItem>();
+		SelectItem st1 = new SelectItem("creditCard","tarjeta de credito");
+		SelectItem st2 = new SelectItem("dni","dni");
+		SelectItem st3 = new SelectItem("saleData","Datos de venta");
+		SelectItem st4 = new SelectItem("personalData","Datos personales");
+		searchTypes.add(st1);
+		searchTypes.add(st2);
+		searchTypes.add(st3);
+		searchTypes.add(st4);
+		
 	}
 
 	public String initialize() {
 
-		System.out.println("inicializando SearchSaleController");
+		System.out.println("initialize");
+		
+		if (searchTypeSelected==null) {
+			System.out.println("search es nullo");
+		}else{
+			System.out.println("search "+searchTypeSelected);
+			onChangeSearchType();
+		}
+		
+		if (personTypeSelected==null) {
+			System.out.println("person es nullo");
+		}else{
+			System.out.println("person "+personTypeSelected);
+			onChangePersonType();
+		}
 
 		try {
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
@@ -280,6 +207,19 @@ public class SearchSalesController implements Serializable {
 	
 	@PostConstruct
 	public void start(){
+		
+		System.out.println("en el metodo start");
+		
+		/*if(searchByNamesRendered==null){
+			System.out.println("es nulo");
+			
+		}else{
+			System.out.println("aca"+searchByNamesRendered);
+		}*/
+		
+		
+		
+		
 		try {
 			List<Bank> banksEntity = bankService.getAll();
 			banks = new ArrayList<SelectItem>();
@@ -306,6 +246,10 @@ public class SearchSalesController implements Serializable {
 				item.setLabel(saleStateEnum.getName());
 				saleStates.add(item);
 			}
+			//onChangeSearchType();
+			
+			
+			//personTypeSelected="";
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getMessage());
@@ -332,34 +276,38 @@ public class SearchSalesController implements Serializable {
 
 	public void onChangeSearchType() {
 		try {
+			
 			// if (fromRequest) {
-			searchTypeSelected = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap()
-					.get("form:searchType_input");
+			/*searchTypeSelected = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap()
+					.get("form:searchType_input");*/
 			// }
 
-			System.out.println("onChangeSearchBy" + searchTypeSelected);
+			System.out.println("onChangeSearchType");
+			System.out.println("onChangeSearchType:" + searchTypeSelected);
+			
+			
 
 			searchByContractorRendered = false;
 			searchByInsuredRendered = false;
 			searchByResponsibleRendered = false;
-			personTypeSelected = null;
+			//personTypeSelected = "";
 
-			if (searchTypeSelected.equals("creditCard")) {
+			if (("creditCard").equals(searchTypeSelected)) {
 				searchByCreditCardNumberRendered = true;
 				searchByDocumentNumberResponsibleRendered = false;
 				searchByNamesRendered = false;
 				searchByDateSaleRendered = false;
-			} else if (searchTypeSelected.equals("dni")) {
+			} else if (("dni").equals(searchTypeSelected)) {
 				searchByCreditCardNumberRendered = false;
 				searchByDocumentNumberResponsibleRendered = true;
 				searchByNamesRendered = false;
 				searchByDateSaleRendered = false;
-			} else if (searchTypeSelected.equals("saleData")) {
+			} else if (("saleData").equals(searchTypeSelected)) {
 				searchByCreditCardNumberRendered = false;
 				searchByDocumentNumberResponsibleRendered = false;
 				searchByNamesRendered = false;
 				searchByDateSaleRendered = true;
-			} else if (searchTypeSelected.equals("personalData")) {
+			} else if (("personalData").equals(searchTypeSelected)) {
 				searchByCreditCardNumberRendered = false;
 				searchByDocumentNumberResponsibleRendered = false;
 				searchByNamesRendered = true;
@@ -375,29 +323,34 @@ public class SearchSalesController implements Serializable {
 			facesUtil.sendErrorMessage( e.getMessage());
 		}
 	}
+	
+	/*public void metodo(ComponentSystemEvent e){
+		System.out.println("ingreso a metodo");
+	}*/
+	
 
-	public void onChangePersonType(AjaxBehaviorEvent event) {
+	public void onChangePersonType(){
 		try {
 			// if (fromRequest) {
 			/*personTypeSelected = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap()
 					.get("form:personType_input");*/
 			// }
 			
-			System.out.println("onChangePersonType:");
+			System.out.println("onChangePersonType");
 			
-			
+			//onChangeSearchType();
 			
 
 			System.out.println("onChangePersonType:" + personTypeSelected);
-			if (personTypeSelected.equals("contractor")) {
+			if (("contractor").equals(personTypeSelected)) {
 				searchByContractorRendered = true;
 				searchByInsuredRendered = false;
 				searchByResponsibleRendered = false;
-			} else if (personTypeSelected.equals("insured")) {
+			} else if (("insured").equals(personTypeSelected)) {
 				searchByContractorRendered = false;
 				searchByInsuredRendered = true;
 				searchByResponsibleRendered = false;
-			} else if (personTypeSelected.equals("responsible")) {
+			} else if (("responsible").equals(personTypeSelected)) {
 				searchByContractorRendered = false;
 				searchByInsuredRendered = false;
 				searchByResponsibleRendered = true;
@@ -1192,6 +1145,22 @@ public class SearchSalesController implements Serializable {
 
 	public void setSalesFileCount(Integer salesFileCount) {
 		this.salesFileCount = salesFileCount;
+	}
+
+	public List<SelectItem> getPersonTypes() {
+		return personTypes;
+	}
+
+	public void setPersonTypes(List<SelectItem> personTypes) {
+		this.personTypes = personTypes;
+	}
+
+	public List<SelectItem> getSearchTypes() {
+		return searchTypes;
+	}
+
+	public void setSearchTypes(List<SelectItem> searchTypes) {
+		this.searchTypes = searchTypes;
 	}
 
 }

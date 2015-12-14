@@ -11,7 +11,8 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewAction action="#{searchSalesController.initialize}" />
+			
+			<f:viewAction action="#{searchSalesController.initialize}"  onPostback="true"  />
 		</f:metadata>
 	</ui:define>
 
@@ -35,35 +36,26 @@
 
 		</div>
 
-
 		<h:panelGrid style="margin:auto;text-align:center;">
 			<p:messages id="messages" showDetail="true"></p:messages>
 		</h:panelGrid>
 
 		<h:panelGrid style="margin:auto;">
 			<h:form id="form">
+
 				<h:panelGrid columns="3">
 					<h:panelGrid columns="2">
-						<p:outputLabel value="Tipo de busqueda:"></p:outputLabel>
-						<p:selectOneMenu id="searchType"
-							value="#{searchSalesController.searchTypeSelected}"
-							required="true"
-							requiredMessage="Debe seleccionar tipo de busqueda">
+						<h:outputLabel value="Tipo de busqueda:"></h:outputLabel>
+						<h:selectOneMenu id="searchType"
+							value="#{searchSalesController.searchTypeSelected}">
 							<f:selectItem itemLabel="Seleccione..." itemValue="" />
-							<f:selectItem itemLabel="Buscar por numero de tarjeta."
-								itemValue="creditCard" />
-							<f:selectItem itemLabel="Buscar por DNI responsable."
-								itemValue="dni" />
-							<f:selectItem itemLabel="Buscar por datos de venta."
-								itemValue="saleData" />
-							<f:selectItem itemLabel="Buscar por datos personales"
-								itemValue="personalData" />
-							<p:ajax immediate="true" process=":form:searchType"
+							<f:selectItems value="#{searchSalesController.searchTypes}"></f:selectItems>
+							<f:ajax execute="@this"
 								listener="#{searchSalesController.onChangeSearchType}"
-								update=":form:searchTypeOut :messages"></p:ajax>
-						</p:selectOneMenu>
+								render=":form:searchTypeOut :form:personalDataOut :messages"></f:ajax>
+						</h:selectOneMenu>
 					</h:panelGrid>
-					<p:outputPanel id="searchTypeOut">
+					<h:panelGroup id="searchTypeOut">
 						<h:panelGrid columns="4"
 							rendered="#{searchSalesController.searchByDateSaleRendered}">
 
@@ -124,88 +116,89 @@
 						</h:panelGrid>
 
 
-						<h:panelGrid columns="2"
-							rendered="#{searchSalesController.searchByNamesRendered}">
-
-							<p:outputLabel value="Tipo de persona:"></p:outputLabel>
-							<p:selectOneMenu id="personType"
-								value="#{searchSalesController.personTypeSelected}"
-								required="true"
-								requiredMessage="Debe seleccionar tipo de persona">
+						<h:panelGrid columns="2">
+							<h:outputLabel value="Tipo de persona:" rendered="#{searchSalesController.searchByNamesRendered}"></h:outputLabel>
+							<h:selectOneMenu id="personType" rendered="#{searchSalesController.searchByNamesRendered}"
+								value="#{searchSalesController.personTypeSelected}">
 								<f:selectItem itemLabel="Seleccione..." itemValue="" />
-								<f:selectItem itemLabel="Responsable" itemValue="responsible" />
-								<f:selectItem itemLabel="Asegurado" itemValue="insured" />
-								<f:selectItem itemLabel="Contratante" itemValue="contractor" />
-								<p:ajax listener="#{searchSalesController.onChangePersonType}"></p:ajax>
-							</p:selectOneMenu>
+								<f:selectItems value="#{searchSalesController.personTypes}"></f:selectItems>
+								<f:ajax execute=":form:personType :form:searchType " 
+									listener="#{searchSalesController.onChangePersonType}"
+									render=":form:personalDataOut"></f:ajax>
+							</h:selectOneMenu>
+							<h:panelGroup id="personalDataOut">
 
+								<h:panelGrid columns="2"
+									rendered="#{searchSalesController.searchByContractorRendered}">
+
+									<p:outputLabel value="NUIC CONT."></p:outputLabel>
+									<p:inputText style="width: 230px;"
+										value="#{searchSalesController.nuicContractor}"></p:inputText>
+
+									<p:outputLabel value="AP. PATERNO CONT."></p:outputLabel>
+									<p:inputText style="width: 230px;"
+										value="#{searchSalesController.lastnamePaternalContractor}"></p:inputText>
+
+									<p:outputLabel value="AP. MATERNO CONT."></p:outputLabel>
+									<p:inputText style="width: 230px;"
+										value="#{searchSalesController.lastnameMaternalContractor}"></p:inputText>
+
+									<p:outputLabel value="NOMBRES CONT."></p:outputLabel>
+									<p:inputText style="width: 230px;"
+										value="#{searchSalesController.firstnameContractor}"></p:inputText>
+
+								</h:panelGrid>
+
+
+
+								<h:panelGrid columns="2"
+									rendered="#{searchSalesController.searchByInsuredRendered}">
+
+									<p:outputLabel value="NUIC ASEG."></p:outputLabel>
+									<p:inputText style="width: 230px;"
+										value="#{searchSalesController.nuicInsured}"></p:inputText>
+
+									<p:outputLabel value="AP. PATERNO ASEG."></p:outputLabel>
+									<p:inputText style="width: 230px;"
+										value="#{searchSalesController.lastnamePaternalInsured}"></p:inputText>
+
+									<p:outputLabel value="AP. MATERNO ASEG."></p:outputLabel>
+									<p:inputText style="width: 230px;"
+										value="#{searchSalesController.lastnameMaternalInsured}"></p:inputText>
+
+									<p:outputLabel value="NOMBRES ASEG."></p:outputLabel>
+									<p:inputText style="width: 230px;"
+										value="#{searchSalesController.firstnameInsured}"></p:inputText>
+								</h:panelGrid>
+								<h:panelGrid columns="2"
+									rendered="#{searchSalesController.searchByResponsibleRendered}">
+
+									<p:outputLabel value="NUIC RESP."></p:outputLabel>
+									<p:inputText style="width: 230px;"
+										value="#{searchSalesController.nuicResponsible}"></p:inputText>
+
+									<p:outputLabel value="AP. PATERNO RESP."></p:outputLabel>
+									<p:inputText style="width: 230px;"
+										value="#{searchSalesController.lastnamePaternalResponsible}"></p:inputText>
+
+									<p:outputLabel value="AP. MATERNO RESP."></p:outputLabel>
+									<p:inputText style="width: 230px;"
+										value="#{searchSalesController.lastnameMaternalResponsible}"></p:inputText>
+
+									<p:outputLabel value="NOMBRES RESP."></p:outputLabel>
+									<p:inputText style="width: 230px;"
+										value="#{searchSalesController.firstnameResponsible}"></p:inputText>
+								</h:panelGrid>
+							</h:panelGroup>
 						</h:panelGrid>
 
-						<p:outputPanel id="personalDataOut">
-
-							<h:panelGrid columns="2"
-								rendered="#{searchSalesController.searchByContractorRendered}">
-
-								<p:outputLabel value="NUIC CONT."></p:outputLabel>
-								<p:inputText style="width: 230px;"
-									value="#{searchSalesController.nuicContractor}"></p:inputText>
-
-								<p:outputLabel value="AP. PATERNO CONT."></p:outputLabel>
-								<p:inputText style="width: 230px;"
-									value="#{searchSalesController.lastnamePaternalContractor}"></p:inputText>
-
-								<p:outputLabel value="AP. MATERNO CONT."></p:outputLabel>
-								<p:inputText style="width: 230px;"
-									value="#{searchSalesController.lastnameMaternalContractor}"></p:inputText>
-
-								<p:outputLabel value="NOMBRES CONT."></p:outputLabel>
-								<p:inputText style="width: 230px;"
-									value="#{searchSalesController.firstnameContractor}"></p:inputText>
-
-							</h:panelGrid>
 
 
 
-							<h:panelGrid columns="2"
-								rendered="#{searchSalesController.searchByInsuredRendered}">
+					</h:panelGroup>
 
-								<p:outputLabel value="NUIC ASEG."></p:outputLabel>
-								<p:inputText style="width: 230px;"
-									value="#{searchSalesController.nuicInsured}"></p:inputText>
 
-								<p:outputLabel value="AP. PATERNO ASEG."></p:outputLabel>
-								<p:inputText style="width: 230px;"
-									value="#{searchSalesController.lastnamePaternalInsured}"></p:inputText>
 
-								<p:outputLabel value="AP. MATERNO ASEG."></p:outputLabel>
-								<p:inputText style="width: 230px;"
-									value="#{searchSalesController.lastnameMaternalInsured}"></p:inputText>
-
-								<p:outputLabel value="NOMBRES ASEG."></p:outputLabel>
-								<p:inputText style="width: 230px;"
-									value="#{searchSalesController.firstnameInsured}"></p:inputText>
-							</h:panelGrid>
-							<h:panelGrid columns="2"
-								rendered="#{searchSalesController.searchByResponsibleRendered}">
-
-								<p:outputLabel value="NUIC RESP."></p:outputLabel>
-								<p:inputText style="width: 230px;"
-									value="#{searchSalesController.nuicResponsible}"></p:inputText>
-
-								<p:outputLabel value="AP. PATERNO RESP."></p:outputLabel>
-								<p:inputText style="width: 230px;"
-									value="#{searchSalesController.lastnamePaternalResponsible}"></p:inputText>
-
-								<p:outputLabel value="AP. MATERNO RESP."></p:outputLabel>
-								<p:inputText style="width: 230px;"
-									value="#{searchSalesController.lastnameMaternalResponsible}"></p:inputText>
-
-								<p:outputLabel value="NOMBRES RESP."></p:outputLabel>
-								<p:inputText style="width: 230px;"
-									value="#{searchSalesController.firstnameResponsible}"></p:inputText>
-							</h:panelGrid>
-						</p:outputPanel>
-					</p:outputPanel>
 				</h:panelGrid>
 				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
 					<p:commandButton icon="ui-icon-search"
@@ -502,8 +495,63 @@
 					PF('inputFileSales').chooseButton
 							.find('input[type="file"]').removeAttr('disabled');
 				}
+
+			}
+
+			function handleError(data) {
+				if (null == data) {
+					console.log("data is null");
+				}
+				/*console.log("Error Description: " + data.description);
+				console.log("Error Name: " + data.errorName);
+				console.log("Error errorMessage: " + data.errorMessage);
+				console.log("httpError: " + data.httpError);
+				console.log("emptyResponse: " + data.emptyResponse);
+				console.log("maleformed: " + data.maleformed);
+				console.log("serverError: " + data.serverError);*/
+				var errorName = data.responseXML.evaluate('//error/error-name',
+						data.responseXML, null, XPathResult.STRING_TYPE, null);
+				var message = 'AJAX Exception';
+				message += '\nSource: ' + data.source.id;
+				message += '\nValue:' + data.source.value;
+				message += '\nError: ' + errorName.stringValue;
+				message += '\nMessage: ' + data.errorMessage;
+				alert(message);
+
+			}
+
+			function handleAjax(data) {
+				if (null == data) {
+					console.log("data is null");
+				}
+
+				console.log("Status: " + data.status);
+				console.log("Source id: " + data.source.id);
+				console.log("Source value: " + data.source.value);
+
+				var status = data.status;
+				switch (status) {
+				case "begin":
+					// This is the start of the AJAX request.
+					//TODO Take action here.
+					break;
+				case "complete":
+					// This is invoked right after AJAX response is returned.
+					//TODO Take action here.
+					break;
+				case "success":
+					// This is invoked right after successful processing of AJAX response and update of HTML DOM.
+					console.log("The AJAX responseCode was:  "
+							+ data.responseCode);
+					//TODO Take Additional actions.
+					break;
+				}
+
 			}
 		</script>
+
+
+
 
 	</ui:define>
 
