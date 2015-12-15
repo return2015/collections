@@ -178,7 +178,7 @@ public class SearchSalesController implements Serializable {
 
 		System.out.println("initialize");
 		
-		if (searchTypeSelected==null) {
+		/*if (searchTypeSelected==null) {
 			System.out.println("search es nullo");
 		}else{
 			System.out.println("search "+searchTypeSelected);
@@ -190,6 +190,12 @@ public class SearchSalesController implements Serializable {
 		}else{
 			System.out.println("person "+personTypeSelected);
 			onChangePersonType();
+		}*/
+		
+		System.out.println(searchTypeSelected);
+		
+		if (("personalData").equals(searchTypeSelected)) {
+			
 		}
 
 		try {
