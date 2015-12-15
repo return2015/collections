@@ -193,6 +193,7 @@ public class SearchSalesController implements Serializable {
 		}*/
 		
 		System.out.println(searchTypeSelected);
+		System.out.println(personTypeSelected);
 		
 		if (("personalData").equals(searchTypeSelected)) {
 			
