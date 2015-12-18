@@ -11,7 +11,12 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewAction action="#{searchSalesController.initialize}" />
+			<f:viewParam name="searchType" 
+				value="#{searchSalesController.searchTypeSelected}"></f:viewParam>
+			<f:viewParam name="personType"
+				value="#{searchSalesController.personTypeSelected}"></f:viewParam>
+			<f:viewAction action="#{searchSalesController.initialize}"
+				onPostback="true" phase="APPLY_REQUEST_VALUES" />
 		</f:metadata>
 	</ui:define>
 
@@ -33,7 +38,12 @@
 
 		<div class="title ui-widget-header ui-corner-all">
 			<h:panelGrid columns="2" style="margin:auto;">
-		BUSCAR VENTAS 
+		BUSCAR VENTAS <h:form id="form0">
+					<p:commandLink icon="ui-icon-document" ajax="false"
+						action="#{loadSalesController.download}"
+						value="(Descargar formato de trama)">
+					</p:commandLink>
+				</h:form>
 			</h:panelGrid>
 
 		</div>
@@ -48,14 +58,14 @@
 
 				<h:panelGrid columns="3">
 					<h:panelGrid columns="2">
-						<p:outputLabel value="Tipo Búsqueda:"></p:outputLabel>
-						<p:selectOneMenu id="searchType"
-							value="#{searchSalesController.searchTypeSelected}" required="true" requiredMessage="Debe seleccionar tipo de búsqueda">
+						<p:outputLabel value="Tipo de busqueda:"></p:outputLabel>
+						<h:selectOneMenu id="searchType"
+							value="#{searchSalesController.searchTypeSelected}">
 							<f:selectItem itemLabel="Seleccione..." itemValue="" />
 							<f:selectItems value="#{searchSalesController.searchTypes}"></f:selectItems>
 							<p:ajax
 								update=":form:searchDataOut :form:personalDataOut :messages"></p:ajax>
-						</p:selectOneMenu>
+						</h:selectOneMenu>
 					</h:panelGrid>
 					<h:panelGroup id="searchDataOut">
 						<h:panelGrid columns="4"
@@ -103,32 +113,32 @@
 						<h:panelGrid columns="2"
 							rendered="#{searchSalesController.searchTypeSelected=='creditCard'}">
 
-							<p:outputLabel value="Número Tarjeta"></p:outputLabel>
+							<p:outputLabel value="NUM. TARJETA"></p:outputLabel>
 							<p:inputText style="width: 120px;" required="true"
-								requiredMessage="Debe ingresar Número Tarjeta"
+								requiredMessage="Debe ingresar NUM. TARJETA"
 								value="#{searchSalesController.creditCardNumber}"></p:inputText>
 
 						</h:panelGrid>
 
 						<h:panelGrid columns="2"
 							rendered="#{searchSalesController.searchTypeSelected=='dni'}">
-							<p:outputLabel value="DNI Responsable Pago"></p:outputLabel>
+							<p:outputLabel value="DNI RESP."></p:outputLabel>
 							<p:inputText style="width: 120px;" required="true" 
-								requiredMessage="Debe ingresar DNI Responsable Pago"
+								requiredMessage="Debe ingresar DNI RESP."
 								value="#{searchSalesController.nuicResponsible}"></p:inputText>
 
 						</h:panelGrid>
 
 						<h:panelGrid columns="2"
 							rendered="#{searchSalesController.searchTypeSelected=='personalData'}">
-							<p:outputLabel value="Tipo Persona:"></p:outputLabel>
-							<p:selectOneMenu id="personType"
+							<p:outputLabel value="Tipo de persona:"></p:outputLabel>
+							<h:selectOneMenu id="personType"
 								value="#{searchSalesController.personTypeSelected}">
 								<f:selectItem itemLabel="Seleccione..." itemValue="" />
 								<f:selectItems value="#{searchSalesController.personTypes}"></f:selectItems>
 								<p:ajax process="@this :form:personType"
 									update=":form:personalDataOut :messages"></p:ajax>
-							</p:selectOneMenu>
+							</h:selectOneMenu>
 
 						</h:panelGrid>
 
@@ -207,11 +217,11 @@
 
 				</h:panelGrid>
 				<h:panelGrid columns="2" style="margin:auto;text-align:center;" >
-					<p:commandButton  actionListener="#{searchSalesController.search}"
+					<h:commandButton  actionListener="#{searchSalesController.search}"
 						value="Buscar">
 						<p:ajax process="@form"
 							update=":formTable:searchTable :formTable:saleId :formTable:salesCount :messages"></p:ajax>
-					</p:commandButton>
+					</h:commandButton>
 
 					<p:commandButton action="#{searchSalesController.exportCSV}"
 						value="Exportar" process="@form" ajax="false">
@@ -237,7 +247,7 @@
 			</h:panelGrid>
 
 
-			<p:dataTable style="width:100%;" lazy="true"
+			<p:dataTable style="width:100%;"
 				value="#{searchSalesController.sales}" var="s" scrollable="true"
 				scrollWidth="100%" paginator="true" rows="10" selectionMode="single"
 				selection="#{searchSalesController.saleSelected}" rowKey="#{s.id}"
