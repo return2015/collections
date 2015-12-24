@@ -185,7 +185,8 @@ public class SaleEaoImpl implements SaleEao {
 	}
 	
 	
-	public List<Sale> findBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Short bankId, Short productId, SaleStateEnum saleState)  throws EaoException {
+	public List<Sale> findBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,
+			Short bankId, Short productId, SaleStateEnum saleState, Integer first, Integer limit)  throws EaoException {
 		try {
 			
 			String query = "SELECT s FROM Sale s "
@@ -234,8 +235,12 @@ public class SaleEaoImpl implements SaleEao {
 				q.setParameter("saleState", saleState);
 			}
 			
-			
+			q.setFirstResult(first);
+			q.setMaxResults(limit);
 			List<Sale> sales = q.getResultList();
+			
+			System.out.println("cantidad de ventas"+sales.size());
+			
 			return sales;
 
 		} catch (NoResultException e) {
@@ -246,6 +251,74 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
+	
+	public Long findBySaleDataCount(Date saleDateStartedAt,Date saleDateEndedAt,
+			Short bankId, Short productId, SaleStateEnum saleState)  throws EaoException {
+		try {
+			
+			String query = "SELECT count(s.id) FROM Sale s "
+					+ "left join s.product p "
+					+ "left join s.bank b "
+					+ "left join fetch s.payer pa "
+					+ "left join fetch s.creditCard cc "
+					+ "left join fetch s.saleState ss "
+					+ "WHERE s.date between :saleDateStartedAt and :saleDateEndedAt ";
+			
+			if (bankId!=null && bankId>0) {
+				query+=" and b.id=:bankId ";
+			}
+			
+			if (productId!=null && productId>0) {
+				query+=" and p.id=:productId ";
+			}
+			
+			if (saleState!=null) {
+				query+=" and ss.state = :saleState ";
+			}
+			
+			Query q = em.createQuery(query);
+			
+			q.setParameter("saleDateStartedAt", saleDateStartedAt);
+			q.setParameter("saleDateEndedAt", saleDateEndedAt);
+			
+			if (bankId!=null && bankId>0) {
+				q.setParameter("bankId", bankId);
+			}
+			
+			if (productId!=null && productId>0) {
+				q.setParameter("productId", productId);
+			}
+			
+			/*if (affiliationDate!=null ) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				System.out.println(sdf2.parse(sdf.format(affiliationDate)+" 00:00:00"));
+				q.setParameter("affiliationDateStart", sdf2.parse(sdf.format(affiliationDate)+" 00:00:00"));
+				System.out.println(sdf2.parse(sdf.format(affiliationDate)+" 23:59:59"));
+				q.setParameter("affiliationDateEnd", sdf2.parse(sdf.format(affiliationDate)+" 23:59:59"));
+				
+			}*/
+			
+			if (saleState!=null) {
+				q.setParameter("saleState", saleState);
+			}
+			
+			
+			Long salesCount = (Long)q.getSingleResult();
+			
+			System.out.println("salesCount"+salesCount);
+			
+			return salesCount;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
+	
 	
 	public Sale findByCode(String code) throws EaoException{
 		try {
@@ -355,14 +428,15 @@ public class SaleEaoImpl implements SaleEao {
 	
 	
 	
-	public List<Sale> findByNuicResponsible(Long nuicResponsible) throws EaoException {
+	public List<Sale> findByNuicResponsible(Long nuicResponsible, Integer first, Integer limit) throws EaoException {
 		try {
 			
 			String query = "SELECT s FROM Sale s left join s.payer p WHERE p.nuicResponsible = :nuicResponsible ";
 			
 			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
 			q.setParameter("nuicResponsible", nuicResponsible);
-			
+			q.setFirstResult(first);
+			q.setMaxResults(limit);
 			List<Sale> sales = q.getResultList();
 			return sales;
 
@@ -375,7 +449,28 @@ public class SaleEaoImpl implements SaleEao {
 
 	}
 	
-	public List<Sale> findByNamesResponsible(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible) throws EaoException{
+	public Long findByNuicResponsibleCount(Long nuicResponsible) throws EaoException {
+		try {
+			
+			String query = "SELECT count(s.id) FROM Sale s left join s.payer p WHERE p.nuicResponsible = :nuicResponsible ";
+			
+			Query q = em.createQuery(query);
+			q.setParameter("nuicResponsible", nuicResponsible);
+			
+			Long salesCount = (Long) q.getSingleResult();
+			return salesCount;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
+	
+	
+	public List<Sale> findByNamesResponsible(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible, Integer first, Integer limit) throws EaoException{
 		try {
 			
 			System.out.println("Ingreso a buscar findByNamesResponsible");
@@ -409,7 +504,8 @@ public class SaleEaoImpl implements SaleEao {
 			if (lastnameMaternalResponsible!=null && lastnameMaternalResponsible.length()>0) {
 				q.setParameter("lastnameMaternalResponsible", lastnameMaternalResponsible);
 			}
-			
+			q.setFirstResult(first);
+			q.setMaxResults(limit);
 			List<Sale> sales = q.getResultList();
 			
 			return sales;
@@ -424,7 +520,56 @@ public class SaleEaoImpl implements SaleEao {
 	}
 	
 	
-	public List<Sale> findByNamesInsured(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured) throws EaoException{
+	public Long findByNamesResponsibleCount(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible) throws EaoException{
+		try {
+			
+			System.out.println("Ingreso a buscar findByNamesResponsible");
+			
+			String query = "SELECT count(s.id) FROM Sale s left join s.payer p WHERE s.id > 0 ";
+			
+			if (nuicResponsible!=null && nuicResponsible>0) {
+				query+=" and p.nuicResponsible = :nuicResponsible ";
+			}
+			if (firstnameResponsible!=null && firstnameResponsible.length()>0) {
+				query+=" and p.firstnameResponsible = :firstnameResponsible ";
+			}
+			if (lastnamePaternalResponsible!=null && lastnamePaternalResponsible.length()>0) {
+				query+=" and p.lastnamePaternalResponsible = :lastnamePaternalResponsible ";
+			}
+			if (lastnameMaternalResponsible!=null && lastnameMaternalResponsible.length()>0) {
+				query+=" and p.lastnameMaternalResponsible = :lastnameMaternalResponsible ";
+			}
+			
+			Query q = em.createQuery(query);
+			
+			if (nuicResponsible!=null && nuicResponsible>0) {
+				q.setParameter("nuicResponsible", nuicResponsible);
+			}
+			if (firstnameResponsible!=null && firstnameResponsible.length()>0) {
+				q.setParameter("firstnameResponsible", firstnameResponsible);
+			}
+			if (lastnamePaternalResponsible!=null && lastnamePaternalResponsible.length()>0) {
+				q.setParameter("lastnamePaternalResponsible", lastnamePaternalResponsible);
+			}
+			if (lastnameMaternalResponsible!=null && lastnameMaternalResponsible.length()>0) {
+				q.setParameter("lastnameMaternalResponsible", lastnameMaternalResponsible);
+			}
+			
+			Long salesCount = (Long) q.getSingleResult();
+			
+			return salesCount;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
+	
+	
+	public List<Sale> findByNamesInsured(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured, Integer first, Integer limit) throws EaoException{
 		try {
 			
 			String query = "SELECT s FROM Sale s where s.id > 0 ";
@@ -456,7 +601,8 @@ public class SaleEaoImpl implements SaleEao {
 			if (lastnameMaternalInsured!=null && lastnameMaternalInsured.length()>0) {
 				q.setParameter("lastnameMaternalInsured", lastnameMaternalInsured);
 			}
-			
+			q.setFirstResult(first);
+			q.setMaxResults(limit);
 			List<Sale> sales = q.getResultList();
 			
 			return sales;
@@ -471,7 +617,54 @@ public class SaleEaoImpl implements SaleEao {
 	}
 	
 	
-	public List<Sale> findByNamesContractor(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws EaoException{
+	public Long findByNamesInsuredCount(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured) throws EaoException{
+		try {
+			
+			String query = "SELECT s FROM Sale s where s.id > 0 ";
+			
+			if (nuicInsured!=null && nuicInsured>0) {
+				query+=" and s.nuicInsured = :nuicInsured ";
+			}
+			if (firstnameInsured!=null && firstnameInsured.length()>0) {
+				query+=" and s.firstnameInsured = :firstnameInsured ";
+			}
+			if (lastnamePaternalInsured!=null && lastnamePaternalInsured.length()>0) {
+				query+=" and s.lastnamePaternalInsured = :lastnamePaternalInsured ";
+			}
+			if (lastnameMaternalInsured!=null && lastnameMaternalInsured.length()>0) {
+				query+=" and s.lastnameMaternalInsured = :lastnameMaternalInsured ";
+			}
+			
+			Query q = em.createQuery(query);
+			
+			if (nuicInsured!=null && nuicInsured>0) {
+				q.setParameter("nuicInsured", nuicInsured);
+			}
+			if (firstnameInsured!=null && firstnameInsured.length()>0) {
+				q.setParameter("firstnameInsured", firstnameInsured);
+			}
+			if (lastnamePaternalInsured!=null && lastnamePaternalInsured.length()>0) {
+				q.setParameter("lastnamePaternalInsured", lastnamePaternalInsured);
+			}
+			if (lastnameMaternalInsured!=null && lastnameMaternalInsured.length()>0) {
+				q.setParameter("lastnameMaternalInsured", lastnameMaternalInsured);
+			}
+			
+			Long salesCount = (Long) q.getSingleResult();
+			
+			return salesCount;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
+	
+	
+	public List<Sale> findByNamesContractor(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor, Integer first, Integer limit) throws EaoException{
 		try {
 			
 			String query = "SELECT s FROM Sale s where s.id > 0 ";
@@ -503,10 +696,57 @@ public class SaleEaoImpl implements SaleEao {
 			if (lastnameMaternalContractor!=null && lastnameMaternalContractor.length()>0) {
 				q.setParameter("lastnameMaternalContractor", lastnameMaternalContractor);
 			}
-			
+			q.setFirstResult(first);
+			q.setMaxResults(limit);
 			List<Sale> sales = q.getResultList();
 			
 			return sales;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
+	
+	public Long findByNamesContractorCount(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws EaoException{
+		try {
+			
+			String query = "SELECT s FROM Sale s where s.id > 0 ";
+			
+			if (nuicContractor!=null && nuicContractor>0) {
+				query+=" and s.nuicContractor = :nuicContractor ";
+			}
+			if (firstnameContractor!=null && firstnameContractor.length()>0) {
+				query+=" and s.firstnameContractor = :firstnameContractor ";
+			}
+			if (lastnamePaternalContractor!=null && lastnamePaternalContractor.length()>0) {
+				query+=" and s.lastnamePaternalContractor = :lastnamePaternalContractor ";
+			}
+			if (lastnameMaternalContractor!=null && lastnameMaternalContractor.length()>0) {
+				query+=" and s.lastnameMaternalContractor = :lastnameMaternalContractor ";
+			}
+			
+			Query q = em.createQuery(query);
+			
+			if (nuicContractor!=null && nuicContractor>0) {
+				q.setParameter("nuicContractor", nuicContractor);
+			}
+			if (firstnameContractor!=null && firstnameContractor.length()>0) {
+				q.setParameter("firstnameContractor", firstnameContractor);
+			}
+			if (lastnamePaternalContractor!=null && lastnamePaternalContractor.length()>0) {
+				q.setParameter("lastnamePaternalContractor", lastnamePaternalContractor);
+			}
+			if (lastnameMaternalContractor!=null && lastnameMaternalContractor.length()>0) {
+				q.setParameter("lastnameMaternalContractor", lastnameMaternalContractor);
+			}
+			
+			Long salesCount = (Long) q.getSingleResult();
+			
+			return salesCount;
 
 		} catch (NoResultException e) {
 			return null;

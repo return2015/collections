@@ -23,21 +23,28 @@ public interface SaleService {
 	
 	//public Sale affiliate(String code, int userId, Date affiliateDate) throws ServiceException;
 	
-	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException;
+	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt, Short bankId, Short productId, SaleStateEnum saleState, Integer first, Integer limit) throws ServiceException;
+	public Long findSalesBySaleDataCount(Date saleDateStartedAt,Date saleDateEndedAt, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException;
+	
+	public List<Sale> findSalesByCreditCardNumber(Long creditCardNumber, Integer first, Integer limit) throws ServiceException;
+	//public Long findSalesByCreditCardNumberCount(Long creditCardNumber) throws ServiceException;
+	
+	public List<Sale> findSalesByNuicResponsible(Long nuicResponsible, Integer first, Integer limit) throws ServiceException;
+	public Long findSalesByNuicResponsibleCount(Long nuicResponsible) throws ServiceException;
+	
+	public List<Sale> findSalesByNamesResponsible(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible, Integer first, Integer limit) throws ServiceException;
+	public Long findSalesByNamesResponsibleCount(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible) throws ServiceException;
+	
+	public List<Sale> findSalesByNamesInsured(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured, Integer first, Integer limit) throws ServiceException;
+	public Long findSalesByNamesInsuredCount(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured) throws ServiceException;
+	
+	public List<Sale> findSalesByNamesContractor(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor, Integer first, Integer limit) throws ServiceException;
+	public Long findSalesByNamesContractorCount(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws ServiceException;
+	
+	//public Long findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws ServiceException;
 	
 	public List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification) throws ServiceException;
 	
-	public List<Sale> findSalesByCreditCardNumber(Long creditCardNumber) throws ServiceException;
-	
-	public List<Sale> findSalesByNuicResponsible(Long nuicResponsible) throws ServiceException;
-	
-	public List<Sale> findSalesByNamesResponsible(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible) throws ServiceException;
-	
-	public List<Sale> findSalesByNamesInsured(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured) throws ServiceException;
-	
-	public List<Sale> findSalesByNamesContractor(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws ServiceException;
-	
-	//public Long findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws ServiceException;
 	
 	public Boolean checkIfExistSale(Integer nuicInsured, Date dateOfSale, Short bankId, Short productId, Short collectionPeriodId) throws ServiceException;
 	

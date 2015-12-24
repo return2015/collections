@@ -10,12 +10,12 @@ import com.returnsoft.collection.exception.ServiceException;
 
 public interface LoteService {
 	
-	public void update(Lote lote) throws ServiceException;
+	public void update(Lote lote);
 	
 	public Lote create(String name, Integer total) throws ServiceException;
 	
 	public List<Lote> findByDate(Date date) throws ServiceException;
 	
-	public void add(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId) throws ServiceException;
+	public void add(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId) ;
 
 }

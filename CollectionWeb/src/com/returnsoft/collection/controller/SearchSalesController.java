@@ -34,6 +34,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.primefaces.model.LazyDataModel;
+import org.primefaces.model.SortMeta;
 import org.primefaces.model.SortOrder;
 import org.primefaces.model.UploadedFile;
 
@@ -152,6 +153,7 @@ public class SearchSalesController implements Serializable {
 	private List<SelectItem> searchTypes;
 	
 	
+	//@Inject
 	private LazyDataModel<Sale> sales;
 	
 
@@ -162,6 +164,97 @@ public class SearchSalesController implements Serializable {
 		System.out.println("Se construye SearchSaleController");
 		//searchByNamesRendered=true;
 		//facesUtil = new FacesUtil();
+		/*sales = new LazyDataModel<Sale>() {
+
+			private static final long serialVersionUID = 1636739105248691317L;
+
+			@Override
+			public int getPageSize() {
+				// TODO Auto-generated method stub
+				return super.getPageSize();
+			}
+
+			@Override
+			public int getRowCount() {
+				// TODO Auto-generated method stub
+				return super.getRowCount();
+			}
+
+			@Override
+			public Sale getRowData() {
+				// TODO Auto-generated method stub
+				return super.getRowData();
+			}
+
+			@Override
+			public Sale getRowData(String rowKey) {
+				// TODO Auto-generated method stub
+				return super.getRowData(rowKey);
+			}
+
+			@Override
+			public int getRowIndex() {
+				// TODO Auto-generated method stub
+				return super.getRowIndex();
+			}
+
+			@Override
+			public Object getRowKey(Sale object) {
+				// TODO Auto-generated method stub
+				return super.getRowKey(object);
+			}
+
+			@Override
+			public Object getWrappedData() {
+				// TODO Auto-generated method stub
+				return super.getWrappedData();
+			}
+
+			@Override
+			public boolean isRowAvailable() {
+				// TODO Auto-generated method stub
+				return super.isRowAvailable();
+			}
+
+			@Override
+			public List<Sale> load(int first, int pageSize, List<SortMeta> multiSortMeta, Map<String, Object> filters) {
+				// TODO Auto-generated method stub
+				return new ArrayList<Sale>();
+			}
+
+			@Override
+			public List<Sale> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+					Map<String, Object> filters) {
+				// TODO Auto-generated method stub
+				return new ArrayList<Sale>();
+			}
+
+			@Override
+			public void setPageSize(int pageSize) {
+				// TODO Auto-generated method stub
+				super.setPageSize(pageSize);
+			}
+
+			@Override
+			public void setRowCount(int rowCount) {
+				// TODO Auto-generated method stub
+				super.setRowCount(rowCount);
+			}
+
+			@Override
+			public void setRowIndex(int arg0) {
+				// TODO Auto-generated method stub
+				super.setRowIndex(arg0);
+			}
+
+			@Override
+			public void setWrappedData(Object list) {
+				// TODO Auto-generated method stub
+				super.setWrappedData(list);
+			}
+			
+			
+		};*/
 		
 		
 	}
@@ -184,12 +277,12 @@ public class SearchSalesController implements Serializable {
 			onChangePersonType();
 		}*/
 		
-		System.out.println(searchTypeSelected);
-		System.out.println(personTypeSelected);
+		//System.out.println(searchTypeSelected);
+		//System.out.println(personTypeSelected);
 		
-		if (("personalData").equals(searchTypeSelected)) {
+		/*if (("personalData").equals(searchTypeSelected)) {
 			
-		}
+		}*/
 
 		try {
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
@@ -368,8 +461,12 @@ public class SearchSalesController implements Serializable {
 //
 //			}
 			
-			//sales = new SaleLazyModel(dateOfSaleStarted, dateOfSaleEnded, (short)0, (short)0, null);
+			//sales = new SaleLazyModel(saleService, null, null, (short)0, (short)0, null);
+			//sales.setRowCount(1);
 			
+			//sales = new SaleLazyModel(saleService, new Date(), new Date(), (short)0, (short)0, null);
+			
+			//searchTypeSelected="saleData";
 			
 			//personTypeSelected="";
 		} catch (Exception e) {
@@ -496,9 +593,22 @@ public class SearchSalesController implements Serializable {
 			if (searchTypeSelected.equals("creditCard")) {
 				Long creditCardNumberLong = Long.parseLong(creditCardNumber);
 				//sales = saleService.findSalesByCreditCardNumber(creditCardNumberLong);
+				System.out.println("Se inicia la busqueda XXX");
+				
+				sales = new SaleLazyModel(saleService, searchTypeSelected, creditCardNumberLong);
+				
+				System.out.println("Se termina la busqueda XXX");
+				
 			} else if (searchTypeSelected.equals("dni")) {
 				Long nuicResponsibleLong = Long.parseLong(nuicResponsible);
 				//sales = saleService.findSalesByNuicResponsible(nuicResponsibleLong);
+
+				System.out.println("Se inicia la busqueda XXX");
+			
+				sales = new SaleLazyModel(saleService, searchTypeSelected, nuicResponsibleLong);
+				
+				System.out.println("Se termina la busqueda XXX");
+				
 			} else if (searchTypeSelected.equals("saleData")) {
 				System.out.println(""+dateOfSaleStarted);
 				System.out.println(""+dateOfSaleEnded);
@@ -514,7 +624,7 @@ public class SearchSalesController implements Serializable {
 				if (bankSelected != null && bankSelected.length() > 0) {
 					bankId = Short.parseShort(bankSelected);
 				}else{
-					bankId=0;
+					bankId = 0;
 				}
 				final SaleStateEnum saleState;
 				if (saleStateSelected != null && saleStateSelected.length() > 0) {
@@ -524,29 +634,9 @@ public class SearchSalesController implements Serializable {
 				}
 				
 				System.out.println("Se inicia la busqueda XXX");
+			
+				sales = new SaleLazyModel(saleService, dateOfSaleStarted, dateOfSaleEnded, bankId, productId, saleState);
 				
-				sales = new LazyDataModel<Sale>() {
-					private static final long serialVersionUID = 1636739105248691317L;
-					@Override
-					public List<Sale> load(int first, int pageSize, String sortField, SortOrder sortOrder,
-							Map<String, Object> filters) {
-						List<Sale> sales = new ArrayList<Sale>();
-						System.out.println("Ingreso a loadddd");
-						try {
-							sales = saleService.findSalesBySaleData(dateOfSaleStarted, dateOfSaleEnded, bankId,
-									productId, saleState);
-							System.out.println("sales"+sales.size());
-						} catch (ServiceException e) {
-							e.printStackTrace();
-						}
-						this.setRowCount(sales.size());
-						return sales;
-					}
-				};
-				
-				
-				/*sales = saleService.findSalesBySaleData(dateOfSaleStarted, dateOfSaleEnded, bankId,
-						productId, saleState);*/
 				
 				System.out.println("Se termina la busqueda XXX");
 
@@ -563,8 +653,10 @@ public class SearchSalesController implements Serializable {
 							nuicContractorLong = Long.parseLong(nuicContractor);
 						}
 
-						/*sales = saleService.findSalesByNamesContractor(nuicContractorLong, firstnameContractor,
-								lastnamePaternalContractor, lastnameMaternalContractor);*/
+						System.out.println("Se inicia la busqueda XXX");
+						sales = new SaleLazyModel(saleService, personTypeSelected, nuicContractorLong, firstnameContractor, lastnamePaternalContractor, lastnameMaternalContractor);
+						System.out.println("Se termina la busqueda XXX");
+						
 
 					} else {
 						
@@ -584,7 +676,10 @@ public class SearchSalesController implements Serializable {
 						}
 
 						//sales = saleService.findSalesByNamesInsured(nuicInsuredLong, firstnameInsured,
-						//		lastnamePaternalInsured, lastnameMaternalInsured);
+						//lastnamePaternalInsured, lastnameMaternalInsured);
+						System.out.println("Se inicia la busqueda XXX");
+						sales = new SaleLazyModel(saleService, personTypeSelected, nuicInsuredLong, firstnameInsured, lastnamePaternalInsured, lastnameMaternalInsured);
+						System.out.println("Se termina la busqueda XXX");
 
 					} else {
 						facesUtil.sendErrorMessage("Debe ingresar al menos un dato");
@@ -604,6 +699,9 @@ public class SearchSalesController implements Serializable {
 
 						//sales = saleService.findSalesByNamesResponsible(nuicResponsibleLong, firstnameResponsible,
 						//		lastnamePaternalResponsible, lastnameMaternalResponsible);
+						System.out.println("Se inicia la busqueda XXX");
+						sales = new SaleLazyModel(saleService, personTypeSelected, nuicResponsibleLong, firstnameResponsible, lastnamePaternalResponsible, lastnameMaternalResponsible);
+						System.out.println("Se termina la busqueda XXX");
 
 					} else {
 						facesUtil.sendErrorMessage("Debe ingresar al menos un dato");
@@ -623,6 +721,9 @@ public class SearchSalesController implements Serializable {
 	public void exportCSV() throws IOException {
 
 		try {
+			
+			
+			List<Sale> sales = new ArrayList<Sale>();
 
 			StringBuilder cadena = new StringBuilder();
 			String separator = "|";
@@ -679,12 +780,12 @@ public class SearchSalesController implements Serializable {
 			header += "FECHA ACT TC" + separator;
 			header += "FECHA CREACION" + separator;
 			header += "USUARIO CREACION";
-
+			
 			cadena.append(header);
 			cadena.append("\r\n");
-
+			
 			search();
-
+			
 			SimpleDateFormat sdf1 = new SimpleDateFormat("MM/yyyy");
 			SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
 			SimpleDateFormat sdf3 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -755,22 +856,22 @@ public class SearchSalesController implements Serializable {
 
 			FacesContext fc = FacesContext.getCurrentInstance();
 			HttpServletResponse response = (HttpServletResponse) fc.getExternalContext().getResponse();
-
+			
 			response.reset();
 			response.setContentType("text/comma-separated-values");
 			response.setHeader("Content-Disposition", "attachment; filename=\"ventas.csv\"");
-
+			
 			OutputStream output = response.getOutputStream();
-
+			
 			// for (String s : strings) {
 			output.write(cadena.toString().getBytes());
 			// }
-
+			
 			output.flush();
 			output.close();
-
+			
 			fc.responseComplete();
-
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
@@ -781,6 +882,8 @@ public class SearchSalesController implements Serializable {
 	public void exportExcel() throws IOException {
 
 		try {
+			
+			List<Sale> sales = new ArrayList<Sale>();
 
 			search();
 

@@ -167,7 +167,7 @@ public class LoteServiceImpl implements LoteService {
 	
 
 	//@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void update(Lote lote) throws ServiceException {
+	public void update(Lote lote) {
 
 		try {
 			
@@ -177,11 +177,6 @@ public class LoteServiceImpl implements LoteService {
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage() != null && e.getMessage().trim().length() > 0) {
-				throw new ServiceException(e.getMessage(), e);
-			} else {
-				throw new ServiceException();
-			}
 		}
 
 	}
@@ -234,19 +229,22 @@ public class LoteServiceImpl implements LoteService {
 
 	@Asynchronous
 	@Override
-	public void add(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId)
-			throws ServiceException {
+	public void add(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId){
+		
+		Lote lote = new Lote();
 
 		try {
 			
-			userTransaction.begin();
-
 			/// COMPLETE FOREIGNS
 			List<Product> productsEntity = productEao.getProducts();
 			List<CollectionPeriod> collectionPeriodsEntity = collectionPeriodEao.getAll();
 			Bank bank = bankEao.findById(bankId);
 			User user = userEao.findById(userId);
 
+			userTransaction.begin();
+			
+			
+			
 			List<Sale> newSales = new ArrayList<Sale>();
 
 			for (Sale sale : sales) {
@@ -267,7 +265,7 @@ public class LoteServiceImpl implements LoteService {
 				newSales.add(sale);
 			}
 			
-			Lote lote = loteService.create(filename,newSales.size());
+			lote = loteService.create(filename,newSales.size());
 
 			Integer lineNumber = 1;
 			
@@ -303,22 +301,29 @@ public class LoteServiceImpl implements LoteService {
 				sale.setLote(lote);
 				saleEao.update(sale);
 			}
-			
-			userTransaction.commit();
 
 			lote.setState("Terminado");
 			loteService.update(lote);
 			
+			userTransaction.commit();
+			
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			if (e.getMessage()!=null || e.getMessage().length()==0) {
+				lote.setErrors((new NullPointerException()).toString());
+			}else{
+				lote.setErrors(e.getMessage());	
+			}
+			loteService.update(lote);
+			
 			try {
 				userTransaction.setRollbackOnly();
 			} catch (Exception e2) {
 				e2.printStackTrace();
-				throw new ServiceException(e2);
+				//throw new ServiceException(e2);
 			}
-			throw new ServiceException(e);
+			//throw new ServiceException(e);
 
 		}
 

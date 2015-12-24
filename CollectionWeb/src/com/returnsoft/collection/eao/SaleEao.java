@@ -15,7 +15,8 @@ public interface SaleEao{
 	
 	public Sale update(Sale sale) throws EaoException;
 	
-	public List<Sale> findBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Short bankId, Short productId, SaleStateEnum saleState) throws EaoException;
+	public List<Sale> findBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Short bankId, Short productId, SaleStateEnum saleState, Integer first, Integer limit) throws EaoException;
+	public Long findBySaleDataCount(Date saleDateStartedAt,Date saleDateEndedAt,Short bankId, Short productId, SaleStateEnum saleState) throws EaoException;
 	
 	public List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAt, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification)  throws EaoException;
 	
@@ -25,15 +26,19 @@ public interface SaleEao{
 	
 	public Sale findById(Long id) throws EaoException;
 	
-	public List<Sale> findByNuicResponsible(Long nuicResponsible) throws EaoException;
+	public List<Sale> findByNuicResponsible(Long nuicResponsible, Integer first, Integer limit) throws EaoException;
+	public Long findByNuicResponsibleCount(Long nuicResponsible) throws EaoException;
 	
 	public Boolean checkExistSale(Integer nuicInsured, Date dateOfSale, Short bankId, Short productId, Short collectionPeriodId) throws EaoException;
 	
-	public List<Sale> findByNamesResponsible(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible) throws EaoException;
+	public List<Sale> findByNamesResponsible(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible, Integer first, Integer limit) throws EaoException;
+	public Long findByNamesResponsibleCount(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible) throws EaoException;
 	
-	public List<Sale> findByNamesInsured(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured) throws EaoException;
+	public List<Sale> findByNamesInsured(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured, Integer first, Integer limit) throws EaoException;
+	public Long findByNamesInsuredCount(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured) throws EaoException;
 	
-	public List<Sale> findByNamesContractor(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws EaoException;
+	public List<Sale> findByNamesContractor(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor, Integer first, Integer limit) throws EaoException;
+	public Long findByNamesContractorCount(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws EaoException;
 	
 	//public Long findIdByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws EaoException;
 	
