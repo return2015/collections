@@ -220,8 +220,46 @@ public class SearchLoteController implements Serializable{
 	}
 	
 	
+	public void downloadSalesFile() {
+		try {
+
+			ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext()
+					.getContext();
+			String separator = System.getProperty("file.separator");
+			String rootPath = servletContext.getRealPath(separator);
+			String fileName = rootPath + "resources" + separator + "templates" + separator + "tramas_ventas.xlsx";
+			File file = new File(fileName);
+			InputStream pdfInputStream = new FileInputStream(file);
+
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+			ExternalContext externalContext = facesContext.getExternalContext();
+			externalContext.setResponseContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"tramas_ventas.xlsx\"");
+
+			// Read PDF contents and write them to the output
+			byte[] bytesBuffer = new byte[2048];
+			int bytesRead;
+
+			while ((bytesRead = pdfInputStream.read(bytesBuffer)) > 0) {
+				externalContext.getResponseOutputStream().write(bytesBuffer, 0, bytesRead);
+			}
+
+			externalContext.getResponseOutputStream().flush();
+			externalContext.getResponseOutputStream().close();
+			pdfInputStream.close();
+			facesContext.responseComplete();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+		}
+
+	}
+	
+	
+	
 	//public void validateFile(FileUploadEvent event) {
-	public void validateFile() {
+	public void validateSalesFile() {
 		/*AjaxBehaviorEvent event*/
 		System.out.println("validateFile");
 		try {
@@ -237,7 +275,196 @@ public class SearchLoteController implements Serializable{
 				throw new FileExtensionException();
 			}
 			
-			loadFile(file.getSubmittedFileName());
+			/////////
+			
+			
+			BufferedReader 
+			br = new BufferedReader(
+					new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+		
+		String strLine = null;
+		Integer numLine = 0;
+		
+		SaleFile headers = new SaleFile();
+		List<SaleFile> dataList = new ArrayList<SaleFile>();
+
+		while ((strLine = br.readLine()) != null) {
+
+			System.out.println("numLine:" + numLine);
+
+			if (numLine == 0) {
+				// SE LEE CABECERA
+				String[] values = strLine.split("\\|", -1);
+				if (values.length != FILE_ROWS) {
+					throw new SaleFileRowsInvalidException(FILE_ROWS);
+				} else {
+					
+					headers.setDocumentType(values[0]);
+					headers.setNuicResponsible(values[1]);
+					headers.setLastnamePaternalResponsible(values[2]);
+					headers.setLastnameMaternalResponsible(values[3]);
+					headers.setFirstnameResponsible(values[4]);
+
+					headers.setCreditCardNumber(values[5]);
+					headers.setAccountNumber(values[6]);
+					headers.setCreditCardExpirationDate(values[7]);
+					headers.setCreditCardState(values[8]);
+					headers.setCreditCardDaysOfDefault(values[9]);
+
+					headers.setNuicContractor(values[10]);
+					headers.setLastnamePaternalContractor(values[11]);
+					headers.setLastnameMaternalContractor(values[12]);
+					headers.setFirstnameContractor(values[13]);
+					headers.setNuicInsured(values[14]);
+
+					headers.setLastnamePaternalInsured(values[15]);
+					headers.setLastnameMaternalInsured(values[16]);
+					headers.setFirstnameInsured(values[17]);
+					headers.setPhone1(values[18]);
+					headers.setPhone2(values[19]);
+
+					headers.setMail(values[20]);
+					headers.setDepartment(values[21]);
+					headers.setProvince(values[22]);
+					headers.setDistrict(values[23]);
+					headers.setAddress(values[24]);
+
+					headers.setDate(values[25]);
+					headers.setChannel(values[26]);
+					headers.setPlace(values[27]);
+					headers.setVendorCode(values[28]);
+					headers.setVendorName(values[29]);
+
+					headers.setPolicyNumber(values[30]);
+					headers.setCertificateNumber(values[31]);
+					headers.setProposalNumber(values[32]);
+					headers.setCommercialCode(values[33]);
+					headers.setProduct(values[34]);
+
+					headers.setProductDescription(values[35]);
+					headers.setCollectionPeriod(values[36]);
+					headers.setCollectionType(values[37]);
+					headers.setBank(values[38]);
+					headers.setInsurancePremium(values[39]);
+
+					headers.setAuditDate(values[40]);
+					headers.setAuditUser(values[41]);
+					headers.setState(values[42]);
+					headers.setStateDate(values[43]);
+					headers.setDownUser(values[44]);
+
+					headers.setDownChannel(values[45]);
+					headers.setDownReason(values[46]);
+					headers.setDownObservation(values[47]);
+					headers.setCreditCardUpdatedAt(values[48]);
+
+				}
+			} else {
+
+				String[] values = strLine.split("\\|", -1);
+
+				if (values.length != FILE_ROWS) {
+					throw new SaleFileRowsInvalidException(FILE_ROWS);
+				} else {
+
+					SaleFile saleFile = new SaleFile();
+					saleFile.setDocumentType(values[0].trim());
+					saleFile.setNuicResponsible(values[1].trim());
+					saleFile.setLastnamePaternalResponsible(values[2].trim());
+					saleFile.setLastnameMaternalResponsible(values[3].trim());
+					saleFile.setFirstnameResponsible(values[4].trim());
+					saleFile.setCreditCardNumber(values[5].trim());
+					saleFile.setAccountNumber(values[6].trim());
+					saleFile.setCreditCardExpirationDate(values[7].trim());
+					saleFile.setCreditCardState(values[8].trim());
+					saleFile.setCreditCardDaysOfDefault(values[9].trim());
+					saleFile.setNuicContractor(values[10].trim());
+					saleFile.setLastnamePaternalContractor(values[11].trim());
+					saleFile.setLastnameMaternalContractor(values[12].trim());
+					saleFile.setFirstnameContractor(values[13].trim());
+					saleFile.setNuicInsured(values[14].trim());
+					saleFile.setLastnamePaternalInsured(values[15].trim());
+					saleFile.setLastnameMaternalInsured(values[16].trim());
+					saleFile.setFirstnameInsured(values[17].trim());
+					saleFile.setPhone1(values[18].trim());
+					saleFile.setPhone2(values[19].trim());
+					saleFile.setMail(values[20].trim());
+					saleFile.setDepartment(values[21].trim());
+					saleFile.setProvince(values[22].trim());
+					saleFile.setDistrict(values[23].trim());
+					saleFile.setAddress(values[24].trim());
+					saleFile.setDate(values[25].trim());
+					saleFile.setChannel(values[26].trim());
+					saleFile.setPlace(values[27].trim());
+					saleFile.setVendorCode(values[28].trim());
+					saleFile.setVendorName(values[29].trim());
+					saleFile.setPolicyNumber(values[30].trim());
+					saleFile.setCertificateNumber(values[31].trim());
+					saleFile.setProposalNumber(values[32].trim());
+					saleFile.setCommercialCode(values[33].trim());
+					saleFile.setProduct(values[34].trim());
+					saleFile.setProductDescription(values[35].trim());
+					saleFile.setCollectionPeriod(values[36].trim());
+					saleFile.setCollectionType(values[37].trim());
+					saleFile.setBank(values[38].trim());
+					saleFile.setInsurancePremium(values[39].trim());
+					saleFile.setAuditDate(values[40].trim());
+					saleFile.setAuditUser(values[41].trim());
+					saleFile.setState(values[42].trim());
+					saleFile.setStateDate(values[43].trim());
+					saleFile.setDownUser(values[44].trim());
+					saleFile.setDownChannel(values[45].trim());
+					saleFile.setDownReason(values[46].trim());
+					saleFile.setDownObservation(values[47].trim());
+					saleFile.setCreditCardUpdatedAt(values[48].trim());
+
+					dataList.add(saleFile);
+
+				}
+			}
+
+			numLine++;
+
+		}
+
+		if (dataList.size() > 0) {
+
+			////////// VALIDANDO DUPLICADOS
+			/////////////////////////////
+			Set<String> dataSet = new HashSet<String>();
+			Set<Integer> errorSet = new HashSet<Integer>();
+			List<String> errors = new ArrayList<String>();
+			numLine = 1;
+
+			for (SaleFile saleFile : dataList) {
+				String dataString = saleFile.getNuicInsured() + saleFile.getDate() + saleFile.getProduct()
+						+ saleFile.getBank() + saleFile.getCollectionPeriod();
+				numLine++;
+				if (!dataSet.add(dataString)) {
+					errorSet.add(numLine);
+				}
+			}
+
+			for (Integer errorLineNumber : errorSet) {
+				Exception ex = new SaleDuplicateException();
+				errors.add(generateErrorMessageHeader(errorLineNumber) + ex.getMessage());
+			}
+			
+			/////////////////////////////////////////
+			//////////////////////////
+			//////////////////////////////////////////
+			
+			if (errors.size()==0) {
+				validateSalesData(headers, dataList, file.getSubmittedFileName());
+			}else{
+				throw new FileMultipleErrorsException(errors);
+			}
+			
+		}else{
+			throw new FileRowsZeroException();
+		}
+		
+		//	loadFile(file.getSubmittedFileName());
 			
 			facesUtil.sendConfirmMessage("Se creó el lote satisfactorimente.");
 			
@@ -259,205 +486,9 @@ public class SearchLoteController implements Serializable{
 	}
 	
 	
-	public void loadFile(String filename) throws Exception {
-
-		System.out.println("getFileData");
-		
-		//try {
-
-			BufferedReader 
-				br = new BufferedReader(
-						new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-			
-			String strLine = null;
-			Integer numLine = 0;
-			
-			SaleFile headers = new SaleFile();
-			List<SaleFile> dataList = new ArrayList<SaleFile>();
-
-			while ((strLine = br.readLine()) != null) {
-
-				System.out.println("numLine:" + numLine);
-
-				if (numLine == 0) {
-					// SE LEE CABECERA
-					String[] values = strLine.split("\\|", -1);
-					if (values.length != FILE_ROWS) {
-						throw new SaleFileRowsInvalidException(FILE_ROWS);
-					} else {
-						
-						headers.setDocumentType(values[0]);
-						headers.setNuicResponsible(values[1]);
-						headers.setLastnamePaternalResponsible(values[2]);
-						headers.setLastnameMaternalResponsible(values[3]);
-						headers.setFirstnameResponsible(values[4]);
-
-						headers.setCreditCardNumber(values[5]);
-						headers.setAccountNumber(values[6]);
-						headers.setCreditCardExpirationDate(values[7]);
-						headers.setCreditCardState(values[8]);
-						headers.setCreditCardDaysOfDefault(values[9]);
-
-						headers.setNuicContractor(values[10]);
-						headers.setLastnamePaternalContractor(values[11]);
-						headers.setLastnameMaternalContractor(values[12]);
-						headers.setFirstnameContractor(values[13]);
-						headers.setNuicInsured(values[14]);
-
-						headers.setLastnamePaternalInsured(values[15]);
-						headers.setLastnameMaternalInsured(values[16]);
-						headers.setFirstnameInsured(values[17]);
-						headers.setPhone1(values[18]);
-						headers.setPhone2(values[19]);
-
-						headers.setMail(values[20]);
-						headers.setDepartment(values[21]);
-						headers.setProvince(values[22]);
-						headers.setDistrict(values[23]);
-						headers.setAddress(values[24]);
-
-						headers.setDate(values[25]);
-						headers.setChannel(values[26]);
-						headers.setPlace(values[27]);
-						headers.setVendorCode(values[28]);
-						headers.setVendorName(values[29]);
-
-						headers.setPolicyNumber(values[30]);
-						headers.setCertificateNumber(values[31]);
-						headers.setProposalNumber(values[32]);
-						headers.setCommercialCode(values[33]);
-						headers.setProduct(values[34]);
-
-						headers.setProductDescription(values[35]);
-						headers.setCollectionPeriod(values[36]);
-						headers.setCollectionType(values[37]);
-						headers.setBank(values[38]);
-						headers.setInsurancePremium(values[39]);
-
-						headers.setAuditDate(values[40]);
-						headers.setAuditUser(values[41]);
-						headers.setState(values[42]);
-						headers.setStateDate(values[43]);
-						headers.setDownUser(values[44]);
-
-						headers.setDownChannel(values[45]);
-						headers.setDownReason(values[46]);
-						headers.setDownObservation(values[47]);
-						headers.setCreditCardUpdatedAt(values[48]);
-
-					}
-				} else {
-
-					String[] values = strLine.split("\\|", -1);
-
-					if (values.length != FILE_ROWS) {
-						throw new SaleFileRowsInvalidException(FILE_ROWS);
-					} else {
-
-						SaleFile saleFile = new SaleFile();
-						saleFile.setDocumentType(values[0].trim());
-						saleFile.setNuicResponsible(values[1].trim());
-						saleFile.setLastnamePaternalResponsible(values[2].trim());
-						saleFile.setLastnameMaternalResponsible(values[3].trim());
-						saleFile.setFirstnameResponsible(values[4].trim());
-						saleFile.setCreditCardNumber(values[5].trim());
-						saleFile.setAccountNumber(values[6].trim());
-						saleFile.setCreditCardExpirationDate(values[7].trim());
-						saleFile.setCreditCardState(values[8].trim());
-						saleFile.setCreditCardDaysOfDefault(values[9].trim());
-						saleFile.setNuicContractor(values[10].trim());
-						saleFile.setLastnamePaternalContractor(values[11].trim());
-						saleFile.setLastnameMaternalContractor(values[12].trim());
-						saleFile.setFirstnameContractor(values[13].trim());
-						saleFile.setNuicInsured(values[14].trim());
-						saleFile.setLastnamePaternalInsured(values[15].trim());
-						saleFile.setLastnameMaternalInsured(values[16].trim());
-						saleFile.setFirstnameInsured(values[17].trim());
-						saleFile.setPhone1(values[18].trim());
-						saleFile.setPhone2(values[19].trim());
-						saleFile.setMail(values[20].trim());
-						saleFile.setDepartment(values[21].trim());
-						saleFile.setProvince(values[22].trim());
-						saleFile.setDistrict(values[23].trim());
-						saleFile.setAddress(values[24].trim());
-						saleFile.setDate(values[25].trim());
-						saleFile.setChannel(values[26].trim());
-						saleFile.setPlace(values[27].trim());
-						saleFile.setVendorCode(values[28].trim());
-						saleFile.setVendorName(values[29].trim());
-						saleFile.setPolicyNumber(values[30].trim());
-						saleFile.setCertificateNumber(values[31].trim());
-						saleFile.setProposalNumber(values[32].trim());
-						saleFile.setCommercialCode(values[33].trim());
-						saleFile.setProduct(values[34].trim());
-						saleFile.setProductDescription(values[35].trim());
-						saleFile.setCollectionPeriod(values[36].trim());
-						saleFile.setCollectionType(values[37].trim());
-						saleFile.setBank(values[38].trim());
-						saleFile.setInsurancePremium(values[39].trim());
-						saleFile.setAuditDate(values[40].trim());
-						saleFile.setAuditUser(values[41].trim());
-						saleFile.setState(values[42].trim());
-						saleFile.setStateDate(values[43].trim());
-						saleFile.setDownUser(values[44].trim());
-						saleFile.setDownChannel(values[45].trim());
-						saleFile.setDownReason(values[46].trim());
-						saleFile.setDownObservation(values[47].trim());
-						saleFile.setCreditCardUpdatedAt(values[48].trim());
-
-						dataList.add(saleFile);
-
-					}
-				}
-
-				numLine++;
-
-			}
-
-			if (dataList.size() > 0) {
-
-				////////// VALIDANDO DUPLICADOS
-				/////////////////////////////
-				Set<String> dataSet = new HashSet<String>();
-				Set<Integer> errorSet = new HashSet<Integer>();
-				List<String> errors = new ArrayList<String>();
-				numLine = 1;
-
-				for (SaleFile saleFile : dataList) {
-					String dataString = saleFile.getNuicInsured() + saleFile.getDate() + saleFile.getProduct()
-							+ saleFile.getBank() + saleFile.getCollectionPeriod();
-					numLine++;
-					if (!dataSet.add(dataString)) {
-						errorSet.add(numLine);
-					}
-				}
-
-				for (Integer errorLineNumber : errorSet) {
-					Exception ex = new SaleDuplicateException();
-					errors.add(generateErrorMessageHeader(errorLineNumber) + ex.getMessage());
-				}
-				
-				/////////////////////////////////////////
-				//////////////////////////
-				//////////////////////////////////////////
-				
-				if (errors.size()==0) {
-					validateData(headers, dataList, filename);
-				}else{
-					throw new FileMultipleErrorsException(errors);
-				}
-				
-			}else{
-				throw new FileRowsZeroException();
-			}
-
-		//} catch (Exception e) {
-		//	e.printStackTrace();
-		//}
-
-	}
 	
-	public void validateData(SaleFile headers, List<SaleFile> dataList, String filename) throws Exception{
+	
+	public void validateSalesData(SaleFile headers, List<SaleFile> dataList, String filename) throws Exception{
 
 		System.out.println("Validando vacíos");
 
@@ -1132,41 +1163,7 @@ public class SearchLoteController implements Serializable{
 		return "Error en la fila " + row + ": ";
 	}
 	
-	public void download() {
-		try {
-
-			ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext()
-					.getContext();
-			String separator = System.getProperty("file.separator");
-			String rootPath = servletContext.getRealPath(separator);
-			String fileName = rootPath + "resources" + separator + "templates" + separator + "tramas_ventas.xlsx";
-			File file = new File(fileName);
-			InputStream pdfInputStream = new FileInputStream(file);
-
-			FacesContext facesContext = FacesContext.getCurrentInstance();
-			ExternalContext externalContext = facesContext.getExternalContext();
-			externalContext.setResponseContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-			externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"tramas_ventas.xlsx\"");
-
-			// Read PDF contents and write them to the output
-			byte[] bytesBuffer = new byte[2048];
-			int bytesRead;
-
-			while ((bytesRead = pdfInputStream.read(bytesBuffer)) > 0) {
-				externalContext.getResponseOutputStream().write(bytesBuffer, 0, bytesRead);
-			}
-
-			externalContext.getResponseOutputStream().flush();
-			externalContext.getResponseOutputStream().close();
-			pdfInputStream.close();
-			facesContext.responseComplete();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-		}
-
-	}
+	
 	
 
 

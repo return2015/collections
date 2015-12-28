@@ -718,12 +718,143 @@ public class SearchSalesController implements Serializable {
 
 	}
 
-	public void exportCSV() throws IOException {
+	public void exportTxt() throws IOException {
 
 		try {
 			
 			
-			List<Sale> sales = new ArrayList<Sale>();
+			
+			
+			
+			List<Sale> salesFound = new ArrayList<Sale>();
+			
+			//saleSelected = null;
+
+			if (searchTypeSelected.equals("creditCard")) {
+				Long creditCardNumberLong = Long.parseLong(creditCardNumber);
+				//sales = saleService.findSalesByCreditCardNumber(creditCardNumberLong);
+				System.out.println("Se inicia la busqueda XXX");
+				
+				//sales = new SaleLazyModel(saleService, searchTypeSelected, creditCardNumberLong);
+				//salesFound = saleService.fin
+				System.out.println("Se termina la busqueda XXX");
+				
+			} else if (searchTypeSelected.equals("dni")) {
+				Long nuicResponsibleLong = Long.parseLong(nuicResponsible);
+				//sales = saleService.findSalesByNuicResponsible(nuicResponsibleLong);
+
+				System.out.println("Se inicia la busqueda XXX");
+			
+				//sales = new SaleLazyModel(saleService, searchTypeSelected, nuicResponsibleLong);
+				salesFound = saleService.findSalesByNuicResponsible(nuicResponsibleLong);
+				System.out.println("Se termina la busqueda XXX");
+				
+			} else if (searchTypeSelected.equals("saleData")) {
+				System.out.println(""+dateOfSaleStarted);
+				System.out.println(""+dateOfSaleEnded);
+				final short productId;
+				System.out.println(productSelected);
+				if (productSelected != null && productSelected.length() > 0) {
+					productId = Short.parseShort(productSelected);
+				}else{
+					productId=0;
+				}
+				final short bankId;
+				System.out.println(bankSelected);
+				if (bankSelected != null && bankSelected.length() > 0) {
+					bankId = Short.parseShort(bankSelected);
+				}else{
+					bankId = 0;
+				}
+				final SaleStateEnum saleState;
+				if (saleStateSelected != null && saleStateSelected.length() > 0) {
+					saleState = SaleStateEnum.findById(Short.parseShort(saleStateSelected));
+				}else{
+					saleState=null;
+				}
+				
+				System.out.println("Se inicia la busqueda XXX");
+			
+				//sales = new SaleLazyModel(saleService, dateOfSaleStarted, dateOfSaleEnded, bankId, productId, saleState);
+				salesFound = saleService.findSalesBySaleData(dateOfSaleStarted, dateOfSaleEnded, bankId, productId, saleState);
+				
+				System.out.println("Se termina la busqueda XXX");
+
+			} else if (searchTypeSelected.equals("personalData")) {
+				if (personTypeSelected.equals("contractor")) {
+
+					if ((nuicContractor != null && nuicContractor.length() > 0)
+							|| (firstnameContractor != null && firstnameContractor.length() > 0)
+							|| (lastnamePaternalContractor != null && lastnamePaternalContractor.length() > 0)
+							|| (lastnameMaternalContractor != null && lastnameMaternalContractor.length() > 0)) {
+
+						Long nuicContractorLong = null;
+						if (nuicContractor != null && nuicContractor.length() > 0) {
+							nuicContractorLong = Long.parseLong(nuicContractor);
+						}
+
+						System.out.println("Se inicia la busqueda XXX");
+						//sales = new SaleLazyModel(saleService, personTypeSelected, nuicContractorLong, firstnameContractor, lastnamePaternalContractor, lastnameMaternalContractor);
+						salesFound = saleService.findSalesByNamesContractor(nuicContractorLong, firstnameContractor, lastnamePaternalContractor, lastnameMaternalContractor);
+						System.out.println("Se termina la busqueda XXX");
+						
+
+					} else {
+						
+						facesUtil.sendErrorMessage("Debe ingresar al menos un dato");
+					}
+
+				} else if (personTypeSelected.equals("insured")) {
+
+					if ((nuicInsured != null && nuicInsured.length() > 0)
+							|| (firstnameInsured != null && firstnameInsured.length() > 0)
+							|| (lastnamePaternalInsured != null && lastnamePaternalInsured.length() > 0)
+							|| (lastnameMaternalInsured != null && lastnameMaternalInsured.length() > 0)) {
+
+						Long nuicInsuredLong = null;
+						if (nuicInsured != null && nuicInsured.length() > 0) {
+							nuicInsuredLong = Long.parseLong(nuicInsured);
+						}
+
+						//sales = saleService.findSalesByNamesInsured(nuicInsuredLong, firstnameInsured,
+						//lastnamePaternalInsured, lastnameMaternalInsured);
+						System.out.println("Se inicia la busqueda XXX");
+						//sales = new SaleLazyModel(saleService, personTypeSelected, nuicInsuredLong, firstnameInsured, lastnamePaternalInsured, lastnameMaternalInsured);
+						salesFound = saleService.findSalesByNamesInsured(nuicInsuredLong, firstnameInsured, lastnamePaternalInsured, lastnameMaternalInsured);
+						System.out.println("Se termina la busqueda XXX");
+
+					} else {
+						facesUtil.sendErrorMessage("Debe ingresar al menos un dato");
+					}
+
+				} else if (personTypeSelected.equals("responsible")) {
+
+					if ((nuicResponsible != null && nuicResponsible.length() > 0)
+							|| (firstnameResponsible != null && firstnameResponsible.length() > 0)
+							|| (lastnamePaternalResponsible != null && lastnamePaternalResponsible.length() > 0)
+							|| (lastnameMaternalResponsible != null && lastnameMaternalResponsible.length() > 0)) {
+
+						Long nuicResponsibleLong = null;
+						if (nuicResponsible != null && nuicResponsible.length() > 0) {
+							nuicResponsibleLong = Long.parseLong(nuicResponsible);
+						}
+
+						//sales = saleService.findSalesByNamesResponsible(nuicResponsibleLong, firstnameResponsible,
+						//		lastnamePaternalResponsible, lastnameMaternalResponsible);
+						System.out.println("Se inicia la busqueda XXX");
+						//sales = new SaleLazyModel(saleService, personTypeSelected, nuicResponsibleLong, firstnameResponsible, lastnamePaternalResponsible, lastnameMaternalResponsible);
+						salesFound = saleService.findSalesByNamesResponsible(nuicResponsibleLong, firstnameResponsible, lastnamePaternalResponsible, lastnameMaternalResponsible);
+						System.out.println("Se termina la busqueda XXX");
+
+					} else {
+						facesUtil.sendErrorMessage("Debe ingresar al menos un dato");
+					}
+				}
+
+			}
+			
+			
+			////////////
 
 			StringBuilder cadena = new StringBuilder();
 			String separator = "|";
@@ -786,11 +917,12 @@ public class SearchSalesController implements Serializable {
 			
 			search();
 			
+			
 			SimpleDateFormat sdf1 = new SimpleDateFormat("MM/yyyy");
 			SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
 			SimpleDateFormat sdf3 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
-			for (Sale sale : sales) {
+			for (Sale sale : salesFound) {
 
 				cadena.append(sale.getCode() + separator);
 				cadena.append(sale.getPayer().getDocumentType().getName() + separator);
@@ -859,7 +991,7 @@ public class SearchSalesController implements Serializable {
 			
 			response.reset();
 			response.setContentType("text/comma-separated-values");
-			response.setHeader("Content-Disposition", "attachment; filename=\"ventas.csv\"");
+			response.setHeader("Content-Disposition", "attachment; filename=\"ventas.txt\"");
 			
 			OutputStream output = response.getOutputStream();
 			

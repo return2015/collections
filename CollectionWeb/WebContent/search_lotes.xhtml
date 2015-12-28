@@ -34,7 +34,7 @@
 				<p:accordionPanel id="acc_sales" style="width:400px;font-size:11px;">
 					<p:tab title="Cargar lote de ventas">
 						<h:form id="formLinkSales">
-							<h:commandLink actionListener="#{searchLoteController.download}"
+							<h:commandLink actionListener="#{searchLoteController.downloadSalesFile}"
 								value="Descargar formato de trama">
 							</h:commandLink>
 						</h:form>
@@ -45,7 +45,7 @@
 								<h:inputFile id="file" value="#{searchLoteController.file}">
 								</h:inputFile>
 								<h:commandButton value="Cargar ventas" process="@form"
-									actionListener="#{searchLoteController.validateFile}">
+									actionListener="#{searchLoteController.validateSalesFile}">
 									<f:ajax execute="file" render=":acc_sales:messages_sales" />
 								</h:commandButton>
 							</h:panelGrid>

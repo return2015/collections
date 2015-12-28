@@ -128,11 +128,11 @@ import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.LoteService;
 
 @Stateless
-@TransactionManagement(TransactionManagementType.BEAN)
+//@TransactionManagement(TransactionManagementType.BEAN)
 public class LoteServiceImpl implements LoteService {
 
-	@Resource
-	private UserTransaction userTransaction;
+	//@Resource
+	//private UserTransaction userTransaction;
 
 	@EJB
 	private LoteEao loteEao;
@@ -162,55 +162,55 @@ public class LoteServiceImpl implements LoteService {
 	@EJB
 	private SaleEao saleEao;
 	
-	@EJB
-	private LoteService loteService;
+	//@EJB
+	//private LoteService loteService;
 	
 
 	//@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void update(Lote lote) {
-
-		try {
-			
-			userTransaction.begin();
-			loteEao.update(lote);
-			userTransaction.commit();
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
+//	public void update(Lote lote) {
+//
+//		try {
+//			
+//			userTransaction.begin();
+//			loteEao.update(lote);
+//			userTransaction.commit();
+//			
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//
+//	}
 
 	//@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public Lote create(String name, Integer total) throws ServiceException {
-
-		try {
-			
-			userTransaction.begin();
-
-			Lote lote = new Lote();
-			lote.setName(name);
-			lote.setTotal(total);
-			lote.setProcess(0);
-			lote.setDate(new Date());
-			lote.setState("En progreso");
-
-			loteEao.add(lote);
-			
-			userTransaction.commit();
-
-			return lote;			
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage() != null && e.getMessage().trim().length() > 0) {
-				throw new ServiceException(e.getMessage(), e);
-			} else {
-				throw new ServiceException();
-			}
-		}
-
-	}
+//	public Lote create(String name, Integer total) throws ServiceException {
+//
+//		try {
+//			
+//			userTransaction.begin();
+//
+//			Lote lote = new Lote();
+//			lote.setName(name);
+//			lote.setTotal(total);
+//			lote.setProcess(0);
+//			lote.setDate(new Date());
+//			lote.setState("En progreso");
+//
+//			loteEao.add(lote);
+//			
+//			userTransaction.commit();
+//
+//			return lote;			
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			if (e.getMessage() != null && e.getMessage().trim().length() > 0) {
+//				throw new ServiceException(e.getMessage(), e);
+//			} else {
+//				throw new ServiceException();
+//			}
+//		}
+//
+//	}
 
 	public List<Lote> findByDate(Date date) throws ServiceException {
 		try {
@@ -232,20 +232,21 @@ public class LoteServiceImpl implements LoteService {
 	public void add(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId){
 		
 		Lote lote = new Lote();
+		Date date = new Date();
 
 		try {
 			
 			/// COMPLETE FOREIGNS
-			List<Product> productsEntity = productEao.getProducts();
-			List<CollectionPeriod> collectionPeriodsEntity = collectionPeriodEao.getAll();
+			//List<Product> productsEntity = productEao.getProducts();
+			//List<CollectionPeriod> collectionPeriodsEntity = collectionPeriodEao.getAll();
 			Bank bank = bankEao.findById(bankId);
 			User user = userEao.findById(userId);
 
-			userTransaction.begin();
+			//userTransaction.begin();
 			
 			
 			
-			List<Sale> newSales = new ArrayList<Sale>();
+			/*List<Sale> newSales = new ArrayList<Sale>();
 
 			for (Sale sale : sales) {
 				sale.setBank(bank);
@@ -263,9 +264,14 @@ public class LoteServiceImpl implements LoteService {
 					}
 				}
 				newSales.add(sale);
-			}
-			
-			lote = loteService.create(filename,newSales.size());
+			}*/
+			lote.setName(filename);
+			lote.setTotal(sales.size());
+			lote.setProcess(0);
+			lote.setDate(date);
+			lote.setState("En progreso");
+			//lote = loteService.create(filename,newSales.size());
+			loteEao.add(lote);
 
 			Integer lineNumber = 1;
 			
@@ -273,39 +279,43 @@ public class LoteServiceImpl implements LoteService {
 			
 			// lunes 10
 
-			for (Sale sale : newSales) {
+			for (Sale sale : sales) {
 
 				System.out.println("INSERTANDO" + lineNumber);
+				sale.setBank(bank);
+				sale.setCreatedBy(user);
+				sale.setLote(lote);
+				sale.setCreatedAt(date);
 
-				SaleState saleState = sale.getSaleState();
+				/*SaleState saleState = sale.getSaleState();
 				CreditCard creditCard = sale.getCreditCard();
-				Payer payer = sale.getPayer();
+				Payer payer = sale.getPayer();*/
 
-				saleStateEao.add(saleState);
-				creditCardEao.add(creditCard);
-				payerEao.add(payer);
+				saleStateEao.add(sale.getSaleState());
+				creditCardEao.add(sale.getCreditCard());
+				payerEao.add(sale.getPayer());
 
-				sale.setSaleState(saleState);
+				/*sale.setSaleState(saleState);
 				sale.setCreditCard(creditCard);
-				sale.setPayer(payer);
+				sale.setPayer(payer);*/
 				saleEao.add(sale);
 
 				lote.setProcess(lineNumber);
-				loteService.update(lote);
+				loteEao.update(lote);
 
 				lineNumber++;
 
 			}
 			
-			for (Sale sale : newSales) {
+			/*for (Sale sale : newSales) {
 				sale.setLote(lote);
 				saleEao.update(sale);
-			}
+			}*/
 
 			lote.setState("Terminado");
-			loteService.update(lote);
+			loteEao.update(lote);
 			
-			userTransaction.commit();
+			//userTransaction.commit();
 			
 
 		} catch (Exception e) {
@@ -315,14 +325,19 @@ public class LoteServiceImpl implements LoteService {
 			}else{
 				lote.setErrors(e.getMessage());	
 			}
-			loteService.update(lote);
-			
 			try {
+				loteEao.update(lote);
+			} catch (EaoException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			/*try {
 				userTransaction.setRollbackOnly();
 			} catch (Exception e2) {
 				e2.printStackTrace();
 				//throw new ServiceException(e2);
-			}
+			}*/
 			//throw new ServiceException(e);
 
 		}

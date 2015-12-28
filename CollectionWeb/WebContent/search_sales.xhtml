@@ -213,8 +213,8 @@
 						value="Buscar" process="@form" update=":formTable:searchTable :formTable:saleId :formTable:salesCount :messages">
 					</p:commandButton>
 
-					<p:commandButton action="#{searchSalesController.exportCSV}"
-						value="Exportar" process="@form" ajax="false">
+					<p:commandButton action="#{searchSalesController.exportTxt}"
+						value="Exportar a Txt" process="@form" ajax="false">
 					</p:commandButton>
 
 				</h:panelGrid>

@@ -15,6 +15,8 @@ import org.primefaces.model.SortMeta;
 import org.primefaces.model.SortOrder;
 
 import com.returnsoft.collection.entity.Sale;
+import com.returnsoft.collection.enumeration.NotificationStateEnum;
+import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.SaleService;
@@ -52,6 +54,18 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 	private String PERSONALDATA="personalData";
 	private String DNI="dni";
 	private String CREDITCARD="creditCard";
+	private String NOTIFICATIONDATA="notificationData";
+	
+	///////////////
+	
+	private Date sendingDate;
+	private List<NotificationStateEnum> notificationStates;
+	//private Short bankId;
+	//private SaleStateEnum saleState; 
+	private NotificationTypeEnum notificationType; 
+	private Boolean withoutMail; 
+	private Boolean withoutAddress;
+	private Boolean withoutNotification;
 	
 	public SaleLazyModel(SaleService saleService, String numberType, Long number) {
 		super();
@@ -96,7 +110,27 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 		this.saleState=saleState;
 		this.searchType=SALESDATA;
 	}
+	
+	//ublic List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAtInteger first, Integer limit) throws ServiceException {
 
+		public SaleLazyModel(SaleService saleService, Date dateOfSaleStarted,Date dateOfSaleEnded,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification) {
+			super();
+			System.out.println("ingreso a SaleLazyModel");
+			this.saleService=saleService;
+			this.dateOfSaleStarted=dateOfSaleStarted;
+			this.dateOfSaleEnded=dateOfSaleEnded;
+			this.bankId=bankId;
+			this.sendingDate=sendingDate;
+			this.notificationStates=notificationStates;
+			//private Short bankId;
+			this.saleState=saleState; 
+			this.notificationType=notificationType; 
+			this.withoutMail=withoutMail; 
+			this.withoutAddress=withoutAddress;
+			this.withoutNotification=withoutNotification;
+			
+			this.searchType=NOTIFICATIONDATA;
+		}
 	@Override
 	public int getPageSize() {
 		// TODO Auto-generated method stub
@@ -165,7 +199,7 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 		try {
 			if (searchType.equals(SALESDATA)) {
 				
-				sales = saleService.findSalesBySaleData(dateOfSaleStarted, dateOfSaleEnded, bankId,
+				sales = saleService.findSalesBySaleDataLimit(dateOfSaleStarted, dateOfSaleEnded, bankId,
 						productId, saleState, first, pageSize);
 				Long salesCount = saleService.findSalesBySaleDataCount(dateOfSaleStarted, dateOfSaleEnded, bankId,
 						productId, saleState);
@@ -174,21 +208,21 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 			}else if (searchType.equals(PERSONALDATA)) {
 				
 				if (personType.equals("contractor")) {
-					sales = saleService.findSalesByNamesContractor(nuic, firstname,
+					sales = saleService.findSalesByNamesContractorLimit(nuic, firstname,
 							lastnamePaternal, lastnameMaternal,first,pageSize);
 					Long salesCount = saleService.findSalesByNamesContractorCount(nuic, firstname,
 							lastnamePaternal, lastnameMaternal);
 					this.setRowCount(salesCount.intValue());
 					
 				}else if (personType.equals("insured")) {
-					sales = saleService.findSalesByNamesInsured(nuic, firstname,
+					sales = saleService.findSalesByNamesInsuredLimit(nuic, firstname,
 							lastnamePaternal, lastnameMaternal,first,pageSize);
 					Long salesCount = saleService.findSalesByNamesInsuredCount(nuic, firstname,
 							lastnamePaternal, lastnameMaternal);
 					this.setRowCount(salesCount.intValue());
 					
 				}else if (personType.equals("responsible")) {
-					sales = saleService.findSalesByNamesResponsible(nuic, firstname,
+					sales = saleService.findSalesByNamesResponsibleLimit(nuic, firstname,
 							lastnamePaternal, lastnameMaternal,first,pageSize);
 					Long salesCount = saleService.findSalesByNamesResponsibleCount(nuic, firstname,
 							lastnamePaternal, lastnameMaternal);
@@ -196,11 +230,15 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 				}
 				
 			}else if (searchType.equals(DNI)) {
-				sales = saleService.findSalesByNuicResponsible(number, first, pageSize);
+				sales = saleService.findSalesByNuicResponsibleLimit(number, first, pageSize);
 				Long salesCount = saleService.findSalesByNuicResponsibleCount(number);
 				this.setRowCount(salesCount.intValue());
 			}else if (searchType.equals(CREDITCARD)) {
 				//sales = saleService.findSalesByCreditCardNumber(number);
+			}else if (searchType.equals(NOTIFICATIONDATA)) {
+				sales = saleService.findForNotificationsLimit(dateOfSaleStarted, dateOfSaleEnded, sendingDate, notificationStates, bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification, first, pageSize);
+				Long salesCount = saleService.findForNotificationsCount(dateOfSaleStarted, dateOfSaleEnded, sendingDate, notificationStates, bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification);
+				this.setRowCount(salesCount.intValue());
 			}
 			
 		} catch (ServiceException e) {

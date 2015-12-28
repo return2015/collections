@@ -220,10 +220,25 @@ public class SaleServiceImpl implements SaleService{
 	}
 	
 	
-	
-	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Short bankId, Short productId, SaleStateEnum saleState, Integer first, Integer limit) throws ServiceException {
+	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException {
 		try {
-			List<Sale> sales = saleEao.findBySaleData(saleDateStartedAt, saleDateEndedAt, bankId, productId, saleState, first, limit);
+			List<Sale> sales = saleEao.findBySaleData(saleDateStartedAt, saleDateEndedAt, bankId, productId, saleState);
+
+			return sales;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
+	public List<Sale> findSalesBySaleDataLimit(Date saleDateStartedAt,Date saleDateEndedAt,Short bankId, Short productId, SaleStateEnum saleState, Integer first, Integer limit) throws ServiceException {
+		try {
+			List<Sale> sales = saleEao.findBySaleDataLimit(saleDateStartedAt, saleDateEndedAt, bankId, productId, saleState, first, limit);
 
 			return sales;
 
@@ -260,6 +275,40 @@ public class SaleServiceImpl implements SaleService{
 			List<Sale> sales = saleEao.findForNotifications(saleDateStartedAt, saleDateEndedAt,  sendingDate, notificationStates,bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification);
 
 			return sales;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
+	public List<Sale> findForNotificationsLimit(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification, Integer first, Integer limit) throws ServiceException {
+		try {
+			
+			List<Sale> sales = saleEao.findForNotificationsLimit(saleDateStartedAt, saleDateEndedAt,  sendingDate, notificationStates,bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification,first,limit);
+
+			return sales;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
+	public Long findForNotificationsCount(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification) throws ServiceException {
+		try {
+			
+			Long salesCount = saleEao.findForNotificationsCount(saleDateStartedAt, saleDateEndedAt,  sendingDate, notificationStates,bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification);
+
+			return salesCount;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -327,9 +376,26 @@ public class SaleServiceImpl implements SaleService{
 		
 	}*/
 	
-	public List<Sale> findSalesByNuicResponsible(Long nuicResponsible, Integer first, Integer limit) throws ServiceException {
+	public List<Sale> findSalesByNuicResponsible(Long nuicResponsible) throws ServiceException {
 		try {
-			List<Sale> sales = saleEao.findByNuicResponsible(nuicResponsible,first,limit);
+			List<Sale> sales = saleEao.findByNuicResponsible(nuicResponsible);
+
+			return sales;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
+	
+	public List<Sale> findSalesByNuicResponsibleLimit(Long nuicResponsible, Integer first, Integer limit) throws ServiceException {
+		try {
+			List<Sale> sales = saleEao.findByNuicResponsibleLimit(nuicResponsible,first,limit);
 
 			return sales;
 
@@ -358,10 +424,27 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	public List<Sale> findSalesByNamesResponsible(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible, Integer first, Integer limit) throws ServiceException {
+	public List<Sale> findSalesByNamesResponsible(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible) throws ServiceException {
 		try {
 			
-			List<Sale> sales = saleEao.findByNamesResponsible(nuicResponsible,firstnameResponsible,lastnamePaternalResponsible,lastnameMaternalResponsible,first,limit);
+			List<Sale> sales = saleEao.findByNamesResponsible(nuicResponsible,firstnameResponsible,lastnamePaternalResponsible,lastnameMaternalResponsible);
+
+			return sales;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
+	public List<Sale> findSalesByNamesResponsibleLimit(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible, Integer first, Integer limit) throws ServiceException {
+		try {
+			
+			List<Sale> sales = saleEao.findByNamesResponsibleLimit(nuicResponsible,firstnameResponsible,lastnamePaternalResponsible,lastnameMaternalResponsible,first,limit);
 
 			return sales;
 
@@ -392,9 +475,25 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	public List<Sale> findSalesByNamesInsured(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured, Integer first, Integer limit) throws ServiceException {
+	public List<Sale> findSalesByNamesInsured(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured) throws ServiceException {
 		try {
-			List<Sale> sales = saleEao.findByNamesInsured(nuicInsured,firstnameInsured,lastnamePaternalInsured,lastnameMaternalInsured,first,limit);
+			List<Sale> sales = saleEao.findByNamesInsured(nuicInsured,firstnameInsured,lastnamePaternalInsured,lastnameMaternalInsured);
+
+			return sales;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
+	public List<Sale> findSalesByNamesInsuredLimit(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured, Integer first, Integer limit) throws ServiceException {
+		try {
+			List<Sale> sales = saleEao.findByNamesInsuredLimit(nuicInsured,firstnameInsured,lastnamePaternalInsured,lastnameMaternalInsured,first,limit);
 
 			return sales;
 
@@ -424,9 +523,27 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	public List<Sale> findSalesByNamesContractor(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor, Integer first, Integer limit) throws ServiceException {
+
+	public List<Sale> findSalesByNamesContractor(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws ServiceException {
 		try {
-			List<Sale> sales = saleEao.findByNamesContractor(nuicContractor,firstnameContractor,lastnamePaternalContractor,lastnameMaternalContractor,first,limit);
+			List<Sale> sales = saleEao.findByNamesContractor(nuicContractor,firstnameContractor,lastnamePaternalContractor,lastnameMaternalContractor);
+
+			return sales;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+	
+	
+	public List<Sale> findSalesByNamesContractorLimit(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor, Integer first, Integer limit) throws ServiceException {
+		try {
+			List<Sale> sales = saleEao.findByNamesContractorLimit(nuicContractor,firstnameContractor,lastnamePaternalContractor,lastnameMaternalContractor,first,limit);
 
 			return sales;
 

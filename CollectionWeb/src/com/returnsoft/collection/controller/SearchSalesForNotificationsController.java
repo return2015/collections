@@ -17,6 +17,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,6 +26,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
+import org.primefaces.model.LazyDataModel;
 
 import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.Commerce;
@@ -108,7 +110,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 	private MailingService mailingService;*/
 
 	// VENTAS ENCONTRADAS
-	private List<Sale> sales;
+	//private List<Sale> sales;
 	private Sale saleSelected;
 	private Integer salesCount;
 
@@ -151,13 +153,16 @@ public class SearchSalesForNotificationsController implements Serializable {
 	private List<Payer> payers;
 
 	// UTIL
+	@Inject
 	private FacesUtil facesUtil;
 	private List<Commerce> commerces;
+	
+	private LazyDataModel<Sale> sales;
 
 	public SearchSalesForNotificationsController() {
 		
 		System.out.println("Se construye SearchSaleController");
-		facesUtil = new FacesUtil();
+		//facesUtil = new FacesUtil();
 		
 	}
 
@@ -280,8 +285,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 				if (nuicResponsible!=null) {
 					nuicResponsibleLong = Long.parseLong(nuicResponsible);	
 				}
-				
-				sales = saleService.findSalesByNuicResponsible(nuicResponsibleLong);
+				sales = new SaleLazyModel(saleService, searchTypeSelected, nuicResponsibleLong);
+				//sales = saleService.findSalesByNuicResponsible(nuicResponsibleLong);
 				
 			} else if (searchTypeSelected.equals("notificationData")) {
 				
@@ -313,8 +318,9 @@ public class SearchSalesForNotificationsController implements Serializable {
 					notificationType = NotificationTypeEnum.findById(Short.parseShort(notificationTypeSelected));
 				}
 				System.out.println("INICIA LA CONSULTA AL SERVICE");
-				sales = saleService.findForNotifications(dateOfSaleStarted, dateOfSaleEnded, 
-						sendingDate, notificationStatesEnum, bankId, saleState, notificationType,withoutMail,withoutAddress,withoutNotification);
+				sales = new SaleLazyModel(saleService, dateOfSaleStarted, dateOfSaleEnded, sendingDate, notificationStatesEnum, bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification);
+				//sales = saleService.findForNotifications(dateOfSaleStarted, dateOfSaleEnded, 
+				//		sendingDate, notificationStatesEnum, bankId, saleState, notificationType,withoutMail,withoutAddress,withoutNotification);
 				System.out.println("TERMINA LA CONSULTA AL SERVICE");
 			}
 			
@@ -351,7 +357,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 			header+="Fecha venta"+separator;
 			header+="Estado venta"+separator;
 			header+="Banco"+separator;
-			header+="Fecha afiliación"+separator;
+			//header+="Fecha afiliación"+separator;
 			header+="Notificaciones virtuales"+separator;
 			header+="Notificaciones físicas"+separator;
 			header+="Tipo notificación"+separator;
@@ -374,7 +380,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 				
 		
 				cadena.append(sale.getCode()+separator);
-				cadena.append(sale.getDocumentType()+separator);
+				cadena.append(sale.getPayer().getDocumentType()+separator);
 				cadena.append(sale.getPayer().getNuicResponsible()+separator);
 				cadena.append(sale.getPayer().getLastnamePaternalResponsible()+separator);
 				cadena.append(sale.getPayer().getLastnameMaternalResponsible()+separator);
@@ -385,11 +391,11 @@ public class SearchSalesForNotificationsController implements Serializable {
 				cadena.append(sale.getPayer().getProvince()+separator);
 				cadena.append(sale.getPayer().getDistrict()+separator);
 				cadena.append(sale.getPayer().getAddress()+separator);
-				cadena.append(sdf2.format(sale.getDateOfSale())+separator);
+				cadena.append(sdf2.format(sale.getDate())+separator);
 				cadena.append(sale.getSaleState().getState().getName()+separator);
-				cadena.append(sale.getCommerce().getBank().getName()+separator);
+				cadena.append(sale.getBank().getName()+separator);
 
-				cadena.append(sale.getAffiliationDate() != null ? sdf2.format(sale.getAffiliationDate())+separator : separator);
+				//cadena.append(sale.getAffiliationDate() != null ? sdf2.format(sale.getAffiliationDate())+separator : separator);
 				cadena.append(sale.getVirtualNotifications()+separator);
 				cadena.append(sale.getPhysicalNotifications()+separator);
 				cadena.append(sale.getNotification() != null ? sale.getNotification().getType().getName()+separator : separator);
@@ -1162,8 +1168,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 				for (Sale sale : sales) {
 
-					Short bankId = sale.getCommerce().getBank().getId();
-					String bankName = sale.getCommerce().getBank().getName();
+					Short bankId = sale.getBank().getId();
+					String bankName = sale.getBank().getName();
 					BankLetterEnum bankLetterEnum = BankLetterEnum.findById(bankId);
 
 					if (bankLetterEnum == null) {
@@ -1273,11 +1279,13 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 	}
 
-	public List<Sale> getSales() {
+	
+
+	public LazyDataModel<Sale> getSales() {
 		return sales;
 	}
 
-	public void setSales(List<Sale> sales) {
+	public void setSales(LazyDataModel<Sale> sales) {
 		this.sales = sales;
 	}
 
