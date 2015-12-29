@@ -20,8 +20,8 @@ public class SaleStateEaoImpl implements SaleStateEao {
 	@PersistenceContext
 	private EntityManager em;
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void add(SaleState maintenance) throws EaoException{
+	//@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public SaleState update(SaleState saleState) throws EaoException{
 		try {
 			
 //			System.out.println("-----------------------");
@@ -33,9 +33,9 @@ public class SaleStateEaoImpl implements SaleStateEao {
 //			System.out.println(maintenance.getUser());
 //			System.out.println("-----------------------");
 			
-			em.persist(maintenance);
+			saleState = em.merge(saleState);
 			em.flush();
-			
+			return saleState;
 		} catch (Exception e) {
 			
 			e.printStackTrace();

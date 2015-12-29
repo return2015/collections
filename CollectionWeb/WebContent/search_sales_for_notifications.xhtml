@@ -86,7 +86,7 @@
 			<p:outputPanel id="searchTypeOut">
 				<h:panelGrid columns="3" rowClasses="panelgrid_center_row"
 					rendered="#{searchSalesForNotificationsController.searchByDateSaleRendered}">
-					<p:fieldset legend="DATOS VENTAS" >
+					<p:fieldset legend="DATOS VENTAS">
 						<h:panelGrid columns="2">
 							<p:outputLabel value="Fecha venta desde:"></p:outputLabel>
 							<p:calendar navigator="true"
@@ -110,7 +110,7 @@
 							</p:selectOneMenu>
 						</h:panelGrid>
 					</p:fieldset>
-					<p:fieldset legend="EXCLUIR DATOS" >
+					<p:fieldset legend="EXCLUIR DATOS">
 						<h:panelGrid columns="2">
 
 							<p:outputLabel value="Excluir sin dirección:"></p:outputLabel>
@@ -166,22 +166,22 @@
 
 
 			<h:panelGrid columns="6" style="text-align:center;">
-			
+
 				<p:commandButton icon="ui-icon-search"
 					actionListener="#{searchSalesForNotificationsController.search}"
 					value="Buscar" process="@form"
-					update=":form:searchTypeOut :form:searchTable :form:saleId :form:salesCount :form:messages 
+					update=":form:searchTypeOut :form:searchTable :form:saleId :form:messages 
 						:form:notificationsButtom :form:notificationButtom :form:dataButtom :form:payersButtom :form:editNotificationButtom ">
 				</p:commandButton>
-				
+
 				<p:spacer width="100" height="1"></p:spacer>
-				
+
 				<p:commandButton immediate="true" icon="ui-icon-print"
 					value="Imprimir cartas" ajax="false"
 					actionListener="#{searchSalesForNotificationsController.printLetters}">
 				</p:commandButton>
 
-				
+
 				<p:commandButton immediate="true" icon="ui-icon-plus"
 					actionListener="#{searchSalesForNotificationsController.createVirtualNotifications}"
 					value="Crear notificaciones virtuales"
@@ -197,7 +197,7 @@
 					<p:confirm header="Confirmación" message="¿Está seguro?"
 						icon="ui-icon-alert" />
 				</p:commandButton>
-				
+
 				<p:commandButton
 					action="#{searchSalesForNotificationsController.exportCSV}"
 					value="Exportar" process="@form" ajax="false">
@@ -209,10 +209,6 @@
 
 			<h:panelGrid columns="2">
 
-				<p:outputLabel id="salesCount"
-					value="Se encontraron #{searchSalesForNotificationsController.sales!=null?searchSalesForNotificationsController.sales.size():'0'} ventas.">
-				</p:outputLabel>
-
 				<p:outputLabel id="saleId"
 					value="Venta seleccionada: #{searchSalesForNotificationsController.saleSelected!=null?searchSalesForNotificationsController.saleSelected.code:''}">
 				</p:outputLabel>
@@ -221,7 +217,7 @@
 
 			<h:panelGrid columns="5">
 
-				<p:commandButton id="dataButtom" immediate="true"
+				<p:commandButton id="dataButtom" immediate="true" 
 					icon="ui-icon-pencil" value="Editar datos" update=":form:messages"
 					actionListener="#{searchSalesForNotificationsController.addPayer}"
 					disabled="#{searchSalesForNotificationsController.saleSelected==null}">
@@ -270,9 +266,11 @@
 			<p:dataTable style="width:100%;"
 				value="#{searchSalesForNotificationsController.sales}" var="s"
 				scrollable="true" scrollWidth="100%" paginator="true" rows="300"
-				selectionMode="single"
+				selectionMode="single" lazy="true"
+				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+				currentPageReportTemplate="(Entries: {startRecord} - {endRecord} of {totalRecords}, Page: {currentPage}/{totalPages})"
 				selection="#{searchSalesForNotificationsController.saleSelected}"
-				rowKey="#{s.id}" id="searchTable">
+				id="searchTable">
 
 				<p:ajax event="rowSelect"
 					update=":form:dataButtom :form:payersButtom :form:notificationsButtom :form:notificationButtom :form:editNotificationButtom :form:saleId" />
@@ -285,7 +283,7 @@
 				</p:column>
 
 				<p:column headerText="Tipo doc." width="20">
-					<h:outputText value="#{s.documentType}"></h:outputText>
+					<h:outputText value="#{s.payer.documentType.name}"></h:outputText>
 				</p:column>
 
 				<p:column headerText="NUIC" width="40">
@@ -324,7 +322,7 @@
 				</p:column>
 
 				<p:column headerText="Fecha venta" width="50">
-					<h:outputText value="#{s.dateOfSale}" width="80">
+					<h:outputText value="#{s.date}" width="80">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
@@ -334,7 +332,7 @@
 				</p:column>
 
 				<p:column headerText="Banco" width="40" style="white-space:nowrap;">
-					<h:outputText value="#{s.commerce.bank.name}"></h:outputText>
+					<h:outputText value="#{s.bank.name}"></h:outputText>
 				</p:column>
 
 				<p:column headerText="Notif. email" width="20">
@@ -434,14 +432,14 @@
 								<h:outputText value="#{n.district}"></h:outputText>
 							</p:column>
 
-							<p:column headerText="Fecha creación" width="80">
-								<h:outputText value="#{n.createdAt}">
+							<p:column headerText="Fecha actualización" width="80">
+								<h:outputText value="#{n.updatedAt}">
 									<f:convertDateTime pattern="dd/MM/yyyy hh:mm:ss a" />
 								</h:outputText>
 							</p:column>
 
-							<p:column headerText="Usuario creación" width="80">
-								<h:outputText value="#{n.createdBy.username}"></h:outputText>
+							<p:column headerText="Usuario actualización" width="80">
+								<h:outputText value="#{n.updatedBy.username}"></h:outputText>
 							</p:column>
 
 

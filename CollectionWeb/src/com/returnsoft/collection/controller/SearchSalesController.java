@@ -73,8 +73,8 @@ public class SearchSalesController implements Serializable {
 	@EJB
 	private SaleService saleService;
 	
-	@EJB
-	private SaleServiceBackground saleServiceBackground;
+	//@EJB
+	//private SaleServiceBackground saleServiceBackground;
 
 	@EJB
 	private UserService userService;
@@ -153,7 +153,6 @@ public class SearchSalesController implements Serializable {
 	private List<SelectItem> searchTypes;
 	
 	
-	//@Inject
 	private LazyDataModel<Sale> sales;
 	
 

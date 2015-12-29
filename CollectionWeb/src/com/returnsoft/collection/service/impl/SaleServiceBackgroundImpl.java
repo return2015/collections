@@ -126,8 +126,8 @@ import com.returnsoft.collection.exception.SaleVendorNameOverflowException;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.LoteService;
 
-@Stateless
-@TransactionManagement(TransactionManagementType.BEAN)
+//@Stateless
+//@TransactionManagement(TransactionManagementType.BEAN)
 public class SaleServiceBackgroundImpl implements com.returnsoft.collection.service.SaleServiceBackground {
 
 	@Resource
@@ -844,9 +844,9 @@ public class SaleServiceBackgroundImpl implements com.returnsoft.collection.serv
 						CreditCard creditCard = sale.getCreditCard();
 						Payer payer = sale.getPayer();
 
-						saleStateEao.add(saleState);
-						creditCardEao.add(creditCard);
-						payerEao.add(payer);
+						//saleStateEao.add(saleState);
+						//creditCardEao.add(creditCard);
+						//payerEao.add(payer);
 
 						sale.setSaleState(saleState);
 						sale.setCreditCard(creditCard);

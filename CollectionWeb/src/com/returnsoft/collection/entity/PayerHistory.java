@@ -21,16 +21,19 @@ import com.returnsoft.collection.converter.DocumentTypeConverter;
 import com.returnsoft.collection.enumeration.DocumentTypeEnum;
 
 @Entity 
-@Table(name = "payer")
-public class Payer implements Serializable{
+@Table(name = "payer_history")
+public class PayerHistory implements Serializable {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1847350398764204972L;
+	private static final long serialVersionUID = 4260059410143867310L;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "payhis_id")
+	private Long idHist;
+	
 	@Column(name = "pay_id")
 	private Long id;
 	
@@ -73,14 +76,9 @@ public class Payer implements Serializable{
 	@JoinColumn(name = "pay_updated_by")
 	private User updatedBy;
 	
-	//@OneToOne(fetch=FetchType.LAZY)
-	//@JoinColumn(name = "pay_sal_id")
-	//private Payer payer;
-	
-	//@OneToOne(fetch=FetchType.LAZY,mappedBy="payer")
-	//private Sale sale;
-	
-	
+	/*@OneToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "pay_sal_id")
+	private Sale sale;*/
 
 	public Long getId() {
 		return id;
@@ -90,7 +88,13 @@ public class Payer implements Serializable{
 		this.id = id;
 	}
 
-	
+	public DocumentTypeEnum getDocumentType() {
+		return documentType;
+	}
+
+	public void setDocumentType(DocumentTypeEnum documentType) {
+		this.documentType = documentType;
+	}
 
 	public Long getNuicResponsible() {
 		return nuicResponsible;
@@ -164,22 +168,6 @@ public class Payer implements Serializable{
 		this.address = address;
 	}
 
-	/*public Sale getSale() {
-		return sale;
-	}
-
-	public void setSale(Sale sale) {
-		this.sale = sale;
-	}*/
-
-	public DocumentTypeEnum getDocumentType() {
-		return documentType;
-	}
-
-	public void setDocumentType(DocumentTypeEnum documentType) {
-		this.documentType = documentType;
-	}
-
 	public Date getUpdatedAt() {
 		return updatedAt;
 	}
@@ -196,23 +184,21 @@ public class Payer implements Serializable{
 		this.updatedBy = updatedBy;
 	}
 
-	/*public Date getCreatedAt() {
-		return createdAt;
+	public Long getIdHist() {
+		return idHist;
 	}
 
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}*/
-
-	/*public User getCreatedBy() {
-		return createdBy;
+	public void setIdHist(Long idHist) {
+		this.idHist = idHist;
 	}
 
-	public void setCreatedBy(User createdBy) {
-		this.createdBy = createdBy;
+	/*public Sale getSale() {
+		return sale;
+	}
+
+	public void setSale(Sale sale) {
+		this.sale = sale;
 	}*/
-	
-	
 	
 	
 	

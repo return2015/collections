@@ -195,9 +195,9 @@ public class SaleEaoImpl implements SaleEao {
 					+ "left join fetch s.saleState ss "
 					//+ "left join s.commerce c "
 					+ "left join fetch s.payer p "
-					+ "left join s.bank b "
-					+ "left join s.notification n "
-					+ "WHERE s.dateOfSale between :saleDateStartedAt and :saleDateEndedAt ";
+					+ "left join fetch s.bank b "
+					// + "left join s.notification n "
+					+ "WHERE s.date between :saleDateStartedAt and :saleDateEndedAt ";
 			
 			if (sendingDate!=null) {
 				query+=" and n.sendingAt between :sendingDateStart and  :sendingDateEnd";
@@ -281,8 +281,8 @@ public class SaleEaoImpl implements SaleEao {
 					//+ "left join s.commerce c "
 					+ "left join fetch s.payer p "
 					+ "left join s.bank b "
-					+ "left join s.notification n "
-					+ "WHERE s.dateOfSale between :saleDateStartedAt and :saleDateEndedAt ";
+					//+ "left join s.notification n "
+					+ "WHERE s.date between :saleDateStartedAt and :saleDateEndedAt ";
 			
 			if (sendingDate!=null) {
 				query+=" and n.sendingAt between :sendingDateStart and  :sendingDateEnd";

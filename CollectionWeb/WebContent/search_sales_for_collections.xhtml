@@ -209,7 +209,7 @@
 					<p:commandButton icon="ui-icon-search"
 						actionListener="#{searchSalesForCollectionsController.search}" value="Buscar"
 						process="@form"
-						update=":form:searchTypeOut :form:searchTable :form:saleId :form:salesCount :form:messages 
+						update=":form:searchTypeOut :form:searchTable :form:saleId :form:messages 
 						:form:updatesButtom :form:collectionsButtom :form:maintenancesButtom  
 						:form:stateButtom :form:repaymentsButtom">
 					</p:commandButton>
@@ -229,12 +229,6 @@
 						value="Venta seleccionada: #{searchSalesForCollectionsController.saleSelected!=null?searchSalesForCollectionsController.saleSelected.code:''}">
 					</p:outputLabel>
 
-
-						<h:panelGrid style="width:100%;">
-							<p:outputLabel id="salesCount"
-								value="Se encontraron #{searchSalesForCollectionsController.sales!=null?searchSalesForCollectionsController.sales.size():'0'} ventas.">
-							</p:outputLabel>
-						</h:panelGrid>
 
 				</h:panelGrid>
 
@@ -286,8 +280,10 @@
 
 				<p:dataTable value="#{searchSalesForCollectionsController.sales}" var="s"
 					scrollable="true" scrollWidth="900" paginator="true" rows="10"
-					selectionMode="single"
-					selection="#{searchSalesForCollectionsController.saleSelected}" rowKey="#{s.id}"
+					selectionMode="single" lazy="true"
+					selection="#{searchSalesForCollectionsController.saleSelected}" 
+					paginatorTemplate="{FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					currentPageReportTemplate="(Entries: {startRecord} - {endRecord} of {totalRecords}, Page: {currentPage}/{totalPages})"
 					id="searchTable">
 
 					<p:ajax event="rowSelect"
@@ -563,7 +559,7 @@
 
 					<h:panelGrid style="margin:auto;">
 
-						<p:dataTable value="#{searchSalesForCollectionsController.updates}" var="s"
+						<p:dataTable value="#{searchSalesForCollectionsController.creditCards}" var="s"
 							paginator="true" rows="5" id="updatesTable">
 
 
@@ -591,13 +587,13 @@
 
 
 							<p:column headerText="FECHA CREACION" width="80">
-								<h:outputText value="#{s.createdAt}">
+								<h:outputText value="#{s.updatedAt}">
 									<f:convertDateTime pattern="dd-MM-yyyy hh:mm:ss a" />
 								</h:outputText>
 							</p:column>
 
 							<p:column headerText="USUARIO CREACION" width="80">
-								<h:outputText value="#{s.createdBy.username}"></h:outputText>
+								<h:outputText value="#{s.updatedBy.username}"></h:outputText>
 							</p:column>
 
 
@@ -772,14 +768,14 @@
 		</p:dialog>
 
 
-		<p:dialog header="Mantenimientos" widgetVar="maintenancesDialog"
+		<p:dialog header="Actualizaciones de estado" widgetVar="maintenancesDialog"
 			showEffect="fade" hideEffect="fade" width="800" height="200">
 			<h:form id="formMaintenance">
 				<p:outputPanel id="maintenancesDetail" style="text-align:center;">
 
 					<h:panelGrid style="margin:auto;">
 
-						<p:dataTable value="#{searchSalesForCollectionsController.maintenances}" var="m"
+						<p:dataTable value="#{searchSalesForCollectionsController.saleStatesHistory}" var="m"
 							paginator="true" rows="5" id="maintenancesTable">
 
 							<p:column headerText="ESTADO" width="100">
@@ -805,13 +801,13 @@
 							</p:column>
 
 							<p:column headerText="FECHA ACTUALIZACION" width="80">
-								<h:outputText value="#{m.createdAt}">
+								<h:outputText value="#{m.updatedAt}">
 									<f:convertDateTime pattern="dd/MM/yyyy hh:mm:ss a" />
 								</h:outputText>
 							</p:column>
 
 							<p:column headerText="USUARIO ACTUALIZACION" width="80">
-								<h:outputText value="#{m.createdBy.username}"></h:outputText>
+								<h:outputText value="#{m.updatedBy.username}"></h:outputText>
 							</p:column>
 
 

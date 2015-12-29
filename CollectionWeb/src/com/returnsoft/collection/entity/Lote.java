@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -11,6 +12,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import com.returnsoft.collection.converter.LoteTypeConverter;
+import com.returnsoft.collection.enumeration.LoteTypeEnum;
 
 @Entity
 @Table(name = "lote")
@@ -42,8 +46,12 @@ public class Lote implements Serializable{
 	@Column(name = "lot_date")
 	private Date date;
 	
-	@Column(name = "lot_errors")
-	private String errors;
+	@Column(name = "lot_type_id")
+	@Convert(converter = LoteTypeConverter.class)
+	private LoteTypeEnum loteType;
+	
+	/*@Column(name = "lot_errors")
+	private String errors;*/
 	
 	
 
@@ -95,13 +103,15 @@ public class Lote implements Serializable{
 		this.state = state;
 	}
 
-	public String getErrors() {
-		return errors;
+	public LoteTypeEnum getLoteType() {
+		return loteType;
 	}
 
-	public void setErrors(String errors) {
-		this.errors = errors;
+	public void setLoteType(LoteTypeEnum loteType) {
+		this.loteType = loteType;
 	}
+
+	
 	
 	
 	

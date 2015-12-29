@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -13,9 +14,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 @Entity 
 @Table(name = "sale")
@@ -162,28 +165,39 @@ public class Sale implements Serializable{
 	@JoinColumn(name = "sal_affiliation_usr_id")
 	private User affiliationUser;*/
 	
-	/*@Column(name = "sal_physical_notifications")
+	//@Column(name = "sal_physical_notifications")
+	@Transient
 	private Short physicalNotifications;
 	
-	@Column(name = "sal_virtual_notifications")
-	private Short virtualNotifications;*/
+	//@Column(name = "sal_virtual_notifications")
+	@Transient
+	private Short virtualNotifications;
 	
-	/*@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_not_id")
-	private Notification notification;*/
+	//@OneToOne(fetch=FetchType.LAZY)
+	//@JoinColumn(name = "sal_not_id")
+	@Transient
+	private Notification notification;
 	
 	///////////////////////////////////////////
 	
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_crecar_id")
+	//@OneToOne(fetch=FetchType.LAZY)
+	//@JoinColumn(name = "sal_crecar_id")
+	@OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER, orphanRemoval = true)
+	@PrimaryKeyJoinColumn
 	private CreditCard creditCard;
 	
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_salsta_id")
+	//@OneToOne(fetch=FetchType.LAZY)
+	//@JoinColumn(name = "sal_salsta_id")
+	@OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER, orphanRemoval = true)
+	@PrimaryKeyJoinColumn
 	private SaleState saleState;
 	
-	@OneToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_pay_id")
+	//@OneToOne(fetch=FetchType.LAZY,mappedBy="sale")
+	/*@OneToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_pay_id")*/
+	@OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER, orphanRemoval = true)
+    // @JoinColumn(name="USER_ID", nullable=false)
+    @PrimaryKeyJoinColumn
 	private Payer payer;
 	
 	@Temporal(TemporalType.TIMESTAMP)
@@ -567,6 +581,30 @@ public class Sale implements Serializable{
 
 	public void setLote(Lote lote) {
 		this.lote = lote;
+	}
+
+	public Short getPhysicalNotifications() {
+		return physicalNotifications;
+	}
+
+	public void setPhysicalNotifications(Short physicalNotifications) {
+		this.physicalNotifications = physicalNotifications;
+	}
+
+	public Short getVirtualNotifications() {
+		return virtualNotifications;
+	}
+
+	public void setVirtualNotifications(Short virtualNotifications) {
+		this.virtualNotifications = virtualNotifications;
+	}
+
+	public Notification getNotification() {
+		return notification;
+	}
+
+	public void setNotification(Notification notification) {
+		this.notification = notification;
 	}
 	
 	

@@ -177,7 +177,7 @@ public class SaleServiceImpl implements SaleService{
 	}
 	
 	
-	public void add(Sale sale) throws ServiceException{
+	/*public void add(Sale sale) throws ServiceException{
 		try {
 			
 			SaleState saleState = sale.getSaleState();
@@ -217,7 +217,7 @@ public class SaleServiceImpl implements SaleService{
 				throw new ServiceException();
 			}
 		}
-	}
+	}*/
 	
 	
 	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException {
@@ -355,12 +355,12 @@ public class SaleServiceImpl implements SaleService{
 				sales.add(sale);
 			}*/
 			
-			List<Sale> sales2 = creditCardEao.findSalesByCreditCardNumber(creditCardNumber);
+			//List<Sale> sales2 = creditCardEao.findSalesByCreditCardNumber(creditCardNumber);
 			/*for (Sale sale : sales2) {
 				sales.add(sale);
 			}*/
 
-			return sales2;
+			return null;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -574,7 +574,7 @@ public class SaleServiceImpl implements SaleService{
 	}
 	
 	
-	public List<SaleState> findMaintenances(Long saleId) throws ServiceException{
+	/*public List<SaleState> findMaintenances(Long saleId) throws ServiceException{
 		try {
 			
 			List<SaleState> maintenances = saleStateEao.findBySaleId(saleId);
@@ -589,7 +589,7 @@ public class SaleServiceImpl implements SaleService{
 				throw new ServiceException();
 			}
 		}
-	}
+	}*/
 	
 	
 	

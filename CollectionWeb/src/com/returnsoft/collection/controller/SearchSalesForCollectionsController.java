@@ -16,6 +16,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -23,24 +24,26 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.primefaces.context.RequestContext;
 import org.primefaces.event.SelectEvent;
+import org.primefaces.model.LazyDataModel;
 
 import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.Collection;
-import com.returnsoft.collection.entity.Commerce;
 import com.returnsoft.collection.entity.CreditCard;
+import com.returnsoft.collection.entity.CreditCardHistory;
 import com.returnsoft.collection.entity.Notification;
 import com.returnsoft.collection.entity.Product;
 import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.SaleState;
+import com.returnsoft.collection.entity.SaleStateHistory;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.BankLetterEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
-import com.returnsoft.collection.enumeration.UserTypeEnum;
+import com.returnsoft.collection.exception.BankInvalidException;
 import com.returnsoft.collection.exception.BankLetterNotFoundException;
+import com.returnsoft.collection.exception.BankNotSelectedException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
-import com.returnsoft.collection.exception.UserPermissionNotFoundException;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.CollectionService;
 import com.returnsoft.collection.service.CommerceService;
@@ -68,15 +71,14 @@ public class SearchSalesForCollectionsController implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	@EJB
-	private CommerceService commerceService;
+	//@EJB
+	//private CommerceService commerceService;
 	
 	@EJB
 	private BankService bankService;
 	
 	@EJB
 	private ProductService productService;
-	
 	
 	@EJB
 	private SaleService saleService;
@@ -99,7 +101,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 	private String searchTypeSelected;
 	private String personTypeSelected;
 
-	private List<Sale> sales;
+	private LazyDataModel<Sale> sales;
 	private Sale saleSelected;
 
 	private String creditCardNumber;
@@ -142,53 +144,46 @@ public class SearchSalesForCollectionsController implements Serializable {
 	private Boolean searchByInsuredRendered;
 	private Boolean searchByResponsibleRendered;
 
-	private List<CreditCard> updates;
+	private List<CreditCardHistory> creditCards;
+	private List<SaleStateHistory> saleStatesHistory;
 	private List<Collection> collections;
-	private List<SaleState> maintenances;
+	
 	private List<Notification> notifications;
 	private List<Repayment> repayments;
 
-	private List<Commerce> commerces;
+	//private List<Commerce> commerces;
 	
+	
+	@Inject
 	private FacesUtil facesUtil;
+	
+	@Inject
+	private SessionBean sessionBean;
+	
 	
 	private String passwordSupervisor;
 	
 	private Boolean supervisorAccess;
 	
-	private Integer salesCount;
+	//private Integer salesCount;
 
 	public SearchSalesForCollectionsController() {
 		System.out.println("Se construye SearchSaleController");
-		facesUtil = new FacesUtil();
+		//facesUtil = new FacesUtil();
 	}
 
 	public String initialize() {
 		
-		System.out.println("inicializando SearchSaleController");
+		System.out.println("inicializando SearchSaleForCollectionController");
 
 		try {
 			
-			SessionBean sessionBean = (SessionBean) FacesContext
+			/*SessionBean sessionBean = (SessionBean) FacesContext
 					.getCurrentInstance().getExternalContext().getSessionMap()
-					.get("sessionBean");
-			
-			if (sessionBean!=null && sessionBean.getUser()!=null && sessionBean.getUser().getId()>0) {
-				
-				if (!sessionBean.getUser().getUserType().equals(UserTypeEnum.ADMIN)
-						&& !sessionBean.getUser().getUserType().equals(UserTypeEnum.AGENT)) {
-					throw new UserPermissionNotFoundException();
-				}
-					
-				/*Short bankId = (Short) FacesContext.getCurrentInstance()
-						.getExternalContext().getSessionMap().get("bankId");*/
-				
-				if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
-					Short bankId = sessionBean.getBank().getId();
-					System.out.println("id de banco"+bankId);
-					commerces = commerceService.findByBank(bankId);
-					System.out.println("cantidad de commerce encontrados:"+commerces.size());
-				}
+					.get("sessionBean");*/
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
 				
 				List<Bank> banksEntity = bankService.getAll();
 				banks = new ArrayList<SelectItem>();
@@ -218,14 +213,10 @@ public class SearchSalesForCollectionsController implements Serializable {
 				
 				searchTypeSelected="";
 				
-				System.out.println("searchTypeSelected:"+searchTypeSelected);
+				//System.out.println("searchTypeSelected:"+searchTypeSelected);
 				
 				return null;
-				
-			} else{
-				throw new UserLoggedNotFoundException();
-			}
-
+			
 			
 
 		} catch (UserLoggedNotFoundException e) {
@@ -233,11 +224,6 @@ public class SearchSalesForCollectionsController implements Serializable {
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 					e.getMessage());
 			return "login.xhtml?faces-redirect=true";
-		} catch (UserPermissionNotFoundException e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-			return "login.xhtml?faces-redirect=true";		
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
@@ -332,16 +318,22 @@ public class SearchSalesForCollectionsController implements Serializable {
 
 		try {
 			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
+			
 			saleSelected=null;
 
 			if (searchTypeSelected.equals("creditCard")) {
 				Long creditCardNumberLong = Long.parseLong(creditCardNumber);
-				sales = saleService
-						.findSalesByCreditCardNumber(creditCardNumberLong);
+				sales = new SaleLazyModel(saleService, searchTypeSelected, creditCardNumberLong);
+				
 			} else if (searchTypeSelected.equals("dni")) {
 				Long nuicResponsibleLong = Long.parseLong(nuicResponsible);
-				sales = saleService
-						.findSalesByNuicResponsible(nuicResponsibleLong);
+				//sales = saleService
+				//		.findSalesByNuicResponsible(nuicResponsibleLong);
+				sales = new SaleLazyModel(saleService, searchTypeSelected, nuicResponsibleLong);
+				
 			} else if (searchTypeSelected.equals("saleData")) {
 				Short productId = null;
 				if (productSelected != null && productSelected.length() > 0) {
@@ -355,9 +347,11 @@ public class SearchSalesForCollectionsController implements Serializable {
 				if (saleStateSelected != null && saleStateSelected.length() > 0) {
 					saleState = SaleStateEnum.findById(Short.parseShort(saleStateSelected));
 				}
-				sales = saleService.findSalesBySaleData(dateOfSaleStarted,
-						dateOfSaleEnded, affiliationDate, bankId, productId,
-						saleState);
+				//sales = saleService.findSalesBySaleData(dateOfSaleStarted,
+				//		dateOfSaleEnded, affiliationDate, bankId, productId,
+				//		saleState);
+				sales = new SaleLazyModel(saleService, dateOfSaleStarted, dateOfSaleEnded, bankId, productId, saleState);
+				
 
 			} else if (searchTypeSelected.equals("personalData")) {
 				if (personTypeSelected.equals("contractor")) {
@@ -376,10 +370,11 @@ public class SearchSalesForCollectionsController implements Serializable {
 							nuicContractorLong = Long.parseLong(nuicContractor);
 						}
 
-						sales = saleService.findSalesByNamesContractor(
-								nuicContractorLong, firstnameContractor,
-								lastnamePaternalContractor,
-								lastnameMaternalContractor);
+//						sales = saleService.findSalesByNamesContractor(
+//								nuicContractorLong, firstnameContractor,
+//								lastnamePaternalContractor,
+//								lastnameMaternalContractor);
+						sales = new SaleLazyModel(saleService, personTypeSelected, nuicContractorLong, firstnameContractor, lastnamePaternalContractor, lastnameMaternalContractor);
 
 					} else {
 						FacesMessage msg = new FacesMessage(
@@ -403,10 +398,11 @@ public class SearchSalesForCollectionsController implements Serializable {
 							nuicInsuredLong = Long.parseLong(nuicInsured);
 						}
 
-						sales = saleService.findSalesByNamesInsured(
-								nuicInsuredLong, firstnameInsured,
-								lastnamePaternalInsured,
-								lastnameMaternalInsured);
+//						sales = saleService.findSalesByNamesInsured(
+//								nuicInsuredLong, firstnameInsured,
+//								lastnamePaternalInsured,
+//								lastnameMaternalInsured);
+						sales = new SaleLazyModel(saleService, personTypeSelected, nuicInsuredLong, firstnameInsured, lastnamePaternalInsured, lastnameMaternalInsured);
 
 					} else {
 						FacesMessage msg = new FacesMessage(
@@ -432,10 +428,11 @@ public class SearchSalesForCollectionsController implements Serializable {
 									.parseLong(nuicResponsible);
 						}
 
-						sales = saleService.findSalesByNamesResponsible(
+						/*sales = saleService.findSalesByNamesResponsible(
 								nuicResponsibleLong, firstnameResponsible,
 								lastnamePaternalResponsible,
-								lastnameMaternalResponsible);
+								lastnameMaternalResponsible);*/
+						sales = new SaleLazyModel(saleService, personTypeSelected, nuicResponsibleLong, firstnameResponsible, lastnamePaternalResponsible, lastnameMaternalResponsible);
 
 					} else {
 						FacesMessage msg = new FacesMessage(
@@ -512,7 +509,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 			row.createCell(35).setCellValue("DESCRIPCION DEL PRODUCTO");
 			row.createCell(36).setCellValue("PERIODO DE COBRO");
 			row.createCell(37).setCellValue("TIPO DE COBRO");
-			row.createCell(38).setCellValue("MEDIO DE PAGO");
+			row.createCell(38).setCellValue("BANCO");
 			row.createCell(39).setCellValue("PRIMA");
 			row.createCell(40).setCellValue("FECHA DE AUDITORIA");
 			row.createCell(41).setCellValue("USUARIO DE AUDITORIA");
@@ -524,16 +521,17 @@ public class SearchSalesForCollectionsController implements Serializable {
 			row.createCell(47).setCellValue("OBSERVACION BAJA");
 			row.createCell(48).setCellValue("FECHA ACT TC");
 
-			row.createCell(49).setCellValue("BANCO");
-			row.createCell(50).setCellValue("FECHA CREACION");
-			row.createCell(51).setCellValue("USUARIO CREACION");
+			row.createCell(49).setCellValue("FECHA CREACION");
+			row.createCell(50).setCellValue("USUARIO CREACION");
+			
+			int rowNum=1;
 
-			for (int i = 0; i < sales.size(); i++) {
-				Sale sale = sales.get(i);
-				XSSFRow rowBody = sheet.createRow(i + 1);
+			for (Sale sale : sales) {
+				//Sale sale = sales.get(i);
+				XSSFRow rowBody = sheet.createRow(rowNum);
 
 				rowBody.createCell(0).setCellValue(sale.getCode());
-				rowBody.createCell(1).setCellValue(sale.getDocumentType());
+				rowBody.createCell(1).setCellValue(sale.getPayer().getDocumentType().getName());
 				rowBody.createCell(2).setCellValue(sale.getPayer().getNuicResponsible());
 				rowBody.createCell(3).setCellValue(
 						sale.getPayer().getLastnamePaternalResponsible());
@@ -575,24 +573,24 @@ public class SearchSalesForCollectionsController implements Serializable {
 				rowBody.createCell(23).setCellValue(sale.getPayer().getDistrict());
 				rowBody.createCell(24).setCellValue(sale.getPayer().getAddress());
 				rowBody.createCell(25).setCellValue(
-						sdf2.format(sale.getDateOfSale()));
-				rowBody.createCell(26).setCellValue(sale.getChannelOfSale());
-				rowBody.createCell(27).setCellValue(sale.getPlaceOfSale());
+						sdf2.format(sale.getDate()));
+				rowBody.createCell(26).setCellValue(sale.getChannel());
+				rowBody.createCell(27).setCellValue(sale.getPlace());
 				rowBody.createCell(28).setCellValue(sale.getVendorCode());
 				rowBody.createCell(29).setCellValue(sale.getVendorName());
 				rowBody.createCell(30).setCellValue(sale.getPolicyNumber());
 				rowBody.createCell(31)
 						.setCellValue(sale.getCertificateNumber());
 				rowBody.createCell(32).setCellValue(sale.getProposalNumber());
-				rowBody.createCell(33).setCellValue(sale.getCommerce().getCode());
+				rowBody.createCell(33).setCellValue(sale.getCommerceCode());
 				rowBody.createCell(34)
-						.setCellValue(sale.getCommerce().getProduct().getName());
+						.setCellValue(sale.getProduct().getName());
 				rowBody.createCell(35).setCellValue(
 						sale.getProductDescription());
-				rowBody.createCell(36).setCellValue(sale.getCollectionPeriod());
+				rowBody.createCell(36).setCellValue(sale.getCollectionPeriod().getName());
 				rowBody.createCell(37).setCellValue(sale.getCollectionType());
 				rowBody.createCell(38).setCellValue(
-						sale.getCommerce().getPaymentMethod().getName());
+						sale.getBank().getName());
 				rowBody.createCell(39).setCellValue(
 						sale.getInsurancePremium().doubleValue());
 				rowBody.createCell(40).setCellValue(
@@ -602,19 +600,20 @@ public class SearchSalesForCollectionsController implements Serializable {
 				rowBody.createCell(43).setCellValue(
 						sale.getSaleState().getDate() != null ? sdf2.format(sale
 								.getSaleState().getDate()) : "");
-				rowBody.createCell(44).setCellValue(sale.getSaleState().getDownUser());
-				rowBody.createCell(45).setCellValue(sale.getSaleState().getDownChannel());
-				rowBody.createCell(46).setCellValue(sale.getSaleState().getDownReason());
-				rowBody.createCell(47).setCellValue(sale.getSaleState().getDownObservation());
+				rowBody.createCell(44).setCellValue(sale.getSaleState().getUser());
+				rowBody.createCell(45).setCellValue(sale.getSaleState().getChannel());
+				rowBody.createCell(46).setCellValue(sale.getSaleState().getReason());
+				rowBody.createCell(47).setCellValue(sale.getSaleState().getObservation());
 				rowBody.createCell(48).setCellValue(
-						sale.getCreditCard().getUpdateDate() != null ? sdf2
-								.format(sale.getCreditCard().getUpdateDate()) : "");
+						sale.getCreditCard().getDate() != null ? sdf2
+								.format(sale.getCreditCard().getDate()) : "");
 
-				rowBody.createCell(49).setCellValue(sale.getCommerce().getBank().getName());
-				rowBody.createCell(50).setCellValue(
+				rowBody.createCell(49).setCellValue(
 						sdf3.format(sale.getCreatedAt()));
-				rowBody.createCell(51).setCellValue(
+				rowBody.createCell(50).setCellValue(
 						sale.getCreatedBy().getUsername());
+				
+				rowNum++;
 
 			}
 
@@ -648,8 +647,8 @@ public class SearchSalesForCollectionsController implements Serializable {
 
 			System.out.println("Ingreso a showCreditCardUpdates "
 					+ saleSelected);
-			updates = creditCardService.findBySale(saleSelected.getId());
-			System.out.println("updates: " + updates.size());
+			creditCards = creditCardService.findBySale(saleSelected.getId());
+			System.out.println("creditCards: " + creditCards.size());
 			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
 
 		} catch (Exception e) {
@@ -700,8 +699,8 @@ public class SearchSalesForCollectionsController implements Serializable {
 		try {
 
 			System.out.println("Ingreso a showMaintenances " + saleSelected);
-			maintenances = saleStateService.findBySale(saleSelected.getId());
-			System.out.println("maintenances: " + maintenances.size());
+			saleStatesHistory = saleStateService.findBySale(saleSelected.getId());
+			System.out.println("saleStatesHistory: " + saleStatesHistory.size());
 			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
 
 		} catch (Exception e) {
@@ -735,27 +734,19 @@ public class SearchSalesForCollectionsController implements Serializable {
 		try {
 			System.out.println("Ingreso a addMaintenance");
 			
-			//VALIDA BANK
-			SessionBean sessionBean = (SessionBean) FacesContext
-					.getCurrentInstance().getExternalContext().getSessionMap()
-					.get("sessionBean");
-			if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
 
-				// VALIDA COMMERCIAL CODE
-				Commerce commercialCodeObject = null;
-				for (Commerce commerce : commerces) {
-					if (saleSelected.getCommerce().getCode().equals(
-							commerce.getCode())) {
-						commercialCodeObject = commerce;
-					}
-				}
-				if (commercialCodeObject == null) {
-					String message = "Error " + saleSelected.getCommerce().getCode()
-							+ " codigo de comercio inexistente.";
-					FacesMessage msg = new FacesMessage(message);
-					msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-					FacesContext.getCurrentInstance().addMessage(null, msg);
-				}else{
+			if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
+				throw new BankNotSelectedException();
+			}
+			
+			if (!saleSelected.getBank().getId().equals(sessionBean.getBank().getId())) {
+				throw new BankInvalidException();
+			}
+			
+			
 
 					// VALIDATE PASSWORD SUPERVISOR
 					if (saleSelected.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
@@ -773,14 +764,9 @@ public class SearchSalesForCollectionsController implements Serializable {
 						RequestContext.getCurrentInstance().openDialog("add_maintenance", null,paramMap);
 
 					}
-				}
 				
-			}else{
-				FacesMessage msg = new FacesMessage("Debe seleccionar banco");
-				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-				FacesContext.getCurrentInstance().addMessage(null, msg);
-			}
-
+				
+			
 				
 
 		} catch (Exception e) {
@@ -795,52 +781,26 @@ public class SearchSalesForCollectionsController implements Serializable {
 		try {
 			System.out.println("Ingreso a addPayer");
 			
-			//VALIDA BANK
-			SessionBean sessionBean = (SessionBean) FacesContext
-					.getCurrentInstance().getExternalContext().getSessionMap()
-					.get("sessionBean");
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
+
 			if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
-
-				// VALIDA COMMERCIAL CODE
-				Commerce commercialCodeObject = null;
-				for (Commerce commerce : commerces) {
-					if (saleSelected.getCommerce().getCode().equals(
-							commerce.getCode())) {
-						commercialCodeObject = commerce;
-					}
-				}
-				if (commercialCodeObject == null) {
-					String message = "Error " + saleSelected.getCommerce().getCode()
-							+ " codigo de comercio inexistente.";
-					FacesMessage msg = new FacesMessage(message);
-					msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-					FacesContext.getCurrentInstance().addMessage(null, msg);
-				}else{
-
-					// VALIDATE PASSWORD SUPERVISOR
-					//if (saleSelected.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
-
-						// CHECK PASSWORD SUPERVISOR
-						//RequestContext context = RequestContext.getCurrentInstance();
-						//context.execute("PF('passSuperDialog').show();");
-						
-					//} else {
-						
+				throw new BankNotSelectedException();
+			}
+			
+			if (!saleSelected.getBank().getId().equals(sessionBean.getBank().getId())) {
+				throw new BankInvalidException();
+			}
+			
+			
 						Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
 						ArrayList<String> paramList = new ArrayList<>();
 						paramList.add(String.valueOf(saleSelected.getId()));
 						paramMap.put("saleId", paramList);
 						RequestContext.getCurrentInstance().openDialog("add_payer", null,paramMap);
 
-					//}
-				}
 				
-			}else{
-				FacesMessage msg = new FacesMessage("Debe seleccionar banco");
-				msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-				FacesContext.getCurrentInstance().addMessage(null, msg);
-			}
-
 				
 
 		} catch (Exception e) {
@@ -858,9 +818,9 @@ public class SearchSalesForCollectionsController implements Serializable {
 		System.out.println("response:" + response + ":");*/
 		
 		Sale saleReturn = (Sale) event.getObject();
-		
-		for (int i = 0; i < sales.size(); i++) {
-			Sale sale = sales.get(i);
+		int i = 0;
+		for (Sale sale : sales) {
+			//Sale sale = sales.get(i);
 			System.out.println("1"+sale.getId());
 			System.out.println("1"+sale.getCode());
 			System.out.println("2"+saleReturn.getId());
@@ -869,10 +829,11 @@ public class SearchSalesForCollectionsController implements Serializable {
 				System.out.println("INGRESOOOOOOOO");
 				/*System.out.println(saleReturn.getDownUser());
 				System.out.println(saleReturn.getDownObservation());*/
-				sales.set(i, saleReturn);
+				//sales.set(i, saleReturn);
 				saleSelected=saleReturn;
 				break;
 			}
+			i++;
 		}
 
 	}
@@ -880,14 +841,16 @@ public class SearchSalesForCollectionsController implements Serializable {
 	public void afterAddPayer(SelectEvent event) {
 		
 		Sale saleReturn = (Sale) event.getObject();
-		
-		for (int i = 0; i < sales.size(); i++) {
-			Sale sale = sales.get(i);
+		int i =0 ;
+		for (Sale sale : sales) {
+			//Sale sale = sales.get(i);
 			if (sale.getId().equals(saleReturn.getId())) {
-				sales.set(i, saleReturn);
+				//sales.set(i, saleReturn);
 				saleSelected=saleReturn;
 				break;
 			}
+			
+			i++;
 		}
 
 	}
@@ -958,18 +921,20 @@ public class SearchSalesForCollectionsController implements Serializable {
 		
 		Sale saleReturn = (Sale) event.getObject();
 		
-		for (int i = 0; i < sales.size(); i++) {
-			Sale sale = sales.get(i);
+		int i = 0;
+		for (Sale sale : sales) {
+			//Sale sale = sales.get(i);
 			//System.out.println("1"+sale.getId());
 			//System.out.println("2"+saleReturn.getId());
 			if (sale.getId().equals(saleReturn.getId())) {
 				System.out.println("INGRESOOOOOOOO");
 				/*System.out.println(saleReturn.getDownUser());
 				System.out.println(saleReturn.getDownObservation());*/
-				sales.set(i, saleReturn);
+				//sales.set(i, saleReturn);
 				saleSelected=saleReturn;
 				break;
 			}
+			i++;
 		}
 
 	}
@@ -989,9 +954,9 @@ public class SearchSalesForCollectionsController implements Serializable {
 					facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 							e.getMessage());
 				}else{
-					System.out.println("bankId:"+saleSelected.getCommerce().getBank().getId());
+					System.out.println("bankId:"+saleSelected.getBank().getId());
 					
-					BankLetterEnum bankLetterEnum = BankLetterEnum.findById(saleSelected.getCommerce().getBank().getId());
+					BankLetterEnum bankLetterEnum = BankLetterEnum.findById(saleSelected.getBank().getId());
 					
 					if (bankLetterEnum!=null) {
 						
@@ -1043,7 +1008,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 						facesContext.responseComplete();
 				    
 					}else{
-						Exception e = new BankLetterNotFoundException(saleSelected.getCode(),saleSelected.getCommerce().getBank().getName());
+						Exception e = new BankLetterNotFoundException(saleSelected.getCode(),saleSelected.getBank().getName());
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 								e.getMessage());
 						
@@ -1115,11 +1080,13 @@ public class SearchSalesForCollectionsController implements Serializable {
 	}
 	
 
-	public List<Sale> getSales() {
+	
+
+	public LazyDataModel<Sale> getSales() {
 		return sales;
 	}
 
-	public void setSales(List<Sale> sales) {
+	public void setSales(LazyDataModel<Sale> sales) {
 		this.sales = sales;
 	}
 
@@ -1352,12 +1319,14 @@ public class SearchSalesForCollectionsController implements Serializable {
 		this.nuicInsured = nuicInsured;
 	}
 
-	public List<CreditCard> getUpdates() {
-		return updates;
+	
+
+	public List<CreditCardHistory> getCreditCards() {
+		return creditCards;
 	}
 
-	public void setUpdates(List<CreditCard> updates) {
-		this.updates = updates;
+	public void setCreditCards(List<CreditCardHistory> creditCards) {
+		this.creditCards = creditCards;
 	}
 
 	public List<Collection> getCollections() {
@@ -1394,12 +1363,14 @@ public class SearchSalesForCollectionsController implements Serializable {
 		this.affiliationDate = affiliationDate;
 	}
 
-	public List<SaleState> getMaintenances() {
-		return maintenances;
+	
+
+	public List<SaleStateHistory> getSaleStatesHistory() {
+		return saleStatesHistory;
 	}
 
-	public void setMaintenances(List<SaleState> maintenances) {
-		this.maintenances = maintenances;
+	public void setSaleStatesHistory(List<SaleStateHistory> saleStatesHistory) {
+		this.saleStatesHistory = saleStatesHistory;
 	}
 
 	public List<Repayment> getRepayments() {
@@ -1442,13 +1413,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 		this.notifications = notifications;
 	}
 
-	public Integer getSalesCount() {
-		return salesCount;
-	}
-
-	public void setSalesCount(Integer salesCount) {
-		this.salesCount = salesCount;
-	}
+	
 	
 
 }

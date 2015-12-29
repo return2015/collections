@@ -35,6 +35,21 @@ public class PayerEaoImpl implements PayerEao{
 		}
 	}
 	
+	public Payer update(Payer payer) throws EaoException{
+		try {
+			
+			payer = em.merge(payer);
+			em.flush();
+			return payer;
+			
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			
+			throw new EaoException(e);
+		}
+	}
+	
 	public List<Payer> findBySaleId(Long saleId) throws EaoException{
 		try {
 			

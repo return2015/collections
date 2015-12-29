@@ -7,8 +7,10 @@ import com.returnsoft.collection.exception.EaoException;
 
 public interface PayerEao {
 	
-	public void add(Payer payer) throws EaoException;
+	//public void add(Payer payer) throws EaoException;
 	
-	public List<Payer> findBySaleId(Long saleId) throws EaoException;
+	public Payer update(Payer payer) throws EaoException;
+	
+	//public List<Payer> findBySaleId(Long saleId) throws EaoException;
 
 }

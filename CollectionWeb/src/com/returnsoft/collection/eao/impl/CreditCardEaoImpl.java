@@ -3,8 +3,6 @@ package com.returnsoft.collection.eao.impl;
 import java.util.List;
 
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -21,13 +19,13 @@ public class CreditCardEaoImpl implements CreditCardEao{
 	@PersistenceContext
 	private EntityManager em;
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void add(CreditCard creditCard) throws EaoException{
+	//@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public CreditCard update(CreditCard creditCard) throws EaoException{
 		try {
 
-			em.persist(creditCard);
+			creditCard = em.merge(creditCard);
 			em.flush();
-
+			return creditCard;
 			
 		} catch (Exception e) {
 			

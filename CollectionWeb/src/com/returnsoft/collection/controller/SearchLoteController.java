@@ -1143,7 +1143,7 @@ public class SearchLoteController implements Serializable{
 			System.out.println("errors:" + errors.size());
 			
 			if (errors.size()==0) {
-				loteService.add(sales, filename, headers, user.getId(), bank.getId());
+				loteService.addTypeSale(sales, filename, headers, user.getId(), bank.getId());
 				
 			}else{
 				throw new FileMultipleErrorsException(errors);

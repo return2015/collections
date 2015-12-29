@@ -36,35 +36,12 @@
 			<p:menuitem value="Lotes" outcome="search_lotes" icon="ui-icon-star" />
 			
 			<p:menuitem value="Ventas" outcome="search_sales" icon="ui-icon-star" />
+			
+			<p:menuitem value="Cobranzas" outcome="search_sales_for_collections" icon="ui-icon-star" />
 
-			<p:submenu label="Cobranzas" icon="ui-icon-star">
 			
-				<p:menuitem value="Buscar ventas" outcome="search_sales_for_collections"
-					icon="ui-icon-star" />
-					
-				<p:menuitem  value="Cargar cobranzas" style="width:130px;" outcome="load_collections"
-					rendered="#{sessionBean.bank.id!=null}"
-					icon="ui-icon-star" />
-					
-				<p:menuitem  value="Cargar extornos" style="width:130px;" outcome="load_repayments"
-					rendered="#{sessionBean.bank.id!=null}"
-					icon="ui-icon-star" />	
-				
-				<p:menuitem value="Actualizar afiliados" outcome="load_affiliations"
-					rendered="#{sessionBean.bank.id!=null}"
-					icon="ui-icon-star" />
-					
-				<p:menuitem value="Actualizar tarjetas" outcome="load_credit_cards"
-					rendered="#{sessionBean.bank.id!=null}"
-					icon="ui-icon-star" />
-				
-			</p:submenu>
 			
-			<p:submenu label="Notificaciones" icon="ui-icon-star">
-				<p:menuitem  value="Buscar ventas" outcome="search_sales_for_notifications"
-						icon="ui-icon-star" />
-			</p:submenu>
-			
+			<p:menuitem value="Notificaciones" outcome="search_sales_for_notifications" icon="ui-icon-star" />
 			
 			
 

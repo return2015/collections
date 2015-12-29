@@ -12,26 +12,27 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.returnsoft.collection.converter.SaleStateConverter;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
-@Entity 
-@Table(name = "sale_state")
-public class SaleState implements Serializable {
 
-	
+@Entity 
+@Table(name = "sale_state_history")
+public class SaleStateHistory implements Serializable{
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -722923150396095288L;
-
+	private static final long serialVersionUID = 9088742459381209639L;
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "salstahist_id")
+	private Integer idHist;
+	
 	@Column(name = "salsta_id")
 	private Integer id;
 	
@@ -65,7 +66,14 @@ public class SaleState implements Serializable {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "salsta_updated_by")
 	private User updatedBy;
-	
+
+	public Integer getIdHist() {
+		return idHist;
+	}
+
+	public void setIdHist(Integer idHist) {
+		this.idHist = idHist;
+	}
 
 	public Integer getId() {
 		return id;
@@ -73,21 +81,6 @@ public class SaleState implements Serializable {
 
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-
-	
-
-	
-
-	
-
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
 	}
 
 	public SaleStateEnum getState() {
@@ -98,9 +91,13 @@ public class SaleState implements Serializable {
 		this.state = state;
 	}
 
-	
+	public Date getDate() {
+		return date;
+	}
 
-	
+	public void setDate(Date date) {
+		this.date = date;
+	}
 
 	public String getUser() {
 		return user;
@@ -149,9 +146,6 @@ public class SaleState implements Serializable {
 	public void setUpdatedBy(User updatedBy) {
 		this.updatedBy = updatedBy;
 	}
-
-	
-	
 	
 	
 

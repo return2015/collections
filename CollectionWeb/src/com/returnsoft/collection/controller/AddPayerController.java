@@ -7,6 +7,7 @@ import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 import org.primefaces.context.RequestContext;
 
@@ -34,11 +35,15 @@ public class AddPayerController implements Serializable{
 	@EJB
 	private SaleService saleService;
 	
+	@Inject
 	private FacesUtil facesUtil;
+	
+	@Inject
+	private SessionBean sessionBean;
 	
 	public AddPayerController(){
 		
-		facesUtil = new FacesUtil();
+		//facesUtil = new FacesUtil();
 	}
 	
 	
@@ -51,11 +56,12 @@ public class AddPayerController implements Serializable{
 			
 			Sale saleSelected = saleService.findById(Long.parseLong(saleId));
 			
-			payerSelected = new Payer();
-			Sale sale = new Sale();
-			sale.setId(saleSelected.getId());
-			payerSelected.setSale(sale);
-			payerSelected.setAddress(saleSelected.getPayer().getAddress());
+			//payerSelected = new Payer();
+			payerSelected = saleSelected.getPayer();
+			//Sale sale = new Sale();
+			//sale.setId(saleSelected.getId());
+			//payerSelected.setSale(sale);
+			/*payerSelected.setAddress(saleSelected.getPayer().getAddress());
 			payerSelected.setDepartment(saleSelected.getPayer().getDepartment());
 			payerSelected.setDistrict(saleSelected.getPayer().getDistrict());
 			payerSelected.setFirstnameResponsible(saleSelected.getPayer().getFirstnameResponsible());
@@ -63,7 +69,7 @@ public class AddPayerController implements Serializable{
 			payerSelected.setLastnamePaternalResponsible(saleSelected.getPayer().getLastnamePaternalResponsible());
 			payerSelected.setMail(saleSelected.getPayer().getMail());
 			payerSelected.setNuicResponsible(saleSelected.getPayer().getNuicResponsible());
-			payerSelected.setProvince(saleSelected.getPayer().getProvince());
+			payerSelected.setProvince(saleSelected.getPayer().getProvince());*/
 			
 		} catch (Exception e) {
 
@@ -77,24 +83,23 @@ public class AddPayerController implements Serializable{
 	public void add() {
 		try {
 			
-			SessionBean sessionBean = (SessionBean) FacesContext
+			/*SessionBean sessionBean = (SessionBean) FacesContext
 					.getCurrentInstance().getExternalContext()
-					.getSessionMap().get("sessionBean");
+					.getSessionMap().get("sessionBean");*/
 					
-			Integer userId = sessionBean.getUser().getId();
-			User user = new User();
-			user.setId(userId);
+			//Integer userId = sessionBean.getUser().getId();
+			User user = sessionBean.getUser();
+			//user.setId(userId);
 			Date current = new Date();
 			
+			payerSelected.setUpdatedAt(current);
+			payerSelected.setUpdatedBy(user);
 			
-			payerSelected.setCreatedAt(current);
-			payerSelected.setCreatedBy(user);
-			
-			payerService.add(payerSelected);
+			payerService.update(payerSelected);
 			
 			// RETORNA VENTA ACTUALIZADA
 			
-			Sale saleReturn = saleService.findById(payerSelected.getSale().getId());
+			Sale saleReturn = saleService.findById(payerSelected.getId());
 			
 			RequestContext.getCurrentInstance().closeDialog(saleReturn);
 

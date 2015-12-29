@@ -34,8 +34,8 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 	//DATOS DE VENTA
 	private Date dateOfSaleStarted;
 	private Date dateOfSaleEnded;
-	private short bankId;
-	private short productId;
+	private Short bankId;
+	private Short productId;
 	private SaleStateEnum saleState;
 	
 	//DATOS PERSONALES DE CONTRATANTE
@@ -152,7 +152,16 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 	@Override
 	public Sale getRowData(String rowKey) {
 		// TODO Auto-generated method stub
-		return super.getRowData(rowKey);
+		Long saleId = Long.parseLong(rowKey);
+		List<Sale> list = (List<Sale>) getWrappedData();
+		for (Sale sale : list) {
+			if (sale.getId().equals(saleId)) {
+				return sale;
+			}
+		}
+
+		return null;
+		//return super.getRowData(rowKey);
 	}
 
 	@Override
@@ -164,7 +173,8 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 	@Override
 	public Object getRowKey(Sale object) {
 		// TODO Auto-generated method stub
-		return super.getRowKey(object);
+		//return super.getRowKey(object);
+		return object.getId();
 	}
 
 	@Override

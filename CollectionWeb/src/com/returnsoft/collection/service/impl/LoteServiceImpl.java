@@ -37,6 +37,7 @@ import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.DocumentTypeEnum;
+import com.returnsoft.collection.enumeration.LoteTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.CreditCardDateOverflowException;
 import com.returnsoft.collection.exception.CreditCardDaysOfDefaultFormatException;
@@ -229,7 +230,7 @@ public class LoteServiceImpl implements LoteService {
 
 	@Asynchronous
 	@Override
-	public void add(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId){
+	public void addTypeSale(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId){
 		
 		Lote lote = new Lote();
 		Date date = new Date();
@@ -269,6 +270,7 @@ public class LoteServiceImpl implements LoteService {
 			lote.setTotal(sales.size());
 			lote.setProcess(0);
 			lote.setDate(date);
+			lote.setLoteType(LoteTypeEnum.CREATESALE);
 			lote.setState("En progreso");
 			//lote = loteService.create(filename,newSales.size());
 			loteEao.add(lote);
@@ -291,14 +293,19 @@ public class LoteServiceImpl implements LoteService {
 				CreditCard creditCard = sale.getCreditCard();
 				Payer payer = sale.getPayer();*/
 
-				saleStateEao.add(sale.getSaleState());
-				creditCardEao.add(sale.getCreditCard());
-				payerEao.add(sale.getPayer());
-
+				//saleStateEao.add(sale.getSaleState());
+				//creditCardEao.add(sale.getCreditCard());
+				//payerEao.add(sale.getPayer());
+				
+				//Payer payer = sale.getPayer();
+				//sale.setPayer(null);
 				/*sale.setSaleState(saleState);
 				sale.setCreditCard(creditCard);
 				sale.setPayer(payer);*/
 				saleEao.add(sale);
+				
+				///payer.setSale(sale);
+				//payerEao.add(sale.getPayer());
 
 				lote.setProcess(lineNumber);
 				loteEao.update(lote);
@@ -319,11 +326,17 @@ public class LoteServiceImpl implements LoteService {
 			
 
 		} catch (Exception e) {
+			System.out.println("SERVICE: INGRESO AL CATCH DE ADDTYPESALE");
 			e.printStackTrace();
 			if (e.getMessage()!=null || e.getMessage().length()==0) {
-				lote.setErrors((new NullPointerException()).toString());
+				lote.setState((new NullPointerException()).toString());
 			}else{
-				lote.setErrors(e.getMessage());	
+				if (e.getMessage().length()>500) {
+					lote.setState(e.getMessage().substring(0,500));	
+				}else{
+					lote.setState(e.getMessage());
+				}
+					
 			}
 			try {
 				loteEao.update(lote);

@@ -13,7 +13,7 @@ import com.returnsoft.collection.exception.ServiceException;
 
 public interface SaleService {
 	
-	public void add(Sale sale) throws ServiceException;
+	//public void add(Sale sale) throws ServiceException;
 	
 	//public Future<Integer> add(List<Sale> sale, String filename) /*throws ServiceException*/;
 	
