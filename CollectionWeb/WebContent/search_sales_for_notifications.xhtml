@@ -46,22 +46,18 @@
 				<h:panelGrid columns="2">
 					<p:outputLabel value="Tipo de búsqueda:"></p:outputLabel>
 					<p:selectOneMenu id="searchType"
-						value="#{searchSalesForNotificationsController.searchTypeSelected}"
-						required="true"
-						requiredMessage="Debe seleccionar tipo de búsqueda">
-						<f:selectItem itemLabel="Seleccione..." itemValue="" />
+						value="#{searchSalesForNotificationsController.searchTypeSelected}">
 						<f:selectItem itemLabel="Buscar por NUIC responsable."
 							itemValue="dni" />
 						<f:selectItem itemLabel="Buscar por datos de notificación"
 							itemValue="notificationData" />
-						<p:ajax immediate="true" process=":form:searchType"
-							listener="#{searchSalesForNotificationsController.onChangeSearchType}"
+						<p:ajax 
 							update=":form:searchTypeOut :form:searchTypeOut2 :form:messages"></p:ajax>
 					</p:selectOneMenu>
 				</h:panelGrid>
 				<p:outputPanel id="searchTypeOut2">
 					<h:panelGrid columns="2"
-						rendered="#{searchSalesForNotificationsController.searchByDocumentNumberResponsibleRendered}">
+						rendered="#{searchSalesForNotificationsController.searchTypeSelected=='dni'}">
 						<p:outputLabel value="NUIC responsable"></p:outputLabel>
 						<p:inputText style="width: 120px;" required="true"
 							requiredMessage="Debe ingresar NUIC Responsable"
@@ -69,7 +65,7 @@
 					</h:panelGrid>
 
 					<h:panelGrid columns="2"
-						rendered="#{searchSalesForNotificationsController.searchByDateSaleRendered}">
+						rendered="#{searchSalesForNotificationsController.searchTypeSelected=='notificationData'}">
 						<p:outputLabel value="Banco"></p:outputLabel>
 						<p:selectOneMenu id="bank"
 							value="#{searchSalesForNotificationsController.bankSelected}">
@@ -85,8 +81,8 @@
 
 			<p:outputPanel id="searchTypeOut">
 				<h:panelGrid columns="3" rowClasses="panelgrid_center_row"
-					rendered="#{searchSalesForNotificationsController.searchByDateSaleRendered}">
-					<p:fieldset legend="DATOS VENTAS">
+					rendered="#{searchSalesForNotificationsController.searchTypeSelected=='notificationData'}">
+					<p:fieldset legend="DATOS DE VENTA">
 						<h:panelGrid columns="2">
 							<p:outputLabel value="Fecha venta desde:"></p:outputLabel>
 							<p:calendar navigator="true"
@@ -130,7 +126,7 @@
 
 						</h:panelGrid>
 					</p:fieldset>
-					<p:fieldset legend="NOTIFICACIONES">
+					<p:fieldset legend="DATOS DE NOTIFICACIÓN">
 						<h:panelGrid columns="2">
 
 							<h:panelGrid columns="2">
@@ -219,10 +215,10 @@
 
 				<p:commandButton id="dataButtom" immediate="true" 
 					icon="ui-icon-pencil" value="Editar datos" update=":form:messages"
-					actionListener="#{searchSalesForNotificationsController.addPayer}"
+					actionListener="#{searchSalesForNotificationsController.updatePayer}"
 					disabled="#{searchSalesForNotificationsController.saleSelected==null}">
 					<p:ajax event="dialogReturn" update=":form:searchTable"
-						listener="#{searchSalesForNotificationsController.afterAddPayer}" />
+						listener="#{searchSalesForNotificationsController.afterUpdatePayer}" />
 				</p:commandButton>
 
 				<p:commandButton id="payersButtom"

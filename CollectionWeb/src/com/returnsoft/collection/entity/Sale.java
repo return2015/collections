@@ -165,17 +165,17 @@ public class Sale implements Serializable{
 	@JoinColumn(name = "sal_affiliation_usr_id")
 	private User affiliationUser;*/
 	
-	//@Column(name = "sal_physical_notifications")
-	@Transient
+	@Column(name = "sal_physical_notifications")
+	//@Transient
 	private Short physicalNotifications;
 	
-	//@Column(name = "sal_virtual_notifications")
-	@Transient
+	@Column(name = "sal_virtual_notifications")
+	//@Transient
 	private Short virtualNotifications;
 	
-	//@OneToOne(fetch=FetchType.LAZY)
-	//@JoinColumn(name = "sal_not_id")
-	@Transient
+	@OneToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "sal_not_id")
+	//@Transient
 	private Notification notification;
 	
 	///////////////////////////////////////////

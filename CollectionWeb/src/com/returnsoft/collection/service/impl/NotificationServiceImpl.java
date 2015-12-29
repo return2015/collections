@@ -56,10 +56,22 @@ public class NotificationServiceImpl implements NotificationService {
 			//se agrega notification 
 			notificationEao.add(notification);
 			if (notification.getType().equals(NotificationTypeEnum.PHYSICAL)) {
-				//saleFound.setPhysicalNotifications((short)(saleFound.getPhysicalNotifications()+1));	
+				if (saleFound.getPhysicalNotifications()==null) {
+					saleFound.setPhysicalNotifications((short)1);
+				}else{
+					saleFound.setPhysicalNotifications((short)(saleFound.getPhysicalNotifications()+1));	
+				}
+				
+				
 			}else if (notification.getType().equals(NotificationTypeEnum.MAIL)) {
 				
-				//saleFound.setVirtualNotifications((short)(saleFound.getVirtualNotifications()+1));
+				if (saleFound.getPhysicalNotifications()==null) {
+					saleFound.setVirtualNotifications((short)1);
+				}else{
+					saleFound.setVirtualNotifications((short)(saleFound.getVirtualNotifications()+1));	
+				}
+				
+				
 				// SE ENVIA EL EMAIL
 				String email = saleFound.getPayer().getMail();
 				String code = saleFound.getCode();
@@ -70,7 +82,7 @@ public class NotificationServiceImpl implements NotificationService {
 				sendMail(email, names, code, bankId);
 			}
 			
-			//saleFound.setNotification(notification);
+			saleFound.setNotification(notification);
 			saleFound = saleEao.update(saleFound);
 			
 

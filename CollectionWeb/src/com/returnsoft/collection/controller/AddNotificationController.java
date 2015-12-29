@@ -8,6 +8,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 import org.primefaces.context.RequestContext;
 
@@ -19,6 +20,7 @@ import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.SaleService;
+import com.returnsoft.collection.util.FacesUtil;
 
 @ManagedBean
 @ViewScoped
@@ -43,6 +45,12 @@ public class AddNotificationController implements Serializable{
 	@EJB
 	private SaleService saleService;
 	
+	@Inject
+	private FacesUtil facesUtil;
+	
+	@Inject
+	private SessionBean sessionBean;
+	
 	public String initialize() {
 		try {
 
@@ -58,13 +66,8 @@ public class AddNotificationController implements Serializable{
 			return null;
 
 		} catch (Exception e) {
-
-			if (!(e instanceof ServiceException)) {
-				e.printStackTrace();
-			}
-			FacesMessage msg = new FacesMessage(e.getMessage(), e.getMessage());
-			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-			FacesContext.getCurrentInstance().addMessage(null, msg);
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 			return null;
 		}
 	}
@@ -75,15 +78,14 @@ public class AddNotificationController implements Serializable{
 			notificationSelected.setType(notificationType);
 			notificationSelected.setState(notificationState);
 			
-			notificationSelected.setCreatedAt(new Date());
-			SessionBean sessionBean = (SessionBean) FacesContext
-					.getCurrentInstance().getExternalContext()
-					.getSessionMap().get("sessionBean");
-			int userId = sessionBean.getUser().getId();
-			User user = new User();
-			user.setId(userId);
-			notificationSelected.setCreatedBy(user);
 			
+			/*SessionBean sessionBean = (SessionBean) FacesContext
+					.getCurrentInstance().getExternalContext()
+					.getSessionMap().get("sessionBean");*/
+			User user = sessionBean.getUser();
+			
+			notificationSelected.setCreatedBy(user);
+			notificationSelected.setCreatedAt(new Date());
 			notificationService.add(notificationSelected);
 			
 			// RETORNA LA VENTA ACTUALIZADA
@@ -93,12 +95,9 @@ public class AddNotificationController implements Serializable{
 
 		} catch (Exception e) {
 
-			if (!(e instanceof ServiceException)) {
-				e.printStackTrace();
-			}
-			FacesMessage msg = new FacesMessage(e.getMessage(), e.getMessage());
-			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-			FacesContext.getCurrentInstance().addMessage(null, msg);
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			
 		}
 
 	}

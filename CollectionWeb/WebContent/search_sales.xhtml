@@ -238,8 +238,8 @@
 
 
 			<p:dataTable style="width:100%;" lazy="true"
-				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} 
-{CurrentPageReport} {NextPageLink} {LastPageLink}"
+				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+					currentPageReportTemplate="(Entries: {startRecord} - {endRecord} of {totalRecords}, Page: {currentPage}/{totalPages})"
 				value="#{searchSalesController.sales}" var="s" paginator="true"
 				rows="10" id="searchTable">
 

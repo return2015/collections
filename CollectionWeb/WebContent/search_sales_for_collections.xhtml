@@ -42,10 +42,7 @@
 					<h:panelGrid columns="2">
 						<p:outputLabel value="Tipo de busqueda:"></p:outputLabel>
 						<p:selectOneMenu id="searchType"
-							value="#{searchSalesForCollectionsController.searchTypeSelected}"
-							required="true"
-							requiredMessage="Debe seleccionar tipo de busqueda">
-							<f:selectItem itemLabel="Seleccione..." itemValue="" />
+							value="#{searchSalesForCollectionsController.searchTypeSelected}">
 							<f:selectItem itemLabel="Buscar por numero de tarjeta."
 								itemValue="creditCard" />
 							<f:selectItem itemLabel="Buscar por DNI responsable."
@@ -54,14 +51,13 @@
 								itemValue="saleData" />
 							<f:selectItem itemLabel="Buscar por datos personales"
 								itemValue="personalData" />
-							<p:ajax immediate="true" process=":form:searchType"
-								listener="#{searchSalesForCollectionsController.onChangeSearchType}"
+							<p:ajax
 								update=":form:searchTypeOut :form:messages"></p:ajax>
 						</p:selectOneMenu>
 					</h:panelGrid>
 					<p:outputPanel id="searchTypeOut">
 						<h:panelGrid columns="4"
-							rendered="#{searchSalesForCollectionsController.searchByDateSaleRendered}">
+							rendered="#{searchSalesForCollectionsController.searchTypeSelected=='saleData'}">
 
 							<p:outputLabel value="F. Venta Desde:"></p:outputLabel>
 							<p:calendar navigator="true"

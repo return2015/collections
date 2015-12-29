@@ -738,7 +738,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 				throw new UserLoggedNotFoundException();
 			}
 
-			if (sessionBean.getBank()!=null && sessionBean.getBank().getId()!=null) {
+			if (sessionBean.getBank()==null || sessionBean.getBank().getId()==null) {
 				throw new BankNotSelectedException();
 			}
 			

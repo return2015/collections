@@ -29,9 +29,7 @@ import org.primefaces.event.SelectEvent;
 import org.primefaces.model.LazyDataModel;
 
 import com.returnsoft.collection.entity.Bank;
-import com.returnsoft.collection.entity.Commerce;
 import com.returnsoft.collection.entity.Notification;
-import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.PayerHistory;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
@@ -39,11 +37,9 @@ import com.returnsoft.collection.enumeration.BankLetterEnum;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
-import com.returnsoft.collection.enumeration.UserTypeEnum;
 import com.returnsoft.collection.exception.BankInvalidException;
 import com.returnsoft.collection.exception.BankLetterNotFoundException;
 import com.returnsoft.collection.exception.BankNotSelectedException;
-import com.returnsoft.collection.exception.CommerceCodeException;
 import com.returnsoft.collection.exception.NotificationAddressNullException;
 import com.returnsoft.collection.exception.NotificationClosedException;
 import com.returnsoft.collection.exception.NotificationDepartmentNullException;
@@ -61,13 +57,10 @@ import com.returnsoft.collection.exception.NotificationProvinceNullException;
 import com.returnsoft.collection.exception.PayerDataNullException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
-import com.returnsoft.collection.exception.UserPermissionNotFoundException;
 import com.returnsoft.collection.service.BankService;
-import com.returnsoft.collection.service.CommerceService;
 import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.PayerService;
 import com.returnsoft.collection.service.SaleService;
-import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
 
 import net.sf.jasperreports.engine.JREmptyDataSource;
@@ -223,7 +216,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 				}
 
 				//SE RESETEA EL TIPO DE BUSQUEDA
-				searchTypeSelected = "";
+				searchTypeSelected = "notificationData";
+				onChangeSearchType();
 
 				return null;
 
@@ -243,8 +237,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 	public void onChangeSearchType() {
 		try {
 
-			searchTypeSelected = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap()
-					.get("form:searchType_input");
+			/*searchTypeSelected = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap()
+					.get("form:searchType_input");*/
 
 			if (searchTypeSelected.equals("dni")) {
 				searchByDocumentNumberResponsibleRendered = true;
@@ -541,20 +535,45 @@ public class SearchSalesForNotificationsController implements Serializable {
 		}
 
 	}
+	
+	public void showPayers() {
+
+		try {
+
+			payers = payerService.findBySale(saleSelected.getId());
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+		}
+
+	}
 
 	public void editNotification() {
 
 		try {
 
-			Boolean validate = true;
+			//Boolean validate = true;
 
 			// VALIDA SELECCION DE BANCO
-			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
+			/*SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
 					.getSessionMap().get("sessionBean");
 			if (sessionBean.getBank() == null) {
 				Exception e = new BankNotSelectedException();
 				facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 				validate = false;
+			}*/
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
+
+			if (sessionBean.getBank()==null || sessionBean.getBank().getId()==null) {
+				throw new BankNotSelectedException();
+			}
+			
+			if (!saleSelected.getBank().getId().equals(sessionBean.getBank().getId())) {
+				throw new BankInvalidException();
 			}
 
 			// VALIDA COMMERCIAL CODE
@@ -575,15 +594,17 @@ public class SearchSalesForNotificationsController implements Serializable {
 			}*/
 
 			// VALIDA SI EXISTE NOTIFICACION
-			if (validate) {
+			//if (validate) {
 				if (saleSelected.getNotification() == null) {
-					Exception e = new NotificationNotFoundException(saleSelected.getCode());
+					/*Exception e = new NotificationNotFoundException(saleSelected.getCode());
 					facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-					validate = false;
+					validate = false;*/
+					
+					throw new NotificationNotFoundException(saleSelected.getCode());
 				}
-			}
+			//}
 
-			if (validate) {
+			//if (validate) {
 				Map<String, Object> options = new HashMap<String, Object>();
 				options.put("modal", false);
 				options.put("draggable", true);
@@ -597,7 +618,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 				paramMap.put("notificationId", paramList);
 				RequestContext.getCurrentInstance().openDialog("edit_notification_by_sale", options, paramMap);
 
-			}
+			//}
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -620,20 +641,9 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 	}
 
-	public void showPayers() {
+	
 
-		try {
-
-			payers = payerService.findBySale(saleSelected.getId());
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-		}
-
-	}
-
-	public void addPayer() {
+	public void updatePayer() {
 		try {
 			//ActionEvent event
 			//System.out.println("Ingreso a addPayer");
@@ -704,7 +714,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 		}
 	}
 
-	public void afterAddPayer(SelectEvent event) {
+	public void afterUpdatePayer(SelectEvent event) {
 
 		Sale saleReturn = (Sale) event.getObject();
 
@@ -722,7 +732,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 	public void addPhysicalNotification() {
 		try {
 
-			Boolean validate = true;
+			/*Boolean validate = true;
 
 			// VALIDA SELECCION DE BANCO
 			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
@@ -731,6 +741,18 @@ public class SearchSalesForNotificationsController implements Serializable {
 				Exception e = new BankNotSelectedException();
 				facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 				validate = false;
+			}*/
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
+			
+			if (sessionBean.getBank()==null || sessionBean.getBank().getId()==null) {
+				throw new BankNotSelectedException();
+			}
+			
+			if (saleSelected.getBank().getId() != sessionBean.getBank().getId()) {
+				throw new BankInvalidException();
 			}
 
 			// VALIDATE COMMERCIAL CODE
@@ -753,88 +775,100 @@ public class SearchSalesForNotificationsController implements Serializable {
 			// VALIDA SI LA VENTA NO ESTA ACTIVA
 			//if (validate) {
 				if (!saleSelected.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
-					Exception e = new SaleStateNoActiveException(saleSelected.getCode());
-					facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-					validate = false;
+					/*Exception e = new SaleStateNoActiveException(saleSelected.getCode());
+					facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());*/
+					throw new SaleStateNoActiveException(saleSelected.getCode());
+					//validate = false;
 				}
 			//}
 
 			// VALIDA CANTIDAD DE NOTIFICACIONES ENVIADAS
-			if (validate) {
-				if (saleSelected.getVirtualNotifications() < 3) {
+			//if (validate) {
+				if (saleSelected.getVirtualNotifications()==null || saleSelected.getVirtualNotifications() < 3) {
 					// Si tiene menos de 3 envios virtuales
-					if (saleSelected.getPhysicalNotifications() > 1) {
+					if (saleSelected.getPhysicalNotifications()!=null && saleSelected.getPhysicalNotifications() > 1) {
 						// no se agrega porque tiene 2 envíos físicos y menos de
 						// 3
 						// virtuales.
-						Exception e = new NotificationLimit2Exception(saleSelected.getCode());
-						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						validate = false;
+						/*Exception e = new NotificationLimit2Exception(saleSelected.getCode());
+						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());*/
+						//validate = false;
+						throw new NotificationLimit2Exception(saleSelected.getCode());
 					}
 				} else {
-					if (saleSelected.getPhysicalNotifications() > 0) {
+					if (saleSelected.getPhysicalNotifications()!=null && saleSelected.getPhysicalNotifications() > 0) {
 						// No se agrega porque ya tiene 1 envío físico y 3
 						// envíos
 						// virtuales.
-						Exception e = new NotificationLimit1Exception(saleSelected.getCode());
+						/*Exception e = new NotificationLimit1Exception(saleSelected.getCode());
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						validate = false;
+						validate = false;*/
+						throw new NotificationLimit1Exception(saleSelected.getCode());
 					}
 				}
-			}
+			//}
 
 			// VALIDA EL ESTADO DE LA ULTIMA NOTIFICACION
-			if (validate) {
+			//if (validate) {
 				if (saleSelected.getNotification() != null) {
 					if (saleSelected.getNotification().getType().equals(NotificationTypeEnum.PHYSICAL)
 							&& saleSelected.getNotification().getState().getPending() == true) {
-						Exception e = new NotificationPendingException(saleSelected.getCode());
+						/*Exception e = new NotificationPendingException(saleSelected.getCode());
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						validate = false;
+						validate = false;*/
+						throw new NotificationPendingException(saleSelected.getCode());
 					}
 				}
-			}
+			//}
 			// VALIDA DATOS DEL RESPONSABLE DE PAGO
-			if (validate) {
+			//if (validate) {
 				if (saleSelected.getPayer() != null) {
 					if (saleSelected.getPayer().getFirstnameResponsible().trim().equals("")) {
-						Exception e = new NotificationFirstnameNullException();
+						/*Exception e = new NotificationFirstnameNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						validate = false;
+						validate = false;*/
+						throw new NotificationFirstnameNullException();
 					} else if (saleSelected.getPayer().getLastnamePaternalResponsible().trim().equals("")) {
-						Exception e = new NotificationLastnamePaternalNullException();
+						/*Exception e = new NotificationLastnamePaternalNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						validate = false;
+						validate = false;*/
+						throw new NotificationLastnamePaternalNullException();
 					} else if (saleSelected.getPayer().getLastnameMaternalResponsible().trim().equals("")) {
-						Exception e = new NotificationLastnameMaternalNullException();
+						/*Exception e = new NotificationLastnameMaternalNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						validate = false;
+						validate = false;*/
+						throw new NotificationLastnameMaternalNullException();
 					} else if (saleSelected.getPayer().getAddress().trim().equals("")) {
-						Exception e = new NotificationAddressNullException();
+						/*Exception e = new NotificationAddressNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						validate = false;
+						validate = false;*/
+						throw new NotificationAddressNullException();
 					} else if (saleSelected.getPayer().getDepartment().trim().equals("")) {
-						Exception e = new NotificationDepartmentNullException();
+						/*Exception e = new NotificationDepartmentNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						validate = false;
+						validate = false;*/
+						throw new NotificationDepartmentNullException();
 					} else if (saleSelected.getPayer().getProvince().trim().equals("")) {
-						Exception e = new NotificationProvinceNullException();
+						/*Exception e = new NotificationProvinceNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						validate = false;
+						validate = false;*/
+						throw new NotificationProvinceNullException();
 					} else if (saleSelected.getPayer().getDistrict().trim().equals("")) {
-						Exception e = new NotificationDistrictNullException();
+						/*Exception e = new NotificationDistrictNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						validate = false;
+						validate = false;*/
+						throw new NotificationDistrictNullException();
 					}
 
 				} else {
-					Exception e = new NotificationPayerNullException();
+					/*Exception e = new NotificationPayerNullException();
 					facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-					validate = false;
+					validate = false;*/
+					throw new NotificationPayerNullException();
 				}
-			}
+			//}
 
-			if (validate) {
+			//if (validate) {
 
 				Map<String, Object> options = new HashMap<String, Object>();
 				options.put("modal", false);
@@ -848,7 +882,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 				paramList.add(String.valueOf(saleSelected.getId()));
 				paramMap.put("saleId", paramList);
 				RequestContext.getCurrentInstance().openDialog("add_notification", options, paramMap);
-			}
+			//}
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -876,18 +910,32 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 			search();
 			
-			Boolean validate = true;
+			//Boolean validate = true;
 			
 			// VALIDA SELECCION DE BANCO
-			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
+			/*SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
 					.getSessionMap().get("sessionBean");
 			if (sessionBean.getBank() == null) {
 				Exception e = new BankNotSelectedException();
 				facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 				validate = false;
-			}
+			}*/
+			
 
-			if (validate) {
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
+			
+			if (sessionBean.getBank()==null || sessionBean.getBank().getId()==null) {
+				throw new BankNotSelectedException();
+			}
+			
+			if (saleSelected.getBank().getId() != sessionBean.getBank().getId()) {
+				throw new BankInvalidException();
+			}
+			
+
+			//if (validate) {
 				
 				List<Exception> errors = new ArrayList<Exception>();
 
@@ -1020,7 +1068,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 				/*} else {
 					facesUtil.sendErrorMessage("No existen ventas para notificar...", "");
 				}*/
-			}
+			//}
 
 			////////////////
 
@@ -1039,18 +1087,31 @@ public class SearchSalesForNotificationsController implements Serializable {
 			
 			search();
 
-			Boolean validate = true;
+			//Boolean validate = true;
 
 			// VALIDA SELECCION DE BANCO
-			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
+			/*SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance().getExternalContext()
 					.getSessionMap().get("sessionBean");
 			if (sessionBean.getBank() == null) {
 				Exception e = new BankNotSelectedException();
 				facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 				validate = false;
+			}*/
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
 			}
+			
+			if (sessionBean.getBank()==null || sessionBean.getBank().getId()==null) {
+				throw new BankNotSelectedException();
+			}
+			
+			if (saleSelected.getBank().getId() != sessionBean.getBank().getId()) {
+				throw new BankInvalidException();
+			}
+			
 
-			if (validate) {
+			//if (validate) {
 				
 				List<Exception> errors = new ArrayList<Exception>();
 
@@ -1169,7 +1230,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 //				} else {
 //					facesUtil.sendErrorMessage("No existen ventas para notificar...", "");
 //				}
-			}
+			//}
 
 			////////////////
 
@@ -1185,6 +1246,19 @@ public class SearchSalesForNotificationsController implements Serializable {
 		try {
 
 			System.out.println("Ingreso a printNotification");
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
+			
+			if (sessionBean.getBank()==null || sessionBean.getBank().getId()==null) {
+				throw new BankNotSelectedException();
+			}
+			
+			if (saleSelected.getBank().getId() != sessionBean.getBank().getId()) {
+				throw new BankInvalidException();
+			}
+			
 
 			search();
 			

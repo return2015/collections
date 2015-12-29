@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.inject.Inject;
 
 import org.primefaces.context.RequestContext;
 
@@ -22,6 +22,7 @@ import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.SaleService;
+import com.returnsoft.collection.util.FacesUtil;
 
 @ManagedBean
 @ViewScoped
@@ -43,9 +44,15 @@ public class EditNotificationBySaleController implements Serializable{
 	@EJB
 	private SaleService saleService;
 	
+	@Inject
+	private SessionBean sessionBean;
 	
-	@PostConstruct
-	public void initialize() {
+	@Inject
+	private FacesUtil facesUtil;
+	
+	
+	//@PostConstruct
+	public String initialize() {
 		try {
 
 			System.out.println("Ingreso a initialize");
@@ -68,14 +75,13 @@ public class EditNotificationBySaleController implements Serializable{
 				notificationStateSelected = notificationSelected.getState().getId().toString();
 			}
 			
+			return null;
+			
 		} catch (Exception e) {
 
-			if (!(e instanceof ServiceException)) {
-				e.printStackTrace();
-			}
-			FacesMessage msg = new FacesMessage(e.getMessage(), e.getMessage());
-			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-			FacesContext.getCurrentInstance().addMessage(null, msg);
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			return null;
 		}
 	}
 	
@@ -88,12 +94,11 @@ public class EditNotificationBySaleController implements Serializable{
 
 			notificationSelected.setUpdatedAt(new Date());
 			
-			SessionBean sessionBean = (SessionBean) FacesContext
+			/*SessionBean sessionBean = (SessionBean) FacesContext
 					.getCurrentInstance().getExternalContext()
-					.getSessionMap().get("sessionBean");
-			int userId = sessionBean.getUser().getId();
-			User user = new User();
-			user.setId(userId);
+					.getSessionMap().get("sessionBean");*/
+			User user = sessionBean.getUser();
+			
 			notificationSelected.setUpdatedBy(user);
 			notificationSelected = notificationService.update(notificationSelected);
 			
@@ -105,12 +110,8 @@ public class EditNotificationBySaleController implements Serializable{
 			
 		} catch (Exception e) {
 
-			if (!(e instanceof ServiceException)) {
-				e.printStackTrace();
-			}
-			FacesMessage msg = new FacesMessage(e.getMessage(), e.getMessage());
-			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-			FacesContext.getCurrentInstance().addMessage(null, msg);
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 		}
 
 	}
