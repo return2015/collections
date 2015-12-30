@@ -3,6 +3,8 @@ package com.returnsoft.collection.eao.impl;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -18,6 +20,7 @@ public class BankEaoImpl implements BankEao {
 	@PersistenceContext
 	private EntityManager em;
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Bank> findByUserId(Integer userId) throws EaoException{
 		try {
 			TypedQuery<Bank> q = em.createQuery(
@@ -34,6 +37,7 @@ public class BankEaoImpl implements BankEao {
 	
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Bank findById(Short bankId) throws EaoException{
 		try {
 			
@@ -49,7 +53,7 @@ public class BankEaoImpl implements BankEao {
 		}
 		
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Bank> getBanks() throws EaoException {
 		try {
 

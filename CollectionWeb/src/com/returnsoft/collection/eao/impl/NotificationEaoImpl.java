@@ -5,6 +5,10 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -17,11 +21,14 @@ import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.exception.EaoException;
 
 @Stateless
+//@TransactionManagement(TransactionManagementType.CONTAINER)
 public class NotificationEaoImpl implements NotificationEao{
 	
 	@PersistenceContext
 	private EntityManager em;
 	
+	//@TransactionAttribute(TransactionAttributeType.MANDATORY)
+	//@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void add(Notification notification) throws EaoException{
 		
 		try {
@@ -34,7 +41,7 @@ public class NotificationEaoImpl implements NotificationEao{
 			throw new EaoException(e);
 		}
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Notification> findBySaleId(Long saleId) throws EaoException{
 		try {
 			
@@ -54,7 +61,7 @@ public class NotificationEaoImpl implements NotificationEao{
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Notification> findByData(Date sendingAt,Date createdAt, NotificationTypeEnum notificationType, NotificationStateEnum notificationState) throws EaoException{
 		try {
 			
@@ -117,7 +124,7 @@ public class NotificationEaoImpl implements NotificationEao{
 			throw new EaoException(e.getMessage());
 		}
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Notification findById(Integer notificationId) throws EaoException{
 		try {
 			

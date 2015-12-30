@@ -10,7 +10,12 @@ import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.faces.context.FacesContext;
 import javax.mail.BodyPart;
 import javax.mail.Message;
@@ -29,10 +34,13 @@ import com.returnsoft.collection.entity.Notification;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.enumeration.BankLetterEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
+import com.returnsoft.collection.exception.BankLetterNotFoundException;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.NotificationService;
 
 @Stateless
+//@TransactionManagement(TransactionManagementType.CONTAINER)
+
 public class NotificationServiceImpl implements NotificationService {
 	
 	@EJB
@@ -41,13 +49,16 @@ public class NotificationServiceImpl implements NotificationService {
 	@EJB
 	private NotificationEao notificationEao;
 	
+	@Resource
+	private SessionContext context;
+	
 	@Resource(lookup = "mail/Falabella")
 	private Session mailFalabella;
 
 	@Resource(lookup = "mail/GNB")
 	private Session mailGNB;
 	
-	
+	//@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public void add(Notification notification) throws ServiceException {
 		try {
 			
@@ -55,6 +66,13 @@ public class NotificationServiceImpl implements NotificationService {
 			
 			//se agrega notification 
 			notificationEao.add(notification);
+			/*int i=5;
+			int j =0;
+			int v = i/j; 
+			System.out.println(v);*/
+			
+			//System.out.println("termino la transacción");
+			
 			if (notification.getType().equals(NotificationTypeEnum.PHYSICAL)) {
 				if (saleFound.getPhysicalNotifications()==null) {
 					saleFound.setPhysicalNotifications((short)1);
@@ -65,7 +83,13 @@ public class NotificationServiceImpl implements NotificationService {
 				
 			}else if (notification.getType().equals(NotificationTypeEnum.MAIL)) {
 				
-				if (saleFound.getPhysicalNotifications()==null) {
+				BankLetterEnum bankLetterEnum = BankLetterEnum.findById(saleFound.getBank().getId());
+				
+				if (bankLetterEnum==null) {
+					throw new BankLetterNotFoundException(saleFound.getBank().getName());
+				}
+				
+				if (saleFound.getVirtualNotifications()==null) {
 					saleFound.setVirtualNotifications((short)1);
 				}else{
 					saleFound.setVirtualNotifications((short)(saleFound.getVirtualNotifications()+1));	
@@ -78,8 +102,7 @@ public class NotificationServiceImpl implements NotificationService {
 				String names = saleFound.getPayer().getFirstnameResponsible() + " "
 				+ saleFound.getPayer().getLastnamePaternalResponsible() + " "
 				+ saleFound.getPayer().getLastnameMaternalResponsible();
-				Short bankId = saleFound.getBank().getId();
-				sendMail(email, names, code, bankId);
+				sendMail(email, names, code, bankLetterEnum);
 			}
 			
 			saleFound.setNotification(notification);
@@ -88,6 +111,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			context.setRollbackOnly();
 			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
 				throw new ServiceException(e.getMessage(), e);	
 			}else{
@@ -362,7 +386,7 @@ public class NotificationServiceImpl implements NotificationService {
 	}*/
 	
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Notification> findBySale(Long saleId) throws ServiceException{
 		try {
 			
@@ -378,7 +402,7 @@ public class NotificationServiceImpl implements NotificationService {
 		}
 		
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Notification findById(Integer notificationId) throws ServiceException {
 		try {
 
@@ -415,48 +439,46 @@ public class NotificationServiceImpl implements NotificationService {
 		}
 	}
 	
-	
-	public void sendMail(String email, String names, String code, Short bankId){
-		try {
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public void sendMail(String email, String names, String code, BankLetterEnum bankLetterEnum) throws Exception{
+		//try {
 
 			System.out.println("email:" + email);
 			System.out.println("names:" + names);
 
-			if (email != null && names != null && bankId != null) {
+			//if (email != null && names != null && bankId != null) {
 
-				BankLetterEnum bankLetterEnum = BankLetterEnum.findById(bankId);
+				//BankLetterEnum bankLetterEnum = BankLetterEnum.findById(bankId);
 
-				if (bankLetterEnum != null) {
+				//if (bankLetterEnum != null) {
 					
-					Session sessionSelected = null;
+					
 
-					switch (bankLetterEnum) {
-					case FALABELLA:
-						sessionSelected = mailFalabella;
-						break;
-					case GNB:
-						sessionSelected = mailGNB;
-						break;
-					default:
-						break;
-					}
+					
 
 					try {
-
-						MimeMessage message = new MimeMessage(sessionSelected);
-						message.setFrom(new InternetAddress(sessionSelected.getProperty("mail.from")));
-						InternetAddress[] address = { new InternetAddress(email), new InternetAddress(sessionSelected.getProperty("mail.from"))};
-						message.setRecipients(Message.RecipientType.TO, address);
-						message.setSubject(bankLetterEnum.getSubject());
-						message.setSentDate(new Date());
+						
 						
 						ServletContext servletContext=(ServletContext) FacesContext.getCurrentInstance ().getExternalContext().getContext();
 						String separator=System.getProperty("file.separator");
 						String rootPath= servletContext.getRealPath(separator);
-						String fileName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getTemplateMail();
+						//String fileName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getTemplateMail();
+						Session sessionSelected = null;
+						String subject = "";
+						String filename = "";
+						if (bankLetterEnum.equals(BankLetterEnum.FALABELLA)) {
+							sessionSelected = mailFalabella;
+							subject="Asistencia Falabella";
+							filename=rootPath+"resources"+separator+"templates"+separator+"mailFalabella.html";
+						}else if(bankLetterEnum.equals(BankLetterEnum.GNB)) {
+							sessionSelected = mailGNB;
+							subject="Asistencia GNB";
+							filename=rootPath+"resources"+separator+"templates"+separator+"mailGNB.html";
+						}
+						
 						String logoName = rootPath+"resources"+separator+"templates"+separator+"logoGEA.jpg";
 						String htmlText="";
-						BufferedReader br = new BufferedReader(new FileReader(fileName));
+						BufferedReader br = new BufferedReader(new FileReader(filename));
 						try {
 						    StringBuilder sb = new StringBuilder();
 						    String line = br.readLine();
@@ -467,12 +489,25 @@ public class NotificationServiceImpl implements NotificationService {
 						        line = br.readLine();
 						    }
 						    htmlText = sb.toString();
+						}catch(Exception e){
+							e.printStackTrace();
+							throw e;
 						} finally {
 						    br.close();
 						}
 						String urlConditioned="http://190.107.180.164:9096/siscob/faces/download_conditioned.xhtml?code="+code;
 						String urlLetter="http://190.107.180.164:9096/siscob/faces/download_letter.xhtml?code="+code;
 						htmlText=String.format(htmlText, names,urlLetter,urlConditioned);
+						
+						
+						MimeMessage message = new MimeMessage(sessionSelected);
+						message.setFrom(new InternetAddress(sessionSelected.getProperty("mail.from")));
+						InternetAddress[] address = { new InternetAddress(email), new InternetAddress(sessionSelected.getProperty("mail.from"))};
+						message.setRecipients(Message.RecipientType.TO, address);
+						message.setSubject(subject);
+						message.setSentDate(new Date());
+						
+						
 						
 						//
 				        // This HTML mail have to 2 part, the BODY and the embedded image
@@ -500,28 +535,22 @@ public class NotificationServiceImpl implements NotificationService {
 						// message.addHeader("Disposition-Notification-To",bankLetterEnum.getMail());
 				        
 						Transport.send(message);
-						System.out.println("se envío el mensaje");
+						//System.out.println("se envío el mensaje");
 
-					} catch (MessagingException ex) {
+					}  catch (Exception ex) {
 						ex.printStackTrace();
-					} catch (Exception ex) {
-						System.out.println("INGRESO A EXCEPTIONNNN");
-						System.out.println("INGRESO A EXCEPTIONNNN");
-						System.out.println("INGRESO A EXCEPTIONNNN");
-						System.out.println("INGRESO A EXCEPTIONNNN");
-						System.out.println("INGRESO A EXCEPTIONNNN");
-						ex.printStackTrace();
+						throw ex;
 					}
-				}
+				//}
 
-			}
+			//}
 
 		//}
 
-	} catch (Exception e) {
+	/*} catch (Exception e) {
 		e.printStackTrace();
 		
-	}
+	}*/
 	}
 
 

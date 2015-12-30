@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="plantillaFalabella" language="groovy" pageWidth="595" pageHeight="842" columnWidth="445" leftMargin="75" rightMargin="75" topMargin="30" bottomMargin="0" uuid="bc7a153f-e446-477a-b9d6-b75b03d25dfa">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="752"/>
+	<subDataset name="dataset1" uuid="af60f308-471f-4fd0-8899-874307da6580">
+		<parameter name="ROOT_DIR" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+		<field name="payer.firstnameResponsible" class="java.lang.String"/>
+		<field name="payer.lastnamePaternalResponsible" class="java.lang.String"/>
+		<field name="payer.lastnameMaternalResponsible" class="java.lang.String"/>
+		<field name="payer.department" class="java.lang.String"/>
+		<field name="payer.province" class="java.lang.String"/>
+		<field name="payer.district" class="java.lang.String"/>
+		<field name="payer.address" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="sales" class="java.util.List"/>
+	<parameter name="ROOT_DIR" class="java.lang.String"/>
+	<detail>
+		<band height="753">
+			<componentElement>
+				<reportElement x="0" y="0" width="445" height="742" uuid="79778335-8306-431c-aba2-997447e5168e"/>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="dataset1" uuid="cbe9af64-b3a9-4199-ac2a-00ba2844867b">
+						<datasetParameter name="ROOT_DIR">
+							<datasetParameterExpression><![CDATA[$P{ROOT_DIR}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($P{sales})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:listContents height="742" width="445">
+						<textField>
+							<reportElement x="0" y="124" width="406" height="44" uuid="5fd43de4-4f29-4e2c-b1f9-11cbdb518537"/>
+							<textElement>
+								<font fontName="Arial" size="11"/>
+							</textElement>
+							<textFieldExpression><![CDATA[$F{payer.firstnameResponsible}+" "+$F{payer.lastnamePaternalResponsible}+" "+$F{payer.lastnameMaternalResponsible}+"\r"+$F{payer.address}+" - "+$F{payer.district}+"\r"+$F{payer.province}+" "+$F{payer.department}]]></textFieldExpression>
+						</textField>
+						<textField pattern="&apos;Lima, &apos;dd &apos;de&apos; MMMMM &apos;de&apos; yyyy">
+							<reportElement x="263" y="12" width="172" height="15" uuid="dbba5901-6f1b-4ce4-8f78-a683a5c51cc4"/>
+							<textElement textAlignment="Right" verticalAlignment="Middle">
+								<font fontName="Arial" size="11"/>
+							</textElement>
+							<textFieldExpression><![CDATA[new Date()]]></textFieldExpression>
+						</textField>
+						<staticText>
+							<reportElement x="0" y="109" width="100" height="15" uuid="54212117-ff1c-4370-81f2-d7e38f0945e2"/>
+							<textElement>
+								<font fontName="Arial" size="11"/>
+							</textElement>
+							<text><![CDATA[Señor(a)]]></text>
+						</staticText>
+						<staticText>
+							<reportElement x="0" y="182" width="340" height="15" uuid="fd28268f-2ccd-469d-8679-ab3b0b7d44ca"/>
+							<textElement>
+								<font fontName="Arial" size="11"/>
+							</textElement>
+							<text><![CDATA[Estimado Señor(a)]]></text>
+						</staticText>
+						<image scaleImage="FillFrame">
+							<reportElement x="104" y="549" width="236" height="94" uuid="a867dc46-f966-431b-a87a-eb9fb790bbf8"/>
+							<imageExpression><![CDATA[$P{ROOT_DIR}+"signatureFalabella.jpg"]]></imageExpression>
+						</image>
+						<textField>
+							<reportElement x="0" y="211" width="435" height="320" uuid="80dbbd5c-4c64-46b8-a874-20e3f4897deb"/>
+							<textElement textAlignment="Justified" markup="styled">
+								<font fontName="Arial" size="11" isPdfEmbedded="false"/>
+							</textElement>
+							<textFieldExpression><![CDATA["\t Mediante la presente agradecemos su preferencia por haber contratado el <style isBold='true' pdfFontName='Helvetica-Bold' size='10'>Servicio de asistencia Falabella</style>, a través de <style isBold='true' pdfFontName='Helvetica-Bold' size='10'>Falabella Servicios Generales S.A.C.</style> con el respaldo del <style isBold='true' pdfFontName='Helvetica-Bold' size='10'>Grupo Especializado de Asistencia del Perú S.A.C. (GEA)</style> \r\n\n \t Porque un evento inesperado se puede presentar en cualquier momento y en cualquier lugar, este producto  garantiza un servicio integral para usted y sus beneficiarios en: asistencia médica, en el hogar, vial, viaje nacional, legal, tecnológico, servicios de coordinación de reservas y referencias de direcciones de calles de Lima y locales especializados.\r\nRecuerde que las cuotas del programa de asistencia contratado, serán cargadas automáticamente de forma mensual, sin intereses, a través de su tarjeta CMR o Visa del Banco Falabella.\n\r\t Adjunto a la presente carta encontrará la siguiente documentación que contiene información del producto adquirido:\r\n\n\t • Condiciones Generales del Producto.\r\t • Resumen de coberturas del Producto.\r\n\n\tQuedamos a su disposición frente a cualquier duda  o consulta. Lo invitamos a comunicarse con nosotros a través de nuestra central telefónica 615-6000 (Lima) ó 60-6025 (Provincias) o a visitarnos en nuestras oficinas ubicadas en Saga Falabella e Hipermercados  Tottus donde gustosamente será atendido.\r\n\n Sin otro particular quedamos a su disposición.\r\n\n Atentamente,"]]></textFieldExpression>
+						</textField>
+						<textField>
+							<reportElement x="151" y="656" width="158" height="59" uuid="d8722f21-752f-4952-9c74-dcdb2e2f3860"/>
+							<textElement textAlignment="Center">
+								<font fontName="Calibri" size="11"/>
+							</textElement>
+							<textFieldExpression><![CDATA["Daniel Benavides \r\n Gerente de Negocios \r\n Falabella Servicios Generales"]]></textFieldExpression>
+						</textField>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+		</band>
+	</detail>
+</jasperReport>

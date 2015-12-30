@@ -50,6 +50,7 @@ public class LoteEaoImpl implements LoteEao {
 		}
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Lote> findByDate(Date date) throws EaoException{
 		
 		try {

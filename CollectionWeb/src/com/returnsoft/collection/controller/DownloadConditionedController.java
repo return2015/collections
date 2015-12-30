@@ -13,6 +13,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
 import com.returnsoft.collection.entity.Notification;
@@ -46,6 +47,7 @@ public class DownloadConditionedController implements Serializable {
 	@EJB
 	private NotificationService notificationService;
 
+	@Inject
 	private FacesUtil facesUtil;
 
 	public void start() {
@@ -53,55 +55,20 @@ public class DownloadConditionedController implements Serializable {
 		try {
 
 			//System.out.println("Ingreso a start: " + code);
-			facesUtil = new FacesUtil();
-			List<Exception> errors = new ArrayList<Exception>();
+			//facesUtil = new FacesUtil();
+			//List<Exception> errors = new ArrayList<Exception>();
+			
+			if (code == null || code.length() == 0) {
+				throw new Exception();
+			}
+			
+			Sale sale = saleService.findByCode(code);
+			
+			if (sale==null || sale.getId()==null) {
+				throw new Exception();
+			}
 
-			if (code != null && code.length() > 0) {
-				
-				Sale sale = saleService.findByCode(code);
-				
-				if (sale != null && sale.getId() != null) {
 
-					BankLetterEnum bankLetterEnum = BankLetterEnum.findById(sale.getBank().getId());
-
-					if (bankLetterEnum == null) {
-						errors.add(new BankLetterNotFoundException(sale.getCode(), sale.getBank().getName()));
-					}
-					if (sale.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
-						errors.add(new SaleStateNoActiveException(sale.getCode()));
-					}
-					if (sale.getPayer().getFirstnameResponsible() == null
-							|| sale.getPayer().getFirstnameResponsible().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El nombre", sale.getCode()));
-					}
-					if (sale.getPayer().getLastnamePaternalResponsible() == null
-							|| sale.getPayer().getLastnamePaternalResponsible().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El apellido paterno", sale.getCode()));
-					}
-					if (sale.getPayer().getLastnameMaternalResponsible() == null
-							|| sale.getPayer().getLastnameMaternalResponsible().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El apellido materno", sale.getCode()));
-					}
-					if (sale.getPayer().getAddress() == null || sale.getPayer().getAddress().trim().length() == 0) {
-						errors.add(new PayerDataNullException("La dirección", sale.getCode()));
-					}
-					if (sale.getPayer().getProvince() == null || sale.getPayer().getProvince().trim().length() == 0) {
-						errors.add(new PayerDataNullException("La provincia", sale.getCode()));//
-					}
-					if (sale.getPayer().getDepartment() == null
-							|| sale.getPayer().getDepartment().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El departamento", sale.getCode()));//
-					}
-					if (sale.getPayer().getDistrict() == null || sale.getPayer().getDistrict().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El distrito", sale.getCode()));//
-					}
-
-					// VALIDA SI LA VENTA NO ESTA ACTIVA
-					if (errors.size() > 0) {
-						for (Exception e : errors) {
-							facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						}
-					} else {
 
 						ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance()
 								.getExternalContext().getContext();
@@ -138,11 +105,7 @@ public class DownloadConditionedController implements Serializable {
 							notification.setAnsweringAt(new Date());
 							notificationService.update(notification);
 						}
-						
-					}
-					
-				}
-			}
+				
 			
 		} catch (Exception e) {
 			e.printStackTrace();

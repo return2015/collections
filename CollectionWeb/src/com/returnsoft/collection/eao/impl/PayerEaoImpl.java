@@ -49,7 +49,7 @@ public class PayerEaoImpl implements PayerEao{
 			throw new EaoException(e);
 		}
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Payer> findBySaleId(Long saleId) throws EaoException{
 		try {
 			

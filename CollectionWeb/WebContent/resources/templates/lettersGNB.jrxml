@@ -4,9 +4,6 @@
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<subDataset name="dataset1" uuid="af60f308-471f-4fd0-8899-874307da6580">
-		<parameter name="signature2" class="java.lang.String">
-			<defaultValueExpression><![CDATA[]]></defaultValueExpression>
-		</parameter>
 		<parameter name="ROOT_DIR" class="java.lang.String"/>
 		<queryString>
 			<![CDATA[]]>
@@ -18,9 +15,7 @@
 		<field name="payer.province" class="java.lang.String"/>
 		<field name="payer.district" class="java.lang.String"/>
 		<field name="payer.address" class="java.lang.String"/>
-		<field name="commerce.bank.id" class="java.lang.Short"/>
 	</subDataset>
-	<parameter name="signature" class="java.lang.String"/>
 	<parameter name="sales" class="java.util.List"/>
 	<parameter name="ROOT_DIR" class="java.lang.String"/>
 	<detail>
@@ -29,9 +24,6 @@
 				<reportElement x="0" y="0" width="445" height="742" uuid="79778335-8306-431c-aba2-997447e5168e"/>
 				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
 					<datasetRun subDataset="dataset1" uuid="cbe9af64-b3a9-4199-ac2a-00ba2844867b">
-						<datasetParameter name="signature2">
-							<datasetParameterExpression><![CDATA[$P{signature}]]></datasetParameterExpression>
-						</datasetParameter>
 						<datasetParameter name="ROOT_DIR">
 							<datasetParameterExpression><![CDATA[$P{ROOT_DIR}]]></datasetParameterExpression>
 						</datasetParameter>
@@ -68,16 +60,14 @@
 						</staticText>
 						<image scaleImage="RealSize">
 							<reportElement x="119" y="585" width="200" height="143" uuid="a867dc46-f966-431b-a87a-eb9fb790bbf8"/>
-							<imageExpression><![CDATA[($F{commerce.bank.id}==5)?$P{ROOT_DIR}+"signatureFalabella.jpg":($F{commerce.bank.id}==3)?$P{ROOT_DIR}+"signatureGNB.jpg":""]]></imageExpression>
+							<imageExpression><![CDATA[$P{ROOT_DIR}+"signatureGNB.jpg"]]></imageExpression>
 						</image>
 						<textField>
 							<reportElement x="0" y="211" width="435" height="374" uuid="80dbbd5c-4c64-46b8-a874-20e3f4897deb"/>
 							<textElement textAlignment="Justified" markup="styled">
 								<font fontName="Arial" size="11" isPdfEmbedded="false"/>
 							</textElement>
-							<textFieldExpression><![CDATA[($F{commerce.bank.id}==5)?"\t Mediante la presente agradecemos su preferencia por haber contratado el <style isBold='true' pdfFontName='Helvetica-Bold' size='10'>Servicio de asistencia Falabella</style>, a través de <style isBold='true' pdfFontName='Helvetica-Bold' size='10'>Falabella Servicios Generales S.A.C.</style> con el respaldo del <style isBold='true' pdfFontName='Helvetica-Bold' size='10'>Grupo Especializado de Asistencia del Perú S.A.C. (GEA)</style> \r\n\n \t Porque un evento inesperado se puede presentar en cualquier momento y en cualquier lugar, este producto  garantiza un servicio integral para usted y sus beneficiarios en: asistencia médica, en el hogar, vial, viaje nacional, legal, tecnológico, servicios de coordinación de reservas y referencias de direcciones de calles de Lima y locales especializados.\r\nRecuerde que las cuotas del programa de asistencia contratado, serán cargadas automáticamente de forma mensual, sin intereses, a través de su tarjeta CMR o Visa del Banco Falabella.\n\r\t Adjunto a la presente carta encontrará la siguiente documentación que contiene información del producto adquirido:\r\n\n\t • Condiciones Generales del Producto.\r\t • Resumen de coberturas del Producto.\r\n\n\tQuedamos a su disposición frente a cualquier duda  o consulta. Lo invitamos a comunicarse con nosotros a través de nuestra central telefónica 615-6000 (Lima) ó 60-6025 (Provincias) o a visitarnos en nuestras oficinas ubicadas en Saga Falabella e Hipermercados  Tottus donde gustosamente será atendido.\r\n\n Sin otro particular quedamos a su disposición.\r\n\n Atentamente,"
-:($F{commerce.bank.id}==3)?"\t Mediante la presente agradecemos su preferencia por haber contratado el <style isBold='true' pdfFontName='Helvetica-Bold' size='10'>Servicio de asistencia Banco GNB</style>, con el respaldo del <style isBold='true' pdfFontName='Helvetica-Bold' size='10'>Grupo Especializado de Asistencia del Perú S.A.C. (GEA)</style> \r\n\n \t Porque un evento inesperado se puede presentar en cualquier momento y en cualquier lugar, este producto  garantiza un servicio integral para usted y sus beneficiarios en diversos servicios asistenciales, tales como: asistencia médica, en el hogar, vial, entre otros.\n\r\t Adjunto a la presente carta encontrará la siguiente documentación que contiene información del producto adquirido:\r\n\n\t • Condiciones Generales del Producto.\r\t • Resumen de coberturas del Producto.\r\n\n\t Quedamos a su disposición frente a cualquier duda  o consulta. Lo invitamos a comunicarse con nosotros a través de nuestra central telefónica en Lima al 634-4516 ó en Provincias al 0-800-0-0679, donde gustosamente lo atenderemos.\r\n\n Sin otro particular quedamos a su disposición.\r\n\n Atentamente,"
-:""]]></textFieldExpression>
+							<textFieldExpression><![CDATA["\t Mediante la presente agradecemos su preferencia por haber contratado el <style isBold='true' pdfFontName='Helvetica-Bold' size='10'>Servicio de asistencia Banco GNB</style>, con el respaldo del <style isBold='true' pdfFontName='Helvetica-Bold' size='10'>Grupo Especializado de Asistencia del Perú S.A.C. (GEA)</style> \r\n\n \t Porque un evento inesperado se puede presentar en cualquier momento y en cualquier lugar, este producto  garantiza un servicio integral para usted y sus beneficiarios en diversos servicios asistenciales, tales como: asistencia médica, en el hogar, vial, entre otros.\n\r\t Adjunto a la presente carta encontrará la siguiente documentación que contiene información del producto adquirido:\r\n\n\t • Condiciones Generales del Producto.\r\t • Resumen de coberturas del Producto.\r\n\n\t Quedamos a su disposición frente a cualquier duda  o consulta. Lo invitamos a comunicarse con nosotros a través de nuestra central telefónica en Lima al 634-4516 ó en Provincias al 0-800-0-0679, donde gustosamente lo atenderemos.\r\n\n Sin otro particular quedamos a su disposición.\r\n\n Atentamente,"]]></textFieldExpression>
 						</textField>
 					</jr:listContents>
 				</jr:list>

@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -53,7 +55,7 @@ public class CollectionEaoImpl implements CollectionEao {
 	
 	
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public String getMaxCollectionIdByProduct(Short productId) throws EaoException{
 		try {
 			
@@ -77,7 +79,7 @@ public class CollectionEaoImpl implements CollectionEao {
 		}
 	}
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Collection> findBySaleId(Long saleId) throws EaoException{
 		try {
 			
@@ -97,7 +99,7 @@ public class CollectionEaoImpl implements CollectionEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Collection> findAllowsBySaleId(Long saleId) throws EaoException{
 		try {
 			
@@ -121,7 +123,7 @@ public class CollectionEaoImpl implements CollectionEao {
 	}
 	
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Collection> findByResponseAndAuthorizationDay(CollectionResponseEnum responseMessage, Date authorizationDate, String saleCode) throws EaoException{
 		
 		try {
@@ -146,7 +148,7 @@ public class CollectionEaoImpl implements CollectionEao {
 			throw new EaoException(e.getMessage());
 		}
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Collection> findByResponseAndAuthorizationMonth(CollectionResponseEnum responseMessage,Date authorizationDate, String saleCode) throws EaoException{
 		
 		//System.out.println("findByResponseAndAuthorizationMonth.......................");
@@ -178,7 +180,7 @@ public class CollectionEaoImpl implements CollectionEao {
 	}
 
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Collection findByReceiptNumber(String receiptNumber) throws EaoException{
 		try {
 			

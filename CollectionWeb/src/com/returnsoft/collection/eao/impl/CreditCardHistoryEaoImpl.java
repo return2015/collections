@@ -3,6 +3,8 @@ package com.returnsoft.collection.eao.impl;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -19,6 +21,7 @@ public class CreditCardHistoryEaoImpl implements CreditCardHistoryEao{
 	private EntityManager em;
 
 	@Override
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<CreditCardHistory> findBySaleId(Long saleId) throws EaoException {
 		try {
 			

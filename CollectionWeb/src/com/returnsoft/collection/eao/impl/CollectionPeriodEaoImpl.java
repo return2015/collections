@@ -3,6 +3,8 @@ package com.returnsoft.collection.eao.impl;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -17,7 +19,7 @@ public class CollectionPeriodEaoImpl implements CollectionPeriodEao{
 	
 	@PersistenceContext
 	private EntityManager em;
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public CollectionPeriod findById(Short collectionPeriodId) throws EaoException{
 		try {
 			
@@ -33,7 +35,7 @@ public class CollectionPeriodEaoImpl implements CollectionPeriodEao{
 		}
 		
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<CollectionPeriod> getAll() throws EaoException {
 		try {
 

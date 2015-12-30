@@ -3,6 +3,8 @@ package com.returnsoft.collection.eao.impl;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -18,6 +20,7 @@ public class PayerHistoryEaoImpl implements PayerHistoryEao {
 	private EntityManager em;
 
 	@Override
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<PayerHistory> findBySaleId(Long saleId) throws EaoException {
 		try {
 			String query = "SELECT ph FROM PayerHistory ph  WHERE ph.id = :saleId ";

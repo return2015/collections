@@ -14,6 +14,14 @@
 			<f:viewAction action="#{searchSalesController.initialize}" />
 		</f:metadata>
 	</ui:define>
+	
+	<ui:define name="library">
+
+		<h:outputStylesheet library="css"
+			name="search_sales_for_notifications.css" />
+
+
+	</ui:define>
 
 	<ui:define name="content">
 		<!-- 
@@ -33,7 +41,7 @@
 
 		<div class="title ui-widget-header ui-corner-all">
 			<h:panelGrid columns="2" style="margin:auto;">
-		BUSCAR VENTAS 
+		GESTIÓN DE VENTAS 
 			</h:panelGrid>
 
 		</div>
@@ -42,25 +50,24 @@
 			<p:messages id="messages" showDetail="true"></p:messages>
 		</h:panelGrid>
 
-		<h:panelGrid style="margin:auto;">
+		<h:panelGrid >
 			<h:form id="form" prependId="false">
 
 
-				<h:panelGrid columns="3">
-					<h:panelGrid columns="2">
+				<h:panelGrid columns="3" rowClasses="panelgrid_center_row">
+					<h:panelGrid columns="2" >
 						<p:outputLabel value="Tipo Búsqueda:"></p:outputLabel>
 						<p:selectOneMenu id="searchType"
 							value="#{searchSalesController.searchTypeSelected}"
 							required="true"
 							requiredMessage="Debe seleccionar tipo de búsqueda">
-							<f:selectItem itemLabel="Seleccione..." itemValue="" />
 							<f:selectItems value="#{searchSalesController.searchTypes}"></f:selectItems>
 							<p:ajax
 								update=":form:searchDataOut :form:personalDataOut :messages"></p:ajax>
 						</p:selectOneMenu>
 					</h:panelGrid>
 					<h:panelGroup id="searchDataOut">
-						<h:panelGrid columns="4"
+						<h:panelGrid columns="6"
 							rendered="#{searchSalesController.searchTypeSelected=='saleData'}">
 
 							<p:outputLabel value="F. Venta Desde:"></p:outputLabel>
@@ -71,11 +78,7 @@
 								pattern="dd-MM-yyyy"></p:calendar>
 
 
-							<p:outputLabel value="F. Venta Hasta:"></p:outputLabel>
-							<p:calendar navigator="true"
-								value="#{searchSalesController.dateOfSaleEnded}" required="true"
-								requiredMessage="Debe ingresar fecha venta hasta:"
-								pattern="dd-MM-yyyy"></p:calendar>
+							
 
 
 							<p:outputLabel value="Banco:"></p:outputLabel>
@@ -85,18 +88,26 @@
 								<f:selectItems value="#{searchSalesController.banks}"></f:selectItems>
 							</p:selectOneMenu>
 
-							<p:outputLabel value="Producto:"></p:outputLabel>
-							<p:selectOneMenu id="product"
-								value="#{searchSalesController.productSelected}">
-								<f:selectItem itemLabel="Seleccione..." itemValue="" />
-								<f:selectItems value="#{searchSalesController.products}"></f:selectItems>
-							</p:selectOneMenu>
-
 							<p:outputLabel value="Estado:"></p:outputLabel>
 							<p:selectOneMenu id="state"
 								value="#{searchSalesController.saleStateSelected}">
 								<f:selectItem itemLabel="Seleccione..." itemValue="" />
 								<f:selectItems value="#{searchSalesController.saleStates}"></f:selectItems>
+							</p:selectOneMenu>
+							
+							<p:outputLabel value="F. Venta Hasta:"></p:outputLabel>
+							<p:calendar navigator="true"
+								value="#{searchSalesController.dateOfSaleEnded}" required="true"
+								requiredMessage="Debe ingresar fecha venta hasta:"
+								pattern="dd-MM-yyyy"></p:calendar>
+
+							
+							
+							<p:outputLabel value="Producto:"></p:outputLabel>
+							<p:selectOneMenu id="product"
+								value="#{searchSalesController.productSelected}">
+								<f:selectItem itemLabel="Seleccione..." itemValue="" />
+								<f:selectItems value="#{searchSalesController.products}"></f:selectItems>
 							</p:selectOneMenu>
 
 						</h:panelGrid>
@@ -210,7 +221,7 @@
 				</h:panelGrid>
 				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
 					<p:commandButton actionListener="#{searchSalesController.search}"
-						value="Buscar" process="@form" update=":formTable:searchTable :formTable:saleId :formTable:salesCount :messages">
+						value="Buscar" process="@form" update=":formTable:searchTable :formTable:saleId :messages">
 					</p:commandButton>
 
 					<p:commandButton action="#{searchSalesController.exportTxt}"
@@ -229,11 +240,6 @@
 				<p:outputLabel id="saleId"
 					value="Venta seleccionada: #{searchSalesController.saleSelected!=null?searchSalesController.saleSelected.code:''}">
 				</p:outputLabel>
-				<h:panelGrid style="width:100%;">
-					<p:outputLabel id="salesCount"
-						value="Se encontraron #{searchSalesController.salesCount} ventas.">
-					</p:outputLabel>
-				</h:panelGrid>
 			</h:panelGrid>
 
 

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="plantillaFalabella" language="groovy" pageWidth="595" pageHeight="841" columnWidth="425" leftMargin="85" rightMargin="85" topMargin="30" bottomMargin="0" uuid="bc7a153f-e446-477a-b9d6-b75b03d25dfa">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="952"/>
+	<parameter name="names" class="java.lang.String"/>
+	<parameter name="ROOT_DIR" class="java.lang.String"/>
+	<parameter name="address" class="java.lang.String"/>
+	<parameter name="department" class="java.lang.String"/>
+	<detail>
+		<band height="811">
+			<staticText>
+				<reportElement x="0" y="90" width="47" height="15" uuid="fd28268f-2ccd-469d-8679-ab3b0b7d44ca"/>
+				<textElement>
+					<font fontName="Calibri" size="9"/>
+				</textElement>
+				<text><![CDATA[Señor(a)]]></text>
+			</staticText>
+			<image scaleImage="FillFrame">
+				<reportElement x="89" y="539" width="272" height="172" uuid="a867dc46-f966-431b-a87a-eb9fb790bbf8"/>
+				<imageExpression><![CDATA[$P{ROOT_DIR}+"signatureGNB.jpg"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="0" y="202" width="425" height="270" uuid="80dbbd5c-4c64-46b8-a874-20e3f4897deb"/>
+				<textElement textAlignment="Justified" markup="styled">
+					<font fontName="Arial" size="9" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="1_1_2" lineSpacingSize="1.0"/>
+				</textElement>
+				<textFieldExpression><![CDATA["\t Mediante la presente agradecemos su preferencia por haber contratado el <style isBold='true' pdfFontName='Helvetica-Bold' size='9'>Servicio de Asistencia BANCO GNB</style>, con el respaldo del <style isBold='true' pdfFontName='Helvetica-Bold' size='9'>Grupo Especializado de Asistencia del Perú S.A.C.(GEA)</style> \r\n\n \t Porque un evento inesperado se puede presentar en cualquier momento y en cualquier lugar, este producto  garantiza un servicio integral para usted y sus beneficiarios en diversos servicios asistenciales, tales como: asistencia médica, en el hogar, vial, entre otros.\n\r\t Adjunto a la presente carta encontrará la siguiente documentación que contiene información del producto adquirido:\r\n\n\t •  Condiciones Generales del Producto.\r\t •  Resumen de coberturas del Producto.\r\n\n\tQuedamos a su disposición frente a cualquier duda  o consulta. Lo invitamos a comunicarse con nosotros a través de nuestra central telefónica en Lima al 634-4516 ó en Provincias al 0-800-0-0679, donde gustosamente lo atenderemos.\r\n\n \t Sin otro particular quedamos a su disposición.\r\n\n \t\t Atentamente,"]]></textFieldExpression>
+			</textField>
+			<textField pattern="&apos;Lima, &apos; MMMMM &apos;de&apos; yyyy">
+				<reportElement x="253" y="42" width="172" height="15" uuid="dbba5901-6f1b-4ce4-8f78-a683a5c51cc4"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Calibri" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="105" width="425" height="15" uuid="5fd43de4-4f29-4e2c-b1f9-11cbdb518537"/>
+				<textElement>
+					<font fontName="Calibri" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{names}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="FillFrame">
+				<reportElement x="-78" y="-25" width="125" height="50" uuid="5ba06e4a-d6b4-4157-b922-6aa6011c7605"/>
+				<imageExpression><![CDATA[$P{ROOT_DIR}+"logoGEA.jpg"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="0" y="754" width="425" height="46" forecolor="#999999" uuid="54ae2b16-e995-4358-92b2-f53d3985d8a7"/>
+				<textElement textAlignment="Center">
+					<font fontName="Calibri" size="9"/>
+					<paragraph lineSpacing="1_1_2"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Av. República de Colombia 643 Edif. De Las Naciones Piso 11 San Isidro \r\n Teléfonos: 511-6164500 \r\n www.geainternacional.com"]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="37" width="425" height="1" forecolor="#666666" uuid="0bde9efe-e34c-411d-ae32-b0260ab7be0c"/>
+				<graphicElement>
+					<pen lineWidth="5.0"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement x="0" y="120" width="425" height="15" uuid="db81e0cd-9d9c-438d-96e7-f969cf2fc70c"/>
+				<textElement>
+					<font fontName="Calibri" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{address}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="135" width="425" height="15" uuid="d93e8153-89fb-444c-8f0f-ee102d37eb97"/>
+				<textElement>
+					<font fontName="Calibri" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{department}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="168" width="89" height="15" uuid="a1e65703-ab5f-4d5e-9bf4-5cd4635b8416"/>
+				<textElement>
+					<font fontName="Calibri" size="9"/>
+				</textElement>
+				<text><![CDATA[Estimado señor(a)]]></text>
+			</staticText>
+		</band>
+	</detail>
+</jasperReport>

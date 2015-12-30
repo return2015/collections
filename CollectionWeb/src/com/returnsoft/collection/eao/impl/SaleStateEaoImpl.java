@@ -44,7 +44,7 @@ public class SaleStateEaoImpl implements SaleStateEao {
 		}
 	}
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<SaleState> findBySaleId(Long saleId) throws EaoException{
 		try {
 			

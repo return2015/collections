@@ -7,6 +7,8 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -21,6 +23,7 @@ import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.EaoException;
 
 @Stateless
+//@TransactionManagement(TransactionManagementType.CONTAINER)
 public class SaleEaoImpl implements SaleEao {
 	
 	@PersistenceContext
@@ -89,7 +92,8 @@ public class SaleEaoImpl implements SaleEao {
 		}
 	}
 	
-	
+	//@TransactionAttribute(TransactionAttributeType.MANDATORY)
+	//@TransactionAttribute(TransactionAttributeType.REQUIRED)
 	public Sale update(Sale sale) throws EaoException{
 		try {
 			
@@ -104,7 +108,7 @@ public class SaleEaoImpl implements SaleEao {
 			throw new EaoException(e.getMessage());
 		}
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAt, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification)  throws EaoException {
 		try {
 			
@@ -112,6 +116,7 @@ public class SaleEaoImpl implements SaleEao {
 					+ "left join fetch s.saleState ss "
 					//+ "left join s.commerce c "
 					+ "left join fetch s.payer p "
+					+ "left join fetch s.creditCard cc "
 					+ "left join s.bank b "
 					+ "left join s.notification n "
 					+ "WHERE s.date between :saleDateStartedAt and :saleDateEndedAt ";
@@ -188,14 +193,16 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findForNotificationsLimit(Date saleDateStartedAt,Date saleDateEndedAt, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification, Integer first, Integer limit)  throws EaoException {
 		try {
 			
 			String query = "SELECT s FROM Sale s "
 					+ "left join fetch s.saleState ss "
 					//+ "left join s.commerce c "
+					+ "left join fetch s.creditCard cc "
 					+ "left join fetch s.payer p "
+					
 					+ "left join fetch s.bank b "
 					+ "left join s.notification n "
 					+ "WHERE s.date between :saleDateStartedAt and :saleDateEndedAt ";
@@ -273,13 +280,14 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Long findForNotificationsCount(Date saleDateStartedAt,Date saleDateEndedAt, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification)  throws EaoException {
 		try {
 			
 			String query = "SELECT count(s.id) FROM Sale s "
 					+ "left join fetch s.saleState ss "
 					//+ "left join s.commerce c "
+					+ "left join fetch s.creditCard cc "
 					+ "left join fetch s.payer p "
 					+ "left join s.bank b "
 					+ "left join s.notification n "
@@ -356,7 +364,7 @@ public class SaleEaoImpl implements SaleEao {
 
 	}
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,
 			Short bankId, Short productId, SaleStateEnum saleState)  throws EaoException {
 		try {
@@ -411,7 +419,7 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findBySaleDataLimit(Date saleDateStartedAt,Date saleDateEndedAt,
 			Short bankId, Short productId, SaleStateEnum saleState, Integer first, Integer limit)  throws EaoException {
 		try {
@@ -468,7 +476,7 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Long findBySaleDataCount(Date saleDateStartedAt,Date saleDateEndedAt,
 			Short bankId, Short productId, SaleStateEnum saleState)  throws EaoException {
 		try {
@@ -526,7 +534,7 @@ public class SaleEaoImpl implements SaleEao {
 
 	}
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Sale findByCode(String code) throws EaoException{
 		try {
 			
@@ -550,7 +558,7 @@ public class SaleEaoImpl implements SaleEao {
 	}
 	
 		
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Sale findById(Long id) throws EaoException{
 		try {
 			
@@ -567,7 +575,7 @@ public class SaleEaoImpl implements SaleEao {
 
 	}
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Boolean checkExistSale(Integer nuicInsured, Date dateOfSale, Short bankId, Short productId, Short collectionPeriodId) throws EaoException{
 		
 		try {
@@ -607,7 +615,7 @@ public class SaleEaoImpl implements SaleEao {
 	}
 	
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNuicResponsible(Long nuicResponsible) throws EaoException {
 		try {
 			
@@ -627,6 +635,7 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNuicResponsibleLimit(Long nuicResponsible, Integer first, Integer limit) throws EaoException {
 		try {
 			
@@ -647,7 +656,7 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Long findByNuicResponsibleCount(Long nuicResponsible) throws EaoException {
 		try {
 			
@@ -667,6 +676,7 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNamesResponsible(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible) throws EaoException{
 		try {
 			
@@ -714,7 +724,7 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNamesResponsibleLimit(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible, Integer first, Integer limit) throws EaoException{
 		try {
 			
@@ -764,7 +774,7 @@ public class SaleEaoImpl implements SaleEao {
 
 	}
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Long findByNamesResponsibleCount(Long nuicResponsible, String firstnameResponsible, String lastnamePaternalResponsible, String lastnameMaternalResponsible) throws EaoException{
 		try {
 			
@@ -813,7 +823,7 @@ public class SaleEaoImpl implements SaleEao {
 
 	}
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNamesInsured(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured) throws EaoException{
 		try {
 			
@@ -858,6 +868,8 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
+	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNamesInsuredLimit(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured, Integer first, Integer limit) throws EaoException{
 		try {
 			
@@ -904,7 +916,7 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Long findByNamesInsuredCount(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured, String lastnameMaternalInsured) throws EaoException{
 		try {
 			
@@ -950,7 +962,7 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNamesContractor(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws EaoException{
 		try {
 			
@@ -995,7 +1007,7 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNamesContractorLimit(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor, Integer first, Integer limit) throws EaoException{
 		try {
 			
@@ -1042,7 +1054,7 @@ public class SaleEaoImpl implements SaleEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Long findByNamesContractorCount(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws EaoException{
 		try {
 			

@@ -30,7 +30,7 @@
 
 		<div class="title ui-widget-header ui-corner-all">
 			<h:panelGrid style="margin:auto;">
-		BUSCAR VENTAS PARA GESTIONAR NOTIFICACIONES
+		GESTIÓN DE NOTIFICACIONES
 		</h:panelGrid>
 
 		</div>
@@ -195,8 +195,8 @@
 				</p:commandButton>
 
 				<p:commandButton
-					action="#{searchSalesForNotificationsController.exportCSV}"
-					value="Exportar" process="@form" ajax="false">
+					action="#{searchSalesForNotificationsController.exportTxt}"
+					value="Exportar a Txt" process="@form" ajax="false">
 				</p:commandButton>
 
 			</h:panelGrid>

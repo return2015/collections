@@ -1,10 +1,8 @@
 package com.returnsoft.collection.controller;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -13,6 +11,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.servlet.ServletContext;
 
 import com.returnsoft.collection.entity.Notification;
@@ -54,6 +53,7 @@ public class DownloadLetterController implements Serializable {
 	@EJB
 	private NotificationService notificationService;
 
+	@Inject
 	private FacesUtil facesUtil;
 
 	public void start() {
@@ -61,96 +61,107 @@ public class DownloadLetterController implements Serializable {
 		try {
 
 			//System.out.println("Ingreso a start: " + code);
-			facesUtil = new FacesUtil();
-			List<Exception> errors = new ArrayList<Exception>();
-
-			if (code != null && code.length() > 0) {
-				Sale sale = saleService.findByCode(code);
-				if (sale != null && sale.getId() != null) {
-
-					BankLetterEnum bankLetterEnum = BankLetterEnum.findById(sale.getBank().getId());
-
-					if (bankLetterEnum == null) {
-						errors.add(new BankLetterNotFoundException(sale.getCode(), sale.getBank().getName()));
-					}
-					if (sale.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
-						errors.add(new SaleStateNoActiveException(sale.getCode()));
-					}
-					if (sale.getPayer().getFirstnameResponsible() == null
-							|| sale.getPayer().getFirstnameResponsible().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El nombre", sale.getCode()));
-					}
-					if (sale.getPayer().getLastnamePaternalResponsible() == null
-							|| sale.getPayer().getLastnamePaternalResponsible().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El apellido paterno", sale.getCode()));
-					}
-					if (sale.getPayer().getLastnameMaternalResponsible() == null
-							|| sale.getPayer().getLastnameMaternalResponsible().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El apellido materno", sale.getCode()));
-					}
-					if (sale.getPayer().getAddress() == null || sale.getPayer().getAddress().trim().length() == 0) {
-						errors.add(new PayerDataNullException("La dirección", sale.getCode()));
-					}
-					if (sale.getPayer().getProvince() == null || sale.getPayer().getProvince().trim().length() == 0) {
-						errors.add(new PayerDataNullException("La provincia", sale.getCode()));//
-					}
-					if (sale.getPayer().getDepartment() == null
-							|| sale.getPayer().getDepartment().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El departamento", sale.getCode()));//
-					}
-					if (sale.getPayer().getDistrict() == null || sale.getPayer().getDistrict().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El distrito", sale.getCode()));//
-					}
-
-					// VALIDA SI LA VENTA NO ESTA ACTIVA
-					if (errors.size() > 0) {
-						for (Exception e : errors) {
-							facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-						}
-					} else {
-
-						Map<String, Object> parameters = new HashMap<String, Object>();
-
-						ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance()
-								.getExternalContext().getContext();
-						String separator = System.getProperty("file.separator");
-						String rootPath = servletContext.getRealPath(separator);
-						String fileName = rootPath + "resources" + separator + "templates" + separator + "letters_2.jrxml";
-						String rootDir = rootPath + "resources" + separator + "templates" + separator;
-
-						parameters.put("names",sale.getPayer().getFirstnameResponsible() + " "
-										+ sale.getPayer().getLastnamePaternalResponsible() + " "
-										+ sale.getPayer().getLastnameMaternalResponsible());
-						parameters.put("ROOT_DIR", rootDir);
-						parameters.put(JRParameter.REPORT_LOCALE, new Locale("es", "pe"));
-						System.out.println(rootDir);
-
-						JasperReport report = JasperCompileManager.compileReport(fileName);
-						JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
-
-						FacesContext facesContext = FacesContext.getCurrentInstance();
-						ExternalContext externalContext = facesContext.getExternalContext();
-						externalContext.setResponseContentType("application/pdf");
-						externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"cartas.pdf\"");
-
-						JasperExportManager.exportReportToPdfStream(print, externalContext.getResponseOutputStream());
-						facesContext.responseComplete();
-						
-						Notification notification = sale.getNotification();
-						if (notification.getType().equals(NotificationTypeEnum.MAIL)
-								&& notification.getState().equals(NotificationStateEnum.SENDING)) {
-							notification.setState(NotificationStateEnum.DELIVERED);
-							notification.setAnsweringAt(new Date());
-							notificationService.update(notification);
-						}
-						
-						
-
-					}
-
-				}
+			//facesUtil = new FacesUtil();
+			//List<Exception> errors = new ArrayList<Exception>();
+			
+			if (code == null || code.length() == 0) {
+				throw new Exception();
 			}
-			// return null;
+			
+			Sale sale = saleService.findByCode(code);
+			
+			if (sale==null || sale.getId()==null) {
+				throw new Exception();
+			}
+			
+			if (sale.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
+				throw new SaleStateNoActiveException(sale.getCode());
+			}
+			if (sale.getPayer().getFirstnameResponsible() == null
+					|| sale.getPayer().getFirstnameResponsible().trim().length() == 0) {
+				throw new PayerDataNullException("El nombre", sale.getCode());
+			}
+			if (sale.getPayer().getLastnamePaternalResponsible() == null
+					|| sale.getPayer().getLastnamePaternalResponsible().trim().length() == 0) {
+				throw new PayerDataNullException("El apellido paterno", sale.getCode());
+			}
+			if (sale.getPayer().getLastnameMaternalResponsible() == null
+					|| sale.getPayer().getLastnameMaternalResponsible().trim().length() == 0) {
+				throw new PayerDataNullException("El apellido materno", sale.getCode());
+			}
+			if (sale.getPayer().getAddress() == null || sale.getPayer().getAddress().trim().length() == 0) {
+				throw new PayerDataNullException("La dirección", sale.getCode());
+			}
+			if (sale.getPayer().getProvince() == null || sale.getPayer().getProvince().trim().length() == 0) {
+				throw new PayerDataNullException("La provincia", sale.getCode());//
+			}
+			if (sale.getPayer().getDepartment() == null
+					|| sale.getPayer().getDepartment().trim().length() == 0) {
+				throw new PayerDataNullException("El departamento", sale.getCode());//
+			}
+			if (sale.getPayer().getDistrict() == null || sale.getPayer().getDistrict().trim().length() == 0) {
+				throw new PayerDataNullException("El distrito", sale.getCode());//
+			}
+			
+			if (sale.getBank()==null || sale.getBank().getId()==null) {
+				throw new Exception();
+			}
+			
+			BankLetterEnum bankLetterEnum = BankLetterEnum.findById(sale.getBank().getId());
+			
+			if (bankLetterEnum==null) {
+				throw new BankLetterNotFoundException(sale.getBank().getName());
+			}
+			
+			Map<String, Object> parameters = new HashMap<String, Object>();
+
+			ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance()
+					.getExternalContext().getContext();
+			String separator = System.getProperty("file.separator");
+			String rootPath = servletContext.getRealPath(separator);
+			String rootDir = rootPath + "resources" + separator + "templates" + separator;
+			
+			String fileName = "";
+			if (bankLetterEnum.equals(BankLetterEnum.FALABELLA)) {
+				fileName = rootDir + "letterFalabella.jrxml";
+				parameters.put("names",sale.getPayer().getFirstnameResponsible() + " "
+						+ sale.getPayer().getLastnamePaternalResponsible() + " "
+						+ sale.getPayer().getLastnameMaternalResponsible());
+				
+			}else if(bankLetterEnum.equals(BankLetterEnum.GNB)) {
+				fileName = rootDir + "letterGNB.jrxml";
+				parameters.put("names",sale.getPayer().getFirstnameResponsible() + " "
+						+ sale.getPayer().getLastnamePaternalResponsible() + " "
+						+ sale.getPayer().getLastnameMaternalResponsible());
+				parameters.put("address",sale.getPayer().getAddress());
+				parameters.put("department",sale.getPayer().getDepartment()+ " - " +sale.getPayer().getProvince());
+			}
+
+			
+			parameters.put("ROOT_DIR", rootDir);
+			parameters.put(JRParameter.REPORT_LOCALE, new Locale("es", "pe"));
+			//System.out.println(rootDir);
+
+			JasperReport report = JasperCompileManager.compileReport(fileName);
+			JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+			ExternalContext externalContext = facesContext.getExternalContext();
+			externalContext.setResponseContentType("application/pdf");
+			externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"Carta.pdf\"");
+
+			JasperExportManager.exportReportToPdfStream(print, externalContext.getResponseOutputStream());
+			facesContext.responseComplete();
+			
+			Notification notification = sale.getNotification();
+			if (notification.getType().equals(NotificationTypeEnum.MAIL)
+					&& notification.getState().equals(NotificationStateEnum.SENDING)) {
+				notification.setState(NotificationStateEnum.DELIVERED);
+				notification.setAnsweringAt(new Date());
+				notificationService.update(notification);
+			}
+			
+
 
 		} catch (Exception e) {
 			e.printStackTrace();

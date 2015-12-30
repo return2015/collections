@@ -3,6 +3,8 @@ package com.returnsoft.collection.eao.impl;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -17,7 +19,7 @@ public class CommerceEaoImpl implements CommerceEao {
 	
 	@PersistenceContext
 	private EntityManager em;
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Commerce findById(Short id) throws EaoException{
 		try {
 			
@@ -33,7 +35,7 @@ public class CommerceEaoImpl implements CommerceEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Short findIdById(Short commerceId) throws EaoException{
 		try {
 			TypedQuery<Short> q = em.createQuery("SELECT c.id FROM Commerce c where c.id=:commerceId",Short.class);
@@ -49,7 +51,7 @@ public class CommerceEaoImpl implements CommerceEao {
 	}
 	
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Commerce> findByBankId(Short bankId) throws EaoException{
 		try {
 			TypedQuery<Commerce> q = em.createQuery(

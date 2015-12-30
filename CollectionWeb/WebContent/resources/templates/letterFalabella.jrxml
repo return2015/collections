@@ -2,7 +2,7 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="plantillaFalabella" language="groovy" pageWidth="595" pageHeight="841" columnWidth="425" leftMargin="85" rightMargin="85" topMargin="30" bottomMargin="0" uuid="bc7a153f-e446-477a-b9d6-b75b03d25dfa">
 	<property name="ireport.zoom" value="2.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="48"/>
+	<property name="ireport.y" value="1240"/>
 	<parameter name="names" class="java.lang.String"/>
 	<parameter name="ROOT_DIR" class="java.lang.String"/>
 	<detail>
@@ -15,8 +15,8 @@
 				<text><![CDATA[Estimado Señor(a)]]></text>
 			</staticText>
 			<image scaleImage="FillFrame">
-				<reportElement x="0" y="560" width="136" height="84" uuid="a867dc46-f966-431b-a87a-eb9fb790bbf8"/>
-				<imageExpression><![CDATA[$P{ROOT_DIR}+"signatureFalabella2.jpg"]]></imageExpression>
+				<reportElement x="0" y="575" width="136" height="69" uuid="a867dc46-f966-431b-a87a-eb9fb790bbf8"/>
+				<imageExpression><![CDATA[$P{ROOT_DIR}+"signatureFalabella.jpg"]]></imageExpression>
 			</image>
 			<textField>
 				<reportElement x="0" y="164" width="425" height="370" uuid="80dbbd5c-4c64-46b8-a874-20e3f4897deb"/>

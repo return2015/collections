@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -34,7 +36,7 @@ public class RepaymentEaoImpl implements RepaymentEao {
 			throw new EaoException(e);
 		}
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Repayment> findBySaleId(Long saleId) throws EaoException{
 		try {
 			
@@ -54,7 +56,7 @@ public class RepaymentEaoImpl implements RepaymentEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Repayment findBySaleIdAndReturnedDate(Long saleId, Date returnedDate) throws EaoException{
 		try {
 			

@@ -940,97 +940,9 @@ public class SearchSalesForCollectionsController implements Serializable {
 	}
 	
 	
-	public void printNotification(){
+	
 		
-		try {
-			
-			System.out.println("Ingreso a printNotification");
-			
-			if (saleSelected!=null && saleSelected.getId()!=null) {
-				
-				// VALIDA SI LA VENTA NO ESTA ACTIVA
-				if (!saleSelected.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
-					Exception e = new SaleStateNoActiveException(saleSelected.getCode());
-					facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-							e.getMessage());
-				}else{
-					System.out.println("bankId:"+saleSelected.getBank().getId());
-					
-					BankLetterEnum bankLetterEnum = BankLetterEnum.findById(saleSelected.getBank().getId());
-					
-					if (bankLetterEnum!=null) {
-						
-						Map<String, Object> parameters = new HashMap<String, Object>();
-						
-						parameters.put("names", saleSelected.getPayer().getFirstnameResponsible()+" "+saleSelected.getPayer().getLastnamePaternalResponsible()+" "+saleSelected.getPayer().getLastnameMaternalResponsible());
-					    parameters.put("department", saleSelected.getPayer().getProvince()+" "+saleSelected.getPayer().getDepartment());
-					    parameters.put("address", saleSelected.getPayer().getAddress()+" "+saleSelected.getPayer().getDistrict());
-					    
-					    ServletContext servletContext=(ServletContext) FacesContext.getCurrentInstance ().getExternalContext().getContext();
-		
-						String separator=System.getProperty("file.separator");
-						  
-						String rootPath= servletContext.getRealPath(separator);
-						  
-						String fileName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getTemplateLetter();
-						
-						String signatureName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getSignature();
-						
-						System.out.println("signatureName:"+signatureName);
-						
-						parameters.put("signature", signatureName);
-						
-						//
-						 
-						//String pdfFileName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getPdfName();
-						  
-						//System.out.println("nombre del archivo: "+pdfFileName);
-						
-						JasperReport report = JasperCompileManager.compileReport(fileName);
-					    JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
-					    //JasperExportManager.exportReportToPdfFile(print,pdfFileName);
-					    
-					    //return "resources/templates/"+bankLetterEnum.getPdfName();
-					    
-					    FacesContext facesContext = FacesContext.getCurrentInstance();
-						ExternalContext externalContext = facesContext.getExternalContext();
-						// externalContext.setResponseContentType("application/vnd.ms-excel");
-						externalContext
-								.setResponseContentType("application/pdf");
-						externalContext.setResponseHeader("Content-Disposition",
-								"attachment; filename=\"carta.pdf\"");
-						
-						//response.setContentType("application/pdf");
-					    //response.addHeader("Content-disposition","inline; filename=relatorioDesempenhoComercial.pdf");
-						
-						JasperExportManager.exportReportToPdfStream(print, externalContext.getResponseOutputStream());
-						
-						facesContext.responseComplete();
-				    
-					}else{
-						Exception e = new BankLetterNotFoundException(saleSelected.getCode(),saleSelected.getBank().getName());
-						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-								e.getMessage());
-						
-					}
-				}
-				
-				
-			}
-			
-			
-		    
-		    //return null;
-		      
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		}
-		
-		
-	      
-	}
+	     
 	
 	public void validate() {
 

@@ -10,8 +10,8 @@ public class BankLetterNotFoundException extends Exception implements Serializab
 	private static final long serialVersionUID = 7630864818243795586L;
 	
 
-	public BankLetterNotFoundException(String saleCode, String bankName) {
-		super("No se encontró formato de carta disponible para la venta con código "+saleCode+" y banco "+bankName+".");
+	public BankLetterNotFoundException(String bankName) {
+		super("No se encontró formato de carta disponible para el banco "+bankName+".");
 	}
 
 }

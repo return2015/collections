@@ -3,6 +3,8 @@ package com.returnsoft.collection.eao.impl;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -21,7 +23,7 @@ public class UserEaoImpl implements UserEao {
 	@PersistenceContext
 	private EntityManager em;
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public User findByUsername(String username) throws EaoException {
 		try {
 
@@ -40,7 +42,7 @@ public class UserEaoImpl implements UserEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public User findParent(Integer userId) throws EaoException {
 		try {
 
@@ -76,7 +78,7 @@ public class UserEaoImpl implements UserEao {
 		}
 
 	}*/
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<User> findByUserType(String userTypeCode) throws EaoException {
 		try {
 
@@ -94,7 +96,7 @@ public class UserEaoImpl implements UserEao {
 		}
 
 	}
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<User> find(String documentNumber, String name) throws EaoException {
 		try {
 			
@@ -123,7 +125,7 @@ public class UserEaoImpl implements UserEao {
 
 	}
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public User findCoordinatorByArea(Integer areaId) throws EaoException{
 		try {
 			
@@ -167,7 +169,7 @@ public class UserEaoImpl implements UserEao {
 		}
 	}
 	
-	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public User findById(Integer userId) throws EaoException{
 		try {
 			
