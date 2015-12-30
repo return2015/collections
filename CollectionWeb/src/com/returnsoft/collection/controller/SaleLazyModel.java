@@ -99,7 +99,7 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 	
 	
 
-	public SaleLazyModel(SaleService saleService, Date dateOfSaleStarted,Date dateOfSaleEnded, short bankId, short productId, SaleStateEnum saleState) {
+	public SaleLazyModel(SaleService saleService, Date dateOfSaleStarted,Date dateOfSaleEnded, Short bankId, Short productId, SaleStateEnum saleState) {
 		super();
 		System.out.println("ingreso a SaleLazyModel");
 		this.saleService=saleService;

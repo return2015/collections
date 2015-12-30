@@ -30,7 +30,7 @@ public class SaleStateHistory implements Serializable{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "salstahist_id")
+	@Column(name = "salstahis_id")
 	private Integer idHist;
 	
 	@Column(name = "salsta_id")

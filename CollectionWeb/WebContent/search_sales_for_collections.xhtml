@@ -14,6 +14,14 @@
 			<f:viewAction action="#{searchSalesForCollectionsController.initialize}" />
 		</f:metadata>
 	</ui:define>
+	
+	<ui:define name="library">
+
+		<h:outputStylesheet library="css"
+			name="search_sales_for_notifications.css" />
+
+
+	</ui:define>
 
 	<ui:define name="content">
 		<!-- 
@@ -25,20 +33,23 @@
  -->
 		<div class="title ui-widget-header ui-corner-all">
 			<h:panelGrid style="margin:auto;">
-		BUSCAR VENTAS PARA GESTIONAR COBRANZAS
+		GESTIÓN DE COBRANZAS
 		</h:panelGrid>
 
 		</div>
+		
+		<h:panelGrid style="margin:auto;text-align:center;">
+					<p:messages id="messages" showDetail="true"></p:messages>
+				</h:panelGrid>
+				
 
 		<h:form id="form">
 
-			<h:panelGrid style="margin:auto;">
+			<h:panelGrid >
 
-				<h:panelGrid style="margin:auto;text-align:center;">
-					<p:messages id="messages" showDetail="true"></p:messages>
-				</h:panelGrid>
+				
 
-				<h:panelGrid columns="3">
+				<h:panelGrid columns="3" rowClasses="panelgrid_center_row">
 					<h:panelGrid columns="2">
 						<p:outputLabel value="Tipo de busqueda:"></p:outputLabel>
 						<p:selectOneMenu id="searchType"
@@ -52,21 +63,21 @@
 							<f:selectItem itemLabel="Buscar por datos personales"
 								itemValue="personalData" />
 							<p:ajax
-								update=":form:searchTypeOut :form:messages"></p:ajax>
+								update=":form:searchTypeOut :form:personalDataOut :messages"></p:ajax>
 						</p:selectOneMenu>
 					</h:panelGrid>
 					<p:outputPanel id="searchTypeOut">
-						<h:panelGrid columns="4"
+						<h:panelGrid columns="4" 
 							rendered="#{searchSalesForCollectionsController.searchTypeSelected=='saleData'}">
 
-							<p:outputLabel value="F. Venta Desde:"></p:outputLabel>
+							<p:outputLabel value="Fecha Venta Desde:"></p:outputLabel>
 							<p:calendar navigator="true"
 								value="#{searchSalesForCollectionsController.dateOfSaleStarted}"
 								required="true"
 								requiredMessage="Debe ingresar fecha venta desde:"
 								pattern="dd-MM-yyyy"></p:calendar>
 
-							<p:outputLabel value="F. Venta Hasta:"></p:outputLabel>
+							<p:outputLabel value="Fecha Venta Hasta:"></p:outputLabel>
 							<p:calendar navigator="true"
 								value="#{searchSalesForCollectionsController.dateOfSaleEnded}" required="true"
 								requiredMessage="Debe ingresar fecha venta hasta:"
@@ -87,12 +98,6 @@
 								<f:selectItems value="#{searchSalesForCollectionsController.products}"></f:selectItems>
 							</p:selectOneMenu>
 
-							<p:outputLabel value="F. Afiliacion"></p:outputLabel>
-							<p:calendar navigator="true"
-								value="#{searchSalesForCollectionsController.affiliationDate}"
-								pattern="dd-MM-yyyy"></p:calendar>
-
-
 							<p:outputLabel value="Estado:"></p:outputLabel>
 							<p:selectOneMenu id="state"
 								value="#{searchSalesForCollectionsController.saleStateSelected}">
@@ -103,7 +108,7 @@
 						</h:panelGrid>
 
 						<h:panelGrid columns="2"
-							rendered="#{searchSalesForCollectionsController.searchByCreditCardNumberRendered}">
+							rendered="#{searchSalesForCollectionsController.searchTypeSelected=='creditCard'}">
 
 							<p:outputLabel value="NUM. TARJETA"></p:outputLabel>
 							<p:inputText style="width: 120px;" required="true"
@@ -113,7 +118,7 @@
 						</h:panelGrid>
 
 						<h:panelGrid columns="2"
-							rendered="#{searchSalesForCollectionsController.searchByDocumentNumberResponsibleRendered}">
+							rendered="#{searchSalesForCollectionsController.searchTypeSelected=='dni'}">
 							<p:outputLabel value="DNI RESP."></p:outputLabel>
 							<p:inputText style="width: 120px;" required="true"
 								requiredMessage="Debe ingresar DNI RESP."
@@ -123,7 +128,7 @@
 
 
 						<h:panelGrid columns="2"
-							rendered="#{searchSalesForCollectionsController.searchByNamesRendered}">
+							rendered="#{searchSalesForCollectionsController.searchTypeSelected=='personalData'}">
 
 							<p:outputLabel value="Tipo de persona:"></p:outputLabel>
 							<p:selectOneMenu id="personType"
@@ -134,15 +139,19 @@
 								<f:selectItem itemLabel="Responsable" itemValue="responsible" />
 								<f:selectItem itemLabel="Asegurado" itemValue="insured" />
 								<f:selectItem itemLabel="Contratante" itemValue="contractor" />
-								<p:ajax immediate="true"
-									listener="#{searchSalesForCollectionsController.onChangePersonType}"
-									update="@form"></p:ajax>
+								<p:ajax update=":form:personalDataOut :messages"></p:ajax>
 							</p:selectOneMenu>
 
 						</h:panelGrid>
+						
+						
+					</p:outputPanel>
+					
+					
+					<p:outputPanel id="personalDataOut">
 
 						<h:panelGrid columns="2"
-							rendered="#{searchSalesForCollectionsController.searchByContractorRendered}">
+							rendered="#{searchSalesForCollectionsController.personTypeSelected=='contractor' and searchSalesForCollectionsController.searchTypeSelected=='personalData'}">
 
 							<p:outputLabel value="NUIC CONT."></p:outputLabel>
 							<p:inputText style="width: 230px;"
@@ -162,7 +171,7 @@
 
 						</h:panelGrid>
 						<h:panelGrid columns="2"
-							rendered="#{searchSalesForCollectionsController.searchByInsuredRendered}">
+							rendered="#{searchSalesForCollectionsController.personTypeSelected=='insured' and searchSalesForCollectionsController.searchTypeSelected=='personalData'}">
 
 							<p:outputLabel value="NUIC ASEG."></p:outputLabel>
 							<p:inputText style="width: 230px;"
@@ -181,7 +190,7 @@
 								value="#{searchSalesForCollectionsController.firstnameInsured}"></p:inputText>
 						</h:panelGrid>
 						<h:panelGrid columns="2"
-							rendered="#{searchSalesForCollectionsController.searchByResponsibleRendered}">
+							rendered="#{searchSalesForCollectionsController.personTypeSelected=='responsible' and searchSalesForCollectionsController.searchTypeSelected=='personalData'}">
 
 							<p:outputLabel value="NUIC RESP."></p:outputLabel>
 							<p:inputText style="width: 230px;"
@@ -199,13 +208,14 @@
 							<p:inputText style="width: 230px;"
 								value="#{searchSalesForCollectionsController.firstnameResponsible}"></p:inputText>
 						</h:panelGrid>
-					</p:outputPanel>
+						</p:outputPanel>
+						
 				</h:panelGrid>
 				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
 					<p:commandButton icon="ui-icon-search"
 						actionListener="#{searchSalesForCollectionsController.search}" value="Buscar"
 						process="@form"
-						update=":form:searchTypeOut :form:searchTable :form:saleId :form:messages 
+						update=":form:searchTypeOut :form:searchTable :form:saleId :messages 
 						:form:updatesButtom :form:collectionsButtom :form:maintenancesButtom  
 						:form:stateButtom :form:repaymentsButtom">
 					</p:commandButton>
@@ -217,7 +227,7 @@
 				</h:panelGrid>
 			</h:panelGrid>
 
-			<h:panelGrid style="margin:auto;">
+			<h:panelGrid>
 
 				<h:panelGrid columns="2" style="width:100%;">
 
@@ -264,7 +274,7 @@
 
 					<p:commandButton id="stateButtom" immediate="true"
 						icon="ui-icon-pencil" value="Editar estado"
-						update=":form:messages"
+						update=":messages"
 						actionListener="#{searchSalesForCollectionsController.addMaintenance}"
 						disabled="#{searchSalesForCollectionsController.saleSelected==null}">
 						<p:ajax event="dialogReturn" update=":form:searchTable"
@@ -274,9 +284,14 @@
 				</h:panelGrid>
 
 
-				<p:dataTable value="#{searchSalesForCollectionsController.sales}" var="s"
-					scrollable="true" scrollWidth="900" paginator="true" rows="10"
-					selectionMode="single" lazy="true"
+				
+
+			</h:panelGrid>
+
+
+<p:dataTable value="#{searchSalesForCollectionsController.sales}" var="s"
+					scrollable="true" scrollWidth="100%" paginator="true" rows="10"
+					selectionMode="single" lazy="true" style="width:100%;"
 					selection="#{searchSalesForCollectionsController.saleSelected}" 
 					paginatorTemplate="{FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
 					currentPageReportTemplate="(Entries: {startRecord} - {endRecord} of {totalRecords}, Page: {currentPage}/{totalPages})"
@@ -293,7 +308,7 @@
 					</p:column>
 
 					<p:column headerText="TIPO DE DOCUMENTO" width="80">
-						<h:outputText value="#{s.documentType}"></h:outputText>
+						<h:outputText value="#{s.payer.documentType.name}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="NUIC RESP PAGO" width="80">
@@ -404,17 +419,17 @@
 
 
 					<p:column headerText="FECHA DE VENTA" width="80">
-						<h:outputText value="#{s.dateOfSale}" width="80">
+						<h:outputText value="#{s.date}" width="80">
 							<f:convertDateTime pattern="dd/MM/yyyy" />
 						</h:outputText>
 					</p:column>
 
 					<p:column headerText="CANAL DE VENTA" width="80">
-						<h:outputText value="#{s.channelOfSale}"></h:outputText>
+						<h:outputText value="#{s.channel}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="LUGAR DE VENTA" width="80">
-						<h:outputText value="#{s.placeOfSale}"></h:outputText>
+						<h:outputText value="#{s.place}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="CODIGO DE VENDEDOR" width="80">
@@ -438,12 +453,12 @@
 					</p:column>
 
 					<p:column headerText="CODIGO DE COMERCIO" width="80">
-						<h:outputText value="#{s.commerce.code}"></h:outputText>
+						<h:outputText value="#{s.commerceCode}"></h:outputText>
 					</p:column>
 
 
 					<p:column headerText="PRODUCTO" width="80">
-						<h:outputText value="#{s.commerce.product.name}"></h:outputText>
+						<h:outputText value="#{s.product.name}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="DESCRIPCION DE PRODUCTO" width="80">
@@ -451,16 +466,13 @@
 					</p:column>
 
 					<p:column headerText="PERIODO DE COBRO" width="80">
-						<h:outputText value="#{s.collectionPeriod}"></h:outputText>
+						<h:outputText value="#{s.collectionPeriod.name}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="TIPO DE COBRO" width="80">
 						<h:outputText value="#{s.collectionType}"></h:outputText>
 					</p:column>
 
-					<p:column headerText="MEDIO DE PAGO" width="80">
-						<h:outputText value="#{s.commerce.paymentMethod.name}"></h:outputText>
-					</p:column>
 
 					<p:column headerText="PRIMA" width="80">
 						<h:outputText value="#{s.insurancePremium}"></h:outputText>
@@ -487,46 +499,25 @@
 					</p:column>
 
 					<p:column headerText="USUARIO ESTADO" width="80">
-						<h:outputText value="#{s.saleState.downUser}"></h:outputText>
+						<h:outputText value="#{s.saleState.user}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="CANAL ESTADO" width="80">
-						<h:outputText value="#{s.saleState.downChannel}"></h:outputText>
+						<h:outputText value="#{s.saleState.channel}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="MOTIVO ESTADO" width="80">
-						<h:outputText value="#{s.saleState.downReason}"></h:outputText>
+						<h:outputText value="#{s.saleState.reason}"></h:outputText>
 					</p:column>
 
 					<p:column headerText="OBSERVACIONES ESTADO" width="80"
 						style="white-space:nowrap;">
-						<h:outputText value="#{s.saleState.downObservation}"></h:outputText>
+						<h:outputText value="#{s.saleState.observation}"></h:outputText>
 					</p:column>
 
-					<p:column headerText="FECHA ACT TC" width="80">
-						<h:outputText value="#{s.creditCard.updateDate}" width="80">
-							<f:convertDateTime pattern="dd/MM/yyyy" />
-						</h:outputText>
-					</p:column>
-
-					<p:column headerText="AFILIADO" width="80">
-						<h:outputText value="#{s.affiliation==true?'Si':'No'}" width="80">
-						</h:outputText>
-					</p:column>
-
-					<p:column headerText="FECHA DE AFILIACION" width="80">
-						<h:outputText value="#{s.affiliationDate}" width="80">
-							<f:convertDateTime pattern="dd/MM/yyyy hh:mm:ss" />
-						</h:outputText>
-					</p:column>
-
-					<p:column headerText="AFILIADO USUARIO" width="80">
-						<h:outputText value="#{s.affiliationUser.username}" width="80">
-						</h:outputText>
-					</p:column>
 
 					<p:column headerText="BANCO" width="80">
-						<h:outputText value="#{s.commerce.bank.name}"></h:outputText>
+						<h:outputText value="#{s.bank.name}"></h:outputText>
 					</p:column>
 
 
@@ -543,8 +534,6 @@
 					
 
 				</p:dataTable>
-
-			</h:panelGrid>
 
 		</h:form>
 

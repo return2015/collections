@@ -17,7 +17,6 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
-import javax.servlet.ServletContext;
 
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -28,25 +27,20 @@ import org.primefaces.model.LazyDataModel;
 
 import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.Collection;
-import com.returnsoft.collection.entity.CreditCard;
 import com.returnsoft.collection.entity.CreditCardHistory;
 import com.returnsoft.collection.entity.Notification;
 import com.returnsoft.collection.entity.Product;
 import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
-import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.SaleStateHistory;
 import com.returnsoft.collection.entity.User;
-import com.returnsoft.collection.enumeration.BankLetterEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.BankInvalidException;
-import com.returnsoft.collection.exception.BankLetterNotFoundException;
 import com.returnsoft.collection.exception.BankNotSelectedException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.CollectionService;
-import com.returnsoft.collection.service.CommerceService;
 import com.returnsoft.collection.service.CreditCardService;
 import com.returnsoft.collection.service.ProductService;
 import com.returnsoft.collection.service.RepaymentService;
@@ -54,13 +48,6 @@ import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.service.SaleStateService;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
-
-import net.sf.jasperreports.engine.JREmptyDataSource;
-import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
 
 @ManagedBean
 @ViewScoped
@@ -108,7 +95,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 	private Date dateOfSaleStarted;
 	private Date dateOfSaleEnded;
 
-	private Date affiliationDate;
+	//private Date affiliationDate;
 
 	private String nuicResponsible;
 	private String lastnamePaternalResponsible;
@@ -135,14 +122,14 @@ public class SearchSalesForCollectionsController implements Serializable {
 	private List<SelectItem> saleStates;
 	private String saleStateSelected;
 
-	private Boolean searchByCreditCardNumberRendered;
+	/*private Boolean searchByCreditCardNumberRendered;
 	private Boolean searchByDocumentNumberResponsibleRendered;
 	private Boolean searchByNamesRendered;
 	private Boolean searchByDateSaleRendered;
 
 	private Boolean searchByContractorRendered;
 	private Boolean searchByInsuredRendered;
-	private Boolean searchByResponsibleRendered;
+	private Boolean searchByResponsibleRendered;*/
 
 	private List<CreditCardHistory> creditCards;
 	private List<SaleStateHistory> saleStatesHistory;
@@ -211,7 +198,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 					saleStates.add(item);
 				}
 				
-				searchTypeSelected="";
+				searchTypeSelected="saleData";
 				
 				//System.out.println("searchTypeSelected:"+searchTypeSelected);
 				
@@ -233,7 +220,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 
 	}
 
-	public void onChangeSearchType() {
+	/*public void onChangeSearchType() {
 		try {
 			// if (fromRequest) {
 			searchTypeSelected = FacesContext.getCurrentInstance()
@@ -279,9 +266,9 @@ public class SearchSalesForCollectionsController implements Serializable {
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 					e.getMessage());
 		}
-	}
+	}*/
 
-	public void onChangePersonType() {
+	/*public void onChangePersonType() {
 		try {
 			// if (fromRequest) {
 			personTypeSelected = FacesContext.getCurrentInstance()
@@ -312,11 +299,13 @@ public class SearchSalesForCollectionsController implements Serializable {
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
 					e.getMessage());
 		}
-	}
+	}*/
 
 	public void search() {
 
 		try {
+			
+			System.out.println("ingreso a search");
 			
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
 				throw new UserLoggedNotFoundException();
@@ -339,18 +328,39 @@ public class SearchSalesForCollectionsController implements Serializable {
 				if (productSelected != null && productSelected.length() > 0) {
 					productId = Short.parseShort(productSelected);
 				}
+				//System.out.println(productId);
 				Short bankId = null;
 				if (bankSelected != null && bankSelected.length() > 0) {
 					bankId = Short.parseShort(bankSelected);
 				}
+				//System.out.println(bankId);
 				SaleStateEnum saleState = null;
 				if (saleStateSelected != null && saleStateSelected.length() > 0) {
 					saleState = SaleStateEnum.findById(Short.parseShort(saleStateSelected));
 				}
+				//System.out.println(saleState);
 				//sales = saleService.findSalesBySaleData(dateOfSaleStarted,
 				//		dateOfSaleEnded, affiliationDate, bankId, productId,
 				//		saleState);
+				/*if (saleService==null) {
+					System.out.println("saleService es nulo");
+				}else{
+					System.out.println("saleService no es nulo ");
+				}
+				
+				if (sales==null) {
+					System.out.println("sales es nulo");
+				}else{
+					System.out.println("sales no es nulo");
+				}*/
+				System.out.println(dateOfSaleStarted);
+				System.out.println(dateOfSaleEnded);
+				
+				System.out.println("antes de buscar");
+				
 				sales = new SaleLazyModel(saleService, dateOfSaleStarted, dateOfSaleEnded, bankId, productId, saleState);
+				
+				System.out.println("despues de buscar");
 				
 
 			} else if (searchTypeSelected.equals("personalData")) {
@@ -1140,39 +1150,6 @@ public class SearchSalesForCollectionsController implements Serializable {
 		this.searchTypeSelected = searchTypeSelected;
 	}
 
-	public Boolean getSearchByCreditCardNumberRendered() {
-		return searchByCreditCardNumberRendered;
-	}
-
-	public void setSearchByCreditCardNumberRendered(
-			Boolean searchByCreditCardNumberRendered) {
-		this.searchByCreditCardNumberRendered = searchByCreditCardNumberRendered;
-	}
-
-	public Boolean getSearchByDocumentNumberResponsibleRendered() {
-		return searchByDocumentNumberResponsibleRendered;
-	}
-
-	public void setSearchByDocumentNumberResponsibleRendered(
-			Boolean searchByDocumentNumberResponsibleRendered) {
-		this.searchByDocumentNumberResponsibleRendered = searchByDocumentNumberResponsibleRendered;
-	}
-
-	public Boolean getSearchByNamesRendered() {
-		return searchByNamesRendered;
-	}
-
-	public void setSearchByNamesRendered(Boolean searchByNamesRendered) {
-		this.searchByNamesRendered = searchByNamesRendered;
-	}
-
-	public Boolean getSearchByDateSaleRendered() {
-		return searchByDateSaleRendered;
-	}
-
-	public void setSearchByDateSaleRendered(Boolean searchByDateSaleRendered) {
-		this.searchByDateSaleRendered = searchByDateSaleRendered;
-	}
 
 	public String getPersonTypeSelected() {
 		return personTypeSelected;
@@ -1180,31 +1157,6 @@ public class SearchSalesForCollectionsController implements Serializable {
 
 	public void setPersonTypeSelected(String personTypeSelected) {
 		this.personTypeSelected = personTypeSelected;
-	}
-
-	public Boolean getSearchByContractorRendered() {
-		return searchByContractorRendered;
-	}
-
-	public void setSearchByContractorRendered(Boolean searchByContractorRendered) {
-		this.searchByContractorRendered = searchByContractorRendered;
-	}
-
-	public Boolean getSearchByInsuredRendered() {
-		return searchByInsuredRendered;
-	}
-
-	public void setSearchByInsuredRendered(Boolean searchByInsuredRendered) {
-		this.searchByInsuredRendered = searchByInsuredRendered;
-	}
-
-	public Boolean getSearchByResponsibleRendered() {
-		return searchByResponsibleRendered;
-	}
-
-	public void setSearchByResponsibleRendered(
-			Boolean searchByResponsibleRendered) {
-		this.searchByResponsibleRendered = searchByResponsibleRendered;
 	}
 
 	public String getNuicResponsible() {
@@ -1267,15 +1219,6 @@ public class SearchSalesForCollectionsController implements Serializable {
 
 	
 
-	public Date getAffiliationDate() {
-		return affiliationDate;
-	}
-
-	public void setAffiliationDate(Date affiliationDate) {
-		this.affiliationDate = affiliationDate;
-	}
-
-	
 
 	public List<SaleStateHistory> getSaleStatesHistory() {
 		return saleStatesHistory;

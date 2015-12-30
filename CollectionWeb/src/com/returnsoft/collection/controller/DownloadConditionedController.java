@@ -68,14 +68,30 @@ public class DownloadConditionedController implements Serializable {
 				throw new Exception();
 			}
 
-
+			if (sale.getBank()==null || sale.getBank().getId()==null) {
+				throw new Exception();
+			}
+			
+			BankLetterEnum bankLetterEnum = BankLetterEnum.findById(sale.getBank().getId());
+			
+			if (bankLetterEnum==null) {
+				throw new BankLetterNotFoundException(sale.getBank().getName());
+			}
 
 						ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance()
 								.getExternalContext().getContext();
 						String separator = System.getProperty("file.separator");
 						String rootPath = servletContext.getRealPath(separator);
-						String fileName = rootPath + "resources" + separator + "templates" + separator
-								+ "condicionado_asistencia_falabella.pdf";
+						String fileName = "";
+						if (bankLetterEnum.equals(BankLetterEnum.FALABELLA)) {
+							fileName = rootPath + "resources" + separator + "templates" + separator
+									+ "condicionado_asistencia_falabella.pdf";	
+						}else if(bankLetterEnum.equals(BankLetterEnum.GNB)){
+							fileName = rootPath + "resources" + separator + "templates" + separator
+									+ "condicionado_asistencia_gnb.pdf";
+						}
+						
+						
 						File file = new File(fileName);
 						InputStream pdfInputStream = new FileInputStream(file);
 

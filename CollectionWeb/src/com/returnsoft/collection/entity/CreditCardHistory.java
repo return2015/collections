@@ -31,7 +31,7 @@ public class CreditCardHistory implements Serializable{
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "crecarhist_id")
+	@Column(name = "crecarhis_id")
 	private Long idHist;
 	
 	@Column(name = "crecar_id")
