@@ -49,6 +49,7 @@ import com.returnsoft.collection.service.CommerceService;
 import com.returnsoft.collection.service.RepaymentService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.collection.util.SessionBean;
 
 @ManagedBean
 @ViewScoped

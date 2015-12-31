@@ -9,14 +9,14 @@ public class FileMultipleErrorsException extends Exception{
 	 */
 	private static final long serialVersionUID = -5681838028038442642L;
 	
-	private List<String> errors;
+	private List<Exception> errors;
 
-	public FileMultipleErrorsException(List<String> errors) {
+	public FileMultipleErrorsException(List<Exception> errors) {
 		super();
 		this.errors=errors;
 	}
 
-	public List<String> getErrors() {
+	public List<Exception> getErrors() {
 		return errors;
 	}
 	

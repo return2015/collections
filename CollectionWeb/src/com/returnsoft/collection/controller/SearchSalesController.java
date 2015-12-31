@@ -38,6 +38,8 @@ import com.returnsoft.collection.service.ProductService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.collection.util.SaleLazyModel;
+import com.returnsoft.collection.util.SessionBean;
 
 @ManagedBean
 @ViewScoped
@@ -247,7 +249,7 @@ public class SearchSalesController implements Serializable {
 
 	public String initialize() {
 
-		System.out.println("initialize");
+		//System.out.println("initialize");
 		
 		/*if (searchTypeSelected==null) {
 			System.out.println("search es nullo");
@@ -271,7 +273,7 @@ public class SearchSalesController implements Serializable {
 		}*/
 
 		try {
-			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
 				throw new UserLoggedNotFoundException();
 			}
 			
@@ -325,10 +327,14 @@ public class SearchSalesController implements Serializable {
 				
 			
 			return null;
+		} catch (UserLoggedNotFoundException e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			return "login.xhtml?faces-redirect=true";
 		} catch (Exception e) {
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getMessage());
-			return "login.xhtml?faces-redirect=true";
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			return null;
 		}
 
 	}
@@ -591,7 +597,9 @@ public class SearchSalesController implements Serializable {
 		try {
 			
 			
-			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
 			
 			
 			List<Sale> salesFound = new ArrayList<Sale>();
@@ -1040,6 +1048,10 @@ public class SearchSalesController implements Serializable {
 
 	public void download() {
 		try {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
 
 			ServletContext servletContext = (ServletContext) FacesContext.getCurrentInstance().getExternalContext()
 					.getContext();

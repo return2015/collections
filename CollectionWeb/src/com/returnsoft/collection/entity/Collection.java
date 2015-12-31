@@ -16,7 +16,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 import com.returnsoft.collection.converter.CollectionResponseConverter;
 import com.returnsoft.collection.enumeration.CollectionResponseEnum;
@@ -35,13 +34,6 @@ public class Collection implements Serializable{
 	@Column(name = "col_id")
 	private Long id;
 	
-	@Transient
-	private String saleCode;
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "col_affiliation_date")
-	private Date affiliationDate;
-	
 	@Column(name = "col_maximum_amount")
 	private BigDecimal maximumAmount;
 	
@@ -50,10 +42,6 @@ public class Collection implements Serializable{
 	
 	@Column(name = "col_receipt_number")
 	private String receiptNumber;
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "col_credit_card_updated")
-	private Date creditCardUpdated;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "col_estimated_date")
@@ -89,10 +77,7 @@ public class Collection implements Serializable{
 	@Column(name = "col_channel")
 	private String channel;
 	
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "col_disaffiliation_date")
-	private Date disaffiliationDate;
+	///////////////////
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "col_created_at")
@@ -105,6 +90,14 @@ public class Collection implements Serializable{
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "col_sal_id")
 	private Sale sale;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "col_paymet_id")
+	private PaymentMethod paymentMethod;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "col_lot_id")
+	private Lote lote;
 
 	public Long getId() {
 		return id;
@@ -115,14 +108,6 @@ public class Collection implements Serializable{
 	}
 
 	
-
-	public Date getAffiliationDate() {
-		return affiliationDate;
-	}
-
-	public void setAffiliationDate(Date affiliationDate) {
-		this.affiliationDate = affiliationDate;
-	}
 
 
 	public BigDecimal getMaximumAmount() {
@@ -149,13 +134,7 @@ public class Collection implements Serializable{
 		this.receiptNumber = receiptNumber;
 	}
 
-	public Date getCreditCardUpdated() {
-		return creditCardUpdated;
-	}
-
-	public void setCreditCardUpdated(Date creditCardUpdated) {
-		this.creditCardUpdated = creditCardUpdated;
-	}
+	
 
 	public Date getEstimatedDate() {
 		return estimatedDate;
@@ -241,21 +220,7 @@ public class Collection implements Serializable{
 		this.channel = channel;
 	}
 
-	/*public String getState() {
-		return state;
-	}
 
-	public void setState(String state) {
-		this.state = state;
-	}*/
-
-	public Date getDisaffiliationDate() {
-		return disaffiliationDate;
-	}
-
-	public void setDisaffiliationDate(Date disaffiliationDate) {
-		this.disaffiliationDate = disaffiliationDate;
-	}
 
 	public Date getCreatedAt() {
 		return createdAt;
@@ -275,20 +240,28 @@ public class Collection implements Serializable{
 		this.createdBy = createdBy;
 	}
 
-	public String getSaleCode() {
-		return saleCode;
-	}
-
-	public void setSaleCode(String saleCode) {
-		this.saleCode = saleCode;
-	}
-
 	public Sale getSale() {
 		return sale;
 	}
 
 	public void setSale(Sale sale) {
 		this.sale = sale;
+	}
+
+	public PaymentMethod getPaymentMethod() {
+		return paymentMethod;
+	}
+
+	public void setPaymentMethod(PaymentMethod paymentMethod) {
+		this.paymentMethod = paymentMethod;
+	}
+
+	public Lote getLote() {
+		return lote;
+	}
+
+	public void setLote(Lote lote) {
+		this.lote = lote;
 	}
 
 	

@@ -33,7 +33,7 @@ public class SaleState implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "salsta_id")
-	private Integer id;
+	private Long id;
 	
 	@Column(name = "salsta_state")
 	@Convert(converter=SaleStateConverter.class)
@@ -67,20 +67,22 @@ public class SaleState implements Serializable {
 	private User updatedBy;
 	
 
-	public Integer getId() {
+	
+
+
+	
+
+	
+
+	
+
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
-
-
-	
-
-	
-
-	
 
 	public Date getDate() {
 		return date;

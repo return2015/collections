@@ -4,21 +4,22 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.inject.Inject;
 
 import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
-import com.returnsoft.collection.exception.ServiceException;
+import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.collection.util.SessionBean;
 
 
 @ManagedBean
@@ -44,13 +45,16 @@ public class AddUserController implements Serializable {
 	private List<String> banksSelected;
 	private List<SelectItem> banks;
 	
+	@Inject
 	private FacesUtil facesUtil;
 
+	@Inject
+	private SessionBean sessionBean;
 
 	public AddUserController() {
 		
-		facesUtil = new FacesUtil();
-		userSelected = new User();
+		//facesUtil = new FacesUtil();
+		//userSelected = new User();
 		
 	}
 
@@ -64,28 +68,24 @@ public class AddUserController implements Serializable {
 
 	
 
-	@PostConstruct
-	public void initialize() {
+	//@PostConstruct
+	public String initialize() {
 		try {
 
-			System.out.println("Ingreso a initialize");
+			//System.out.println("Ingreso a initialize");
 
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
+				throw new UserLoggedNotFoundException();
+			}
 			
+			userSelected = new User();
+			userSelected.setIsActive(Boolean.TRUE);
 
-			//List<UserType> userTypesEntity = userService.getUserTypes();
 			userTypes = new ArrayList<SelectItem>();
-			/*for (UserType userType : userTypesEntity) {
+			for (UserTypeEnum userType : UserTypeEnum.values()) {
 				SelectItem item = new SelectItem();
 				item.setLabel(userType.getName());
 				item.setValue(userType.getId());
-				userTypes.add(item);
-			}*/
-			
-			for (UserTypeEnum userTypeEnum : UserTypeEnum.values()) {
-				
-				SelectItem item = new SelectItem();
-				item.setValue(userTypeEnum.getId());
-				item.setLabel(userTypeEnum.getName());
 				userTypes.add(item);
 			}
 			
@@ -97,15 +97,17 @@ public class AddUserController implements Serializable {
 				item.setLabel(bank.getName());
 				banks.add(item);
 			}
+			
+			return null;
 
+		} catch (UserLoggedNotFoundException e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			return "login.xhtml?faces-redirect=true";
 		} catch (Exception e) {
-
-			if (!(e instanceof ServiceException)) {
-				e.printStackTrace();
-			}
-			FacesMessage msg = new FacesMessage(e.getMessage(), e.getMessage());
-			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-			FacesContext.getCurrentInstance().addMessage(null, msg);
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			return null;
 		}
 	}
 
@@ -151,12 +153,9 @@ public class AddUserController implements Serializable {
 
 		} catch (Exception e) {
 
-			if (!(e instanceof ServiceException)) {
-				e.printStackTrace();
-			}
-			FacesMessage msg = new FacesMessage(e.getMessage(), e.getMessage());
-			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-			FacesContext.getCurrentInstance().addMessage(null, msg);
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			
 		}
 
 	}

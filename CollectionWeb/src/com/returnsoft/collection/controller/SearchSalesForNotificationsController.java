@@ -40,21 +40,14 @@ import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.BankInvalidException;
 import com.returnsoft.collection.exception.BankLetterNotFoundException;
 import com.returnsoft.collection.exception.BankNotSelectedException;
-import com.returnsoft.collection.exception.NotificationAddressNullException;
 import com.returnsoft.collection.exception.NotificationClosedException;
-import com.returnsoft.collection.exception.NotificationDepartmentNullException;
-import com.returnsoft.collection.exception.NotificationDistrictNullException;
-import com.returnsoft.collection.exception.NotificationFirstnameNullException;
-import com.returnsoft.collection.exception.NotificationLastnameMaternalNullException;
-import com.returnsoft.collection.exception.NotificationLastnamePaternalNullException;
 import com.returnsoft.collection.exception.NotificationLimit1Exception;
 import com.returnsoft.collection.exception.NotificationLimit2Exception;
 import com.returnsoft.collection.exception.NotificationLimit3Exception;
 import com.returnsoft.collection.exception.NotificationNotFoundException;
-import com.returnsoft.collection.exception.NotificationPayerNullException;
 import com.returnsoft.collection.exception.NotificationPendingException;
-import com.returnsoft.collection.exception.NotificationProvinceNullException;
-import com.returnsoft.collection.exception.PayerDataNullException;
+import com.returnsoft.collection.exception.NullException;
+import com.returnsoft.collection.exception.PayerNotFoundException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.BankService;
@@ -62,6 +55,8 @@ import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.PayerService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.collection.util.SaleLazyModel;
+import com.returnsoft.collection.util.SessionBean;
 
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRParameter;
@@ -167,11 +162,11 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 	public String initialize() {
 
-		System.out.println("inicializando SearchSaleController");
+		//System.out.println("inicializando SearchSaleController");
 
 		try {
 			
-			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
 				throw new UserLoggedNotFoundException();
 			}
 
@@ -565,6 +560,10 @@ public class SearchSalesForNotificationsController implements Serializable {
 	public void showNotifications() {
 
 		try {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
 
 			notifications = notificationService.findBySale(saleSelected.getId());
 
@@ -578,6 +577,10 @@ public class SearchSalesForNotificationsController implements Serializable {
 	public void showPayers() {
 
 		try {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
 
 			payers = payerService.findBySale(saleSelected.getId());
 			
@@ -655,7 +658,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 				ArrayList<String> paramList = new ArrayList<>();
 				paramList.add(String.valueOf(saleSelected.getNotification().getId()));
 				paramMap.put("notificationId", paramList);
-				RequestContext.getCurrentInstance().openDialog("edit_notification_by_sale", options, paramMap);
+				RequestContext.getCurrentInstance().openDialog("edit_notification", options, paramMap);
 
 			//}
 
@@ -682,7 +685,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 	
 
-	public void updatePayer() {
+	public void editPayer() {
 		try {
 			//ActionEvent event
 			//System.out.println("Ingreso a addPayer");
@@ -743,7 +746,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 				ArrayList<String> paramList = new ArrayList<>();
 				paramList.add(String.valueOf(saleSelected.getId()));
 				paramMap.put("saleId", paramList);
-				RequestContext.getCurrentInstance().openDialog("add_payer", null, paramMap);
+				RequestContext.getCurrentInstance().openDialog("edit_payer", null, paramMap);
 				
 			//}
 
@@ -866,44 +869,44 @@ public class SearchSalesForNotificationsController implements Serializable {
 						/*Exception e = new NotificationFirstnameNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 						validate = false;*/
-						throw new NotificationFirstnameNullException();
+						throw new NullException("NOMBRE",saleSelected.getCode());
 					} else if (saleSelected.getPayer().getLastnamePaternalResponsible().trim().equals("")) {
 						/*Exception e = new NotificationLastnamePaternalNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 						validate = false;*/
-						throw new NotificationLastnamePaternalNullException();
+						throw new NullException("APELLIDO PATERNO",saleSelected.getCode());
 					} else if (saleSelected.getPayer().getLastnameMaternalResponsible().trim().equals("")) {
 						/*Exception e = new NotificationLastnameMaternalNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 						validate = false;*/
-						throw new NotificationLastnameMaternalNullException();
+						throw new NullException("APELLIDO MATERNO",saleSelected.getCode());
 					} else if (saleSelected.getPayer().getAddress().trim().equals("")) {
 						/*Exception e = new NotificationAddressNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 						validate = false;*/
-						throw new NotificationAddressNullException();
+						throw new NullException("DIRECCIÓN",saleSelected.getCode());
 					} else if (saleSelected.getPayer().getDepartment().trim().equals("")) {
 						/*Exception e = new NotificationDepartmentNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 						validate = false;*/
-						throw new NotificationDepartmentNullException();
+						throw new NullException("DEPARTAMENTO",saleSelected.getCode());
 					} else if (saleSelected.getPayer().getProvince().trim().equals("")) {
 						/*Exception e = new NotificationProvinceNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 						validate = false;*/
-						throw new NotificationProvinceNullException();
+						throw new NullException("PROVINCIA",saleSelected.getCode());
 					} else if (saleSelected.getPayer().getDistrict().trim().equals("")) {
 						/*Exception e = new NotificationDistrictNullException();
 						facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 						validate = false;*/
-						throw new NotificationDistrictNullException();
+						throw new NullException("DISTRITO",saleSelected.getCode());
 					}
 
 				} else {
 					/*Exception e = new NotificationPayerNullException();
 					facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 					validate = false;*/
-					throw new NotificationPayerNullException();
+					throw new PayerNotFoundException();
 				}
 			//}
 
@@ -1017,30 +1020,30 @@ public class SearchSalesForNotificationsController implements Serializable {
 						}
 						if (sale.getPayer().getFirstnameResponsible() == null
 								|| sale.getPayer().getFirstnameResponsible().trim().length() == 0) {
-							errors.add(new PayerDataNullException("El nombre", sale.getCode()));
+							errors.add(new NullException("NOMBRE", sale.getCode()));
 						}
 						if (sale.getPayer().getLastnamePaternalResponsible() == null
 								|| sale.getPayer().getLastnamePaternalResponsible().trim().length() == 0) {
-							errors.add(new PayerDataNullException("El apellido paterno", sale.getCode()));
+							errors.add(new NullException("APELLIDO PATERNO", sale.getCode()));
 						}
 						if (sale.getPayer().getLastnameMaternalResponsible() == null
 								|| sale.getPayer().getLastnameMaternalResponsible().trim().length() == 0) {
-							errors.add(new PayerDataNullException("El apellido materno", sale.getCode()));
+							errors.add(new NullException("APELLIDO MATERNO", sale.getCode()));
 						}
 						if (sale.getPayer().getAddress() == null || sale.getPayer().getAddress().trim().length() == 0) {
-							errors.add(new PayerDataNullException("La dirección", sale.getCode()));
+							errors.add(new NullException("DIRECCIÓN", sale.getCode()));
 						}
 						if (sale.getPayer().getProvince() == null
 								|| sale.getPayer().getProvince().trim().length() == 0) {
-							errors.add(new PayerDataNullException("La provincia", sale.getCode()));//
+							errors.add(new NullException("PROVINCIA", sale.getCode()));//
 						}
 						if (sale.getPayer().getDepartment() == null
 								|| sale.getPayer().getDepartment().trim().length() == 0) {
-							errors.add(new PayerDataNullException("El departamento", sale.getCode()));//
+							errors.add(new NullException("DEPARTAMENTO", sale.getCode()));//
 						}
 						if (sale.getPayer().getDistrict() == null
 								|| sale.getPayer().getDistrict().trim().length() == 0) {
-							errors.add(new PayerDataNullException("El distrito", sale.getCode()));//
+							errors.add(new NullException("DISTRITO", sale.getCode()));//
 						}
 
 						// VALIDA CANTIDAD DE NOTIFICACIONES ENVIADAS
@@ -1201,30 +1204,30 @@ public class SearchSalesForNotificationsController implements Serializable {
 						}
 						if (sale.getPayer().getFirstnameResponsible() == null
 								|| sale.getPayer().getFirstnameResponsible().trim().length() == 0) {
-							errors.add(new PayerDataNullException("El nombre", sale.getCode()));
+							errors.add(new NullException("NOMBRE", sale.getCode()));
 						}
 						if (sale.getPayer().getLastnamePaternalResponsible() == null
 								|| sale.getPayer().getLastnamePaternalResponsible().trim().length() == 0) {
-							errors.add(new PayerDataNullException("El apellido paterno", sale.getCode()));
+							errors.add(new NullException("APELLIDO PATERNO", sale.getCode()));
 						}
 						if (sale.getPayer().getLastnameMaternalResponsible() == null
 								|| sale.getPayer().getLastnameMaternalResponsible().trim().length() == 0) {
-							errors.add(new PayerDataNullException("El apellido materno", sale.getCode()));
+							errors.add(new NullException("APELLIDO MATERNO", sale.getCode()));
 						}
 						if (sale.getPayer().getAddress() == null || sale.getPayer().getAddress().trim().length() == 0) {
-							errors.add(new PayerDataNullException("La dirección", sale.getCode()));
+							errors.add(new NullException("DIRECCIÓN", sale.getCode()));
 						}
 						if (sale.getPayer().getProvince() == null
 								|| sale.getPayer().getProvince().trim().length() == 0) {
-							errors.add(new PayerDataNullException("La provincia", sale.getCode()));//
+							errors.add(new NullException("PROVINCIA", sale.getCode()));//
 						}
 						if (sale.getPayer().getDepartment() == null
 								|| sale.getPayer().getDepartment().trim().length() == 0) {
-							errors.add(new PayerDataNullException("El departamento", sale.getCode()));//
+							errors.add(new NullException("DEPARTAMENTO", sale.getCode()));//
 						}
 						if (sale.getPayer().getDistrict() == null
 								|| sale.getPayer().getDistrict().trim().length() == 0) {
-							errors.add(new PayerDataNullException("El distrito", sale.getCode()));//
+							errors.add(new NullException("DISTRITO", sale.getCode()));//
 						}
 
 						// VALIDA CANTIDAD DE NOTIFICACIONES VIRTUALES ENVIADAS
@@ -1341,28 +1344,28 @@ public class SearchSalesForNotificationsController implements Serializable {
 					}
 					if (sale.getPayer().getFirstnameResponsible() == null
 							|| sale.getPayer().getFirstnameResponsible().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El nombre", sale.getCode()));
+						errors.add(new NullException("NOMBRE", sale.getCode()));
 					}
 					if (sale.getPayer().getLastnamePaternalResponsible() == null
 							|| sale.getPayer().getLastnamePaternalResponsible().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El apellido paterno", sale.getCode()));
+						errors.add(new NullException("APELLIDO PATERNO", sale.getCode()));
 					}
 					if (sale.getPayer().getLastnameMaternalResponsible() == null
 							|| sale.getPayer().getLastnameMaternalResponsible().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El apellido materno", sale.getCode()));
+						errors.add(new NullException("APELLIDO MATERNO", sale.getCode()));
 					}
 					if (sale.getPayer().getAddress() == null || sale.getPayer().getAddress().trim().length() == 0) {
-						errors.add(new PayerDataNullException("La dirección", sale.getCode()));
+						errors.add(new NullException("DIRECCIÓN", sale.getCode()));
 					}
 					if (sale.getPayer().getProvince() == null || sale.getPayer().getProvince().trim().length() == 0) {
-						errors.add(new PayerDataNullException("La provincia", sale.getCode()));//
+						errors.add(new NullException("PROVINCIA", sale.getCode()));//
 					}
 					if (sale.getPayer().getDepartment() == null
 							|| sale.getPayer().getDepartment().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El departamento", sale.getCode()));//
+						errors.add(new NullException("DEPARTAMENTO", sale.getCode()));//
 					}
 					if (sale.getPayer().getDistrict() == null || sale.getPayer().getDistrict().trim().length() == 0) {
-						errors.add(new PayerDataNullException("El distrito", sale.getCode()));//
+						errors.add(new NullException("DISTRITO", sale.getCode()));//
 					}
 
 					// Si tiene menos de 3 envios virtuales

@@ -1,13 +1,16 @@
 package com.returnsoft.collection.controller;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 import javax.inject.Inject;
 
 import org.primefaces.context.RequestContext;
@@ -16,7 +19,6 @@ import com.returnsoft.collection.entity.Notification;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
-import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.NotificationService;
@@ -26,7 +28,7 @@ import com.returnsoft.collection.util.SessionBean;
 
 @ManagedBean
 @ViewScoped
-public class AddNotificationController implements Serializable{
+public class EditNotificationController implements Serializable{
 
 	/**
 	 * 
@@ -36,10 +38,7 @@ public class AddNotificationController implements Serializable{
 	private Notification notificationSelected;
 	
 	private String notificationStateSelected;
-	
-	private NotificationStateEnum notificationState = NotificationStateEnum.SENDING;
-	
-	private NotificationTypeEnum notificationType = NotificationTypeEnum.PHYSICAL;
+	private List<SelectItem> notificationStates;
 	
 	@EJB
 	private NotificationService notificationService;
@@ -48,11 +47,13 @@ public class AddNotificationController implements Serializable{
 	private SaleService saleService;
 	
 	@Inject
-	private FacesUtil facesUtil;
-	
-	@Inject
 	private SessionBean sessionBean;
 	
+	@Inject
+	private FacesUtil facesUtil;
+	
+	
+	//@PostConstruct
 	public String initialize() {
 		try {
 			
@@ -60,17 +61,28 @@ public class AddNotificationController implements Serializable{
 				throw new UserLoggedNotFoundException();
 			}
 
-			String saleId = FacesContext.getCurrentInstance()
+			//System.out.println("Ingreso a initialize");
+			
+			String notificationId = FacesContext.getCurrentInstance()
 					.getExternalContext().getRequestParameterMap()
-					.get("saleId");
+					.get("notificationId");
 			
-			Sale saleSelected = saleService.findById(Long.parseLong(saleId));
+			notificationSelected = notificationService.findById(Integer.parseInt(notificationId));
 			
-			notificationSelected = new Notification();
-			notificationSelected.setSale(saleSelected);
+			notificationStates = new ArrayList<SelectItem>();
+			for (NotificationStateEnum notificationStateEnum : NotificationStateEnum.values()) {
+				SelectItem item = new SelectItem();
+				item.setValue(notificationStateEnum.getId());
+				item.setLabel(notificationStateEnum.getName());
+				notificationStates.add(item);
+			}
+			
+			if (notificationSelected.getState()!=null) {
+				notificationStateSelected = notificationSelected.getState().getId().toString();
+			}
 			
 			return null;
-
+			
 		} catch (UserLoggedNotFoundException e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
@@ -80,38 +92,40 @@ public class AddNotificationController implements Serializable{
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 			return null;
 		}
+
 	}
 	
-	public void add() {
+	public void edit() {
 		try {
 			
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
 				throw new UserLoggedNotFoundException();
 			}
 			
-			notificationSelected.setType(notificationType);
-			notificationSelected.setState(notificationState);
-			
+			if (notificationStateSelected != null && notificationStateSelected.length() > 0) {
+				notificationSelected.setState(NotificationStateEnum.findById(Short.parseShort(notificationStateSelected)));
+			}
+
+			notificationSelected.setUpdatedAt(new Date());
 			
 			/*SessionBean sessionBean = (SessionBean) FacesContext
 					.getCurrentInstance().getExternalContext()
 					.getSessionMap().get("sessionBean");*/
 			User user = sessionBean.getUser();
 			
-			notificationSelected.setCreatedBy(user);
-			notificationSelected.setCreatedAt(new Date());
-			notificationService.add(notificationSelected);
+			notificationSelected.setUpdatedBy(user);
+			notificationSelected = notificationService.update(notificationSelected);
 			
 			// RETORNA LA VENTA ACTUALIZADA
 			
 			Sale saleUpdated = saleService.findById(notificationSelected.getSale().getId());
+			
 			RequestContext.getCurrentInstance().closeDialog(saleUpdated);
-
+			
 		} catch (Exception e) {
 
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-			
 		}
 
 	}
@@ -132,15 +146,14 @@ public class AddNotificationController implements Serializable{
 		this.notificationStateSelected = notificationStateSelected;
 	}
 
-	public NotificationStateEnum getNotificationState() {
-		return notificationState;
+	public List<SelectItem> getNotificationStates() {
+		return notificationStates;
 	}
 
-	public NotificationTypeEnum getNotificationType() {
-		return notificationType;
+	public void setNotificationStates(List<SelectItem> notificationStates) {
+		this.notificationStates = notificationStates;
 	}
 
-	
 	
 
 }

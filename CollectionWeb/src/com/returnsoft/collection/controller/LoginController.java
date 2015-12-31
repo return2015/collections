@@ -9,9 +9,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import com.returnsoft.collection.entity.User;
-import com.returnsoft.collection.exception.SessionTypeInvalidException;
+import com.returnsoft.collection.exception.UserTypeNotFoundException;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.collection.util.SessionBean;
 
 @Named
 @RequestScoped
@@ -77,7 +78,7 @@ public class LoginController implements Serializable {
 				return "select_bank?faces-redirect=true";
 				
 			default:
-				throw new SessionTypeInvalidException();
+				throw new UserTypeNotFoundException();
 			}
 			
 
@@ -104,7 +105,7 @@ public class LoginController implements Serializable {
 			//System.out.println(e.getMessage());
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getMessage());
-			return null;
+			return "login?faces-redirect=true";
 		}
 
 	}

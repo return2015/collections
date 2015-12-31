@@ -24,7 +24,7 @@ public class CollectionEaoImpl implements CollectionEao {
 	@PersistenceContext
 	private EntityManager em;
 	
-	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void add(Collection collection) throws EaoException{
 		try {
 			

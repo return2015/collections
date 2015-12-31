@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.ejb.EJB;
-import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
@@ -12,37 +11,28 @@ import javax.inject.Inject;
 
 import org.primefaces.context.RequestContext;
 
-import com.returnsoft.collection.entity.Notification;
+import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
-import com.returnsoft.collection.enumeration.NotificationStateEnum;
-import com.returnsoft.collection.enumeration.NotificationTypeEnum;
-import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
-import com.returnsoft.collection.service.NotificationService;
+import com.returnsoft.collection.service.PayerService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 import com.returnsoft.collection.util.SessionBean;
 
 @ManagedBean
 @ViewScoped
-public class AddNotificationController implements Serializable{
+public class EditPayerController implements Serializable{
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 7014651477691666793L;
 	
-	private Notification notificationSelected;
-	
-	private String notificationStateSelected;
-	
-	private NotificationStateEnum notificationState = NotificationStateEnum.SENDING;
-	
-	private NotificationTypeEnum notificationType = NotificationTypeEnum.PHYSICAL;
+	private Payer payerSelected;
 	
 	@EJB
-	private NotificationService notificationService;
+	private PayerService payerService;
 	
 	@EJB
 	private SaleService saleService;
@@ -52,6 +42,12 @@ public class AddNotificationController implements Serializable{
 	
 	@Inject
 	private SessionBean sessionBean;
+	
+	public EditPayerController(){
+		
+		//facesUtil = new FacesUtil();
+	}
+	
 	
 	public String initialize() {
 		try {
@@ -66,11 +62,23 @@ public class AddNotificationController implements Serializable{
 			
 			Sale saleSelected = saleService.findById(Long.parseLong(saleId));
 			
-			notificationSelected = new Notification();
-			notificationSelected.setSale(saleSelected);
+			//payerSelected = new Payer();
+			payerSelected = saleSelected.getPayer();
+			//Sale sale = new Sale();
+			//sale.setId(saleSelected.getId());
+			//payerSelected.setSale(sale);
+			/*payerSelected.setAddress(saleSelected.getPayer().getAddress());
+			payerSelected.setDepartment(saleSelected.getPayer().getDepartment());
+			payerSelected.setDistrict(saleSelected.getPayer().getDistrict());
+			payerSelected.setFirstnameResponsible(saleSelected.getPayer().getFirstnameResponsible());
+			payerSelected.setLastnameMaternalResponsible(saleSelected.getPayer().getLastnameMaternalResponsible());
+			payerSelected.setLastnamePaternalResponsible(saleSelected.getPayer().getLastnamePaternalResponsible());
+			payerSelected.setMail(saleSelected.getPayer().getMail());
+			payerSelected.setNuicResponsible(saleSelected.getPayer().getNuicResponsible());
+			payerSelected.setProvince(saleSelected.getPayer().getProvince());*/
 			
 			return null;
-
+			
 		} catch (UserLoggedNotFoundException e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
@@ -80,66 +88,56 @@ public class AddNotificationController implements Serializable{
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
 			return null;
 		}
+
 	}
 	
-	public void add() {
+	
+	public void update() {
 		try {
 			
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
 				throw new UserLoggedNotFoundException();
 			}
 			
-			notificationSelected.setType(notificationType);
-			notificationSelected.setState(notificationState);
-			
 			
 			/*SessionBean sessionBean = (SessionBean) FacesContext
 					.getCurrentInstance().getExternalContext()
 					.getSessionMap().get("sessionBean");*/
+					
+			//Integer userId = sessionBean.getUser().getId();
 			User user = sessionBean.getUser();
+			//user.setId(userId);
+			Date current = new Date();
 			
-			notificationSelected.setCreatedBy(user);
-			notificationSelected.setCreatedAt(new Date());
-			notificationService.add(notificationSelected);
+			payerSelected.setUpdatedAt(current);
+			payerSelected.setUpdatedBy(user);
 			
-			// RETORNA LA VENTA ACTUALIZADA
+			payerService.update(payerSelected);
 			
-			Sale saleUpdated = saleService.findById(notificationSelected.getSale().getId());
-			RequestContext.getCurrentInstance().closeDialog(saleUpdated);
+			// RETORNA VENTA ACTUALIZADA
+			
+			Sale saleReturn = saleService.findById(payerSelected.getId());
+			
+			RequestContext.getCurrentInstance().closeDialog(saleReturn);
 
 		} catch (Exception e) {
-
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-			
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
+					e.getMessage());
 		}
 
 	}
 
-	public Notification getNotificationSelected() {
-		return notificationSelected;
+
+	public Payer getPayerSelected() {
+		return payerSelected;
 	}
 
-	public void setNotificationSelected(Notification notificationSelected) {
-		this.notificationSelected = notificationSelected;
-	}
 
-	public String getNotificationStateSelected() {
-		return notificationStateSelected;
+	public void setPayerSelected(Payer payerSelected) {
+		this.payerSelected = payerSelected;
 	}
-
-	public void setNotificationStateSelected(String notificationStateSelected) {
-		this.notificationStateSelected = notificationStateSelected;
-	}
-
-	public NotificationStateEnum getNotificationState() {
-		return notificationState;
-	}
-
-	public NotificationTypeEnum getNotificationType() {
-		return notificationType;
-	}
-
+	
 	
 	
 

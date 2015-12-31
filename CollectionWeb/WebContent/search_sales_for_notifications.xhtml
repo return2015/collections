@@ -16,13 +16,7 @@
 		</f:metadata>
 	</ui:define>
 
-	<ui:define name="library">
-
-		<h:outputStylesheet library="css"
-			name="search_sales_for_notifications.css" />
-
-
-	</ui:define>
+	
 
 	<ui:define name="content">
 
@@ -203,7 +197,7 @@
 
 
 
-			<h:panelGrid columns="2">
+			<h:panelGrid >
 
 				<p:outputLabel id="saleId"
 					value="Venta seleccionada: #{searchSalesForNotificationsController.saleSelected!=null?searchSalesForNotificationsController.saleSelected.code:''}">
@@ -215,7 +209,7 @@
 
 				<p:commandButton id="dataButtom" immediate="true" 
 					icon="ui-icon-pencil" value="Editar datos" update=":form:messages"
-					actionListener="#{searchSalesForNotificationsController.updatePayer}"
+					actionListener="#{searchSalesForNotificationsController.editPayer}"
 					disabled="#{searchSalesForNotificationsController.saleSelected==null}">
 					<p:ajax event="dialogReturn" update=":form:searchTable"
 						listener="#{searchSalesForNotificationsController.afterUpdatePayer}" />

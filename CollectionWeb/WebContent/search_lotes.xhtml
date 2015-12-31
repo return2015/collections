@@ -42,17 +42,36 @@
 						<br></br>
 						<h:form id="formUploadSales" enctype="multipart/form-data">
 							<h:panelGrid columns="2">
-								<h:inputFile id="file" value="#{searchLoteController.file}">
+								<h:inputFile id="saleFile" value="#{searchLoteController.saleFile}">
 								</h:inputFile>
 								<h:commandButton value="Cargar ventas" process="@form"
 									actionListener="#{searchLoteController.validateSalesFile}">
-									<f:ajax execute="file" render=":acc_sales:messages_sales" />
+									<f:ajax execute="saleFile" render=":acc_sales:messages_sales" />
 								</h:commandButton>
 							</h:panelGrid>
 						</h:form>
 						<p:messages id="messages_sales"></p:messages>
 					</p:tab>
 					<p:tab title="Cargar lote de cobranzas">
+					<h:form id="formLinkSales">
+							<h:commandLink actionListener="#{searchLoteController.downloadCollectionsFile}"
+								value="Descargar formato de trama">
+							</h:commandLink>
+						</h:form>
+						<br></br>
+						<br></br>
+						<h:form id="formUploadSales" enctype="multipart/form-data">
+							<h:panelGrid columns="2">
+								<h:inputFile id="saleFile" value="#{searchLoteController.saleFile}">
+								</h:inputFile>
+								<h:commandButton value="Cargar ventas" process="@form"
+									actionListener="#{searchLoteController.validateSalesFile}">
+									<f:ajax execute="saleFile" render=":acc_sales:messages_sales" />
+								</h:commandButton>
+							</h:panelGrid>
+						</h:form>
+						<p:messages id="messages_sales"></p:messages>
+					
 					</p:tab>
 					<p:tab title="Cargar lote de estados">
 					</p:tab>

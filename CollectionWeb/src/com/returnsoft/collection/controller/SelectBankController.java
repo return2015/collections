@@ -4,28 +4,21 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
-import javax.enterprise.context.RequestScoped;
-import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIInput;
-import javax.faces.context.FacesContext;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import com.returnsoft.collection.entity.Bank;
-import com.returnsoft.collection.enumeration.UserTypeEnum;
-import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
-import com.returnsoft.collection.exception.UserPermissionNotFoundException;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.collection.util.SessionBean;
 
-@Named
-@RequestScoped
+@ManagedBean
+@ViewScoped
 public class SelectBankController implements Serializable {
 
 	/**
@@ -51,15 +44,18 @@ public class SelectBankController implements Serializable {
 	private SessionBean sessionBean;
 
 	public SelectBankController() {
-		System.out.println("Construyendo SelectBankController");
+		//System.out.println("Construyendo SelectBankController");
 	}
 
 	public String initialize() {
-		System.out.println("Inicializando SelectBankController");
+		//System.out.println("Inicializando SelectBankController");
 		try {
-			if (sessionBean == null && sessionBean.getUser() == null && sessionBean.getUser().getId() < 0) {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
 				throw new UserLoggedNotFoundException();
-			}else {
+			}
+			
+			
 				List<Bank> banksEntity = bankService.findByUser(sessionBean.getUser().getId());
 				banks = new ArrayList<SelectItem>();
 				for (Bank bank : banksEntity) {
@@ -69,7 +65,7 @@ public class SelectBankController implements Serializable {
 					banks.add(item);
 				}
 				//banksCOM.set
-			}
+			
 			return null;
 
 		} catch (UserLoggedNotFoundException e) {
@@ -83,7 +79,7 @@ public class SelectBankController implements Serializable {
 		}
 	}
 
-	@PostConstruct
+	/*@PostConstruct
 	public void start() {
 		try {
 
@@ -108,12 +104,16 @@ public class SelectBankController implements Serializable {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getMessage());
 		}
-	}
+	}*/
 
 	public void selectBank() {
 		try {
 
 			System.out.println("bankSelected:" + bankSelected);
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
 			
 
 			if (bankSelected != null && bankSelected.length() > 0) {
@@ -148,14 +148,11 @@ public class SelectBankController implements Serializable {
 			}
 			
 
-		} catch (NullPointerException e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage("Existen valores nulos");
-			//return null;
 		} catch (Exception e) {
+
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getMessage());
-			//turn null;
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			
 		}
 	}
 

@@ -30,8 +30,8 @@ public class CollectionServiceImpl implements CollectionService {
 	public void add(Collection collection) throws ServiceException {
 		try {
 
-			Sale sale = saleEao.findByCode(collection.getSaleCode());
-			collection.setSale(sale);
+			/*Sale sale = saleEao.findByCode(collection.getSaleCode());
+			collection.setSale(sale);*/
 			collectionEao.add(collection);
 
 		} catch (Exception e) {
