@@ -16,8 +16,6 @@
 		</f:metadata>
 	</ui:define>
 
-	
-
 	<ui:define name="content">
 
 
@@ -50,6 +48,7 @@
 					</p:selectOneMenu>
 				</h:panelGrid>
 				<p:outputPanel id="searchTypeOut2">
+				
 					<h:panelGrid columns="2"
 						rendered="#{searchSalesForNotificationsController.searchTypeSelected=='dni'}">
 						<p:outputLabel value="NUIC responsable"></p:outputLabel>
@@ -57,7 +56,7 @@
 							requiredMessage="Debe ingresar NUIC Responsable"
 							value="#{searchSalesForNotificationsController.nuicResponsible}"></p:inputText>
 					</h:panelGrid>
-
+					
 					<h:panelGrid columns="2"
 						rendered="#{searchSalesForNotificationsController.searchTypeSelected=='notificationData'}">
 						<p:outputLabel value="Banco"></p:outputLabel>
@@ -68,7 +67,6 @@
 								value="#{searchSalesForNotificationsController.banks}"></f:selectItems>
 						</p:selectOneMenu>
 					</h:panelGrid>
-
 
 				</p:outputPanel>
 			</h:panelGrid>
@@ -95,6 +93,7 @@
 							<p:outputLabel value="Estado venta:"></p:outputLabel>
 							<p:selectOneMenu id="saleState"
 								value="#{searchSalesForNotificationsController.saleStateSelected}">
+								<f:selectItem itemValue="" itemLabel="Seleccione..."></f:selectItem>
 								<f:selectItems
 									value="#{searchSalesForNotificationsController.saleStates}"></f:selectItems>
 							</p:selectOneMenu>

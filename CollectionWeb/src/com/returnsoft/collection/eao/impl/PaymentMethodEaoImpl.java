@@ -10,25 +10,24 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
-import com.returnsoft.collection.eao.ProductEao;
-import com.returnsoft.collection.entity.Product;
+import com.returnsoft.collection.eao.PaymentMethodEao;
+import com.returnsoft.collection.entity.PaymentMethod;
 import com.returnsoft.collection.exception.EaoException;
-
 @Stateless
-public class ProductEaoImpl implements ProductEao {
+public class PaymentMethodEaoImpl implements PaymentMethodEao {
 	
 	@PersistenceContext
 	private EntityManager em;
 	
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public List<Product> getProducts() throws EaoException {
+	public List<PaymentMethod> getAll() throws EaoException {
 		try {
 
-			TypedQuery<Product> q = em.createQuery(
-					"SELECT p FROM Product p", Product.class);
-			List<Product> products = q.getResultList();
+			TypedQuery<PaymentMethod> q = em.createQuery(
+					"SELECT pm FROM PaymentMethod pm", PaymentMethod.class);
+			List<PaymentMethod> paymentMethods = q.getResultList();
 
-			return products;
+			return paymentMethods;
 
 		} catch (NoResultException e) {
 			return null;
@@ -37,5 +36,6 @@ public class ProductEaoImpl implements ProductEao {
 			throw new EaoException(e.getMessage());
 		}
 	}
+	
 
 }

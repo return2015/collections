@@ -16,9 +16,9 @@ public interface CollectionEao {
 	
 	public List<Collection> findAllowsBySaleId(Long saleId) throws EaoException;
 	
-	public List<Collection> findByResponseAndAuthorizationDay(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode) throws EaoException;
+	public Integer findByResponseAndAuthorizationDay(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode) throws EaoException;
 	
-	public List<Collection> findByResponseAndAuthorizationMonth(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode) throws EaoException;
+	public Integer findByResponseAndAuthorizationMonth(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode) throws EaoException;
 	
 	public Collection findByReceiptNumber(String receiptNumber) throws EaoException;
 

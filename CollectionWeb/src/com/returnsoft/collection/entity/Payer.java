@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -30,8 +31,8 @@ public class Payer implements Serializable{
 	private static final long serialVersionUID = 1847350398764204972L;
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "pay_id")
+	//@GeneratedValue(strategy = GenerationType.IDENTITY)
+	//@Column(name = "pay_id")
 	private Long id;
 	
 	@Column(name = "pay_document_type_id")
@@ -79,6 +80,11 @@ public class Payer implements Serializable{
 	
 	//@OneToOne(fetch=FetchType.LAZY,mappedBy="payer")
 	//private Sale sale;
+	
+	@MapsId 
+    @OneToOne
+	@JoinColumn(name = "pay_id") 
+	private Sale sale;
 	
 	
 
@@ -194,6 +200,14 @@ public class Payer implements Serializable{
 
 	public void setUpdatedBy(User updatedBy) {
 		this.updatedBy = updatedBy;
+	}
+
+	public Sale getSale() {
+		return sale;
+	}
+
+	public void setSale(Sale sale) {
+		this.sale = sale;
 	}
 
 	/*public Date getCreatedAt() {

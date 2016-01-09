@@ -78,8 +78,8 @@ public class EditUserController implements Serializable {
 
 			System.out.println("userId:" + userId);
 			
-			userSelected = new User();
-			userSelected.setId(Integer.parseInt(userId));
+			/*userSelected = new User();
+			userSelected.setId(Integer.parseInt(userId));*/
 
 			userSelected = userService.findById(userSelected.getId());
 			

@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -32,9 +33,8 @@ public class CreditCard implements Serializable{
 	private static final long serialVersionUID = 935303972710761527L;
 
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "crecar_id")
+	@Id 
+	//@Column(name = "crecar_id")
 	private Long id;
 
 	/*@Transient
@@ -59,6 +59,12 @@ public class CreditCard implements Serializable{
 
 	/*@OneToOne(fetch=FetchType.LAZY,mappedBy="creditCard")
 	private Sale sale;*/
+	
+	@MapsId 
+    @OneToOne
+	@JoinColumn(name = "crecar_id") 
+	private Sale sale;
+	
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "crecar_date")
@@ -183,6 +189,16 @@ public class CreditCard implements Serializable{
 
 	public void setUpdatedBy(User updatedBy) {
 		this.updatedBy = updatedBy;
+	}
+
+
+	public Sale getSale() {
+		return sale;
+	}
+
+
+	public void setSale(Sale sale) {
+		this.sale = sale;
 	}
 
 

@@ -840,7 +840,7 @@ public class SearchSalesController implements Serializable {
 				cadena.append(sale.getCommerceCode() + separator);
 				cadena.append(sale.getProduct().getName() + separator);
 				cadena.append(sale.getProductDescription() + separator);
-				cadena.append(sale.getCollectionPeriod() + separator);
+				cadena.append(sale.getCollectionPeriod().getName() + separator);
 				cadena.append(sale.getCollectionType() + separator);
 				cadena.append(sale.getBank().getName() + separator);
 				cadena.append(sale.getInsurancePremium().doubleValue() + separator);

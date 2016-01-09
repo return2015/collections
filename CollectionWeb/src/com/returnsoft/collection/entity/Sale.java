@@ -182,22 +182,25 @@ public class Sale implements Serializable{
 	
 	//@OneToOne(fetch=FetchType.LAZY)
 	//@JoinColumn(name = "sal_crecar_id")
-	@OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER, orphanRemoval = true)
-	@PrimaryKeyJoinColumn
+	//@OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER, orphanRemoval = true)
+	//@PrimaryKeyJoinColumn
+	@OneToOne(cascade= CascadeType.ALL,mappedBy="sale")
 	private CreditCard creditCard;
 	
 	//@OneToOne(fetch=FetchType.LAZY)
 	//@JoinColumn(name = "sal_salsta_id")
-	@OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER, orphanRemoval = true)
-	@PrimaryKeyJoinColumn
+	//@OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER, orphanRemoval = true)
+	//@PrimaryKeyJoinColumn
+	@OneToOne(cascade= CascadeType.ALL,mappedBy="sale")
 	private SaleState saleState;
 	
 	//@OneToOne(fetch=FetchType.LAZY,mappedBy="sale")
 	/*@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "sal_pay_id")*/
-	@OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER, orphanRemoval = true)
+	//@OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER, orphanRemoval = true)
     // @JoinColumn(name="USER_ID", nullable=false)
-    @PrimaryKeyJoinColumn
+    //@PrimaryKeyJoinColumn
+	@OneToOne(cascade= CascadeType.ALL,mappedBy="sale")
 	private Payer payer;
 	
 	@Temporal(TemporalType.TIMESTAMP)

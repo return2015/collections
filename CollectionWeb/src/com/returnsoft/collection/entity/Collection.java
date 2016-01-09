@@ -77,6 +77,9 @@ public class Collection implements Serializable{
 	@Column(name = "col_channel")
 	private String channel;
 	
+	@Column(name = "col_reason")
+	private String reason;
+	
 	///////////////////
 	
 	@Temporal(TemporalType.TIMESTAMP)
@@ -262,6 +265,14 @@ public class Collection implements Serializable{
 
 	public void setLote(Lote lote) {
 		this.lote = lote;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 
 	

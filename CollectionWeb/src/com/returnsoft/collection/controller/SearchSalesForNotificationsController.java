@@ -152,6 +152,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 	//private List<Commerce> commerces;
 	
 	private LazyDataModel<Sale> sales;
+	
+	private String orderNumber;
 
 	public SearchSalesForNotificationsController() {
 		
@@ -212,6 +214,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 				//SE RESETEA EL TIPO DE BUSQUEDA
 				searchTypeSelected = "notificationData";
+				saleStateSelected=SaleStateEnum.ACTIVE.getId().toString();
 				//onChangeSearchType();
 
 				return null;
@@ -1655,6 +1658,14 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 	public void setWithoutNotification(Boolean withoutNotification) {
 		this.withoutNotification = withoutNotification;
+	}
+
+	public String getOrderNumber() {
+		return orderNumber;
+	}
+
+	public void setOrderNumber(String orderNumber) {
+		this.orderNumber = orderNumber;
 	}
 	
 	

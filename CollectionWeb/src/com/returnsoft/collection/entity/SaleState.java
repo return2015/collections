@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -30,9 +31,9 @@ public class SaleState implements Serializable {
 	 */
 	private static final long serialVersionUID = -722923150396095288L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "salsta_id")
+	@Id 
+	//@GeneratedValue(strategy = GenerationType.IDENTITY)
+	//@Column(name = "salsta_id")
 	private Long id;
 	
 	@Column(name = "salsta_state")
@@ -57,6 +58,12 @@ public class SaleState implements Serializable {
 	
 	/*@OneToOne(fetch=FetchType.LAZY,mappedBy="saleState")
 	private Sale sale;*/
+	
+	@MapsId 
+    @OneToOne()
+	@JoinColumn(name = "salsta_id") 
+	private Sale sale;
+	
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "salsta_updated_at")
@@ -150,6 +157,14 @@ public class SaleState implements Serializable {
 
 	public void setUpdatedBy(User updatedBy) {
 		this.updatedBy = updatedBy;
+	}
+
+	public Sale getSale() {
+		return sale;
+	}
+
+	public void setSale(Sale sale) {
+		this.sale = sale;
 	}
 
 	

@@ -45,15 +45,14 @@ public class CollectionServiceImpl implements CollectionService {
 	}
 
 
-	public List<Collection> findByResponseAndAuthorizationDay(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode)
+	public Integer findByResponseAndAuthorizationDay(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode)
 			throws ServiceException {
 		try {
 
-			List<Collection> collections = collectionEao
+			return collectionEao
 					.findByResponseAndAuthorizationDay(messageResponse,authorizationDate,saleCode);
 
-			return collections;
-
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
@@ -65,14 +64,12 @@ public class CollectionServiceImpl implements CollectionService {
 
 	}
 	
-	public List<Collection> findByResponseAndAuthorizationMonth(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode)
+	public Integer findByResponseAndAuthorizationMonth(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode)
 			throws ServiceException {
 		try {
 
-			List<Collection> collections = collectionEao
+			return collectionEao
 					.findByResponseAndAuthorizationMonth(messageResponse,authorizationDate,saleCode);
-
-			return collections;
 
 		} catch (Exception e) {
 			e.printStackTrace();

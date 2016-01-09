@@ -11,9 +11,9 @@ public interface CollectionService {
 	
 	public void add(Collection collection) throws ServiceException;
 	
-	public List<Collection> findByResponseAndAuthorizationDay(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode) throws ServiceException;
+	public Integer findByResponseAndAuthorizationDay(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode) throws ServiceException;
 	
-	public List<Collection> findByResponseAndAuthorizationMonth(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode) throws ServiceException;
+	public Integer findByResponseAndAuthorizationMonth(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode) throws ServiceException;
 	
 	public List<Collection> findAllowsBySale(Long saleId) throws ServiceException;
 	

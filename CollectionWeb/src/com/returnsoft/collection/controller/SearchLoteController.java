@@ -31,6 +31,7 @@ import com.returnsoft.collection.entity.CollectionPeriod;
 import com.returnsoft.collection.entity.CreditCard;
 import com.returnsoft.collection.entity.Lote;
 import com.returnsoft.collection.entity.Payer;
+import com.returnsoft.collection.entity.PaymentMethod;
 import com.returnsoft.collection.entity.Product;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.SaleState;
@@ -54,10 +55,14 @@ import com.returnsoft.collection.exception.OverflowException;
 import com.returnsoft.collection.exception.SaleAlreadyExistException;
 import com.returnsoft.collection.exception.SaleDuplicateException;
 import com.returnsoft.collection.exception.SaleNotFoundException;
+import com.returnsoft.collection.exception.SaleStateNoActiveException;
+import com.returnsoft.collection.exception.SaleStateNotFoundException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.CollectionPeriodService;
+import com.returnsoft.collection.service.CollectionService;
 import com.returnsoft.collection.service.LoteService;
+import com.returnsoft.collection.service.PaymentMethodService;
 import com.returnsoft.collection.service.ProductService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.CollectionFile;
@@ -123,6 +128,12 @@ public class SearchLoteController implements Serializable{
 	
 	@EJB
 	private SaleService saleService;
+	
+	@EJB
+	private PaymentMethodService paymentMethodService;
+	
+	@EJB
+	private CollectionService collectionService;
 	
 	
 	public SearchLoteController(){
@@ -742,15 +753,15 @@ public class SearchLoteController implements Serializable{
 				}
 
 				// PROVINCIA
-				if (saleFile.getProvince().length() > 20) {
-					errors.add(new OverflowException(headers.getProvince(), lineNumber,20));
+				if (saleFile.getProvince().length() > 50) {
+					errors.add(new OverflowException(headers.getProvince(), lineNumber,50));
 				} else {
 					payer.setProvince(saleFile.getProvince());
 				}
 
 				// DISTRITO
-				if (saleFile.getDistrict().length() > 40) {
-					errors.add(new OverflowException(headers.getDistrict(), lineNumber,40));
+				if (saleFile.getDistrict().length() > 50) {
+					errors.add(new OverflowException(headers.getDistrict(), lineNumber,50));
 				} else {
 					payer.setDistrict(saleFile.getDistrict());
 				}
@@ -798,8 +809,8 @@ public class SearchLoteController implements Serializable{
 				}
 
 				// NOMBRE DE VENDEDOR
-				if (saleFile.getVendorName().length() > 35) {
-					errors.add(new OverflowException(headers.getVendorName(), lineNumber,35));
+				if (saleFile.getVendorName().length() > 50) {
+					errors.add(new OverflowException(headers.getVendorName(), lineNumber,50));
 				} else {
 					sale.setVendorName(saleFile.getVendorName());
 				}
@@ -981,8 +992,8 @@ public class SearchLoteController implements Serializable{
 				}
 
 				// MOTIVO DE ESTADO
-				if (saleFile.getDownReason().length() > 30) {
-					errors.add(new OverflowException(headers.getDownReason(), lineNumber,30));
+				if (saleFile.getDownReason().length() > 50) {
+					errors.add(new OverflowException(headers.getDownReason(), lineNumber,50));
 				} else {
 					saleState.setReason(saleFile.getDownReason());
 				}
@@ -1018,9 +1029,15 @@ public class SearchLoteController implements Serializable{
 
 				//sale.setCreatedBy(user);
 				sale.setCreatedAt(currentDate);
+				
 				sale.setPayer(payer);
 				sale.setCreditCard(creditCard);
 				sale.setSaleState(saleState);
+				
+				payer.setSale(sale);
+				creditCard.setSale(sale);
+				saleState.setSale(sale);
+				
 
 				sales.add(sale);
 
@@ -1228,6 +1245,7 @@ public class SearchLoteController implements Serializable{
 			Date currentDate = new Date();
 			//List<Product> productsEntity = productService.getAll();
 			//List<CollectionPeriod> collectionPeriodsEntity = collectionPeriodService.getAll();
+			List<PaymentMethod> paymentMethodsEntity = paymentMethodService.getAll();
 			
 			SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
 			SimpleDateFormat sdf2 = new SimpleDateFormat("MM/yyyy");
@@ -1252,19 +1270,29 @@ public class SearchLoteController implements Serializable{
 					errors.add(new OverflowException(headers.getSaleCode(), lineNumber,10));
 				} else {
 					Sale saleFound = saleService.findByCode(collectionFile.getSaleCode());
+					//VALIDA QUE LA VENTA EXISTA
 					if (saleFound == null) {
 						errors.add(new SaleNotFoundException(headers.getSaleCode(), lineNumber));
-					} else {
-						if (saleFound.getBank() == null) {
-							errors.add(new BankNotFoundException(headers.getSaleCode(), lineNumber));	
-						}else{
-							if (saleFound.getBank().getId() != bank.getId()) {
-								errors.add(new BankInvalidException(headers.getSaleCode(), lineNumber));	
-							}else{
-								collection.setSale(saleFound);	
-							}
-						}
+					} 
+					//VALIDA QUE EL BANCO NO SEA NULO
+					if (saleFound.getBank() == null) {
+						errors.add(new BankNotFoundException(headers.getSaleCode(), lineNumber));	
 					}
+					//VALIDA QUE EL BANCO SEA EL MISMO QUE LA SESION
+					if (saleFound.getBank().getId() != bank.getId()) {
+						errors.add(new BankInvalidException(headers.getSaleCode(), lineNumber));	
+					}
+					//VALIDA QUE EL ESTADO NO SEA NULO
+					if (saleFound.getSaleState()== null || saleFound.getSaleState().getState()==null) {
+						errors.add(new SaleStateNotFoundException(headers.getSaleCode(), lineNumber));	
+					}
+					//VALIDA QUE EL ESTADO SEA ACTIVO
+					if (saleFound.getSaleState().getState()!= SaleStateEnum.ACTIVE) {
+						errors.add(new SaleStateNoActiveException(headers.getSaleCode(), lineNumber));	
+					}
+					
+					collection.setSale(saleFound);	
+					
 				}
 
 				// MAXIMUM AMOUNT
@@ -1316,6 +1344,174 @@ public class SearchLoteController implements Serializable{
 						}
 					}
 				}
+				
+				
+				 // FECHA ESTIMADA 
+				if (collectionFile.getEstimatedDate().length() == 0) {
+					errors.add(new NullException(headers.getEstimatedDate(), lineNumber));
+				} else {
+					try {
+						Date estimatedDate = sdf1.parse(collectionFile.getEstimatedDate());
+						collection.setEstimatedDate(estimatedDate);
+					} catch (ParseException e1) {
+						errors.add(new FormatException(headers.getEstimatedDate(), lineNumber));
+					}
+				}
+				
+				 // FECHA AUTORIZACION
+				if (collectionFile.getAuthorizationDate().length() == 0) {
+					errors.add(new NullException(headers.getAuthorizationDate(), lineNumber));
+				} else {
+					try {
+						Date authorizationDate = sdf1.parse(collectionFile.getAuthorizationDate());
+						
+						
+						//OBTIENE CANTIDAD DE COBRANZAS DENEGADAS POR DÍA
+						Integer collectionsDenyByDayLength= collectionService
+								.findByResponseAndAuthorizationDay(CollectionResponseEnum.DENY,authorizationDate,collectionFile.getSaleCode());
+						//OBTIENE CANTIDAD DE COBRANZAS APROBADAS POR DÍA
+						Integer collectionsAllowByDayLength=collectionService
+								.findByResponseAndAuthorizationDay(CollectionResponseEnum.ALLOW,authorizationDate,collectionFile.getSaleCode());
+						//OBTIENE CANTIDAD DE COBRANZAS DENEGADAS POR MES
+						Integer collectionsDenyByMonthLength=collectionService
+								.findByResponseAndAuthorizationMonth(CollectionResponseEnum.DENY,authorizationDate,collectionFile.getSaleCode());
+						//OBTIENE CANTIDAD DE COBRANZAS APROBADAS POR MES
+						Integer collectionsAllowByMonthLength= collectionService
+								.findByResponseAndAuthorizationMonth(CollectionResponseEnum.ALLOW,authorizationDate,collectionFile.getSaleCode());
+						//OBTIENE TOTALES
+						Integer collectionsByMonthLength=collectionsAllowByMonthLength+collectionsDenyByMonthLength;
+						Integer collectionsByDayLength=collectionsAllowByDayLength+collectionsDenyByDayLength;
+						
+						
+						collection.setAuthorizationDate(authorizationDate);
+						
+					} catch (ParseException e1) {
+						errors.add(new FormatException(headers.getAuthorizationDate(), lineNumber));
+					}
+				}
+				
+				
+				 // FECHA DE DEPÓSITO
+				if (collectionFile.getDepositDate().length() == 0) {
+					errors.add(new NullException(headers.getDepositDate(), lineNumber));
+				} else {
+					try {
+						Date depositDate = sdf1.parse(collectionFile.getDepositDate());
+						collection.setDepositDate(depositDate);
+					} catch (ParseException e1) {
+						errors.add(new FormatException(headers.getDepositDate(), lineNumber));
+					}
+				}
+				
+				// RESPONSE CODE
+				if (collectionFile.getResponseCode().length() == 0) {
+					errors.add(new NullException(headers.getResponseCode(), lineNumber));
+				} else if (collectionFile.getResponseCode().length() != 2) {
+					errors.add(new OverflowException(headers.getResponseCode(), lineNumber,2));
+				} else {
+					try {
+						Short responseCode = Short.parseShort(collectionFile.getResponseCode());
+						collection.setResponseCode(responseCode);
+					} catch (NumberFormatException e) {
+						errors.add(new FormatException(headers.getResponseCode(), lineNumber));
+					}
+				}
+				
+				// AUTORIZATION CODE
+				if (collectionFile.getAuthorizationCode().length() != 0 && collectionFile.getAuthorizationCode().length() > 2) {
+					errors.add(new OverflowException(headers.getAuthorizationCode(), lineNumber,2));
+				} else {
+					try {
+						Integer authorizationCode = Integer.parseInt(collectionFile.getAuthorizationCode());
+						collection.setAuthorizationCode(authorizationCode);
+					} catch (NumberFormatException e) {
+						errors.add(new FormatException(headers.getAuthorizationCode(), lineNumber));
+					}
+				}
+				
+				
+				// ACCION
+				if (collectionFile.getAction().length() == 0) {
+					errors.add(new NullException(headers.getAction(), lineNumber));
+				} else if (collectionFile.getAction().length() > 20) {
+					errors.add(new OverflowException(headers.getAction(), lineNumber,20));
+				} else {
+					collection.setAction(collectionFile.getAction());
+				}
+				
+				// ESTADO TRANSACCION
+				if (collectionFile.getTransactionState().length() == 0) {
+					errors.add(new NullException(headers.getTransactionState(), lineNumber));
+				} else if (collectionFile.getTransactionState().length() > 20) {
+					errors.add(new OverflowException(headers.getTransactionState(), lineNumber,20));
+				} else {
+					collection.setTransactionState(collectionFile.getTransactionState());
+				}
+				
+				
+				// NUMERO DE LOTE	
+				if (collectionFile.getLoteNumber().length() != 0 && collectionFile.getLoteNumber().length() > 10) {
+					errors.add(new OverflowException(headers.getLoteNumber(), lineNumber,10));
+				} else {
+					try {
+						Integer loteNumber = Integer.parseInt(collectionFile.getLoteNumber());
+						collection.setLoteNumber(loteNumber);
+					} catch (NumberFormatException e) {
+						errors.add(new FormatException(headers.getLoteNumber(), lineNumber));
+					}
+				}
+				
+				//CANAL
+				if (collectionFile.getChannel().length() == 0) {
+					errors.add(new NullException(headers.getChannel(), lineNumber));
+				} else if (collectionFile.getChannel().length() > 20) {
+					errors.add(new OverflowException(headers.getChannel(), lineNumber,20));
+				} else {
+					collection.setChannel(collectionFile.getChannel());
+				}
+				
+				// MEDIO DE PAGO
+				if (collectionFile.getPaymentMethod().length() == 0) {
+					errors.add(new NullException(headers.getPaymentMethod(), lineNumber));
+				} else if (collectionFile.getPaymentMethod().length() != 2) {
+					errors.add(new OverflowException(headers.getPaymentMethod(), lineNumber,2));
+				} else {
+					PaymentMethod paymentMethod = null;
+					for (PaymentMethod paymentMethodEntity : paymentMethodsEntity) {
+						if (collectionFile.getPaymentMethod().equals(paymentMethodEntity.getCode())) {
+							paymentMethod = paymentMethodEntity;
+							break;
+						}
+					}
+					if (paymentMethod == null) {
+						errors.add(new FormatException(headers.getPaymentMethod(), lineNumber));
+					} else {
+						collection.setPaymentMethod(paymentMethod);
+					}
+				}
+				
+				
+				/*headers.setSaleCode(values[0]);
+				headers.setMaximumAmount(values[1]);
+				headers.setChargeAmount(values[2]);
+				headers.setReceiptNumber(values[3]);
+
+				headers.setEstimatedDate(values[4]);
+				headers.setAuthorizationDate(values[5]);
+				headers.setDepositDate(values[6]);
+				headers.setResponseCode(values[7]);
+
+				headers.setAuthorizationCode(values[8]);
+				headers.setResponseMessage(values[9]);
+				headers.setAction(values[10]);
+				headers.setTransactionState(values[11]);
+				headers.setLoteNumber(values[12]);
+
+				headers.setChannel(values[13]);
+				headers.setPaymentMethod(values[14]);*/
+				
+				
+				
 				/*
 				// APELLIDO MATERNO RESPONSABLE DE PAGO
 				if (saleFile.getLastnameMaternalResponsible().length() == 0) {
@@ -1393,50 +1589,7 @@ public class SearchLoteController implements Serializable{
 					}
 				}
 
-				// NUIC DE CONTRATANTE
-				if (saleFile.getNuicContractor().length() > 8) {
-					errors.add(new OverflowException(headers.getNuicContractor(), lineNumber,8));
-				} else if (saleFile.getNuicContractor().length() > 0) {
-					try {
-						Integer nuicContractor = Integer.parseInt(saleFile.getNuicContractor());
-						sale.setNuicContractor(nuicContractor);
-					} catch (NumberFormatException e) {
-						errors.add(new FormatException(headers.getNuicContractor(), lineNumber));
-					}
-				}
-
-			
-				// NUIC DE ASEGURADO
-				//System.out.println("saleFile.getNuicInsured():" + saleFile.getNuicInsured());
-				if (saleFile.getNuicInsured().length() == 0) {
-					errors.add(new NullException(headers.getNuicInsured(), lineNumber));
-				} else if (saleFile.getNuicInsured().length() > 8) {
-					errors.add(new OverflowException(headers.getNuicInsured(), lineNumber,8));
-				} else {
-					try {
-						Integer nuicInsured = Integer.parseInt(saleFile.getNuicInsured());
-						sale.setNuicInsured(nuicInsured);
-					} catch (NumberFormatException e) {
-						errors.add(new FormatException(headers.getNuicInsured(), lineNumber));
-					}
-				}
-
-			
-
-				// TELEFONO1
-				if (saleFile.getPhone1().length() > 9) {
-					errors.add(new OverflowException(headers.getPhone1(), lineNumber,9));
-				} else {
-					if (saleFile.getPhone1().length() > 0) {
-						try {
-							Integer phone1 = Integer.parseInt(saleFile.getPhone1());
-							sale.setPhone1(phone1);
-						} catch (NumberFormatException e) {
-							errors.add(new FormatException(headers.getPhone1(), lineNumber));
-						}
-					}
-				}
-
+				
 				// TELEFONO2
 				if (saleFile.getPhone2().length() > 9) {
 					errors.add(new OverflowException(headers.getPhone2(), lineNumber,9));
@@ -1451,13 +1604,7 @@ public class SearchLoteController implements Serializable{
 					}
 				}
 
-				// MAIL
-				if (saleFile.getMail().length() > 45) {
-					errors.add(new OverflowException(headers.getMail(), lineNumber,45));
-				} else {
-					payer.setMail(saleFile.getMail());
-				}
-
+			
 				
 
 				// FECHA DE VENTA
@@ -1589,57 +1736,9 @@ public class SearchLoteController implements Serializable{
 					}
 				}
 
-				// FECHA DE ESTADO DE VENTA
-				if (saleFile.getStateDate().length() > 0 && saleFile.getStateDate().length() != 10) {
-					errors.add(new OverflowException(headers.getStateDate(), lineNumber,10));
-				} else if (saleFile.getStateDate().length() > 0) {
-					try {
-						Date stateDate = sdf1.parse(saleFile.getStateDate());
-						saleState.setDate(stateDate);
-					} catch (ParseException e) {
-						errors.add(new FormatException(headers.getStateDate(), lineNumber));
-					}
-				}
+				
 
-				// USUARIO DE ESTADO
-				if (saleFile.getDownUser().length() > 15) {
-					errors.add(new OverflowException(headers.getDownUser(), lineNumber,15));
-				} else {
-					saleState.setUser(saleFile.getDownUser());
-				}
-
-				// CANAL DE ESTADO
-				if (saleFile.getDownChannel().length() > 15) {
-					errors.add(new OverflowException(headers.getDownChannel(), lineNumber,15));
-				} else {
-					saleState.setChannel(saleFile.getDownChannel());
-				}
-
-				// MOTIVO DE ESTADO
-				if (saleFile.getDownReason().length() > 30) {
-					errors.add(new OverflowException(headers.getDownReason(), lineNumber,30));
-				} else {
-					saleState.setReason(saleFile.getDownReason());
-				}
-
-				// OBSERVACION DE ESTADO
-				if (saleFile.getDownObservation().length() > 2500) {
-					errors.add(new OverflowException(headers.getDownObservation(), lineNumber,2500));
-				} else {
-					saleState.setObservation(saleFile.getDownObservation());
-				}
-
-				// FECHA DE ACTUALIZACION DE TARJETA
-				if (saleFile.getCreditCardUpdatedAt().length() != 10) {
-					errors.add(new OverflowException(headers.getCreditCardUpdatedAt(), lineNumber,10));
-				} else if (saleFile.getCreditCardUpdatedAt().length() > 0) {
-					try {
-						Date creditCardDate = sdf1.parse(saleFile.getCreditCardUpdatedAt());
-						creditCard.setDate(creditCardDate);
-					} catch (ParseException e) {
-						errors.add(new FormatException(headers.getCreditCardUpdatedAt(), lineNumber));
-					}
-				}
+				
 
 				// VERIFICA SI EXISTE LA VENTA
 				if (sale.getBank()!=null && sale.getProduct()!=null && sale.getCollectionPeriod() !=null) {

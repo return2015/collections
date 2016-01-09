@@ -5,60 +5,65 @@
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui">
-	
+
 <ui:insert name="metadata">
 </ui:insert>
-	
+
 <h:head>
 	<title><ui:insert name="title">Cobranzas</ui:insert></title>
 	<h:outputStylesheet library="css" name="collection.css" />
-<ui:insert name="library">
-</ui:insert>	
+	<ui:insert name="library">
+	</ui:insert>
 </h:head>
 
 <h:body>
 
-<!-- -->
+	<!-- -->
 
-	<div style="float:right;" class="ui-widget">
+	<div style="float: right;" class="ui-widget">
 		<h:panelGrid id="pnl-bank" style="margin:auto;">
 			<h1>#{sessionBean.bank.name}</h1>
 		</h:panelGrid>
 	</div>
-	
+
 	<ui:include src="/templates/header.xhtml" />
-	
+
 	<h:form>
 		<p:menubar styleClass="centeredMenuBar">
 
 			<p:menuitem value="Inicio" outcome="home" icon="ui-icon-star" />
-			
+
 			<p:menuitem value="Lotes" outcome="search_lotes" icon="ui-icon-star" />
-			
+
 			<p:menuitem value="Ventas" outcome="search_sales" icon="ui-icon-star" />
-			
-			<p:menuitem value="Cobranzas" outcome="search_sales_for_collections" icon="ui-icon-star" />
 
-			
-			
-			<p:menuitem value="Notificaciones" outcome="search_sales_for_notifications" icon="ui-icon-star" />
-			
-			
+			<p:menuitem value="Cobranzas" outcome="search_sales_for_collections"
+				icon="ui-icon-star" />
 
-			<p:menuitem value="Usuarios" outcome="search_user" rendered="#{sessionBean.isAdmin}" icon="ui-icon-star" />
-			
-			<p:menuitem value="Seleccionar banco" outcome="select_bank" icon="ui-icon-star" />
 
-			<p:menuitem value="Salir" action="#{loginController.doLogout}" icon="ui-icon-star" />
+
+			<p:menuitem value="Notificaciones"
+				outcome="search_sales_for_notifications" icon="ui-icon-star" />
+
+
+
+			<p:menuitem value="Usuarios" outcome="search_user"
+				rendered="#{sessionBean.isAdmin}" icon="ui-icon-star" />
+
+			<p:menuitem value="Seleccionar banco" outcome="select_bank"
+				icon="ui-icon-star" />
+
+			<p:menuitem value="Salir" action="#{loginController.doLogout}"
+				icon="ui-icon-star" />
 
 		</p:menubar>
 	</h:form>
-  	
+
 	<ui:insert name="content">
 	</ui:insert>
 	<!-- -->
 	<ui:include src="/templates/footer.xhtml" />
-	  
+
 </h:body>
 
 </html>
