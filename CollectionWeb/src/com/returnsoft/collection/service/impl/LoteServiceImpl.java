@@ -151,6 +151,8 @@ public class LoteServiceImpl implements LoteService {
 			lote.setLoteType(LoteTypeEnum.CREATESALE);
 			lote.setState("En progreso");
 			loteEao.add(lote);
+			// villanuevan@pe.geainternacional.com nidia
+			
 
 			Integer lineNumber = 1;
 

@@ -34,10 +34,7 @@
 
 				<h:panelGrid columns="4">
 
-					<p:outputLabel value="DNI"></p:outputLabel>
-					<p:inputText style="width: 120px;"
-						value="#{searchUserController.documentNumberSearch}"></p:inputText>
-
+					
 					<p:outputLabel value="Nombres"></p:outputLabel>
 					<p:inputText style="width: 230px;"
 						value="#{searchUserController.nameSearch}"></p:inputText>
@@ -87,11 +84,6 @@
 				<p:ajax event="rowSelect" update=":form:editButtom :form:userId" />
 				<p:ajax event="rowUnselect" update=":form:editButtom :form:userId" />
 
-
-
-				<p:column headerText="DNI">
-					<h:outputText value="#{r.documentNumber}"></h:outputText>
-				</p:column>
 
 				<p:column headerText="NOMBRES">
 					<h:outputText value="#{r.firstname}"></h:outputText>

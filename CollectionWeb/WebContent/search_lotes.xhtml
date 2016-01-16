@@ -90,14 +90,14 @@
 				</h:form>
 				<p:dataTable value="#{searchLoteController.lotes}" var="r"
 					rowKey="#{r.id}" paginator="true" rows="10" id="searchTable"
-					selectionMode="single"
+					selectionMode="single" style="width:700px;"
 					selection="#{searchLoteController.loteSelected}">
 
 					<p:column headerText="Id" width="20">
 						<h:outputText value="#{r.id}"></h:outputText>
 					</p:column>
 
-					<p:column headerText="Nombre">
+					<p:column headerText="Nombre" width="100">
 						<h:outputText value="#{r.name}"></h:outputText>
 					</p:column>
 
@@ -109,7 +109,7 @@
 						<h:outputText value="#{r.process}"></h:outputText>
 					</p:column>
 
-					<p:column headerText="Estado">
+					<p:column headerText="Estado" width="40">
 						<h:outputText value="#{r.state}"></h:outputText>
 					</p:column>
 					

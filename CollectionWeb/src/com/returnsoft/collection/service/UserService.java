@@ -11,7 +11,7 @@ public interface UserService {
 	public User loginUser(String USERNAME, String PASSWORD)
 			throws ServiceException;
 	
-	public List<User> find(String documentNumber,String name) throws ServiceException;
+	public List<User> find(String name) throws ServiceException;
 	
 	public void add(User user) throws ServiceException;
 	

@@ -80,8 +80,10 @@ public class EditUserController implements Serializable {
 			
 			/*userSelected = new User();
 			userSelected.setId(Integer.parseInt(userId));*/
+			
+			Integer userIdInt = Integer.parseInt(userId); 
 
-			userSelected = userService.findById(userSelected.getId());
+			userSelected = userService.findById(userIdInt);
 			
 			
 			List<Bank> banksEntity = bankService.getAll();

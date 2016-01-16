@@ -18,7 +18,7 @@ public interface UserEao {
 	
 	public List<User> findByUserType(String userTypeCode) throws EaoException;
 	
-	public List<User> find(String documentNumber, String name) throws EaoException;
+	public List<User> find(String name) throws EaoException;
 	
 	public User findCoordinatorByArea(Integer areaId) throws EaoException;
 	

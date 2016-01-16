@@ -34,7 +34,6 @@ public class SearchUserController implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private String documentNumberSearch;
 	private String nameSearch;
 	private List<User> users;
 	private User userSelected;
@@ -81,7 +80,7 @@ public class SearchUserController implements Serializable {
 				throw new UserLoggedNotFoundException();
 			}
 
-			users = userService.find(documentNumberSearch, nameSearch);
+			users = userService.find(nameSearch);
 
 			// userSelected = null;
 
@@ -121,15 +120,17 @@ public class SearchUserController implements Serializable {
 			System.out.println("after.."+userReturn.getUsername());
 			System.out.println("after.."+userReturn.getFirstname());
 			System.out.println("after.."+userReturn.getLastname());
-
-			//for (User user : users) {
+			
+			int i=0;
+			for (User user : users) {
 				//Sale sale = sales.get(i);
-				//if (user.getId().equals(userReturn.getId())) {
-					//sales.set(i, saleReturn);
+				if (user.getId().equals(userReturn.getId())) {
+					users.set(i, userReturn);
 					userSelected = userReturn;
-					//break;
-				//}
-			//}
+					break;
+				}
+				i++;
+			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -139,13 +140,6 @@ public class SearchUserController implements Serializable {
 		
 	}
 
-	public String getDocumentNumberSearch() {
-		return documentNumberSearch;
-	}
-
-	public void setDocumentNumberSearch(String documentNumberSearch) {
-		this.documentNumberSearch = documentNumberSearch;
-	}
 
 	public String getNameSearch() {
 		return nameSearch;
