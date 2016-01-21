@@ -19,6 +19,7 @@ public class ProductEaoImpl implements ProductEao {
 	
 	@PersistenceContext
 	private EntityManager em;
+	
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Product> getProducts() throws EaoException {
 		try {

@@ -24,7 +24,7 @@ public class CollectionEaoImpl implements CollectionEao {
 	@PersistenceContext
 	private EntityManager em;
 	
-	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void add(Collection collection) throws EaoException{
 		try {
 			
@@ -124,42 +124,42 @@ public class CollectionEaoImpl implements CollectionEao {
 	
 	
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public List<Collection> findByResponseAndAuthorizationDay(CollectionResponseEnum responseMessage, Date authorizationDate, String saleCode) throws EaoException{
+	public Integer findByResponseAndAuthorizationDay(CollectionResponseEnum responseMessage, Date authorizationDate, String saleCode) throws EaoException{
 		
 		try {
 			
-			String query = "SELECT c FROM Collection c left join c.sale s "
+			String query = "SELECT count(c.id) FROM Collection c left join c.sale s "
 					+ "WHERE s.code=:saleCode and c.responseMessage=:responseMessage "
-					+ "and c.authorizationDate = :authorizationDate ";
+					+ "and c.authorizationDate = :authorizationDate group by s.id";
 			
-			TypedQuery<Collection> q = em.createQuery(query, Collection.class);
+			Query q = em.createQuery(query);
 			q.setParameter("authorizationDate", authorizationDate);
 			q.setParameter("responseMessage", responseMessage);
 			q.setParameter("saleCode", saleCode);
 			
-			List<Collection> collections = q.getResultList();
+			Long collectionsCount = (Long)q.getSingleResult();
 			
-			return collections;
+			return collectionsCount.intValue();
 			
 		} catch (NoResultException e) {
-			return null;
+			return 0;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new EaoException(e.getMessage());
 		}
 	}
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public List<Collection> findByResponseAndAuthorizationMonth(CollectionResponseEnum responseMessage,Date authorizationDate, String saleCode) throws EaoException{
+	public Integer findByResponseAndAuthorizationMonth(CollectionResponseEnum responseMessage,Date authorizationDate, String saleCode) throws EaoException{
 		
 		//System.out.println("findByResponseAndAuthorizationMonth.......................");
 		
 		try {
 			
-			String query = "SELECT c FROM Collection c left join c.sale s "
+			String query = "SELECT count(c.id) FROM Collection c left join c.sale s "
 					+ "WHERE s.code=:saleCode and c.responseMessage=:responseMessage "
-					+ "and ( FUNC('MONTH',c.authorizationDate) = :authorizationDateMonth and FUNC('YEAR',c.authorizationDate) = :authorizationDateYear ) ";
+					+ "and ( FUNC('MONTH',c.authorizationDate) = :authorizationDateMonth and FUNC('YEAR',c.authorizationDate) = :authorizationDateYear ) group by s.id";
 			
-			TypedQuery<Collection> q = em.createQuery(query, Collection.class);
+			Query q = em.createQuery(query);
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(authorizationDate);
 			q.setParameter("authorizationDateMonth", calendar.get(Calendar.MONTH));
@@ -167,12 +167,12 @@ public class CollectionEaoImpl implements CollectionEao {
 			q.setParameter("responseMessage", responseMessage);
 			q.setParameter("saleCode", saleCode);
 			
-			List<Collection> collections = q.getResultList();
+			Long collectionsCount = (Long)q.getSingleResult();
 			
-			return collections;
+			return collectionsCount.intValue();
 			
 		} catch (NoResultException e) {
-			return null;
+			return 0;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new EaoException(e.getMessage());

@@ -9,6 +9,13 @@
 
 <ui:composition template="/templates/BasicTemplate.xhtml">
 
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{addUserController.initialize}" />
+		</f:metadata>
+	</ui:define>
+
+
 	<ui:define name="content">
 		<div class="title ui-widget-header ui-corner-all">
 			<h:panelGrid style="margin:auto;">
@@ -23,58 +30,55 @@
 					<p:messages id="messages"></p:messages>
 				</h:panelGrid>
 
+				<h:panelGrid columns="2" rowClasses="panelgrid_center_row">
+
+					<h:panelGrid columns="2">
+
+						<p:outputLabel value="Nombres"></p:outputLabel>
+						<p:inputText required="true"
+							requiredMessage="Debe ingresar nombres"
+							value="#{addUserController.userSelected.firstname}"></p:inputText>
+
+						<p:outputLabel value="Apellidos"></p:outputLabel>
+						<p:inputText required="true"
+							requiredMessage="Debe ingresar apellidos"
+							value="#{addUserController.userSelected.lastname}"></p:inputText>
 
 
-				<h:panelGrid columns="2">
+						<p:outputLabel value="Tipo"></p:outputLabel>
+						<p:selectOneMenu value="#{addUserController.userTypeSelected}">
+							<f:selectItems value="#{addUserController.userTypes}"></f:selectItems>
+						</p:selectOneMenu>
 
-					<p:outputLabel value="Nombres"></p:outputLabel>
-					<p:inputText required="true"
-						requiredMessage="Debe ingresar nombres"
-						value="#{addUserController.userSelected.firstname}"></p:inputText>
+						<p:outputLabel value="Usuario"></p:outputLabel>
+						<p:inputText required="true"
+							requiredMessage="Debe ingresar usuario"
+							value="#{addUserController.userSelected.username}"></p:inputText>
 
-					<p:outputLabel value="Apellidos"></p:outputLabel>
-					<p:inputText required="true"
-						requiredMessage="Debe ingresar apellidos"
-						value="#{addUserController.userSelected.lastname}"></p:inputText>
+						<p:outputLabel value="Clave"></p:outputLabel>
+						<p:inputText required="true" requiredMessage="Debe ingresar clave"
+							value="#{addUserController.userSelected.password}"></p:inputText>
 
+						<p:outputLabel value="Clave Supervisor"></p:outputLabel>
+						<p:inputText required="true"
+							requiredMessage="Debe ingresar clave supervisor"
+							value="#{addUserController.userSelected.passwordSupervisor}"></p:inputText>
 
-					<p:outputLabel value="Documento de identidad"></p:outputLabel>
-					<p:inputText required="true"
-						requiredMessage="Debe ingresar documento de identidad"
-						value="#{addUserController.userSelected.documentNumber}"></p:inputText>
+						<p:outputLabel value="Activo"></p:outputLabel>
+						<p:selectBooleanCheckbox
+							value="#{addUserController.userSelected.isActive}">
+						</p:selectBooleanCheckbox>
 
-					<p:outputLabel value="Tipo"></p:outputLabel>
-					<p:selectOneMenu required="true"
-						requiredMessage="Debe seleccionar tipo de usuario"
-						value="#{addUserController.userTypeSelected}">
-						<f:selectItem itemValue="" itemLabel="Seleccione..."></f:selectItem>
-						<f:selectItems value="#{addUserController.userTypes}"></f:selectItems>
-					</p:selectOneMenu>
+					</h:panelGrid>
 
-					<p:outputLabel value="Usuario"></p:outputLabel>
-					<p:inputText required="true"
-						requiredMessage="Debe ingresar usuario"
-						value="#{addUserController.userSelected.username}"></p:inputText>
+					<h:panelGrid columns="2" rowClasses="panelgrid_center_row">
+						<p:outputLabel value="Banco"></p:outputLabel>
+						<p:selectManyMenu id="banks"
+							value="#{addUserController.banksSelected}" showCheckbox="true">
+							<f:selectItems value="#{addUserController.banks}"></f:selectItems>
+						</p:selectManyMenu>
 
-					<p:outputLabel value="Clave"></p:outputLabel>
-					<p:inputText required="true" requiredMessage="Debe ingresar clave"
-						value="#{addUserController.userSelected.password}"></p:inputText>
-						
-					<p:outputLabel value="Clave Supervisor"></p:outputLabel>
-					<p:inputText required="true" requiredMessage="Debe ingresar clave supervisor"
-						value="#{addUserController.userSelected.passwordSupervisor}"></p:inputText>	
-
-					<p:outputLabel value="Activo"></p:outputLabel>
-					<p:selectBooleanCheckbox
-						value="#{addUserController.userSelected.isActive}">
-					</p:selectBooleanCheckbox>
-
-					<p:outputLabel value="Banco"></p:outputLabel>
-					<p:selectManyMenu id="banks"
-						value="#{addUserController.banksSelected}" showCheckbox="true">
-						<f:selectItems value="#{addUserController.banks}"></f:selectItems>
-					</p:selectManyMenu>
-
+					</h:panelGrid>
 
 				</h:panelGrid>
 

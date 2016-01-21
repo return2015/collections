@@ -7,7 +7,11 @@ import java.io.Serializable;
 import java.util.Date;
 
 import javax.ejb.EJB;
+<<<<<<< HEAD
 import javax.enterprise.context.RequestScoped;
+=======
+import javax.faces.bean.RequestScoped;
+>>>>>>> branch 'master' of https://github.com/return2015/collections.git
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;

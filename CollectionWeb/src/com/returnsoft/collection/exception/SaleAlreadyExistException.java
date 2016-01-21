@@ -11,6 +11,10 @@ public class SaleAlreadyExistException extends Exception {
 		super("La venta ya existe");
 	}
 	
+	public SaleAlreadyExistException(int row) {
+		super("Error en la fila " + row + ": La venta ya existe");
+	}
+	
 	
 
 }

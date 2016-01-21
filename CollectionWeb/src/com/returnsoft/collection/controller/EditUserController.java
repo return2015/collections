@@ -4,20 +4,25 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.inject.Inject;
+
+import org.primefaces.context.RequestContext;
 
 import com.returnsoft.collection.entity.Bank;
+import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
-import com.returnsoft.collection.exception.ServiceException;
+import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.UserService;
+import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.collection.util.SessionBean;
 
 
 
@@ -44,22 +49,41 @@ public class EditUserController implements Serializable {
 	
 	private List<SelectItem> banks;
 	private List<String> banksSelected;
+	
+	//private String userId;
+	
+	@Inject
+	private SessionBean sessionBean;
+	
+	@Inject
+	private FacesUtil facesUtil;
 
-	@PostConstruct
-	public void initialize() {
+	//@PostConstruct
+	public String initialize() {
 		try {
 
-			System.out.println("Ingreso a initialize");
+			//System.out.println("Ingreso a initialize");
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
+				throw new UserLoggedNotFoundException();
+			}
 
 			String userId = FacesContext.getCurrentInstance()
 					.getExternalContext().getRequestParameterMap()
 					.get("userId");
+			
+			if (userId==null || userId.length()==0) {
+				throw new Exception("No se envío el usuario");
+			}
 
 			System.out.println("userId:" + userId);
-			userSelected = new User();
-			userSelected.setId(Integer.parseInt(userId));
+			
+			/*userSelected = new User();
+			userSelected.setId(Integer.parseInt(userId));*/
+			
+			Integer userIdInt = Integer.parseInt(userId); 
 
-			userSelected = userService.findById(userSelected.getId());
+			userSelected = userService.findById(userIdInt);
 			
 			
 			List<Bank> banksEntity = bankService.getAll();
@@ -94,9 +118,9 @@ public class EditUserController implements Serializable {
 			}
 			
 			banksSelected = new ArrayList<String>();
-			System.out.println("cantidad de banks: "+userSelected.getBanks().size());
+			//System.out.println("cantidad de banks: "+userSelected.getBanks().size());
 			if (userSelected.getBanks()!=null && userSelected.getBanks().size()>0) {
-				System.out.println("cantidad de banks: "+userSelected.getBanks().size());
+				//System.out.println("cantidad de banks: "+userSelected.getBanks().size());
 				for (Bank bank : userSelected.getBanks()) {
 					if (bank!=null && bank.getId()!=null) {
 						banksSelected.add(bank.getId().toString());
@@ -104,16 +128,16 @@ public class EditUserController implements Serializable {
 				}
 			}
 			
-			
+			return null;
 
+		} catch (UserLoggedNotFoundException e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			return "login.xhtml?faces-redirect=true";
 		} catch (Exception e) {
-
-			if (!(e instanceof ServiceException)) {
-				e.printStackTrace();
-			}
-			FacesMessage msg = new FacesMessage(e.getMessage(), e.getMessage());
-			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-			FacesContext.getCurrentInstance().addMessage(null, msg);
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			return null;
 		}
 	}
 
@@ -121,6 +145,10 @@ public class EditUserController implements Serializable {
 	
 	public void edit(){
 		try {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
+				throw new UserLoggedNotFoundException();
+			}
 			
 			List<Bank> banksEntity = new ArrayList<Bank>();
 			
@@ -152,15 +180,18 @@ public class EditUserController implements Serializable {
 			msg.setSeverity(FacesMessage.SEVERITY_INFO);
 			FacesContext.getCurrentInstance().addMessage(null, msg);
 			
+			// RETORNA 
+			
+						//User userReturn = saleService.findById(payerSelected.getId());
+						
+						RequestContext.getCurrentInstance().closeDialog(userSelected);
+						
 			
 		} catch (Exception e) {
 
-			if (!(e instanceof ServiceException)) {
-				e.printStackTrace();
-			}
-			FacesMessage msg = new FacesMessage(e.getMessage(), e.getMessage());
-			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-			FacesContext.getCurrentInstance().addMessage(null, msg);
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			
 		}
 	}
 
@@ -211,6 +242,9 @@ public class EditUserController implements Serializable {
 	public void setBanksSelected(List<String> banksSelected) {
 		this.banksSelected = banksSelected;
 	}
+
+
+
 
 	
 

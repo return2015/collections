@@ -2,18 +2,21 @@ package com.returnsoft.collection.controller;
 
 import java.io.Serializable;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 import org.primefaces.context.RequestContext;
 
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.exception.ServiceException;
+import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.UserService;
+import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.collection.util.SessionBean;
 
 @ManagedBean
 @ViewScoped
@@ -29,22 +32,31 @@ public class ValidatePasswordSupervisorController implements Serializable {
 
 	@EJB
 	private UserService userService;
+	
+	@Inject
+	private FacesUtil facesUtil;
+	
+	@Inject
+	private SessionBean sessionBean;
 
-	@PostConstruct
-	public void initialize() {
+	//@PostConstruct
+	public String initialize() {
 		try {
 
-			System.out.println("Ingreso a initialize");
-
-
-		} catch (Exception e) {
-
-			if (!(e instanceof ServiceException)) {
-				e.printStackTrace();
+			//System.out.println("Ingreso a initialize");
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
+				throw new UserLoggedNotFoundException();
 			}
-			FacesMessage msg = new FacesMessage(e.getMessage(), e.getMessage());
-			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-			FacesContext.getCurrentInstance().addMessage(null, msg);
+			return null;
+
+		} catch (UserLoggedNotFoundException e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			return "login.xhtml?faces-redirect=true";
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			return null;
 		}
 	}
 
@@ -52,11 +64,16 @@ public class ValidatePasswordSupervisorController implements Serializable {
 
 		try {
 			
-			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance()
-					.getExternalContext().getSessionMap().get("sessionBean");
+			/*SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance()
+					.getExternalContext().getSessionMap().get("sessionBean");*/
 			
 			/*Integer userId = (Integer) FacesContext.getCurrentInstance()
 					.getExternalContext().getSessionMap().get("userId");*/
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
+				throw new UserLoggedNotFoundException();
+			}
+			
 			Integer userId = sessionBean.getUser().getId();
 			
 			User user = userService.findById(userId);
@@ -73,12 +90,10 @@ public class ValidatePasswordSupervisorController implements Serializable {
 			}
 
 		} catch (Exception e) {
-			if (!(e instanceof ServiceException)) {
-				e.printStackTrace();
-			}
-			FacesMessage msg = new FacesMessage(e.getMessage(), e.getMessage());
-			msg.setSeverity(FacesMessage.SEVERITY_ERROR);
-			FacesContext.getCurrentInstance().addMessage(null, msg);
+
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			
 		}
 
 	}

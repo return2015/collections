@@ -97,17 +97,17 @@ public class UserEaoImpl implements UserEao {
 
 	}
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public List<User> find(String documentNumber, String name) throws EaoException {
+	public List<User> find(String name) throws EaoException {
 		try {
 			
-			String query = "SELECT u FROM User u WHERE u.documentNumber like :documentNumber ";
+			String query = "SELECT u FROM User u WHERE u.id>0 ";
 			
 			if (name!=null && name.length()>0) {
 				query+=" and (u.firstname like :name or u.lastname like :name) ";
 			}
 			
 			TypedQuery<User> q = em.createQuery(query, User.class);
-			q.setParameter("documentNumber", documentNumber+"%");
+			//q.setParameter("documentNumber", documentNumber+"%");
 			
 			if (name!=null && name.length()>0) {
 				q.setParameter("name", name+"%");

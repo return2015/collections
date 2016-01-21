@@ -43,17 +43,27 @@
 						<br></br>
 						<h:form id="formUploadSales" enctype="multipart/form-data">
 							<h:panelGrid columns="2">
-								<h:inputFile id="file" value="#{loadSalesController.file}">
+								<h:inputFile id="saleFile" value="#{searchLoteController.saleFile}">
 								</h:inputFile>
 								<h:commandButton value="Cargar ventas" process="@form"
 									actionListener="#{loadSalesController.validateSalesFile}">
-									<f:ajax execute="file" render=":acc_sales:messages_sales" />
+									<f:ajax execute="saleFile" render=":acc_sales:messages_sales" />
 								</h:commandButton>
 							</h:panelGrid>
 						</h:form>
 						<p:messages id="messages_sales"></p:messages>
 					</p:tab>
 					<p:tab title="Cargar lote de cobranzas">
+					<h:form id="formLinkCollections">
+							<h:commandLink actionListener="#{searchLoteController.downloadCollectionsFile}"
+								value="Descargar formato de trama">
+							</h:commandLink>
+						</h:form>
+						<br></br>
+						<br></br>
+						
+						<p:messages id="messages_collections"></p:messages>
+					
 					</p:tab>
 					<p:tab title="Cargar lote de estados">
 					</p:tab>
@@ -81,34 +91,34 @@
 				</h:form>
 				<p:dataTable value="#{searchLoteController.lotes}" var="r"
 					rowKey="#{r.id}" paginator="true" rows="10" id="searchTable"
-					selectionMode="single" style="width:100%;"
+					selectionMode="single" style="width:700px;"
 					selection="#{searchLoteController.loteSelected}">
 
-					<p:column headerText="Id">
+					<p:column headerText="Id" width="20">
 						<h:outputText value="#{r.id}"></h:outputText>
 					</p:column>
 
-					<p:column headerText="Nombre">
+					<p:column headerText="Nombre" width="100">
 						<h:outputText value="#{r.name}"></h:outputText>
 					</p:column>
 
-					<p:column headerText="Total">
+					<p:column headerText="Total" width="40">
 						<h:outputText value="#{r.total}"></h:outputText>
 					</p:column>
 
-					<p:column headerText="Procesado">
+					<p:column headerText="Procesado" width="40">
 						<h:outputText value="#{r.process}"></h:outputText>
 					</p:column>
 
-					<p:column headerText="Estado">
+					<p:column headerText="Estado" width="40">
 						<h:outputText value="#{r.state}"></h:outputText>
 					</p:column>
 
-					<p:column headerText="Tipo">
+					<p:column headerText="Tipo" width="100">
 						<h:outputText value="#{r.loteType.name}"></h:outputText>
 					</p:column>
 
-					<p:column headerText="Fecha">
+					<p:column headerText="Fecha" width="100">
 						<h:outputText value="#{r.date}">
 							<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
 						</h:outputText>

@@ -7,86 +7,90 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui">
 
-<ui:composition template="/templates/BasicTemplate.xhtml">
+<f:metadata>
+	<f:viewAction action="#{editUserController.initialize}" />
+</f:metadata>
 
-	<ui:define name="content">
-			
-			<div class="title ui-widget-header ui-corner-all">
-			<h:panelGrid style="margin:auto;">
+<h:head>
+	<h:outputStylesheet library="css" name="collection.css" />
+</h:head>
+
+<h:body>
+
+	<div class="title ui-widget-header ui-corner-all">
+		<h:panelGrid style="margin:auto;">
 		EDITAR USUARIO
 		</h:panelGrid>
 
-		</div>
-			
-		<h:form id="form">
-			<h:panelGrid style="margin:auto;">
+	</div>
 
-				<h:panelGrid style="margin:auto;text-align:center;">
-					<p:messages id="messages" ></p:messages>
+	<h:form id="form">
+		<h:panelGrid style="margin:auto;">
+
+			<h:panelGrid style="margin:auto;text-align:center;">
+				<p:messages id="messages"></p:messages>
+			</h:panelGrid>
+
+			<h:panelGrid columns="2" rowClasses="panelgrid_center_row">
+				<h:panelGrid columns="2">
+
+					<p:outputLabel value="Nombres"></p:outputLabel>
+					<p:inputText required="true"
+						requiredMessage="Debe ingresar nombres"
+						value="#{editUserController.userSelected.firstname}"></p:inputText>
+
+					<p:outputLabel value="Apellidos"></p:outputLabel>
+					<p:inputText required="true"
+						requiredMessage="Debe ingresar apellidos"
+						value="#{editUserController.userSelected.lastname}"></p:inputText>
+
+
+					<p:outputLabel value="Tipo"></p:outputLabel>
+					<p:selectOneMenu required="true"
+						requiredMessage="Debe seleccionar tipo de usuario"
+						value="#{editUserController.userTypeSelected}">
+						<f:selectItem itemValue="" itemLabel="Seleccione..."></f:selectItem>
+						<f:selectItems value="#{editUserController.userTypes}"></f:selectItems>
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Usuario"></p:outputLabel>
+					<p:inputText required="true"
+						requiredMessage="Debe ingresar usuario"
+						value="#{editUserController.userSelected.username}"></p:inputText>
+
+					<p:outputLabel value="Clave"></p:outputLabel>
+					<p:inputText required="true" requiredMessage="Debe ingresar clave"
+						value="#{editUserController.userSelected.password}"></p:inputText>
+
+					<p:outputLabel value="Clave Supervisor"></p:outputLabel>
+					<p:inputText required="true"
+						requiredMessage="Debe ingresar clave supervisor"
+						value="#{editUserController.userSelected.passwordSupervisor}"></p:inputText>
+
+					<p:outputLabel value="Activo"></p:outputLabel>
+					<p:selectBooleanCheckbox
+						value="#{editUserController.userSelected.isActive}">
+					</p:selectBooleanCheckbox>
+
+
+
 				</h:panelGrid>
-
-
-					<h:panelGrid columns="2">
-
-						<p:outputLabel value="Nombres"></p:outputLabel>
-						<p:inputText required="true"
-							requiredMessage="Debe ingresar nombres"
-							value="#{editUserController.userSelected.firstname}"></p:inputText>
-
-						<p:outputLabel value="Apellidos"></p:outputLabel>
-						<p:inputText required="true"
-							requiredMessage="Debe ingresar apellidos"
-							value="#{editUserController.userSelected.lastname}"></p:inputText>
-
-
-						<p:outputLabel value="Documento de identidad"></p:outputLabel>
-						<p:inputText required="true"
-							requiredMessage="Debe ingresar documento de identidad"
-							value="#{editUserController.userSelected.documentNumber}"></p:inputText>
-
-						<p:outputLabel value="Tipo"></p:outputLabel>
-						<p:selectOneMenu required="true"
-							requiredMessage="Debe seleccionar tipo de usuario"
-							value="#{editUserController.userTypeSelected}">
-							<f:selectItem itemValue="" itemLabel="Seleccione..."></f:selectItem>
-							<f:selectItems value="#{editUserController.userTypes}"></f:selectItems>
-						</p:selectOneMenu>
-
-						<p:outputLabel value="Usuario"></p:outputLabel>
-						<p:inputText required="true"
-							requiredMessage="Debe ingresar usuario"
-							value="#{editUserController.userSelected.username}"></p:inputText>
-
-						<p:outputLabel value="Clave"></p:outputLabel>
-						<p:inputText required="true" requiredMessage="Debe ingresar clave"
-							value="#{editUserController.userSelected.password}"></p:inputText>
-							
-						<p:outputLabel value="Clave Supervisor"></p:outputLabel>
-						<p:inputText required="true" requiredMessage="Debe ingresar clave supervisor"
-							value="#{editUserController.userSelected.passwordSupervisor}"></p:inputText>	
-
-						<p:outputLabel value="Activo"></p:outputLabel>
-						<p:selectBooleanCheckbox
-							value="#{editUserController.userSelected.isActive}">
-						</p:selectBooleanCheckbox>
-						
-						<p:outputLabel value="Bancos"></p:outputLabel>
-						<p:selectManyMenu  id="banks"
-							value="#{editUserController.banksSelected}" showCheckbox="true">
-							<f:selectItems value="#{editUserController.banks}"></f:selectItems>
-						</p:selectManyMenu>
-
-					</h:panelGrid>
-					
-
-
-				<h:panelGrid style="margin:auto;text-align:center;">
-					<p:commandButton actionListener="#{editUserController.edit}" update="@form" value="Editar">
-					</p:commandButton>
+				<h:panelGrid columns="2" rowClasses="panelgrid_center_row">
+					<p:outputLabel value="Bancos"></p:outputLabel>
+					<p:selectManyMenu id="banks"
+						value="#{editUserController.banksSelected}" showCheckbox="true">
+						<f:selectItems value="#{editUserController.banks}"></f:selectItems>
+					</p:selectManyMenu>
 				</h:panelGrid>
 			</h:panelGrid>
-		</h:form>
-	</ui:define>
 
-</ui:composition>
+
+			<h:panelGrid style="margin:auto;text-align:center;">
+				<p:commandButton actionListener="#{editUserController.edit}"
+					update="@form" value="Editar">
+				</p:commandButton>
+			</h:panelGrid>
+		</h:panelGrid>
+	</h:form>
+</h:body>
 </html>

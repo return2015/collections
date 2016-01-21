@@ -21,7 +21,7 @@ import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.BankLetterNotFoundException;
-import com.returnsoft.collection.exception.PayerDataNullException;
+import com.returnsoft.collection.exception.NullException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.SaleService;
@@ -79,28 +79,28 @@ public class DownloadLetterController implements Serializable {
 			}
 			if (sale.getPayer().getFirstnameResponsible() == null
 					|| sale.getPayer().getFirstnameResponsible().trim().length() == 0) {
-				throw new PayerDataNullException("El nombre", sale.getCode());
+				throw new NullException("NOMBRE", sale.getCode());
 			}
 			if (sale.getPayer().getLastnamePaternalResponsible() == null
 					|| sale.getPayer().getLastnamePaternalResponsible().trim().length() == 0) {
-				throw new PayerDataNullException("El apellido paterno", sale.getCode());
+				throw new NullException("APELLIDO PATERNO", sale.getCode());
 			}
 			if (sale.getPayer().getLastnameMaternalResponsible() == null
 					|| sale.getPayer().getLastnameMaternalResponsible().trim().length() == 0) {
-				throw new PayerDataNullException("El apellido materno", sale.getCode());
+				throw new NullException("APELLIDO MATERNO", sale.getCode());
 			}
 			if (sale.getPayer().getAddress() == null || sale.getPayer().getAddress().trim().length() == 0) {
-				throw new PayerDataNullException("La dirección", sale.getCode());
+				throw new NullException("DIRECCIÓN", sale.getCode());
 			}
 			if (sale.getPayer().getProvince() == null || sale.getPayer().getProvince().trim().length() == 0) {
-				throw new PayerDataNullException("La provincia", sale.getCode());//
+				throw new NullException("PROVINCIA", sale.getCode());//
 			}
 			if (sale.getPayer().getDepartment() == null
 					|| sale.getPayer().getDepartment().trim().length() == 0) {
-				throw new PayerDataNullException("El departamento", sale.getCode());//
+				throw new NullException("DEPARTAMENTO", sale.getCode());//
 			}
 			if (sale.getPayer().getDistrict() == null || sale.getPayer().getDistrict().trim().length() == 0) {
-				throw new PayerDataNullException("El distrito", sale.getCode());//
+				throw new NullException("DISTRITO", sale.getCode());//
 			}
 			
 			if (sale.getBank()==null || sale.getBank().getId()==null) {

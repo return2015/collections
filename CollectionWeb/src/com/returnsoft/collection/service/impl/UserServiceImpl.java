@@ -78,10 +78,10 @@ public class UserServiceImpl implements UserService {
 
 	
 
-	public List<User> find(String documentNumber, String name)
+	public List<User> find(String name)
 			throws ServiceException {
 		try {
-			List<User> users = userEao.find(documentNumber, name);
+			List<User> users = userEao.find(name);
 
 			return users;
 

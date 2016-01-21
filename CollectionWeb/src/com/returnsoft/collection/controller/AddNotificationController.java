@@ -18,9 +18,11 @@ import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.exception.ServiceException;
+import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.collection.util.SessionBean;
 
 @ManagedBean
 @ViewScoped
@@ -53,6 +55,10 @@ public class AddNotificationController implements Serializable{
 	
 	public String initialize() {
 		try {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
+				throw new UserLoggedNotFoundException();
+			}
 
 			String saleId = FacesContext.getCurrentInstance()
 					.getExternalContext().getRequestParameterMap()
@@ -65,6 +71,10 @@ public class AddNotificationController implements Serializable{
 			
 			return null;
 
+		} catch (UserLoggedNotFoundException e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+			return "login.xhtml?faces-redirect=true";
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
@@ -74,6 +84,10 @@ public class AddNotificationController implements Serializable{
 	
 	public void add() {
 		try {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
+				throw new UserLoggedNotFoundException();
+			}
 			
 			notificationSelected.setType(notificationType);
 			notificationSelected.setState(notificationState);

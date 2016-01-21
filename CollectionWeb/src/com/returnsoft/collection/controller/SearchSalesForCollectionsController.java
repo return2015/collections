@@ -48,6 +48,8 @@ import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.service.SaleStateService;
 import com.returnsoft.collection.service.UserService;
 import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.collection.util.SaleLazyModel;
+import com.returnsoft.collection.util.SessionBean;
 
 @ManagedBean
 @ViewScoped
@@ -168,7 +170,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 			/*SessionBean sessionBean = (SessionBean) FacesContext
 					.getCurrentInstance().getExternalContext().getSessionMap()
 					.get("sessionBean");*/
-			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
 				throw new UserLoggedNotFoundException();
 			}
 				
@@ -305,7 +307,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 
 		try {
 			
-			System.out.println("ingreso a search");
+			//System.out.println("ingreso a search");
 			
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
 				throw new UserLoggedNotFoundException();
@@ -654,11 +656,15 @@ public class SearchSalesForCollectionsController implements Serializable {
 
 	public void showCreditCards() {
 		try {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
 
-			System.out.println("Ingreso a showCreditCardUpdates "
-					+ saleSelected);
+			/*System.out.println("Ingreso a showCreditCardUpdates "
+					+ saleSelected);*/
 			creditCards = creditCardService.findBySale(saleSelected.getId());
-			System.out.println("creditCards: " + creditCards.size());
+			//System.out.println("creditCards: " + creditCards.size());
 			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
 
 		} catch (Exception e) {
@@ -672,6 +678,10 @@ public class SearchSalesForCollectionsController implements Serializable {
 	public void showCollections() {
 
 		try {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
 
 			System.out.println("Ingreso a showCollections " + saleSelected);
 			collections = collectionService.findBySale(saleSelected.getId());
@@ -690,6 +700,10 @@ public class SearchSalesForCollectionsController implements Serializable {
 	public void showRepayments() {
 
 		try {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
 
 			//System.out.println("Ingreso a showCollections " + saleSelected);
 			repayments = repaymentService.findBySale(saleSelected.getId());
@@ -707,10 +721,14 @@ public class SearchSalesForCollectionsController implements Serializable {
 	public void showMaintenances() {
 
 		try {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
 
-			System.out.println("Ingreso a showMaintenances " + saleSelected);
+			//System.out.println("Ingreso a showMaintenances " + saleSelected);
 			saleStatesHistory = saleStateService.findBySale(saleSelected.getId());
-			System.out.println("saleStatesHistory: " + saleStatesHistory.size());
+			//System.out.println("saleStatesHistory: " + saleStatesHistory.size());
 			// RequestContext.getCurrentInstance().openDialog("show_credit_card_update");
 
 		} catch (Exception e) {
@@ -742,7 +760,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 
 	public void addMaintenance() {
 		try {
-			System.out.println("Ingreso a addMaintenance");
+			//System.out.println("Ingreso a addMaintenance");
 			
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
 				throw new UserLoggedNotFoundException();
@@ -789,7 +807,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 	
 	public void addPayer() {
 		try {
-			System.out.println("Ingreso a addPayer");
+			//System.out.println("Ingreso a addPayer");
 			
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
 				throw new UserLoggedNotFoundException();
@@ -867,7 +885,11 @@ public class SearchSalesForCollectionsController implements Serializable {
 	
 	public void addNotification() {
 		try {
-			System.out.println("Ingreso a addNotification");
+			//System.out.println("Ingreso a addNotification");
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
 			
 			/*notifications = saleService.findNotifications(saleSelected.getId());
 			int physical=0;
@@ -958,15 +980,20 @@ public class SearchSalesForCollectionsController implements Serializable {
 
 		try {
 			
-			System.out.println("ingreso a validate");
+			//System.out.println("ingreso a validate");
 			
-			System.out.println("passwordSupervisor"+passwordSupervisor);
+			//System.out.println("passwordSupervisor"+passwordSupervisor);
 			
-			SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance()
-					.getExternalContext().getSessionMap().get("sessionBean");
+			/*SessionBean sessionBean = (SessionBean) FacesContext.getCurrentInstance()
+					.getExternalContext().getSessionMap().get("sessionBean");*/
 			
 			/*Integer userId = (Integer) FacesContext.getCurrentInstance()
 					.getExternalContext().getSessionMap().get("userId");*/
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
+			
 			Integer userId = sessionBean.getUser().getId();
 			
 			User user = userService.findById(userId);

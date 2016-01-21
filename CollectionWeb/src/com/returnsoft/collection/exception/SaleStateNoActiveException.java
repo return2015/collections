@@ -14,5 +14,9 @@ public class SaleStateNoActiveException extends Exception implements Serializabl
 	public SaleStateNoActiveException(String saleCode) {
 		super("La venta con código único "+saleCode+" no esta "+SaleStateEnum.ACTIVE.getName());
 	}
+	
+	public SaleStateNoActiveException(String columnName, int row) {
+		super("Error en la fila " + row + " y columna " + columnName + ": La venta no está activa.");
+	}
 
 }

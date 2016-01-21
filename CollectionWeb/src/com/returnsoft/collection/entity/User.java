@@ -42,8 +42,6 @@ public class User implements Serializable {
 	@Column(name = "usr_lastname")
 	private String lastname;
 
-	@Column(name = "usr_document_number")
-	private String documentNumber;
 
 	@Column(name = "usr_username")
 	private String username;
@@ -96,14 +94,7 @@ public class User implements Serializable {
 		this.lastname = lastname;
 	}
 
-	public String getDocumentNumber() {
-		return documentNumber;
-	}
-
-	public void setDocumentNumber(String documentNumber) {
-		this.documentNumber = documentNumber;
-	}
-
+	
 	public String getUsername() {
 		return username;
 	}
