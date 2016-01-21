@@ -66,6 +66,7 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 	private Boolean withoutMail; 
 	private Boolean withoutAddress;
 	private Boolean withoutNotification;
+	private String orderNumber;
 	
 	public SaleLazyModel(SaleService saleService, String numberType, Long number) {
 		super();
@@ -113,7 +114,7 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 	
 	//ublic List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAtInteger first, Integer limit) throws ServiceException {
 
-		public SaleLazyModel(SaleService saleService, Date dateOfSaleStarted,Date dateOfSaleEnded,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification) {
+		public SaleLazyModel(SaleService saleService, Date dateOfSaleStarted,Date dateOfSaleEnded,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification, String orderNumber) {
 			super();
 			System.out.println("ingreso a SaleLazyModel");
 			this.saleService=saleService;
@@ -128,7 +129,7 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 			this.withoutMail=withoutMail; 
 			this.withoutAddress=withoutAddress;
 			this.withoutNotification=withoutNotification;
-			
+			this.orderNumber=orderNumber;
 			this.searchType=NOTIFICATIONDATA;
 		}
 	@Override
@@ -246,8 +247,8 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 			}else if (searchType.equals(CREDITCARD)) {
 				//sales = saleService.findSalesByCreditCardNumber(number);
 			}else if (searchType.equals(NOTIFICATIONDATA)) {
-				sales = saleService.findForNotificationsLimit(dateOfSaleStarted, dateOfSaleEnded, sendingDate, notificationStates, bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification, first, pageSize);
-				Long salesCount = saleService.findForNotificationsCount(dateOfSaleStarted, dateOfSaleEnded, sendingDate, notificationStates, bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification);
+				sales = saleService.findForNotificationsLimit(dateOfSaleStarted, dateOfSaleEnded, sendingDate, notificationStates, bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification, orderNumber,first, pageSize);
+				Long salesCount = saleService.findForNotificationsCount(dateOfSaleStarted, dateOfSaleEnded, sendingDate, notificationStates, bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification,orderNumber);
 				this.setRowCount(salesCount.intValue());
 			}
 			
