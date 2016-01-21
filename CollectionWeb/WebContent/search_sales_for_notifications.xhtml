@@ -101,6 +101,7 @@
 							<p:outputLabel value="Estado venta:"></p:outputLabel>
 							<p:selectOneMenu id="saleState"
 								value="#{searchSalesForNotificationsController.saleStateSelected}">
+								<f:selectItem itemLabel="Seleccione..." itemValue=""></f:selectItem>
 								<f:selectItems
 									value="#{searchSalesForNotificationsController.saleStates}"></f:selectItems>
 							</p:selectOneMenu>
@@ -138,6 +139,10 @@
 									<f:selectItems
 										value="#{searchSalesForNotificationsController.notificationTypes}"></f:selectItems>
 								</p:selectOneMenu>
+								
+								<p:outputLabel value="Número de orden"></p:outputLabel>
+								<p:inputText 
+									value="#{searchSalesForNotificationsController.orderNumber}"></p:inputText>
 
 								<p:outputLabel value="Fecha envío notificación"></p:outputLabel>
 								<p:calendar navigator="true"
@@ -467,6 +472,8 @@
 						<p:calendar required="true" pattern="dd/MM/yyyy" navigator="true"
 							requiredMessage="Debe ingresar fecha de envío"
 							value="#{searchSalesForNotificationsController.sendingAtForPhysicals}"></p:calendar>
+						<p:outputLabel value="Número de orden"></p:outputLabel>	
+						<p:inputText value="#{searchSalesForNotificationsController.orderNumberForPhysicals}"></p:inputText>
 
 					</h:panelGrid>
 

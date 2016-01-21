@@ -34,7 +34,8 @@
 				<p:accordionPanel id="acc_sales" style="width:400px;font-size:11px;">
 					<p:tab title="Cargar lote de ventas">
 						<h:form id="formLinkSales">
-							<h:commandLink actionListener="#{searchLoteController.downloadSalesFile}"
+							<h:commandLink
+								actionListener="#{loadSalesController.downloadSalesFile}"
 								value="Descargar formato de trama">
 							</h:commandLink>
 						</h:form>
@@ -42,10 +43,10 @@
 						<br></br>
 						<h:form id="formUploadSales" enctype="multipart/form-data">
 							<h:panelGrid columns="2">
-								<h:inputFile id="file" value="#{searchLoteController.file}">
+								<h:inputFile id="file" value="#{loadSalesController.file}">
 								</h:inputFile>
 								<h:commandButton value="Cargar ventas" process="@form"
-									actionListener="#{searchLoteController.validateSalesFile}">
+									actionListener="#{loadSalesController.validateSalesFile}">
 									<f:ajax execute="file" render=":acc_sales:messages_sales" />
 								</h:commandButton>
 							</h:panelGrid>
@@ -80,7 +81,7 @@
 				</h:form>
 				<p:dataTable value="#{searchLoteController.lotes}" var="r"
 					rowKey="#{r.id}" paginator="true" rows="10" id="searchTable"
-					selectionMode="single"
+					selectionMode="single" style="width:100%;"
 					selection="#{searchLoteController.loteSelected}">
 
 					<p:column headerText="Id">
@@ -102,7 +103,7 @@
 					<p:column headerText="Estado">
 						<h:outputText value="#{r.state}"></h:outputText>
 					</p:column>
-					
+
 					<p:column headerText="Tipo">
 						<h:outputText value="#{r.loteType.name}"></h:outputText>
 					</p:column>

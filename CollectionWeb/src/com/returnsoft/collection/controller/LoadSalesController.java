@@ -28,7 +28,6 @@ import javax.servlet.http.Part;
 import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.CollectionPeriod;
 import com.returnsoft.collection.entity.CreditCard;
-import com.returnsoft.collection.entity.Lote;
 import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.Product;
 import com.returnsoft.collection.entity.Sale;
@@ -128,7 +127,6 @@ import com.returnsoft.collection.exception.SaleStateInvalidException;
 import com.returnsoft.collection.exception.SaleStateNullException;
 import com.returnsoft.collection.exception.SaleVendorCodeOverflowException;
 import com.returnsoft.collection.exception.SaleVendorNameOverflowException;
-import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.CollectionPeriodService;
 import com.returnsoft.collection.service.LoteService;
@@ -138,15 +136,12 @@ import com.returnsoft.collection.util.FacesUtil;
 
 @Named
 @RequestScoped
-public class SearchLoteController implements Serializable{
-	
+public class LoadSalesController implements Serializable {
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -5267773436408492212L;
-
-	@EJB
-	private LoteService loteService;
+	private static final long serialVersionUID = -185393107214608269L;
 	
 	@Inject
 	private FacesUtil facesUtil;
@@ -154,15 +149,10 @@ public class SearchLoteController implements Serializable{
 	@Inject
 	private SessionBean sessionBean;
 	
-	private Date loteDate;
+	@EJB
+	private LoteService loteService;
 	
-	private List<Lote> lotes;
 	
-	private Lote loteSelected;
-	
-	///////
-	
-	//private UploadedFile file;
 	private Part file;
 	//private String filename;
 	private Integer FILE_ROWS = 49;
@@ -170,7 +160,7 @@ public class SearchLoteController implements Serializable{
 	//private SaleFile headers;
 	
 	//private List<SaleFile> dataList;
-	private Integer salesFileCount;
+	//private Integer salesFileCount;
 	
 	
 	@EJB
@@ -184,38 +174,6 @@ public class SearchLoteController implements Serializable{
 	
 	@EJB
 	private SaleService saleService;
-	
-	
-	public SearchLoteController(){
-		System.out.println("Se construye SearchLoteController");
-		//facesUtil = new FacesUtil();
-	}
-	
-	public String initialize() {
-		System.out.println("inicializando SearchLoteController");
-		try {
-			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
-				throw new UserLoggedNotFoundException();
-			} 
-			return null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getMessage());
-			return "login.xhtml?faces-redirect=true";
-		}
-	}
-	
-	public void search(){
-		try {
-			System.out.println("loteDate:"+loteDate);
-			if (loteDate!=null) {
-				lotes = loteService.findByDate(loteDate);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-		}
-	}
 	
 	
 	public void downloadSalesFile() {
@@ -255,8 +213,6 @@ public class SearchLoteController implements Serializable{
 	}
 	
 	
-	
-	//public void validateFile(FileUploadEvent event) {
 	public void validateSalesFile() {
 		/*AjaxBehaviorEvent event*/
 		System.out.println("validateFile");
@@ -1153,6 +1109,7 @@ public class SearchLoteController implements Serializable{
 
 	}
 	
+	
 	public String generateErrorMessageHeader(String columnName, int row) {
 		return "Error en la fila " + row + " y columna " + columnName + ": ";
 	}
@@ -1160,60 +1117,27 @@ public class SearchLoteController implements Serializable{
 	public String generateErrorMessageHeader(int row) {
 		return "Error en la fila " + row + ": ";
 	}
-	
-	
-	
 
 
-	public Date getLoteDate() {
-		return loteDate;
-	}
 
-	public void setLoteDate(Date loteDate) {
-		this.loteDate = loteDate;
-	}
-
-	public List<Lote> getLotes() {
-		return lotes;
-	}
-
-	public void setLotes(List<Lote> lotes) {
-		this.lotes = lotes;
-	}
-
-	public Lote getLoteSelected() {
-		return loteSelected;
-	}
-
-	public void setLoteSelected(Lote loteSelected) {
-		this.loteSelected = loteSelected;
-	}
-
-	/*public UploadedFile getFile() {
-		return file;
-	}
-
-	public void setFile(UploadedFile file) {
-		this.file = file;
-	}*/
-
-	public Integer getSalesFileCount() {
-		return salesFileCount;
-	}
-
-	public void setSalesFileCount(Integer salesFileCount) {
-		this.salesFileCount = salesFileCount;
-	}
 
 	public Part getFile() {
 		return file;
 	}
 
+
+
+
 	public void setFile(Part file) {
 		this.file = file;
 	}
+
+
+
+
 	
 	
+
 	
 
 }

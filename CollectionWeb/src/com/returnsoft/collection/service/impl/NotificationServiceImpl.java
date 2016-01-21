@@ -14,12 +14,9 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
 import javax.faces.context.FacesContext;
 import javax.mail.BodyPart;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -502,8 +499,11 @@ public class NotificationServiceImpl implements NotificationService {
 						
 						MimeMessage message = new MimeMessage(sessionSelected);
 						message.setFrom(new InternetAddress(sessionSelected.getProperty("mail.from")));
-						InternetAddress[] address = { new InternetAddress(email), new InternetAddress(sessionSelected.getProperty("mail.from"))};
-						message.setRecipients(Message.RecipientType.TO, address);
+						InternetAddress[] addressTO = { new InternetAddress(email)};
+						InternetAddress[] addressCC = { new InternetAddress(sessionSelected.getProperty("mail.from"))};
+						message.setRecipients(Message.RecipientType.TO, addressTO);
+						message.setRecipients(Message.RecipientType.CC, addressCC);
+						
 						message.setSubject(subject);
 						message.setSentDate(new Date());
 						

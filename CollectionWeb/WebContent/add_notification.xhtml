@@ -73,6 +73,8 @@
 				<p:calendar required="true" pattern="dd/MM/yyyy" navigator="true"
 					requiredMessage="Debe ingresar fecha de envío"
 					value="#{addNotificationController.notificationSelected.sendingAt}"></p:calendar>
+				<p:outputLabel value="Número de orden"></p:outputLabel>
+				<p:inputText value="#{addNotificationController.notificationSelected.orderNumber}"></p:inputText>	
 
 			</h:panelGrid>
 

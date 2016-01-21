@@ -4,16 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.ejb.EJB;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.ServletContext;
 
 import com.returnsoft.collection.entity.Notification;
@@ -21,15 +19,12 @@ import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.enumeration.BankLetterEnum;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
-import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.BankLetterNotFoundException;
-import com.returnsoft.collection.exception.PayerDataNullException;
-import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
 
-@ManagedBean
+@Named
 @RequestScoped
 public class DownloadConditionedController implements Serializable {
 

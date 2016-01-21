@@ -7,8 +7,6 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
@@ -109,7 +107,7 @@ public class SaleEaoImpl implements SaleEao {
 		}
 	}
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAt, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification)  throws EaoException {
+	public List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAt, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification,String orderNumber)  throws EaoException {
 		try {
 			
 			String query = "SELECT s FROM Sale s "
@@ -152,6 +150,9 @@ public class SaleEaoImpl implements SaleEao {
 			if (withoutNotification) {
 				query+=" and n.id is null ";
 			}
+			if (orderNumber!=null && orderNumber.length()>0) {
+				query+=" and n.orderNumber=:orderNumber ";
+			}
 			
 			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
 			q.setParameter("saleDateStartedAt", saleDateStartedAt);
@@ -181,6 +182,11 @@ public class SaleEaoImpl implements SaleEao {
 				q.setParameter("bankId", bankId);
 			}
 			
+			if (orderNumber!=null && orderNumber.length()>0) {
+				q.setParameter("orderNumber", orderNumber);
+			}
+			
+			
 			
 			List<Sale> sales = q.getResultList();
 			return sales;
@@ -194,7 +200,7 @@ public class SaleEaoImpl implements SaleEao {
 
 	}
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public List<Sale> findForNotificationsLimit(Date saleDateStartedAt,Date saleDateEndedAt, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification, Integer first, Integer limit)  throws EaoException {
+	public List<Sale> findForNotificationsLimit(Date saleDateStartedAt,Date saleDateEndedAt, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification, String orderNumber,Integer first, Integer limit)  throws EaoException {
 		try {
 			
 			String query = "SELECT s FROM Sale s "
@@ -238,6 +244,10 @@ public class SaleEaoImpl implements SaleEao {
 				query+=" and n.id is null ";
 			}
 			
+			if (orderNumber!=null && orderNumber.length()>0) {
+				query+=" and n.orderNumber=:orderNumber ";
+			}
+			
 			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
 			q.setParameter("saleDateStartedAt", saleDateStartedAt);
 			q.setParameter("saleDateEndedAt", saleDateEndedAt);
@@ -266,6 +276,10 @@ public class SaleEaoImpl implements SaleEao {
 				q.setParameter("bankId", bankId);
 			}
 			
+			if (orderNumber!=null && orderNumber.length()>0) {
+				q.setParameter("orderNumber", orderNumber);
+			}
+			
 			q.setFirstResult(first);
 			q.setMaxResults(limit);
 			
@@ -281,7 +295,7 @@ public class SaleEaoImpl implements SaleEao {
 
 	}
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public Long findForNotificationsCount(Date saleDateStartedAt,Date saleDateEndedAt, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification)  throws EaoException {
+	public Long findForNotificationsCount(Date saleDateStartedAt,Date saleDateEndedAt, Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification,String orderNumber)  throws EaoException {
 		try {
 			
 			String query = "SELECT count(s.id) FROM Sale s "
@@ -324,6 +338,10 @@ public class SaleEaoImpl implements SaleEao {
 				query+=" and n.id is null ";
 			}
 			
+			if (orderNumber!=null && orderNumber.length()>0) {
+				query+=" and n.orderNumber=:orderNumber ";
+			}
+			
 			Query q = em.createQuery(query);
 			q.setParameter("saleDateStartedAt", saleDateStartedAt);
 			q.setParameter("saleDateEndedAt", saleDateEndedAt);
@@ -350,6 +368,10 @@ public class SaleEaoImpl implements SaleEao {
 			
 			if (bankId!=null ) {
 				q.setParameter("bankId", bankId);
+			}
+			
+			if (orderNumber!=null && orderNumber.length()>0) {
+				q.setParameter("orderNumber", orderNumber);
 			}
 			
 			Long salesCount = (Long)q.getSingleResult();

@@ -5,27 +5,20 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import javax.ejb.AsyncResult;
-import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
-import javax.ejb.Local;
 import javax.ejb.Stateless;
 
 import com.returnsoft.collection.eao.BankEao;
 import com.returnsoft.collection.eao.CollectionEao;
 import com.returnsoft.collection.eao.CommerceEao;
 import com.returnsoft.collection.eao.CreditCardEao;
-import com.returnsoft.collection.eao.LoteEao;
 import com.returnsoft.collection.eao.NotificationEao;
 import com.returnsoft.collection.eao.PayerEao;
 import com.returnsoft.collection.eao.ProductEao;
 import com.returnsoft.collection.eao.RepaymentEao;
 import com.returnsoft.collection.eao.SaleEao;
 import com.returnsoft.collection.eao.SaleStateEao;
-import com.returnsoft.collection.entity.CreditCard;
-import com.returnsoft.collection.entity.Lote;
-import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.Sale;
-import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
@@ -269,10 +262,10 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	public List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification) throws ServiceException {
+	public List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification,String orderNumber) throws ServiceException {
 		try {
 			
-			List<Sale> sales = saleEao.findForNotifications(saleDateStartedAt, saleDateEndedAt,  sendingDate, notificationStates,bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification);
+			List<Sale> sales = saleEao.findForNotifications(saleDateStartedAt, saleDateEndedAt,  sendingDate, notificationStates,bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification,orderNumber);
 
 			return sales;
 
@@ -286,10 +279,10 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	public List<Sale> findForNotificationsLimit(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification, Integer first, Integer limit) throws ServiceException {
+	public List<Sale> findForNotificationsLimit(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification,String orderNumber, Integer first, Integer limit) throws ServiceException {
 		try {
 			
-			List<Sale> sales = saleEao.findForNotificationsLimit(saleDateStartedAt, saleDateEndedAt,  sendingDate, notificationStates,bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification,first,limit);
+			List<Sale> sales = saleEao.findForNotificationsLimit(saleDateStartedAt, saleDateEndedAt,  sendingDate, notificationStates,bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification,orderNumber,first,limit);
 
 			return sales;
 
@@ -303,10 +296,10 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	public Long findForNotificationsCount(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification) throws ServiceException {
+	public Long findForNotificationsCount(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification,String orderNumber) throws ServiceException {
 		try {
 			
-			Long salesCount = saleEao.findForNotificationsCount(saleDateStartedAt, saleDateEndedAt,  sendingDate, notificationStates,bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification);
+			Long salesCount = saleEao.findForNotificationsCount(saleDateStartedAt, saleDateEndedAt,  sendingDate, notificationStates,bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification,orderNumber);
 
 			return salesCount;
 

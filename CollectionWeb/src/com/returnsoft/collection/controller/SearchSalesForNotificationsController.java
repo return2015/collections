@@ -133,6 +133,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 	// BÚSQUEDA POR NUIC DE RESPONSABLE
 	private String nuicResponsible;
+	
+	private String orderNumber;
 
 	// INGRESAR PASSWORD SUPERVISOR
 	private String passwordSupervisor;
@@ -140,6 +142,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 	// ENVÍO DE NOTIFICACIONES FÍSICAS
 	private Date sendingAtForPhysicals;
+	private String orderNumberForPhysicals;
 
 	// VER NOTIFICACIONES
 	private List<Notification> notifications;
@@ -218,6 +221,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 				//SE RESETEA EL TIPO DE BUSQUEDA
 				searchTypeSelected = "notificationData";
 				//onChangeSearchType();
+				saleStateSelected=SaleStateEnum.ACTIVE.getId().toString();
 
 				return null;
 
@@ -298,7 +302,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 				if (notificationTypeSelected != null && notificationTypeSelected.length() > 0) {
 					notificationType = NotificationTypeEnum.findById(Short.parseShort(notificationTypeSelected));
 				}
-				sales = new SaleLazyModel(saleService, dateOfSaleStarted, dateOfSaleEnded, sendingDate, notificationStatesEnum, bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification);
+				sales = new SaleLazyModel(saleService, dateOfSaleStarted, dateOfSaleEnded, sendingDate, notificationStatesEnum, bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification,orderNumber);
 			}
 			
 		} catch (Exception e) {
@@ -346,7 +350,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 				if (notificationTypeSelected != null && notificationTypeSelected.length() > 0) {
 					notificationType = NotificationTypeEnum.findById(Short.parseShort(notificationTypeSelected));
 				}
-				sales = saleService.findForNotifications(dateOfSaleStarted, dateOfSaleEnded, sendingDate, notificationStatesEnum, bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification);
+				sales = saleService.findForNotifications(dateOfSaleStarted, dateOfSaleEnded, sendingDate, notificationStatesEnum, bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification,orderNumber);
 			}
 			
 			return sales;
@@ -1080,6 +1084,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 						for (Sale sale : salesFound) {
 							Notification notification = new Notification();
 							notification.setSendingAt(sendingAtForPhysicals);
+							notification.setOrderNumber(orderNumberForPhysicals);
 							notification.setSale(sale);
 							notification.setType(NotificationTypeEnum.PHYSICAL);
 							notification.setState(NotificationStateEnum.SENDING);
@@ -1652,6 +1657,22 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 	public void setWithoutNotification(Boolean withoutNotification) {
 		this.withoutNotification = withoutNotification;
+	}
+
+	public String getOrderNumber() {
+		return orderNumber;
+	}
+
+	public void setOrderNumber(String orderNumber) {
+		this.orderNumber = orderNumber;
+	}
+
+	public String getOrderNumberForPhysicals() {
+		return orderNumberForPhysicals;
+	}
+
+	public void setOrderNumberForPhysicals(String orderNumberForPhysicals) {
+		this.orderNumberForPhysicals = orderNumberForPhysicals;
 	}
 	
 	
