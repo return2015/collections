@@ -14,11 +14,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 @Entity 
 @Table(name = "sale")
@@ -105,11 +103,6 @@ public class Sale implements Serializable{
 	@Column(name = "sal_product_description")
 	private String productDescription;
 	
-	/*@Column(name = "sal_collection_period")
-	private String collectionPeriod;*/
-	
-	
-	
 	@Column(name = "sal_collection_type")
 	private String collectionType;
 	
@@ -122,12 +115,6 @@ public class Sale implements Serializable{
 	
 	@Column(name = "sal_audit_user")
 	private String auditUser;
-	
-	
-	
-	/*@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_com_id")
-	private Commerce commerce;*/
 	
 	@Column(name = "sal_commerce_code")
 	private String commerceCode;
@@ -148,34 +135,18 @@ public class Sale implements Serializable{
 	@JoinColumn(name = "sal_lot_id")
 	private Lote lote;
 	
-	/*@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_paymet_id")
-	private PaymentMethod paymentMethod;*/
 	
 	////////////////////////////////////////////////
 	
-	/*@Column(name = "sal_affiliation")
-	private Boolean affiliation;*/
-	
-	/*@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "sal_affiliation_date")
-	private Date affiliationDate;*/
-	
-	/*@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "sal_affiliation_usr_id")
-	private User affiliationUser;*/
 	
 	@Column(name = "sal_physical_notifications")
-	//@Transient
 	private Short physicalNotifications;
 	
 	@Column(name = "sal_virtual_notifications")
-	//@Transient
 	private Short virtualNotifications;
 	
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "sal_not_id")
-	//@Transient
 	private Notification notification;
 	
 	///////////////////////////////////////////

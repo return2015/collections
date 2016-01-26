@@ -132,66 +132,7 @@ public class LoteServiceImpl implements LoteService {
 		}
 	}
 
-	@Asynchronous
-	@Override
-	public void addTypeSale(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId){
-		
-		Lote lote = new Lote();
-		Date date = new Date();
-
-		try {
-			
-			Bank bank = bankEao.findById(bankId);
-			User user = userEao.findById(userId);
-
-			lote.setName(filename);
-			lote.setTotal(sales.size());
-			lote.setProcess(0);
-			lote.setDate(date);
-			lote.setLoteType(LoteTypeEnum.CREATESALE);
-			lote.setState("En progreso");
-			loteEao.add(lote);
-			// villanuevan@pe.geainternacional.com nidia
-			
-
-			Integer lineNumber = 1;
-
-			for (Sale sale : sales) {
-				sale.setBank(bank);
-				sale.setCreatedBy(user);
-				sale.setLote(lote);
-				sale.setCreatedAt(date);
-				saleEao.add(sale);
-				
-				lote.setProcess(lineNumber);
-				loteEao.update(lote);
-				
-				lineNumber++;
-			}
-
-			lote.setState("Terminado");
-			loteEao.update(lote);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (e.getMessage()!=null || e.getMessage().length()==0) {
-				lote.setState((new NullPointerException()).toString());
-			}else{
-				if (e.getMessage().length()>500) {
-					lote.setState(e.getMessage().substring(0,500));	
-				}else{
-					lote.setState(e.getMessage());
-				}
-			}
-			try {
-				loteEao.update(lote);
-			} catch (EaoException e1) {
-				e1.printStackTrace();
-			}
-
-		}
-
-	}
+	
 	
 	
 	@Asynchronous

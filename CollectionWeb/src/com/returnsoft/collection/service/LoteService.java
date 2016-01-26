@@ -18,7 +18,7 @@ public interface LoteService {
 	
 	public List<Lote> findByDate(Date date) throws ServiceException;
 	
-	public void addTypeSale(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId) ;
+	//public void addTypeSale(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId) ;
 	
 	public void addTypeCollection(List<Collection> collections, String filename, CollectionFile headers, Integer userId) ;
 

@@ -67,8 +67,6 @@
 							<p:outputLabel value="F. Venta Desde:"></p:outputLabel>
 							<p:calendar navigator="true"
 								value="#{searchSalesController.dateOfSaleStarted}"
-								required="true"
-								requiredMessage="Debe ingresar fecha venta desde:"
 								pattern="dd-MM-yyyy"></p:calendar>
 
 
@@ -91,11 +89,8 @@
 							
 							<p:outputLabel value="F. Venta Hasta:"></p:outputLabel>
 							<p:calendar navigator="true"
-								value="#{searchSalesController.dateOfSaleEnded}" required="true"
-								requiredMessage="Debe ingresar fecha venta hasta:"
+								value="#{searchSalesController.dateOfSaleEnded}" 
 								pattern="dd-MM-yyyy"></p:calendar>
-
-							
 							
 							<p:outputLabel value="Producto:"></p:outputLabel>
 							<p:selectOneMenu id="product"

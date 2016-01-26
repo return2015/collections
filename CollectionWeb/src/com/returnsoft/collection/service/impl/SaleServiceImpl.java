@@ -2,28 +2,36 @@ package com.returnsoft.collection.service.impl;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Future;
 
-import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
+import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 
 import com.returnsoft.collection.eao.BankEao;
 import com.returnsoft.collection.eao.CollectionEao;
 import com.returnsoft.collection.eao.CommerceEao;
 import com.returnsoft.collection.eao.CreditCardEao;
+import com.returnsoft.collection.eao.LoteEao;
 import com.returnsoft.collection.eao.NotificationEao;
 import com.returnsoft.collection.eao.PayerEao;
 import com.returnsoft.collection.eao.ProductEao;
 import com.returnsoft.collection.eao.RepaymentEao;
 import com.returnsoft.collection.eao.SaleEao;
 import com.returnsoft.collection.eao.SaleStateEao;
+import com.returnsoft.collection.eao.UserEao;
+import com.returnsoft.collection.entity.Bank;
+import com.returnsoft.collection.entity.Lote;
 import com.returnsoft.collection.entity.Sale;
+import com.returnsoft.collection.entity.User;
+import com.returnsoft.collection.enumeration.LoteTypeEnum;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
+import com.returnsoft.collection.exception.EaoException;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.SaleService;
+import com.returnsoft.collection.util.SaleFile;
 
 @Stateless
 public class SaleServiceImpl implements SaleService{
@@ -57,6 +65,12 @@ public class SaleServiceImpl implements SaleService{
 	
 	@EJB
 	private PayerEao payerEao;
+	
+	@EJB
+	private UserEao userEao;
+	
+	@EJB
+	private LoteEao loteEao;
 	
 	
 	
@@ -94,124 +108,66 @@ public class SaleServiceImpl implements SaleService{
 		}
 	}
 	
-	//@Asynchronous
-	public Future<Integer> add(List<Sale> sales, String filename) /*throws ServiceException*/{
-		//try {
-			
-			System.out.println("ingreso a addSalesService.........");
-			
-			//Lote lote = new Lote();
-			//lote.setName(filename);
-			//loteEao.add(lote);
-			
-			Integer row=1;
-			
-			/*for (Sale sale : sales) {
-				
-				System.out.println("row:"+row);
-				
-				System.out.println("sale.getPayer().getNuicResponsible():"+sale.getPayer().getNuicResponsible());
-				
-				SaleState saleState = sale.getSaleState();
-				CreditCard creditCard = sale.getCreditCard();
-				Payer payer = sale.getPayer();
-				
-				sale.setSaleState(null);
-				sale.setCreditCard(null);
-				sale.setPayer(null);
-				sale.setLote(lote);
-				
-				saleEao.add(sale);
-				
-				//saleState.setSale(sale);
-				saleStateEao.add(saleState);
-				
-				//creditCard.setSale(sale);
-				creditCardUpdateEao.add(creditCard);
-				
-				//payer.setSale(sale);
-				payerEao.add(payer);
-				
-				sale.setSaleState(saleState);
-				sale.setCreditCard(creditCard);
-				sale.setPayer(payer);
-				sale.setLote(lote);
-				
-				row++;
-			}*/
-			
-			
-			 try {
-		            Thread.sleep(10000);
-		            System.out.println("Termino el procesoXXX.... ");
-		            row = 10;
-		        } catch (InterruptedException e) {
-		            e.printStackTrace(); 
-		        }
-			 
-			
-			return new AsyncResult<Integer>(row);
-			
-			
-		/*} catch (Exception e) {
-			System.out.println("exception.........");
-			System.out.println("exception.........");
-			System.out.println("exception.........");
-			System.out.println("exception.........");
-			System.out.println("exception.........");
-			e.printStackTrace();
-			return new AsyncResult<Integer>(0);
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
-		}*/
-	}
-	
-	
-	/*public void add(Sale sale) throws ServiceException{
+	@Asynchronous
+	@Override
+	public void addSaleList(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId){
+		
+		Lote lote = new Lote();
+		Date date = new Date();
+
 		try {
 			
-			SaleState saleState = sale.getSaleState();
-			CreditCard creditCard = sale.getCreditCard();
-			Payer payer = sale.getPayer();
-			//Lote lote = sale.getLote();
+			Bank bank = bankEao.findById(bankId);
+			User user = userEao.findById(userId);
+
+			lote.setName(filename);
+			lote.setTotal(sales.size());
+			lote.setProcess(0);
+			lote.setDate(date);
+			lote.setLoteType(LoteTypeEnum.CREATESALE);
+			lote.setState("En progreso");
+			loteEao.add(lote);
+			// villanuevan@pe.geainternacional.com nidia
 			
-			sale.setSaleState(null);
-			sale.setCreditCard(null);
-			sale.setPayer(null);
-			//sale.setLote(null);
-			
-			saleEao.add(sale);
-			
-			//saleState.setSale(sale);
-			saleStateEao.add(saleState);
-			
-			//creditCard.setSale(sale);
-			creditCardEao.add(creditCard);
-			
-			//payer.setSale(sale);
-			payerEao.add(payer);
-			
-			//loteEao.add(lote);
-			
-			sale.setSaleState(saleState);
-			sale.setCreditCard(creditCard);
-			sale.setPayer(payer);
-			//sale.setLote(lote);
-			
+
+			Integer lineNumber = 1;
+
+			for (Sale sale : sales) {
+				sale.setBank(bank);
+				sale.setCreatedBy(user);
+				sale.setLote(lote);
+				sale.setCreatedAt(date);
+				saleEao.add(sale);
+				
+				lote.setProcess(lineNumber);
+				loteEao.update(lote);
+				
+				lineNumber++;
+			}
+
+			lote.setState("Terminado");
+			loteEao.update(lote);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
+			if (e.getMessage()!=null || e.getMessage().length()==0) {
+				lote.setState((new NullPointerException()).toString());
 			}else{
-				throw new ServiceException();
+				if (e.getMessage().length()>500) {
+					lote.setState(e.getMessage().substring(0,500));	
+				}else{
+					lote.setState(e.getMessage());
+				}
 			}
+			try {
+				loteEao.update(lote);
+			} catch (EaoException e1) {
+				e1.printStackTrace();
+			}
+
 		}
-	}*/
-	
+
+	}
 	
 	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt,Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException {
 		try {

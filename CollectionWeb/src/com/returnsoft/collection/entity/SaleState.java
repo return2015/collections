@@ -7,8 +7,6 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -32,8 +30,6 @@ public class SaleState implements Serializable {
 	private static final long serialVersionUID = -722923150396095288L;
 
 	@Id 
-	//@GeneratedValue(strategy = GenerationType.IDENTITY)
-	//@Column(name = "salsta_id")
 	private Long id;
 	
 	@Column(name = "salsta_state")
@@ -56,8 +52,10 @@ public class SaleState implements Serializable {
 	@Column(name = "salsta_observation")
 	private String observation;
 	
-	/*@OneToOne(fetch=FetchType.LAZY,mappedBy="saleState")
-	private Sale sale;*/
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "salsta_lot_id")
+	private Lote lote;
+	
 	
 	@MapsId 
     @OneToOne()
@@ -72,15 +70,6 @@ public class SaleState implements Serializable {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "salsta_updated_by")
 	private User updatedBy;
-	
-
-	
-
-
-	
-
-	
-
 	
 
 	public Long getId() {
@@ -165,6 +154,14 @@ public class SaleState implements Serializable {
 
 	public void setSale(Sale sale) {
 		this.sale = sale;
+	}
+
+	public Lote getLote() {
+		return lote;
+	}
+
+	public void setLote(Lote lote) {
+		this.lote = lote;
 	}
 
 	

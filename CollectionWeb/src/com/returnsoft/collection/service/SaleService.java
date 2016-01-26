@@ -8,6 +8,7 @@ import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.ServiceException;
+import com.returnsoft.collection.util.SaleFile;
 
 public interface SaleService {
 	
@@ -18,6 +19,9 @@ public interface SaleService {
 	public Sale findById(Long saleId) throws ServiceException;
 	
 	public Sale findByCode(String code) throws ServiceException;
+	
+	public void addSaleList(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId);
+	
 	
 	//public Sale affiliate(String code, int userId, Date affiliateDate) throws ServiceException;
 	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException;
