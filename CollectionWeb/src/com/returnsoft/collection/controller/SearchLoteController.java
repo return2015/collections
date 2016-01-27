@@ -45,7 +45,7 @@ import com.returnsoft.collection.exception.BankNotSelectedException;
 import com.returnsoft.collection.exception.CollectionChargeAmountException;
 import com.returnsoft.collection.exception.CollectionDuplicateException;
 import com.returnsoft.collection.exception.FileExtensionException;
-import com.returnsoft.collection.exception.FileMultipleErrorsException;
+import com.returnsoft.collection.exception.MultipleErrorsException;
 import com.returnsoft.collection.exception.FileNotFoundException;
 import com.returnsoft.collection.exception.FileRowsInvalidException;
 import com.returnsoft.collection.exception.FileRowsZeroException;
@@ -362,7 +362,7 @@ public class SearchLoteController implements Serializable{
 			if (errors.size()==0) {
 				validateCollectionData(headers, dataList, file.getSubmittedFileName());
 			}else{
-				throw new FileMultipleErrorsException(errors);
+				throw new MultipleErrorsException(errors);
 			}
 			
 		}else{
@@ -373,7 +373,7 @@ public class SearchLoteController implements Serializable{
 			facesUtil.sendConfirmMessage("Se creó el lote satisfactorimente.");
 			
 			
-		} catch (FileMultipleErrorsException e) {
+		} catch (MultipleErrorsException e) {
 			e.printStackTrace();
 			for (Exception err : e.getErrors()) {
 				facesUtil.sendErrorMessage(err.getMessage());
@@ -921,7 +921,7 @@ public class SearchLoteController implements Serializable{
 				loteService.addTypeCollection(collections, filename, headers, user.getId());
 				
 			}else{
-				throw new FileMultipleErrorsException(errors);
+				throw new MultipleErrorsException(errors);
 			}
 
 		//} catch (Exception e) {

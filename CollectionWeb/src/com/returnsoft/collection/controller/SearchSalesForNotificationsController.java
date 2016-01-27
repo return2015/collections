@@ -1,5 +1,7 @@
 package com.returnsoft.collection.controller;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -1336,14 +1338,9 @@ public class SearchSalesForNotificationsController implements Serializable {
 					if (sessionBean.getBank().getId() != sale.getBank().getId()) {
 						errors.add(new BankInvalidException());
 					}
+					
+					
 
-					//Short bankId = sale.getBank().getId();
-					//String bankName = sale.getBank().getName();
-					//BankLetterEnum bankLetterEnum = BankLetterEnum.findById(bankId);
-
-					/*if (bankLetterEnum == null) {
-						errors.add(new BankLetterNotFoundException(sale.getCode(), bankName));
-					}*/
 					if (sale.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
 						errors.add(new SaleStateNoActiveException(sale.getCode()));
 					}
@@ -1416,17 +1413,17 @@ public class SearchSalesForNotificationsController implements Serializable {
 							.getExternalContext().getContext();
 					String separator = System.getProperty("file.separator");
 					String rootPath = servletContext.getRealPath(separator);
-					String rootDir = rootPath + "resources" + separator + "templates" + separator;
+					String templatePath = rootPath + "resources" + separator + "templates" + separator;
 					
 					String fileName="";
 					if (bankLetterEnum.equals(BankLetterEnum.FALABELLA)) {
-						fileName = rootDir + "lettersFalabella.jrxml";	
+						fileName = templatePath + "lettersFalabella.jrxml";	
 					}else if (bankLetterEnum.equals(BankLetterEnum.GNB)) {
-						fileName = rootDir + "lettersGNB.jrxml";
+						fileName = templatePath + "lettersGNB.jrxml";
 					}
 
 					parameters.put("sales", salesFound);
-					parameters.put("ROOT_DIR", rootDir);
+					parameters.put("ROOT_DIR", templatePath);
 					parameters.put(JRParameter.REPORT_LOCALE, new Locale("es", "pe")); 
 
 					JasperReport report = JasperCompileManager.compileReport(fileName);
@@ -1436,6 +1433,12 @@ public class SearchSalesForNotificationsController implements Serializable {
 					ExternalContext externalContext = facesContext.getExternalContext();
 					externalContext.setResponseContentType("application/pdf");
 					externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"cartas.pdf\"");
+					
+					
+					/*File file = new File("temp");
+			        FileOutputStream fos = new FileOutputStream(file);*/
+			        
+			        //externalContext.getResponseOutputStream().write(fos.);
 
 					JasperExportManager.exportReportToPdfStream(print, externalContext.getResponseOutputStream());
 					facesContext.responseComplete();

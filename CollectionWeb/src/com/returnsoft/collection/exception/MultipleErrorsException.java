@@ -2,7 +2,7 @@ package com.returnsoft.collection.exception;
 
 import java.util.List;
 
-public class FileMultipleErrorsException extends Exception{
+public class MultipleErrorsException extends Exception{
 
 	/**
 	 * 
@@ -11,7 +11,7 @@ public class FileMultipleErrorsException extends Exception{
 	
 	private List<Exception> errors;
 
-	public FileMultipleErrorsException(List<Exception> errors) {
+	public MultipleErrorsException(List<Exception> errors) {
 		super();
 		this.errors=errors;
 	}

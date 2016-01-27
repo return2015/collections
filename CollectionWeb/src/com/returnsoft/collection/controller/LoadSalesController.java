@@ -37,7 +37,7 @@ import com.returnsoft.collection.enumeration.DocumentTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.BankNotSelectedException;
 import com.returnsoft.collection.exception.FileExtensionException;
-import com.returnsoft.collection.exception.FileMultipleErrorsException;
+import com.returnsoft.collection.exception.MultipleErrorsException;
 import com.returnsoft.collection.exception.FileNotFoundException;
 import com.returnsoft.collection.exception.FileRowsInvalidException;
 import com.returnsoft.collection.exception.FileRowsZeroException;
@@ -327,7 +327,7 @@ public class LoadSalesController implements Serializable {
 				if (errors.size() == 0) {
 					validateSalesData(headers, dataList, file.getSubmittedFileName());
 				} else {
-					throw new FileMultipleErrorsException(errors);
+					throw new MultipleErrorsException(errors);
 				}
 
 			} else {
@@ -336,7 +336,7 @@ public class LoadSalesController implements Serializable {
 
 			facesUtil.sendConfirmMessage("Se creó el lote satisfactorimente.");
 
-		} catch (FileMultipleErrorsException e) {
+		} catch (MultipleErrorsException e) {
 			e.printStackTrace();
 			for (Exception err : e.getErrors()) {
 				facesUtil.sendErrorMessage(err.getMessage());
@@ -903,7 +903,7 @@ public class LoadSalesController implements Serializable {
 			saleService.addSaleList(sales, filename, headers, user.getId(), bank.getId());
 
 		} else {
-			throw new FileMultipleErrorsException(errors);
+			throw new MultipleErrorsException(errors);
 		}
 
 		// } catch (Exception e) {

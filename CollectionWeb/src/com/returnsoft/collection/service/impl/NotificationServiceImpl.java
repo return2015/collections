@@ -1,9 +1,14 @@
 package com.returnsoft.collection.service.impl;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -32,8 +37,18 @@ import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.enumeration.BankLetterEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.exception.BankLetterNotFoundException;
+import com.returnsoft.collection.exception.NullException;
+import com.returnsoft.collection.exception.SaleNotFoundException;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.NotificationService;
+
+import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JRParameter;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
 
 @Stateless
 //@TransactionManagement(TransactionManagementType.CONTAINER)
@@ -61,6 +76,12 @@ public class NotificationServiceImpl implements NotificationService {
 			
 			Sale saleFound = saleEao.findById(notification.getSale().getId());
 			
+			BankLetterEnum bankLetterEnum = BankLetterEnum.findById(saleFound.getBank().getId());
+			
+			if (bankLetterEnum==null) {
+				throw new BankLetterNotFoundException(saleFound.getBank().getName());
+			}
+			
 			//se agrega notification 
 			notificationEao.add(notification);
 			/*int i=5;
@@ -80,11 +101,7 @@ public class NotificationServiceImpl implements NotificationService {
 				
 			}else if (notification.getType().equals(NotificationTypeEnum.MAIL)) {
 				
-				BankLetterEnum bankLetterEnum = BankLetterEnum.findById(saleFound.getBank().getId());
 				
-				if (bankLetterEnum==null) {
-					throw new BankLetterNotFoundException(saleFound.getBank().getName());
-				}
 				
 				if (saleFound.getVirtualNotifications()==null) {
 					saleFound.setVirtualNotifications((short)1);
@@ -94,12 +111,15 @@ public class NotificationServiceImpl implements NotificationService {
 				
 				
 				// SE ENVIA EL EMAIL
-				String email = saleFound.getPayer().getMail();
-				String code = saleFound.getCode();
+				//String email = saleFound.getPayer().getMail();
+				/*String code = saleFound.getCode();
 				String names = saleFound.getPayer().getFirstnameResponsible() + " "
 				+ saleFound.getPayer().getLastnamePaternalResponsible() + " "
-				+ saleFound.getPayer().getLastnameMaternalResponsible();
-				sendMail(email, names, code, bankLetterEnum);
+				+ saleFound.getPayer().getLastnameMaternalResponsible();*/
+				
+				File file = generateLetter(saleFound.getCode());
+				
+				sendMail(saleFound.getCode(),file);
 			}
 			
 			saleFound.setNotification(notification);
@@ -428,6 +448,7 @@ public class NotificationServiceImpl implements NotificationService {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			context.setRollbackOnly();
 			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
 				throw new ServiceException(e.getMessage(), e);	
 			}else{
@@ -437,105 +458,175 @@ public class NotificationServiceImpl implements NotificationService {
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public void sendMail(String email, String names, String code, BankLetterEnum bankLetterEnum) throws Exception{
+	public void sendMail(String code, File letter) throws Exception{
 		//try {
 
-			System.out.println("email:" + email);
-			System.out.println("names:" + names);
+			//System.out.println("email:" + email);
+			//System.out.println("names:" + names);
 
 			//if (email != null && names != null && bankId != null) {
 
 				//BankLetterEnum bankLetterEnum = BankLetterEnum.findById(bankId);
 
 				//if (bankLetterEnum != null) {
-					
-					
-
-					
 
 					try {
 						
+						Sale sale = saleEao.findByCode(code);
 						
-						ServletContext servletContext=(ServletContext) FacesContext.getCurrentInstance ().getExternalContext().getContext();
-						String separator=System.getProperty("file.separator");
-						String rootPath= servletContext.getRealPath(separator);
-						//String fileName = rootPath+"resources"+separator+"templates"+separator+bankLetterEnum.getTemplateMail();
-						Session sessionSelected = null;
-						String subject = "";
-						String filename = "";
-						if (bankLetterEnum.equals(BankLetterEnum.FALABELLA)) {
-							sessionSelected = mailFalabella;
-							subject="Asistencia Falabella";
-							filename=rootPath+"resources"+separator+"templates"+separator+"mailFalabella.html";
-						}else if(bankLetterEnum.equals(BankLetterEnum.GNB)) {
-							sessionSelected = mailGNB;
-							subject="Asistencia GNB";
-							filename=rootPath+"resources"+separator+"templates"+separator+"mailGNB.html";
+						if (sale!=null) {
+							
+							//String email = 
+									//String names BankLetterEnum bankLetterEnum
+									
+									BankLetterEnum bankLetterEnum = BankLetterEnum.findById(sale.getBank().getId());
+									
+									if (bankLetterEnum==null) {
+										throw new BankLetterNotFoundException(sale.getBank().getName());
+									}
+									
+									/*if (sale.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
+										throw new SaleStateNoActiveException(sale.getCode());
+									}*/
+									if (sale.getPayer().getFirstnameResponsible() == null
+											|| sale.getPayer().getFirstnameResponsible().trim().length() == 0) {
+										throw new NullException("NOMBRE", sale.getCode());
+									}
+									if (sale.getPayer().getLastnamePaternalResponsible() == null
+											|| sale.getPayer().getLastnamePaternalResponsible().trim().length() == 0) {
+										throw new NullException("APELLIDO PATERNO", sale.getCode());
+									}
+									if (sale.getPayer().getLastnameMaternalResponsible() == null
+											|| sale.getPayer().getLastnameMaternalResponsible().trim().length() == 0) {
+										throw new NullException("APELLIDO MATERNO", sale.getCode());
+									}
+									
+									
+									
+									if (sale.getPayer().getMail() == null || sale.getPayer().getMail().trim().length() == 0) {
+										throw new NullException("CORREO", sale.getCode());//
+									}
+									
+									
+									///////////////////////////
+									
+									String names = sale.getPayer().getFirstnameResponsible() + " "
+											+ sale.getPayer().getLastnamePaternalResponsible() + " "
+											+ sale.getPayer().getLastnameMaternalResponsible();
+									
+									String email = sale.getPayer().getMail();
+									
+									ServletContext servletContext=(ServletContext) FacesContext.getCurrentInstance ().getExternalContext().getContext();
+									String separator=System.getProperty("file.separator");
+									String rootPath= servletContext.getRealPath(separator);
+									String templatePath = rootPath + "resources" + separator + "templates" + separator;
+																																																																																																																																																																					
+									Session sessionSelected = null;
+									String subject = "";
+									String mailPath = "";
+									String conditionedPath = "";
+									String logoPath = templatePath+"logoGEA.jpg";
+									
+									if (bankLetterEnum.equals(BankLetterEnum.FALABELLA)) {
+										sessionSelected = mailFalabella;
+										subject="Asistencia Falabella";
+										mailPath=templatePath+"mailFalabella.html";
+										conditionedPath=templatePath+"condicionado_asistencia_falabella.pdf";
+									}else if(bankLetterEnum.equals(BankLetterEnum.GNB)) {
+										sessionSelected = mailGNB;
+										subject="Asistencia GNB";
+										mailPath=templatePath+"mailGNB.html";
+										conditionedPath=templatePath+"condicionado_asistencia_gnb.pdf";
+									}
+									
+									
+									String htmlText="";
+									BufferedReader br = new BufferedReader(new FileReader(mailPath));
+									try {
+									    StringBuilder sb = new StringBuilder();
+									    String line = br.readLine();
+
+									    while (line != null) {
+									        sb.append(line);
+									        sb.append(System.lineSeparator());
+									        line = br.readLine();
+									    }
+									    htmlText = sb.toString();
+									}catch(Exception e){
+										e.printStackTrace();
+										throw e;
+									} finally {
+									    br.close();
+									}
+									
+									String urlConditioned="http://190.107.180.164:9096/siscob/faces/download_conditioned.xhtml?code="+code;
+									String urlLetter="http://190.107.180.164:9096/siscob/faces/download_letter.xhtml?code="+code;
+									htmlText=String.format(htmlText, names,urlLetter,urlConditioned);
+									
+									
+									MimeMessage message = new MimeMessage(sessionSelected);
+									message.setFrom(new InternetAddress(sessionSelected.getProperty("mail.from")));
+									InternetAddress[] addressTO = { new InternetAddress(email)};
+									InternetAddress[] addressCC = { new InternetAddress(sessionSelected.getProperty("mail.from"))};
+									message.setRecipients(Message.RecipientType.TO, addressTO);
+									message.setRecipients(Message.RecipientType.CC, addressCC);
+									
+									message.setSubject(subject);
+									message.setSentDate(new Date());
+									
+									
+									
+									//
+							        // This HTML mail have to 2 part, the BODY and the embedded image
+							        //
+							        MimeMultipart multipart = new MimeMultipart("related");
+							        
+							        // first part  (the html)
+							        BodyPart messageBodyPart = new MimeBodyPart();
+							        messageBodyPart.setContent(htmlText, "text/html");
+							        // add it
+							        multipart.addBodyPart(messageBodyPart);
+							        
+							        /////
+							        BodyPart adjunto1 = new MimeBodyPart();
+							        
+							        adjunto1.setDataHandler(new DataHandler(new FileDataSource(conditionedPath)));
+							        adjunto1.setFileName("condicionado.pdf");
+							        multipart.addBodyPart(adjunto1);
+							        
+							        
+							        BodyPart adjunto2 = new MimeBodyPart();
+							        adjunto2.setDataHandler(new DataHandler(new FileDataSource(letter)));
+							        adjunto2.setFileName("carta.pdf");
+							        multipart.addBodyPart(adjunto2);
+							        
+							        ////
+							        
+							        // second part (the image)
+							        messageBodyPart = new MimeBodyPart();
+							        DataSource fds = new FileDataSource(logoPath);
+							        messageBodyPart.setDataHandler(new DataHandler(fds));
+							        messageBodyPart.setHeader("Content-ID","<image>");
+							        // add it
+							        multipart.addBodyPart(messageBodyPart);
+
+							        // put everything together
+							        message.setContent(multipart);
+
+							        // para enviar condicionado
+									// message.addHeader("Disposition-Notification-To",bankLetterEnum.getMail());
+							        
+									Transport.send(message);
+									//System.out.println("se envío el mensaje");
+									
+									
+							
+						}else{
+							throw new SaleNotFoundException();
 						}
 						
-						String logoName = rootPath+"resources"+separator+"templates"+separator+"logoGEA.jpg";
-						String htmlText="";
-						BufferedReader br = new BufferedReader(new FileReader(filename));
-						try {
-						    StringBuilder sb = new StringBuilder();
-						    String line = br.readLine();
-
-						    while (line != null) {
-						        sb.append(line);
-						        sb.append(System.lineSeparator());
-						        line = br.readLine();
-						    }
-						    htmlText = sb.toString();
-						}catch(Exception e){
-							e.printStackTrace();
-							throw e;
-						} finally {
-						    br.close();
-						}
-						String urlConditioned="http://190.107.180.164:9096/siscob/faces/download_conditioned.xhtml?code="+code;
-						String urlLetter="http://190.107.180.164:9096/siscob/faces/download_letter.xhtml?code="+code;
-						htmlText=String.format(htmlText, names,urlLetter,urlConditioned);
 						
 						
-						MimeMessage message = new MimeMessage(sessionSelected);
-						message.setFrom(new InternetAddress(sessionSelected.getProperty("mail.from")));
-						InternetAddress[] addressTO = { new InternetAddress(email)};
-						InternetAddress[] addressCC = { new InternetAddress(sessionSelected.getProperty("mail.from"))};
-						message.setRecipients(Message.RecipientType.TO, addressTO);
-						message.setRecipients(Message.RecipientType.CC, addressCC);
-						
-						message.setSubject(subject);
-						message.setSentDate(new Date());
-						
-						
-						
-						//
-				        // This HTML mail have to 2 part, the BODY and the embedded image
-				        //
-				        MimeMultipart multipart = new MimeMultipart("related");
-				        
-				        // first part  (the html)
-				        BodyPart messageBodyPart = new MimeBodyPart();
-				        messageBodyPart.setContent(htmlText, "text/html");
-				        // add it
-				        multipart.addBodyPart(messageBodyPart);
-				        
-				        // second part (the image)
-				        messageBodyPart = new MimeBodyPart();
-				        DataSource fds = new FileDataSource(logoName);
-				        messageBodyPart.setDataHandler(new DataHandler(fds));
-				        messageBodyPart.setHeader("Content-ID","<image>");
-				        // add it
-				        multipart.addBodyPart(messageBodyPart);
-
-				        // put everything together
-				        message.setContent(multipart);
-
-				        // para enviar condicionado
-						// message.addHeader("Disposition-Notification-To",bankLetterEnum.getMail());
-				        
-						Transport.send(message);
-						//System.out.println("se envío el mensaje");
 
 					}  catch (Exception ex) {
 						ex.printStackTrace();
@@ -551,6 +642,129 @@ public class NotificationServiceImpl implements NotificationService {
 		e.printStackTrace();
 		
 	}*/
+	}
+
+	@Override
+	public File generateLetter(String code) throws ServiceException {
+		try {
+			
+			Sale sale = saleEao.findByCode(code);
+			
+			if (sale!=null) {
+				
+				BankLetterEnum bankLetterEnum = BankLetterEnum.findById(sale.getBank().getId());
+				
+				if (bankLetterEnum==null) {
+					throw new BankLetterNotFoundException(sale.getBank().getName());
+				}
+				
+				/*if (sale.getSaleState().getState().equals(SaleStateEnum.DOWN)) {
+					throw new SaleStateNoActiveException(sale.getCode());
+				}*/
+				if (sale.getPayer().getFirstnameResponsible() == null
+						|| sale.getPayer().getFirstnameResponsible().trim().length() == 0) {
+					throw new NullException("NOMBRE", sale.getCode());
+				}
+				if (sale.getPayer().getLastnamePaternalResponsible() == null
+						|| sale.getPayer().getLastnamePaternalResponsible().trim().length() == 0) {
+					throw new NullException("APELLIDO PATERNO", sale.getCode());
+				}
+				if (sale.getPayer().getLastnameMaternalResponsible() == null
+						|| sale.getPayer().getLastnameMaternalResponsible().trim().length() == 0) {
+					throw new NullException("APELLIDO MATERNO", sale.getCode());
+				}
+				if (sale.getPayer().getAddress() == null || sale.getPayer().getAddress().trim().length() == 0) {
+					throw new NullException("DIRECCIÓN", sale.getCode());
+				}
+				if (sale.getPayer().getProvince() == null || sale.getPayer().getProvince().trim().length() == 0) {
+					throw new NullException("PROVINCIA", sale.getCode());
+				}
+				if (sale.getPayer().getDepartment() == null
+						|| sale.getPayer().getDepartment().trim().length() == 0) {
+					throw new NullException("DEPARTAMENTO", sale.getCode());//
+				}
+				if (sale.getPayer().getDistrict() == null || sale.getPayer().getDistrict().trim().length() == 0) {
+					throw new NullException("DISTRITO", sale.getCode());//
+				}
+				
+				/*if (errors.size() > 0) {
+					
+					throw new MultipleErrorsException(errors);
+					
+				} else {*/
+					
+					
+
+					Map<String, Object> parameters = new HashMap<String, Object>();
+					ServletContext servletContext=(ServletContext) FacesContext.getCurrentInstance ().getExternalContext().getContext();
+					String separator=System.getProperty("file.separator");
+					String rootPath= servletContext.getRealPath(separator);
+					String templatePath = rootPath + "resources" + separator + "templates" + separator;
+					
+					
+					String letterPath = "";
+					if (bankLetterEnum.equals(BankLetterEnum.FALABELLA)) {
+						letterPath = templatePath + "letterFalabella.jrxml";
+						parameters.put("names",sale.getPayer().getFirstnameResponsible() + " "
+								+ sale.getPayer().getLastnamePaternalResponsible() + " "
+								+ sale.getPayer().getLastnameMaternalResponsible());
+						
+					}else if(bankLetterEnum.equals(BankLetterEnum.GNB)) {
+						letterPath = templatePath + "letterGNB.jrxml";
+						parameters.put("names",sale.getPayer().getFirstnameResponsible() + " "
+								+ sale.getPayer().getLastnamePaternalResponsible() + " "
+								+ sale.getPayer().getLastnameMaternalResponsible());
+						parameters.put("address",sale.getPayer().getAddress());
+						parameters.put("department",sale.getPayer().getDepartment()+ " - " +sale.getPayer().getProvince());
+					}
+
+					
+					parameters.put("ROOT_DIR", templatePath);
+					parameters.put(JRParameter.REPORT_LOCALE, new Locale("es", "pe"));
+					
+					/*String fileName="";
+					if (bankLetterEnum.equals(BankLetterEnum.FALABELLA)) {
+						fileName = templatePath + "lettersFalabella.jrxml";	
+					}else if (bankLetterEnum.equals(BankLetterEnum.GNB)) {
+						fileName = templatePath + "lettersGNB.jrxml";
+					}
+
+					parameters.put("sales", salesFound);
+					parameters.put("ROOT_DIR", templatePath);
+					parameters.put(JRParameter.REPORT_LOCALE, new Locale("es", "pe")); */
+
+					JasperReport report = JasperCompileManager.compileReport(letterPath);
+					JasperPrint print = JasperFillManager.fillReport(report, parameters, new JREmptyDataSource());
+
+					//FacesContext facesContext = FacesContext.getCurrentInstance();
+					//ExternalContext externalContext = facesContext.getExternalContext();
+					//externalContext.setResponseContentType("application/pdf");
+					//externalContext.setResponseHeader("Content-Disposition", "attachment; filename=\"cartas.pdf\"");
+					
+					
+					File file = new File("letter-"+sale.getCode());
+			        FileOutputStream fos = new FileOutputStream(file);
+			        
+					JasperExportManager.exportReportToPdfStream(print, fos);
+					fos.close();
+					
+					return file;
+
+				//}
+				
+			}else{
+				throw new SaleNotFoundException();
+			}
+			
+		}  catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+			
+		}
 	}
 
 
