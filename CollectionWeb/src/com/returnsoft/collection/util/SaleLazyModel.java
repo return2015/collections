@@ -6,10 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.ejb.EJB;
-//import javax.ejb.Singleton;
-import javax.inject.Singleton;
-
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortMeta;
 import org.primefaces.model.SortOrder;
@@ -20,7 +16,6 @@ import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.SaleService;
-//@Singleton
 public class SaleLazyModel extends LazyDataModel<Sale>{
 
 	/**
@@ -150,6 +145,7 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 		return super.getRowData();
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Sale getRowData(String rowKey) {
 		// TODO Auto-generated method stub

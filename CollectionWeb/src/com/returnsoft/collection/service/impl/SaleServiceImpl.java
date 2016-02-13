@@ -123,7 +123,8 @@ public class SaleServiceImpl implements SaleService{
 			lote.setName(filename);
 			lote.setTotal(sales.size());
 			lote.setProcess(0);
-			lote.setDate(date);
+			lote.setCreatedAt(date);
+			lote.setCreatedBy(user);
 			lote.setLoteType(LoteTypeEnum.CREATESALE);
 			lote.setState("En progreso");
 			loteEao.add(lote);

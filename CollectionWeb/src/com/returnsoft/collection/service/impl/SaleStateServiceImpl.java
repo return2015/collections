@@ -59,7 +59,7 @@ public class SaleStateServiceImpl implements SaleStateService {
 			lote.setName(filename);
 			lote.setTotal(saleStates.size());
 			lote.setProcess(0);
-			lote.setDate(date);
+			lote.setCreatedAt(date);
 			lote.setLoteType(LoteTypeEnum.UPDATESALESTATE);
 			lote.setState("En progreso");
 			loteEao.add(lote);

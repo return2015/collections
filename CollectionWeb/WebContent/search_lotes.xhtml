@@ -30,120 +30,86 @@
 
 		<h:panelGrid columns="2" style="margin:auto;"
 			columnClasses="topAligned,topAligned">
+
 			<h:panelGrid>
-				<p:accordionPanel id="acc_sales" style="width:400px;font-size:11px;">
-					<p:tab title="Cargar lote de ventas">
-						<h:form id="formLinkSales">
-							<h:commandLink
-								actionListener="#{loadSalesController.downloadSalesFile}"
-								value="Descargar formato de trama">
-							</h:commandLink>
-						</h:form>
-						<br></br>
-						<br></br>
-						<h:form id="formUploadSales" enctype="multipart/form-data">
-							<h:panelGrid columns="2">
-								<h:inputFile id="saleFile" value="#{loadSalesController.saleFile}">
-								</h:inputFile>
-								<h:commandButton value="Cargar ventas" process="@form"
-									actionListener="#{loadSalesController.validateSalesFile}">
-									<f:ajax execute="saleFile" render=":acc_sales:messages_sales" />
-								</h:commandButton>
-							</h:panelGrid>
-						</h:form>
-						<p:messages id="messages_sales"></p:messages>
-					</p:tab>
-					<p:tab title="Cargar lote de cobranzas">
-					<h:form id="formLinkCollections">
-							<h:commandLink actionListener="#{searchLoteController.downloadCollectionsFile}"
-								value="Descargar formato de trama">
-							</h:commandLink>
-						</h:form>
-						<br></br>
-						<br></br>
-						
-						<p:messages id="messages_collections"></p:messages>
-					
-					</p:tab>
-					<p:tab title="Cargar lote de estados">
-					<h:form id="formLinkSaleStates">
-							<h:commandLink
-								actionListener="#{loadSaleStatesController.downloadSaleStatesFile}"
-								value="Descargar formato de trama">
-							</h:commandLink>
-						</h:form>
-						<br></br>
-						<br></br>
-						<h:form id="formUploadSaleStates" enctype="multipart/form-data">
-							<h:panelGrid columns="2">
-								<h:inputFile id="saleStateFile" value="#{loadSaleStatesController.file}">
-								</h:inputFile>
-								<h:commandButton value="Actualizar estados" process="@form"
-									actionListener="#{loadSaleStatesController.validateSaleStatesFile}">
-									<f:ajax execute="saleStateFile" render=":acc_sales:messages_sale_states" />
-								</h:commandButton>
-							</h:panelGrid>
-						</h:form>
-						<p:messages id="messages_sale_states"></p:messages>
-					</p:tab>
-					<p:tab title="Cargar lote de TC">
-					</p:tab>
-				</p:accordionPanel>
 			</h:panelGrid>
+
 
 			<h:panelGrid>
 				<h:form id="form">
 					<h:panelGrid>
 						<p:messages id="messages"></p:messages>
 					</h:panelGrid>
-					<h:panelGrid columns="3">
+					<h:panelGrid columns="5">
+
 						<p:outputLabel value="Fecha"></p:outputLabel>
-						<p:calendar navigator="true"
-							value="#{searchLoteController.loteDate}" required="true"
-							requiredMessage="Debe ingresar fecha:" pattern="dd-MM-yyyy"></p:calendar>
+						<p:calendar navigator="true" id="loteDate"
+							value="#{searchLoteController.loteDate}" pattern="dd-MM-yyyy"></p:calendar>
+
+						<p:outputLabel value="Tipo"></p:outputLabel>
+						<p:selectOneMenu value="#{searchLoteController.loteTypeSelected}"
+							id="loteType">
+							<f:selectItem itemLabel="Seleccione..." itemValue=""></f:selectItem>
+							<f:selectItems value="#{searchLoteController.loteTypes}"></f:selectItems>
+						</p:selectOneMenu>
+
 						<p:commandButton icon="ui-icon-search"
 							actionListener="#{searchLoteController.search}" value="Buscar"
-							process="@form" update=":searchTable :form:messages">
+							process="@this :form:loteType :form:loteDate"
+							update=":form:searchTable :form:messages">
 						</p:commandButton>
+
 					</h:panelGrid>
 
+					<p:dataTable value="#{searchLoteController.lotes}" var="r"
+						paginator="true" rows="10" id="searchTable"
+						selection="#{searchLoteController.loteSelected}"
+						selectionMode="single" lazy="true"
+						paginatorTemplate="{FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+						currentPageReportTemplate="(Entries: {startRecord} - {endRecord} of {totalRecords}, Page: {currentPage}/{totalPages})">
+
+						<p:ajax event="rowSelect" />
+						<p:ajax event="rowUnselect" />
+
+						<p:column headerText="Id" width="20">
+							<h:outputText value="#{r.id}"></h:outputText>
+						</p:column>
+
+						<p:column headerText="Nombre" width="250">
+							<h:outputText value="#{r.name}"></h:outputText>
+						</p:column>
+
+						<p:column headerText="Total" width="40">
+							<h:outputText value="#{r.total}"></h:outputText>
+						</p:column>
+
+						<p:column headerText="Procesado" width="40">
+							<h:outputText value="#{r.process}"></h:outputText>
+						</p:column>
+
+						<p:column headerText="Estado" width="180">
+							<h:outputText value="#{r.state}"></h:outputText>
+						</p:column>
+
+						<p:column headerText="Tipo" width="120">
+							<h:outputText value="#{r.loteType.name}"></h:outputText>
+						</p:column>
+
+						<p:column headerText="Fecha" width="120">
+							<h:outputText value="#{r.createdAt}">
+								<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
+							</h:outputText>
+						</p:column>
+						
+						<p:column headerText="Usuario" width="120">
+							<h:outputText value="#{r.createdBy.firstname} #{r.createdBy.lastname}">
+							</h:outputText>
+						</p:column>
+
+					</p:dataTable>
+
 				</h:form>
-				<p:dataTable value="#{searchLoteController.lotes}" var="r"
-					rowKey="#{r.id}" paginator="true" rows="10" id="searchTable"
-					selectionMode="single" resizableColumns="true"
-					selection="#{searchLoteController.loteSelected}">
 
-					<p:column headerText="Id" >
-						<h:outputText value="#{r.id}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="Nombre" >
-						<h:outputText value="#{r.name}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="Total" >
-						<h:outputText value="#{r.total}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="Procesado" >
-						<h:outputText value="#{r.process}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="Estado" >
-						<h:outputText value="#{r.state}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="Tipo" >
-						<h:outputText value="#{r.loteType.name}"></h:outputText>
-					</p:column>
-
-					<p:column headerText="Fecha" >
-						<h:outputText value="#{r.date}">
-							<f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" />
-						</h:outputText>
-					</p:column>
-
-				</p:dataTable>
 			</h:panelGrid>
 
 

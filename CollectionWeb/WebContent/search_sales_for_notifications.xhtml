@@ -18,8 +18,6 @@
 
 	<ui:define name="content">
 
-
-
 		<div class="title ui-widget-header ui-corner-all">
 			<h:panelGrid style="margin:auto;">
 		GESTIÓN DE NOTIFICACIONES
@@ -79,15 +77,11 @@
 							<p:outputLabel value="Fecha venta desde:"></p:outputLabel>
 							<p:calendar navigator="true"
 								value="#{searchSalesForNotificationsController.dateOfSaleStarted}"
-								required="true"
-								requiredMessage="Debe ingresar fecha venta desde:"
 								pattern="dd-MM-yyyy"></p:calendar>
 
 							<p:outputLabel value="Fecha venta hasta:"></p:outputLabel>
 							<p:calendar navigator="true"
 								value="#{searchSalesForNotificationsController.dateOfSaleEnded}"
-								required="true"
-								requiredMessage="Debe ingresar fecha venta hasta:"
 								pattern="dd-MM-yyyy"></p:calendar>
 
 							<p:outputLabel value="Estado venta:"></p:outputLabel>
@@ -158,7 +152,7 @@
 			</p:outputPanel>
 
 
-			<h:panelGrid columns="6" style="text-align:center;">
+			<h:panelGrid columns="7" style="text-align:center;">
 
 				<p:commandButton icon="ui-icon-search"
 					actionListener="#{searchSalesForNotificationsController.search}"
@@ -194,6 +188,11 @@
 				<p:commandButton
 					action="#{searchSalesForNotificationsController.exportTxt}"
 					value="Exportar a Txt" process="@form" ajax="false">
+				</p:commandButton>
+				
+				<p:commandButton
+					action="#{searchSalesForNotificationsController.exportExcel}"
+					value="Exportar a Excel" process="@form" ajax="false">
 				</p:commandButton>
 
 			</h:panelGrid>
@@ -279,11 +278,11 @@
 					<h:outputText value="#{s.payer.documentType.name}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="NUIC" width="40">
+				<p:column headerText="NUIC" width="50">
 					<h:outputText value="#{s.payer.nuicResponsible}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Nombres completos" width="120"
+				<p:column headerText="Nombres completos" width="140"
 					style="white-space:nowrap;">
 					<h:outputText
 						value="#{s.payer.lastnamePaternalResponsible} #{s.payer.lastnameMaternalResponsible} #{s.payer.firstnameResponsible}"></h:outputText>
@@ -328,41 +327,46 @@
 					<h:outputText value="#{s.bank.name}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Notif. email" width="20">
+				<p:column headerText="Email" width="20">
 					<h:outputText value="#{s.virtualNotifications}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Notif. courier" width="20">
+				<p:column headerText="Courier" width="20">
 					<h:outputText value="#{s.physicalNotifications}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Notif. Tipo" width="30">
+				<p:column headerText="Tipo" width="30">
 					<h:outputText value="#{s.notification.type.name}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Notif. estado" width="50">
+				<p:column headerText="Estado" width="50">
 					<h:outputText value="#{s.notification.state.name}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="Notif. fecha envío" width="50">
+				<p:column headerText="Fecha envío" width="50">
 					<h:outputText value="#{s.notification.sendingAt}">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
 
-				<p:column headerText="Notif. fecha respuesta" width="50">
+				<p:column headerText="Fecha respuesta" width="50">
 					<h:outputText value="#{s.notification.answeringAt}">
 						<f:convertDateTime pattern="dd/MM/yyyy" />
 					</h:outputText>
 				</p:column>
 
-				<p:column headerText="Notif. # orden" width="40">
+				<p:column headerText="# orden" width="40">
 					<h:outputText value="#{s.notification.orderNumber}">
 					</h:outputText>
 				</p:column>
 
-				<p:column headerText="Notif. # correlativo" width="40">
+				<p:column headerText="# correlativo" width="40">
 					<h:outputText value="#{s.notification.correlativeNumber}">
+					</h:outputText>
+				</p:column>
+				
+				<p:column headerText="Motivo" width="120">
+					<h:outputText value="#{s.notification.reason}">
 					</h:outputText>
 				</p:column>
 

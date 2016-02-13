@@ -14,8 +14,8 @@
 			<f:viewAction action="#{searchSalesController.initialize}" />
 		</f:metadata>
 	</ui:define>
-	
-	
+
+
 
 	<ui:define name="content">
 		<!-- 
@@ -44,12 +44,12 @@
 			<p:messages id="messages" showDetail="true"></p:messages>
 		</h:panelGrid>
 
-		<h:panelGrid >
+		<h:panelGrid>
 			<h:form id="form" prependId="false">
 
 
 				<h:panelGrid columns="3" rowClasses="panelgrid_center_row">
-					<h:panelGrid columns="2" >
+					<h:panelGrid columns="2">
 						<p:outputLabel value="Tipo Búsqueda:"></p:outputLabel>
 						<p:selectOneMenu id="searchType"
 							value="#{searchSalesController.searchTypeSelected}"
@@ -70,7 +70,7 @@
 								pattern="dd-MM-yyyy"></p:calendar>
 
 
-							
+
 
 
 							<p:outputLabel value="Banco:"></p:outputLabel>
@@ -86,12 +86,12 @@
 								<f:selectItem itemLabel="Seleccione..." itemValue="" />
 								<f:selectItems value="#{searchSalesController.saleStates}"></f:selectItems>
 							</p:selectOneMenu>
-							
+
 							<p:outputLabel value="F. Venta Hasta:"></p:outputLabel>
 							<p:calendar navigator="true"
-								value="#{searchSalesController.dateOfSaleEnded}" 
+								value="#{searchSalesController.dateOfSaleEnded}"
 								pattern="dd-MM-yyyy"></p:calendar>
-							
+
 							<p:outputLabel value="Producto:"></p:outputLabel>
 							<p:selectOneMenu id="product"
 								value="#{searchSalesController.productSelected}">
@@ -208,14 +208,36 @@
 
 
 				</h:panelGrid>
-				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
+				<h:panelGrid columns="5">
 					<p:commandButton actionListener="#{searchSalesController.search}"
-						value="Buscar" process="@form" update=":formTable:searchTable :formTable:saleId :messages">
+						icon="ui-icon-search" value="Buscar" process="@form"
+						update=":formTable:searchTable :formTable:saleId :messages">
 					</p:commandButton>
 
 					<p:commandButton action="#{searchSalesController.exportTxt}"
-						value="Exportar a Txt" process="@form" ajax="false">
+						icon="ui-icon-arrowthickstop-1-s" value="Descargar en Txt"
+						process="@form" ajax="false">
 					</p:commandButton>
+
+					<p:spacer height="5" width="50"></p:spacer>
+
+					<p:commandButton id="loadSalesButtom" immediate="true"
+						actionListener="#{searchSalesController.loadSales}"
+						icon="ui-icon-arrowthickstop-1-n" value="Cargar ventas"
+						update=":messages">
+						<p:ajax event="dialogReturn" update=":messages"
+							listener="#{searchSalesController.afterLoadSales}" />
+					</p:commandButton>
+					
+					<p:commandButton id="loadSaleStatesButtom" immediate="true"
+						actionListener="#{searchSalesController.loadSaleStates}"
+						icon="ui-icon-arrowthickstop-1-n" value="Cargar actualizaciones de estado"
+						update=":messages">
+						<p:ajax event="dialogReturn" update=":messages"
+							listener="#{searchSalesController.afterLoadSaleStates}" />
+					</p:commandButton>
+
+
 
 				</h:panelGrid>
 
@@ -224,6 +246,9 @@
 		</h:panelGrid>
 
 		<h:form id="formTable" prependId="false">
+
+
+
 
 			<h:panelGrid columns="2" style="width:100%;">
 				<p:outputLabel id="saleId"
@@ -234,7 +259,7 @@
 
 			<p:dataTable style="width:100%;" lazy="true"
 				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-					currentPageReportTemplate="(Entries: {startRecord} - {endRecord} of {totalRecords}, Page: {currentPage}/{totalPages})"
+				currentPageReportTemplate="(Entries: {startRecord} - {endRecord} of {totalRecords}, Page: {currentPage}/{totalPages})"
 				value="#{searchSalesController.sales}" var="s" paginator="true"
 				rows="10" id="searchTable">
 
@@ -375,7 +400,7 @@
 					<h:outputText value="#{s.certificateNumber}"></h:outputText>
 				</p:column>
 
-				<p:column headerText="# DE PROPUESTA" width="80">
+				<p:column headerText="# DE PROPUESTA" width="120">
 					<h:outputText value="#{s.proposalNumber}"></h:outputText>
 				</p:column>
 
@@ -451,7 +476,7 @@
 					</h:outputText>
 				</p:column>
 
-				<p:column headerText="LOTE" width="80">
+				<p:column headerText="LOTE" width="120">
 					<h:outputText value="#{s.lote.name}">
 					</h:outputText>
 				</p:column>

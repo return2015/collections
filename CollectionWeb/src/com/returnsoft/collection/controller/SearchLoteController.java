@@ -17,27 +17,23 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ejb.EJB;
-import javax.enterprise.context.RequestScoped;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ViewScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.ServletContext;
 import javax.servlet.http.Part;
 
 import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.Collection;
-import com.returnsoft.collection.entity.CollectionPeriod;
-import com.returnsoft.collection.entity.CreditCard;
 import com.returnsoft.collection.entity.Lote;
-import com.returnsoft.collection.entity.Payer;
 import com.returnsoft.collection.entity.PaymentMethod;
-import com.returnsoft.collection.entity.Product;
 import com.returnsoft.collection.entity.Sale;
-import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.CollectionResponseEnum;
-import com.returnsoft.collection.enumeration.DocumentTypeEnum;
+import com.returnsoft.collection.enumeration.LoteTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.BankInvalidException;
 import com.returnsoft.collection.exception.BankNotFoundException;
@@ -45,15 +41,13 @@ import com.returnsoft.collection.exception.BankNotSelectedException;
 import com.returnsoft.collection.exception.CollectionChargeAmountException;
 import com.returnsoft.collection.exception.CollectionDuplicateException;
 import com.returnsoft.collection.exception.FileExtensionException;
-import com.returnsoft.collection.exception.MultipleErrorsException;
 import com.returnsoft.collection.exception.FileNotFoundException;
 import com.returnsoft.collection.exception.FileRowsInvalidException;
 import com.returnsoft.collection.exception.FileRowsZeroException;
 import com.returnsoft.collection.exception.FormatException;
+import com.returnsoft.collection.exception.MultipleErrorsException;
 import com.returnsoft.collection.exception.NullException;
 import com.returnsoft.collection.exception.OverflowException;
-import com.returnsoft.collection.exception.SaleAlreadyExistException;
-import com.returnsoft.collection.exception.SaleDuplicateException;
 import com.returnsoft.collection.exception.SaleNotFoundException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.SaleStateNotFoundException;
@@ -67,11 +61,11 @@ import com.returnsoft.collection.service.ProductService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.CollectionFile;
 import com.returnsoft.collection.util.FacesUtil;
-import com.returnsoft.collection.util.SaleFile;
+import com.returnsoft.collection.util.LoteLazyModel;
 import com.returnsoft.collection.util.SessionBean;
 
-@Named
-@RequestScoped
+@ManagedBean
+@ViewScoped
 public class SearchLoteController implements Serializable{
 	
 	/**
@@ -90,8 +84,10 @@ public class SearchLoteController implements Serializable{
 
 	//SEARCH
 	private Date loteDate;
-	private List<Lote> lotes;
+	private String loteTypeSelected;
+	private LoteLazyModel lotes;
 	private Lote loteSelected;
+	private List<SelectItem> loteTypes;
 	
 	///////
 	
@@ -147,6 +143,15 @@ public class SearchLoteController implements Serializable{
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
 				throw new UserLoggedNotFoundException();
 			}
+			
+			loteTypes = new ArrayList<SelectItem>();
+			for (LoteTypeEnum loteTypeEnum : LoteTypeEnum.values()) {
+				SelectItem loteTypeItem = new SelectItem();
+				loteTypeItem.setValue(loteTypeEnum.getId().toString());
+				loteTypeItem.setLabel(loteTypeEnum.getName());
+				loteTypes.add(loteTypeItem);
+			}
+			
 			return null;
 			
 		} catch (UserLoggedNotFoundException e) {
@@ -164,14 +169,22 @@ public class SearchLoteController implements Serializable{
 	public void search(){
 		try {
 			
+			System.out.println("Ingreso a search");
+			
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
 				throw new UserLoggedNotFoundException();
 			}
 			
-			//System.out.println("loteDate:"+loteDate);
-			if (loteDate!=null) {
-				lotes = loteService.findByDate(loteDate);
+			LoteTypeEnum loteType = null;
+			
+			if (loteTypeSelected!=null) {
+				loteType = LoteTypeEnum.findById(Short.parseShort(loteTypeSelected));
 			}
+			
+			//System.out.println("loteDate:"+loteDate);
+			//if (loteDate!=null) {
+				lotes = new LoteLazyModel(loteService, loteDate, loteType);
+			//}
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
@@ -939,11 +952,13 @@ public class SearchLoteController implements Serializable{
 		this.loteDate = loteDate;
 	}
 
-	public List<Lote> getLotes() {
+	
+
+	public LoteLazyModel getLotes() {
 		return lotes;
 	}
 
-	public void setLotes(List<Lote> lotes) {
+	public void setLotes(LoteLazyModel lotes) {
 		this.lotes = lotes;
 	}
 
@@ -993,6 +1008,22 @@ public class SearchLoteController implements Serializable{
 
 	public void setRepaymentFile(Part repaymentFile) {
 		this.repaymentFile = repaymentFile;
+	}
+
+	public String getLoteTypeSelected() {
+		return loteTypeSelected;
+	}
+
+	public void setLoteTypeSelected(String loteTypeSelected) {
+		this.loteTypeSelected = loteTypeSelected;
+	}
+
+	public List<SelectItem> getLoteTypes() {
+		return loteTypes;
+	}
+
+	public void setLoteTypes(List<SelectItem> loteTypes) {
+		this.loteTypes = loteTypes;
 	}
 
 	/*public UploadedFile getFile() {

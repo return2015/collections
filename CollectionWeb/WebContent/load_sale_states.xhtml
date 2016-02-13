@@ -14,9 +14,11 @@
 <h:body>
 
 	<div class="title ui-widget-header ui-corner-all">
-		<h:panelGrid columns="2" style="margin:auto;">
-		CARGAR VENTAS
-			</h:panelGrid>
+		<h:panelGrid style="margin:auto;">
+		CARGAR ACTUALIZACIONES DE ESTADO
+		</h:panelGrid>
+
+
 	</div>
 
 	<h:panelGrid style="margin:auto;">
@@ -24,25 +26,29 @@
 
 		<p:messages id="messages" showDetail="true"></p:messages>
 
-		<h:form id="formLinkSales">
+		<h:form id="formLinkSaleStates">
 			<h:commandLink
-				actionListener="#{loadSalesController.downloadSalesFile}"
+				actionListener="#{loadSaleStatesController.downloadSaleStatesFile}"
 				value="Descargar formato de trama">
 			</h:commandLink>
 		</h:form>
 		<br></br>
 		<br></br>
-		<h:form id="formUploadSales" enctype="multipart/form-data">
+		<h:form id="formUploadSaleStates" enctype="multipart/form-data">
 			<h:panelGrid columns="2">
-				<h:inputFile id="saleFile" value="#{loadSalesController.saleFile}">
+				<h:inputFile id="saleStateFile"
+					value="#{loadSaleStatesController.file}">
 				</h:inputFile>
-				<h:commandButton value="Cargar ventas" process="@form"
-					actionListener="#{loadSalesController.validateSalesFile}">
-					<f:ajax execute="saleFile" render=":acc_sales:messages_sales" />
+				<h:commandButton value="Actualizar estados" process="@form"
+					actionListener="#{loadSaleStatesController.validateSaleStatesFile}">
+					<f:ajax execute="saleStateFile"
+						render=":acc_sales:messages_sale_states" />
 				</h:commandButton>
 			</h:panelGrid>
 		</h:form>
 
 	</h:panelGrid>
+
+
 </h:body>
 </html>

@@ -767,6 +767,22 @@ public class NotificationServiceImpl implements NotificationService {
 		}
 	}
 
+	@Override
+	public Boolean verifyIfExist(Long nuicResponsible, String orderNumber) throws ServiceException {
+		try {
+			
+			return notificationEao.verifyIfExist(nuicResponsible, orderNumber);
+					
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
+				throw new ServiceException(e.getMessage(), e);	
+			}else{
+				throw new ServiceException();
+			}
+		}
+	}
+
 
 	
 	

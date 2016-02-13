@@ -25,6 +25,8 @@ import javax.inject.Named;
 import javax.servlet.ServletContext;
 import javax.servlet.http.Part;
 
+import org.primefaces.context.RequestContext;
+
 import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.CollectionPeriod;
 import com.returnsoft.collection.entity.CreditCard;
@@ -326,6 +328,8 @@ public class LoadSalesController implements Serializable {
 
 				if (errors.size() == 0) {
 					validateSalesData(headers, dataList, file.getSubmittedFileName());
+					
+					
 				} else {
 					throw new MultipleErrorsException(errors);
 				}
@@ -334,9 +338,11 @@ public class LoadSalesController implements Serializable {
 				throw new FileRowsZeroException();
 			}
 
-			facesUtil.sendConfirmMessage("Se creó el lote satisfactorimente.");
+			//facesUtil.sendConfirmMessage("Se creó el lote satisfactorimente.");
+			
+			RequestContext.getCurrentInstance().closeDialog(null);
 
-		} catch (MultipleErrorsException e) {
+		} /*catch (MultipleErrorsException e) {
 			e.printStackTrace();
 			for (Exception err : e.getErrors()) {
 				facesUtil.sendErrorMessage(err.getMessage());
@@ -344,9 +350,10 @@ public class LoadSalesController implements Serializable {
 		} catch (NullPointerException e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage("Existen valores nulos.");
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getMessage());
+		}*/ catch (Exception e) {
+			/*e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getMessage());*/
+			RequestContext.getCurrentInstance().closeDialog(e);
 		}
 
 	}

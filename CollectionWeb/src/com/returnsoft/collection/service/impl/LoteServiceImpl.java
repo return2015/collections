@@ -17,17 +17,14 @@ import com.returnsoft.collection.eao.ProductEao;
 import com.returnsoft.collection.eao.SaleEao;
 import com.returnsoft.collection.eao.SaleStateEao;
 import com.returnsoft.collection.eao.UserEao;
-import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.Collection;
 import com.returnsoft.collection.entity.Lote;
-import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.LoteTypeEnum;
 import com.returnsoft.collection.exception.EaoException;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.LoteService;
 import com.returnsoft.collection.util.CollectionFile;
-import com.returnsoft.collection.util.SaleFile;
 
 @Stateless
 //@TransactionManagement(TransactionManagementType.BEAN)
@@ -149,7 +146,7 @@ public class LoteServiceImpl implements LoteService {
 			lote.setName(filename);
 			lote.setTotal(collections.size());
 			lote.setProcess(0);
-			lote.setDate(date);
+			lote.setCreatedAt(date);
 			lote.setLoteType(LoteTypeEnum.CREATECOLLECTION);
 			lote.setState("En progreso");
 			loteEao.add(lote);
@@ -191,6 +188,45 @@ public class LoteServiceImpl implements LoteService {
 
 		}
 
+	}
+
+
+
+
+	@Override
+	public List<Lote> findLimit(Date date, LoteTypeEnum loteType, Integer first, Integer limit)
+			throws ServiceException {
+		try {
+			
+			return loteEao.findLimit(date, loteType, first, limit);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage() != null && e.getMessage().trim().length() > 0) {
+				throw new ServiceException(e.getMessage(), e);
+			} else {
+				throw new ServiceException();
+			}
+		}
+	}
+
+
+
+
+	@Override
+	public Long findCount(Date date, LoteTypeEnum loteType) throws ServiceException {
+		try {
+			
+			return loteEao.findCount(date, loteType);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (e.getMessage() != null && e.getMessage().trim().length() > 0) {
+				throw new ServiceException(e.getMessage(), e);
+			} else {
+				throw new ServiceException();
+			}
+		}
 	}
 
 }

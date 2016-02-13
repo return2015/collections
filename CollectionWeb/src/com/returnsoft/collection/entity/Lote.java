@@ -6,9 +6,12 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -42,26 +45,24 @@ public class Lote implements Serializable{
 	@Column(name = "lot_state")
 	private String state;
 	
-	@Temporal(TemporalType.TIMESTAMP)
+	/*@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "lot_date")
-	private Date date;
+	private Date date;*/
 	
 	@Column(name = "lot_type_id")
 	@Convert(converter = LoteTypeConverter.class)
 	private LoteTypeEnum loteType;
 	
-	/*@Column(name = "lot_errors")
-	private String errors;*/
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "lot_created_by")
+	private User createdBy;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "lot_created_at")
+	private Date createdAt;
 	
 
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
+	
 
 	public Integer getId() {
 		return id;
@@ -109,6 +110,22 @@ public class Lote implements Serializable{
 
 	public void setLoteType(LoteTypeEnum loteType) {
 		this.loteType = loteType;
+	}
+
+	public User getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(User createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
 	}
 
 	

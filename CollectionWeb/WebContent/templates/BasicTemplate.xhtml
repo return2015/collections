@@ -21,9 +21,11 @@
 	<!-- -->
 
 	<div style="float: right;" class="ui-widget">
-		<h:panelGrid id="pnl-bank" style="margin:auto;">
+		<h:panelGrid id="pnl-bank" style="margin:auto;text-align:center;">
 			<h1>#{sessionBean.bank.name}</h1>
+			<h3>#{sessionBean.user.firstname} #{sessionBean.user.lastname}</h3>
 		</h:panelGrid>
+
 	</div>
 
 	<ui:include src="/templates/header.xhtml" />

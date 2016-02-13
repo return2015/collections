@@ -9,7 +9,9 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
@@ -24,6 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.primefaces.context.RequestContext;
+import org.primefaces.event.SelectEvent;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.UploadedFile;
 
@@ -31,6 +35,7 @@ import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.Product;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
+import com.returnsoft.collection.exception.MultipleErrorsException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.CollectionPeriodService;
@@ -453,6 +458,107 @@ public class SearchSalesController implements Serializable {
 			facesUtil.sendErrorMessage(e.getMessage());
 		}
 	}*/
+	
+	public void loadSales(){
+		try {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
+			Map<String, Object> options = new HashMap<String, Object>();
+			options.put("modal", false);
+			options.put("draggable", true);
+			options.put("resizable", false);
+			options.put("contentHeight", 300);
+			options.put("contentWidth", 400);
+
+			//Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
+			//ArrayList<String> paramList = new ArrayList<>();
+			//paramList.add(String.valueOf(saleSelected.getNotification().getId()));
+			//paramMap.put("notificationId", paramList);
+			RequestContext.getCurrentInstance().openDialog("load_sales", options, null);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getMessage());
+		}
+	}
+	
+	public void afterLoadSales(SelectEvent event){
+		try {
+			
+			Exception exceptionReturn = (Exception) event.getObject();
+			
+			if (exceptionReturn!=null) {
+				if (exceptionReturn instanceof MultipleErrorsException) {
+					for (Exception err : ((MultipleErrorsException)exceptionReturn).getErrors()) {
+						facesUtil.sendErrorMessage(err.getMessage());
+					}
+				}else if(exceptionReturn instanceof NullPointerException){
+					facesUtil.sendErrorMessage("Existen valores nulos.");
+				}else{
+					facesUtil.sendErrorMessage(exceptionReturn.getMessage());
+				}	
+			}else{
+				facesUtil.sendConfirmMessage("Se creó el lote satisfactorimente.");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getMessage());
+		}
+	}
+	
+	
+	public void loadSaleStates(){
+		try {
+			
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
+				throw new UserLoggedNotFoundException();
+			}
+			Map<String, Object> options = new HashMap<String, Object>();
+			options.put("modal", false);
+			options.put("draggable", true);
+			options.put("resizable", false);
+			options.put("contentHeight", 300);
+			options.put("contentWidth", 400);
+
+			//Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
+			//ArrayList<String> paramList = new ArrayList<>();
+			//paramList.add(String.valueOf(saleSelected.getNotification().getId()));
+			//paramMap.put("notificationId", paramList);
+			RequestContext.getCurrentInstance().openDialog("load_sale_states", options, null);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getMessage());
+		}
+	}
+	
+	public void afterLoadSaleStates(SelectEvent event){
+		try {
+			
+			Exception exceptionReturn = (Exception) event.getObject();
+			
+			if (exceptionReturn!=null) {
+				if (exceptionReturn instanceof MultipleErrorsException) {
+					for (Exception err : ((MultipleErrorsException)exceptionReturn).getErrors()) {
+						facesUtil.sendErrorMessage(err.getMessage());
+					}
+				}else if(exceptionReturn instanceof NullPointerException){
+					facesUtil.sendErrorMessage("Existen valores nulos.");
+				}else{
+					facesUtil.sendErrorMessage(exceptionReturn.getMessage());
+				}	
+			}else{
+				facesUtil.sendConfirmMessage("Se creó el lote satisfactorimente.");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			facesUtil.sendErrorMessage(e.getMessage());
+		}
+	}
 
 	public void search() {
 
@@ -484,17 +590,17 @@ public class SearchSalesController implements Serializable {
 				System.out.println("Se termina la busqueda XXX");
 				
 			} else if (searchTypeSelected.equals("saleData")) {
-				System.out.println(""+dateOfSaleStarted);
-				System.out.println(""+dateOfSaleEnded);
+				//System.out.println(""+dateOfSaleStarted);
+				//System.out.println(""+dateOfSaleEnded);
 				final short productId;
-				System.out.println(productSelected);
+				//System.out.println(productSelected);
 				if (productSelected != null && productSelected.length() > 0) {
 					productId = Short.parseShort(productSelected);
 				}else{
 					productId=0;
 				}
 				final short bankId;
-				System.out.println(bankSelected);
+				//System.out.println(bankSelected);
 				if (bankSelected != null && bankSelected.length() > 0) {
 					bankId = Short.parseShort(bankSelected);
 				}else{
@@ -507,12 +613,12 @@ public class SearchSalesController implements Serializable {
 					saleState=null;
 				}
 				
-				System.out.println("Se inicia la busqueda XXX");
+				//System.out.println("Se inicia la busqueda XXX");
 			
 				sales = new SaleLazyModel(saleService, dateOfSaleStarted, dateOfSaleEnded, bankId, productId, saleState);
 				
 				
-				System.out.println("Se termina la busqueda XXX");
+				//System.out.println("Se termina la busqueda XXX");
 
 			} else if (searchTypeSelected.equals("personalData")) {
 				if (personTypeSelected.equals("contractor")) {

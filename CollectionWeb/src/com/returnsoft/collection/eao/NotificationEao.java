@@ -21,5 +21,7 @@ public interface NotificationEao {
 	//public Notification findLastBySaleId(Long saleId) throws EaoException;
 	
 	public Notification update(Notification notification) throws EaoException;
+	
+	public Boolean verifyIfExist(Long nuicResponsible, String orderNumber) throws EaoException;
 
 }

@@ -53,11 +53,14 @@ public class Notification implements Serializable{
 	@Column(name = "not_answering_at")
 	private Date answeringAt;
 	
-	@Column(name = "not_sending_file")
+	/*@Column(name = "not_sending_file")
 	private String sendingFile;
 	
 	@Column(name = "not_answering_file")
-	private String answeringFile;
+	private String answeringFile;*/
+	
+	@Column(name = "not_reason")
+	private String reason;
 	
 	@Column(name="not_type")
 	@Convert(converter=NotificationTypeConverter.class)
@@ -148,7 +151,7 @@ public class Notification implements Serializable{
 		this.state = state;
 	}
 
-	public String getSendingFile() {
+	/*public String getSendingFile() {
 		return sendingFile;
 	}
 
@@ -162,7 +165,7 @@ public class Notification implements Serializable{
 
 	public void setAnsweringFile(String answeringFile) {
 		this.answeringFile = answeringFile;
-	}
+	}*/
 
 	
 
@@ -204,6 +207,14 @@ public class Notification implements Serializable{
 
 	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public String getReason() {
+		return reason;
+	}
+
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 
 

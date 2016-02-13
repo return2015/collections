@@ -19,4 +19,6 @@ public interface NotificationService {
 	
 	public File generateLetter(String code) throws ServiceException, MultipleErrorsException;
 	
+	public Boolean verifyIfExist(Long nuicResponsible, String orderNumber) throws ServiceException;
+	
 }

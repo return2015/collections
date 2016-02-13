@@ -42,6 +42,7 @@ import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.BankInvalidException;
 import com.returnsoft.collection.exception.BankLetterNotFoundException;
 import com.returnsoft.collection.exception.BankNotSelectedException;
+import com.returnsoft.collection.exception.NotificationAlreadyExistException;
 import com.returnsoft.collection.exception.NotificationClosedException;
 import com.returnsoft.collection.exception.NotificationLimit1Exception;
 import com.returnsoft.collection.exception.NotificationLimit2Exception;
@@ -389,27 +390,23 @@ public class SearchSalesForNotificationsController implements Serializable {
 			header+="Fecha venta"+separator;
 			header+="Estado venta"+separator;
 			header+="Banco"+separator;
-			//header+="Fecha afiliación"+separator;
-			header+="Notificaciones virtuales"+separator;
-			header+="Notificaciones físicas"+separator;
-			header+="Tipo notificación"+separator;
-			header+="Fecha envío notificación"+separator;
-			header+="Fecha respuesta notificación"+separator;
-			header+="# orden notificación"+separator;
-			header+="# correlativo notificación";
+			header+="Virtuales"+separator;
+			header+="Físicas"+separator;
+			header+="Tipo"+separator;
+			header+="Fecha envío"+separator;
+			header+="Fecha respuesta"+separator;
+			header+="N° orden"+separator;
+			header+="N° correlativo"+separator;;
+			header+="Motivo";
 			
 			cadena.append(header);
 			cadena.append("\r\n");
 			
 			List<Sale> salesFound = searchAll();
 
-			//SimpleDateFormat sdf1 = new SimpleDateFormat("MM/yyyy");
 			SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
-			//SimpleDateFormat sdf3 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 			
-			//System.out.println("TERMINO SALES FOUND");
 			for (Sale sale : salesFound) {
-				
 		
 				cadena.append(sale.getCode()+separator);
 				cadena.append(sale.getPayer().getDocumentType()+separator);
@@ -436,7 +433,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 								? sdf2.format(sale.getNotification().getAnsweringAt())+separator : separator : separator);
 				cadena.append(sale.getNotification() != null ? sale.getNotification().getOrderNumber()+separator : separator);
 				cadena.append(
-						sale.getNotification() != null ? sale.getNotification().getCorrelativeNumber() : separator);
+						sale.getNotification() != null ? sale.getNotification().getCorrelativeNumber()+separator : separator);
+				cadena.append(sale.getNotification() != null ? sale.getNotification().getReason():separator);
 				cadena.append("\r\n");
 				
 			}
@@ -472,7 +470,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 
 		try {
 
-			search();
+			//search();
 
 			SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -495,17 +493,20 @@ public class SearchSalesForNotificationsController implements Serializable {
 			row.createCell(11).setCellValue("Fecha venta");
 			row.createCell(12).setCellValue("Estado venta");
 			row.createCell(13).setCellValue("Banco");
-			//row.createCell(14).setCellValue("Fecha afiliación");
-			row.createCell(15).setCellValue("Notificaciones virtuales");
-			row.createCell(16).setCellValue("Notificaciones físicas");
-			row.createCell(17).setCellValue("Tipo notificación");
-			row.createCell(18).setCellValue("Fecha envío notificación");
-			row.createCell(19).setCellValue("Fecha respuesta notificación");
-			row.createCell(20).setCellValue("# orden notificación");
-			row.createCell(21).setCellValue("# correlativo notificación");
+			row.createCell(14).setCellValue("Virtuales");
+			row.createCell(15).setCellValue("Físicas");
+			row.createCell(16).setCellValue("Tipo");
+			row.createCell(17).setCellValue("Fecha envío");
+			row.createCell(18).setCellValue("Fecha respuesta");
+			row.createCell(19).setCellValue("N° orden");
+			row.createCell(20).setCellValue("N° correlativo");
+			row.createCell(21).setCellValue("Motivo");
 
 			int i = 0;
-			for (Sale sale : sales) {
+			@SuppressWarnings("unchecked")
+			List<Sale> salesWrapped = (List<Sale>) sales.getWrappedData();
+			System.out.println("tam:"+salesWrapped.size());
+			for (Sale sale : salesWrapped) {
 				
 				//Sale sale = sales.get(i);
 				XSSFRow rowBody = sheet.createRow(i + 1);
@@ -526,21 +527,20 @@ public class SearchSalesForNotificationsController implements Serializable {
 				rowBody.createCell(12).setCellValue(sale.getSaleState().getState().getName());
 				rowBody.createCell(13).setCellValue(sale.getBank().getName());
 
-				//rowBody.createCell(14)
-				//		.setCellValue(sale.getAffiliationDate() != null ? sdf2.format(sale.getAffiliationDate()) : "");
-				rowBody.createCell(15).setCellValue(sale.getVirtualNotifications());
-				rowBody.createCell(16).setCellValue(sale.getPhysicalNotifications());
-				rowBody.createCell(17)
+				rowBody.createCell(14).setCellValue(sale.getVirtualNotifications()!=null?sale.getVirtualNotifications().toString():"");
+				rowBody.createCell(15).setCellValue(sale.getPhysicalNotifications()!=null?sale.getPhysicalNotifications().toString():"");
+				rowBody.createCell(16)
 						.setCellValue(sale.getNotification() != null ? sale.getNotification().getType().getName() : "");
-				rowBody.createCell(18).setCellValue(
+				rowBody.createCell(17).setCellValue(
 						sale.getNotification() != null ? sdf2.format(sale.getNotification().getSendingAt()) : "");
-				rowBody.createCell(19)
+				rowBody.createCell(18)
 						.setCellValue(sale.getNotification() != null ? sale.getNotification().getAnsweringAt() != null
 								? sdf2.format(sale.getNotification().getAnsweringAt()) : "" : "");
-				rowBody.createCell(20)
+				rowBody.createCell(19)
 						.setCellValue(sale.getNotification() != null ? sale.getNotification().getOrderNumber() : "");
-				rowBody.createCell(21).setCellValue(
+				rowBody.createCell(20).setCellValue(
 						sale.getNotification() != null ? sale.getNotification().getCorrelativeNumber() : "");
+				rowBody.createCell(21).setCellValue(sale.getNotification() != null?sale.getNotification().getReason():"");
 				
 				
 				i++;
@@ -802,6 +802,12 @@ public class SearchSalesForNotificationsController implements Serializable {
 			if (saleSelected.getBank().getId() != sessionBean.getBank().getId()) {
 				throw new BankInvalidException();
 			}
+			
+			//VALIDA SI LA NOTIFICACION EXISTE
+			Boolean exist = notificationService.verifyIfExist(saleSelected.getPayer().getNuicResponsible(), orderNumberForPhysicals);
+			if (exist) {
+				throw new NotificationAlreadyExistException();
+			}
 
 			// VALIDATE COMMERCIAL CODE
 			/*if (validate) {
@@ -829,6 +835,9 @@ public class SearchSalesForNotificationsController implements Serializable {
 					//validate = false;
 				}
 			//}
+				
+				
+				
 
 			// VALIDA CANTIDAD DE NOTIFICACIONES ENVIADAS
 			//if (validate) {
@@ -1006,6 +1015,14 @@ public class SearchSalesForNotificationsController implements Serializable {
 						if (commercialCodeObject == null) {
 							errors.add(new CommerceCodeException(sale.getCode(), sale.getCommerceCode()));
 						}*/
+						
+						
+						//VALIDA SI LA NOTIFICACION EXISTE
+						Boolean exist = notificationService.verifyIfExist(sale.getPayer().getNuicResponsible(), orderNumberForPhysicals);
+						if (exist) {
+							errors.add(new NotificationAlreadyExistException());
+						}
+						
 
 						// VALIDA EL ESTADO DE LA ULTIMA NOTIFICACION
 						if (sale.getNotification() != null) {
@@ -1187,6 +1204,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 						if (commercialCodeObject == null) {
 							errors.add(new CommerceCodeException(sale.getCode(), sale.getCommerceCode()));
 						}*/
+						
+						
 						
 						if (sessionBean.getBank().getId() != sale.getBank().getId()) {
 							errors.add(new BankInvalidException());

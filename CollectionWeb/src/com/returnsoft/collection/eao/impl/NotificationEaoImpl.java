@@ -7,11 +7,10 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import com.returnsoft.collection.eao.NotificationEao;
@@ -170,6 +169,32 @@ public class NotificationEaoImpl implements NotificationEao{
 			
 			return newNotification;
 
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e);
+		}
+	}
+	@Override
+	public Boolean verifyIfExist(Long nuicResponsible, String orderNumber) throws EaoException {
+		try {
+			
+			String query ="select n.id from Notification n "
+					+ "left join n.sale s "
+					+ "left join s.payer p where n.orderNumber=:orderNumber and p.nuicResponsible=:nuicResponsible";
+			
+			
+			Query q = em.createQuery(query);
+			q.setParameter("orderNumber", orderNumber);
+			q.setParameter("orderNumber", orderNumber);
+			
+			Long notificationId = (Long)q.getSingleResult();
+			
+			if (notificationId!=null && notificationId>0) {
+				return true;
+			}else{
+				return false;
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new EaoException(e);
