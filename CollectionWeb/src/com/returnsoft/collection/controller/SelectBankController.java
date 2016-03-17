@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -28,8 +29,8 @@ public class SelectBankController implements Serializable {
 
 	private String bankSelected;
 	private List<SelectItem> banks;
-	
-	//private UIInput banksCOM;
+
+	// private UIInput banksCOM;
 
 	@EJB
 	private UserService userService;
@@ -44,28 +45,28 @@ public class SelectBankController implements Serializable {
 	private SessionBean sessionBean;
 
 	public SelectBankController() {
-		//System.out.println("Construyendo SelectBankController");
+		// System.out.println("Construyendo SelectBankController");
+
 	}
 
 	public String initialize() {
-		//System.out.println("Inicializando SelectBankController");
+		// System.out.println("Inicializando SelectBankController");
 		try {
-			
+
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
 				throw new UserLoggedNotFoundException();
 			}
-			
-			
-				List<Bank> banksEntity = bankService.findByUser(sessionBean.getUser().getId());
-				banks = new ArrayList<SelectItem>();
-				for (Bank bank : banksEntity) {
-					SelectItem item = new SelectItem();
-					item.setLabel(bank.getName());
-					item.setValue(bank.getId());
-					banks.add(item);
-				}
-				//banksCOM.set
-			
+
+			List<Bank> banksEntity = bankService.findByUser(sessionBean.getUser().getId());
+			banks = new ArrayList<SelectItem>();
+			for (Bank bank : banksEntity) {
+				SelectItem item = new SelectItem();
+				item.setLabel(bank.getName());
+				item.setValue(bank.getId());
+				banks.add(item);
+			}
+			// banksCOM.set
+
 			return null;
 
 		} catch (UserLoggedNotFoundException e) {
@@ -79,42 +80,45 @@ public class SelectBankController implements Serializable {
 		}
 	}
 
-	/*@PostConstruct
+	@PostConstruct
 	public void start() {
 		try {
 
-
-			if (sessionBean == null && sessionBean.getUser() == null && sessionBean.getUser().getId() < 0) {
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
 				throw new UserLoggedNotFoundException();
-			} else {
-				List<Bank> banksEntity = bankService.findByUser(sessionBean.getUser().getId());
-				banks = new ArrayList<SelectItem>();
-				for (Bank bank : banksEntity) {
-					SelectItem item = new SelectItem();
-					item.setLabel(bank.getName());
-					item.setValue(bank.getId());
-					banks.add(item);
-				}
 			}
+
+			List<Bank> banksEntity = bankService.findByUser(sessionBean.getUser().getId());
+			banks = new ArrayList<SelectItem>();
+			for (Bank bank : banksEntity) {
+				SelectItem item = new SelectItem();
+				item.setLabel(bank.getName());
+				item.setValue(bank.getId());
+				banks.add(item);
+			}
+			// banksCOM.set
+
+			// return null;
 
 		} catch (UserLoggedNotFoundException e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getMessage());
+			// return "login.xhtml?faces-redirect=true";
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getMessage());
+			// return null;
 		}
-	}*/
+	}
 
 	public void selectBank() {
 		try {
 
 			System.out.println("bankSelected:" + bankSelected);
-			
+
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
 				throw new UserLoggedNotFoundException();
 			}
-			
 
 			if (bankSelected != null && bankSelected.length() > 0) {
 
@@ -143,16 +147,15 @@ public class SelectBankController implements Serializable {
 				 * .getSessionMap().put("sessionBean", sessionBean);
 				 */
 
-				//return "home?faces-redirect=true";
+				// return "home?faces-redirect=true";
 
 			}
-			
 
 		} catch (Exception e) {
 
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-			
+
 		}
 	}
 
@@ -171,9 +174,5 @@ public class SelectBankController implements Serializable {
 	public void setBanks(List<SelectItem> banks) {
 		this.banks = banks;
 	}
-
-	
-
-	
 
 }

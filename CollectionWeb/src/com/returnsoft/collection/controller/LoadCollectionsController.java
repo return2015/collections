@@ -2,64 +2,60 @@ package com.returnsoft.collection.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
 
+import org.primefaces.context.RequestContext;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 import org.primefaces.model.UploadedFile;
 
+import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.Collection;
-import com.returnsoft.collection.entity.Commerce;
+import com.returnsoft.collection.entity.PaymentMethod;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.CollectionResponseEnum;
-import com.returnsoft.collection.enumeration.SaleStateEnum;
-import com.returnsoft.collection.enumeration.UserTypeEnum;
-import com.returnsoft.collection.exception.DataCollectionAllowMaximumByDayException;
-import com.returnsoft.collection.exception.DataCollectionAllowMaximumByMonthException;
-import com.returnsoft.collection.exception.DataCollectionChargeAmountException;
-import com.returnsoft.collection.exception.DataCollectionCreateException;
-import com.returnsoft.collection.exception.DataCollectionMaximumByDayException;
-import com.returnsoft.collection.exception.DataCollectionMaximumByMonthException;
-import com.returnsoft.collection.exception.DataCollectionResponseMessageNotFoundException;
-import com.returnsoft.collection.exception.DataColumnDateException;
-import com.returnsoft.collection.exception.DataColumnDecimalException;
-import com.returnsoft.collection.exception.DataColumnLengthException;
-import com.returnsoft.collection.exception.DataColumnNullException;
-import com.returnsoft.collection.exception.DataColumnNumberException;
-import com.returnsoft.collection.exception.DataCommerceCodeException;
-import com.returnsoft.collection.exception.DataSaleNotFoundException;
-import com.returnsoft.collection.exception.DataSaleStateNoActiveException;
-import com.returnsoft.collection.exception.FileColumnsTotalException;
+import com.returnsoft.collection.enumeration.MoneyTypeEnum;
+import com.returnsoft.collection.exception.BankNotSelectedException;
+import com.returnsoft.collection.exception.DecimalException;
 import com.returnsoft.collection.exception.FileExtensionException;
 import com.returnsoft.collection.exception.FileNotFoundException;
+import com.returnsoft.collection.exception.FileRowsInvalidException;
 import com.returnsoft.collection.exception.FileRowsZeroException;
-import com.returnsoft.collection.exception.ServiceException;
+import com.returnsoft.collection.exception.FormatException;
+import com.returnsoft.collection.exception.MultipleErrorsException;
+import com.returnsoft.collection.exception.NullException;
+import com.returnsoft.collection.exception.OverflowException;
+import com.returnsoft.collection.exception.SaleDuplicateException;
+import com.returnsoft.collection.exception.SaleNotFoundException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
-import com.returnsoft.collection.exception.UserPermissionNotFoundException;
 import com.returnsoft.collection.service.CollectionService;
-import com.returnsoft.collection.service.CommerceService;
+import com.returnsoft.collection.service.PaymentMethodService;
 import com.returnsoft.collection.service.SaleService;
-import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.collection.util.CollectionFile;
 import com.returnsoft.collection.util.SessionBean;
 
 @ManagedBean
 @ViewScoped
 public class LoadCollectionsController implements Serializable {
-
-	
 
 	/**
 	 * 
@@ -68,797 +64,653 @@ public class LoadCollectionsController implements Serializable {
 
 	private UploadedFile file;
 
-	private List<Commerce> commerces;
-	private Integer FILE_ROWS = 16;
+	private StreamedContent downloadFile;
 
-	private List<Exception> errors;
-	private Map<String, String> headers;
-	private List<Map<String, String>> dataList;
+	// private Integer FILE_ROWS = 14;
 
-	//private final String[] responseMessages = { "DENEGADO", "APROBADO" };
-	
-	//private final String[] saleStates = { "ACTIVO", "BAJA" };
+	// private List<Exception> errors;
+	// private Map<String, String> headers;
+	// private List<Map<String, String>> dataList;
+
+	// private final String[] responseMessages = { "DENEGADO", "APROBADO" };
+
+	// private final String[] saleStates = { "ACTIVO", "BAJA" };
 
 	@EJB
 	private CollectionService collectionService;
-	
+
+	@EJB
+	private PaymentMethodService paymentMethodService;
+
 	@EJB
 	private SaleService saleService;
-	
-	@EJB
-	private CommerceService commerceService;
-	
-	private FacesUtil facesUtil;
-	
-	
+
+	//@Inject
+	//private FacesUtil facesUtil;
+
+	@Inject
+	private SessionBean sessionBean;
 
 	public LoadCollectionsController() {
-		System.out.println("Ingreso al constructor");
-		facesUtil = new FacesUtil();
+		System.out.println("LoadCollectionsController");
+		InputStream stream = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext())
+				.getResourceAsStream("/resources/templates/tramas_cobranzas.xlsx");
+		downloadFile = new DefaultStreamedContent(stream,
+				"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "tramas_cobranzas.xlsx");
 	}
 
-	//@PostConstruct
-	public String initialize() {
+	public void uploadFile() {
+
+		System.out.println("uploadFile");
+
 		try {
-			
-			SessionBean sessionBean = (SessionBean) FacesContext
-					.getCurrentInstance().getExternalContext().getSessionMap()
-					.get("sessionBean");
-			
-			if (sessionBean!=null && sessionBean.getUser()!=null && sessionBean.getUser().getId()>0) {
-				
-				if (!sessionBean.getUser().getUserType().equals(UserTypeEnum.ADMIN)
-						&& !sessionBean.getUser().getUserType().equals(UserTypeEnum.AGENT)) {
-					throw new UserPermissionNotFoundException();
-				}
-					
-				Short bankId = (Short) sessionBean.getBank().getId();
-				
-				commerces = commerceService.findByBank(bankId);
-				
-				return null;
-				
-			} else{
+
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
 				throw new UserLoggedNotFoundException();
 			}
-			
 
-		} catch (UserLoggedNotFoundException e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-			return "login.xhtml?faces-redirect=true";
-		} catch (UserPermissionNotFoundException e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-			return "login.xhtml?faces-redirect=true";		
+			if (sessionBean.getBank() == null) {
+				throw new BankNotSelectedException();
+			}
+
+			if (file == null) {
+				throw new FileNotFoundException();
+			}
+
+			if (!file.getContentType().equals("text/plain")) {
+				throw new FileExtensionException();
+			}
+
+			////////////////////
+			// SE LEE ARCHIVO //
+			////////////////////
+
+			List<CollectionFile> dataList = readFile(file);
+			CollectionFile headers = dataList.get(0);
+			dataList.remove(0);
+
+			if (dataList.size() == 0) {
+				throw new FileRowsZeroException();
+			}
+
+			//////////////////////////
+			// VALIDANDO DUPLICADOS //
+			//////////////////////////
+
+			Set<String> dataSet = new HashSet<String>();
+			Set<Integer> errorSet = new HashSet<Integer>();
+			int lineNumber = 2;
+
+			for (CollectionFile collectionFile : dataList) {
+				String dataString = collectionFile.getResponseMessage() + collectionFile.getSaleCode();
+				if (!dataSet.add(dataString)) {
+					errorSet.add(lineNumber);
+				}
+
+				lineNumber++;
+			}
+
+			if (errorSet.size() > 0) {
+				List<Exception> errors = new ArrayList<Exception>();
+				for (Integer errorLineNumber : errorSet) {
+					errors.add(new SaleDuplicateException(errorLineNumber));
+				}
+				throw new MultipleErrorsException(errors);
+			}
+
+			/////////////////////
+			// VALIDANDO DATOS //
+			/////////////////////
+
+			lineNumber = 2;
+			Bank bank = sessionBean.getBank();
+			List<Collection> collections = new ArrayList<Collection>();
+			List<Exception> errors = new ArrayList<Exception>();
+
+			for (CollectionFile collectionFile : dataList) {
+				try {
+					Collection collection = validateFile(collectionFile, headers, lineNumber, bank);
+					collections.add(collection);
+				} catch (MultipleErrorsException e) {
+					for (Exception exception : e.getErrors()) {
+						errors.add(exception);
+					}
+				}
+				lineNumber++;
+			}
+
+			if (errors.size() > 0) {
+				throw new MultipleErrorsException(errors);
+			}
+
+			/////////////////////////////////////
+			// SE ENVIAN LAS VENTAS AL SERVICE //
+			/////////////////////////////////////
+
+			User user = sessionBean.getUser();
+			collectionService.addCollectionList(collections, headers, file.getFileName(), user);
+			RequestContext.getCurrentInstance().closeDialog(null);
+
 		} catch (Exception e) {
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-			return null;
+			RequestContext.getCurrentInstance().closeDialog(e);
 		}
+
 	}
 
-	public void getData() {
+	// @PostConstruct
+	/*
+	 * public String initialize() { try {
+	 * 
+	 * SessionBean sessionBean = (SessionBean) FacesContext
+	 * .getCurrentInstance().getExternalContext().getSessionMap()
+	 * .get("sessionBean");
+	 * 
+	 * if (sessionBean!=null && sessionBean.getUser()!=null &&
+	 * sessionBean.getUser().getId()>0) {
+	 * 
+	 * if (!sessionBean.getUser().getUserType().equals(UserTypeEnum.ADMIN) &&
+	 * !sessionBean.getUser().getUserType().equals(UserTypeEnum.AGENT)) { throw
+	 * new UserPermissionNotFoundException(); }
+	 * 
+	 * Short bankId = (Short) sessionBean.getBank().getId();
+	 * 
+	 * //commerces = commerceService.findByBank(bankId);
+	 * 
+	 * return null;
+	 * 
+	 * } else{ throw new UserLoggedNotFoundException(); }
+	 * 
+	 * 
+	 * } catch (UserLoggedNotFoundException e) { e.printStackTrace();
+	 * facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+	 * return "login.xhtml?faces-redirect=true"; } catch
+	 * (UserPermissionNotFoundException e) { e.printStackTrace();
+	 * facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+	 * return "login.xhtml?faces-redirect=true"; } catch (Exception e) {
+	 * e.printStackTrace();
+	 * facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
+	 * return null; } }
+	 */
 
-		System.out.println("ingreso a getData");
-
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(
-					new InputStreamReader(file.getInputstream()));
-		} catch (IOException e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			facesUtil.sendErrorMessage(e1.getClass().getSimpleName(),
-					e1.getMessage());
-		}
+	private List<CollectionFile> readFile(UploadedFile file) throws Exception {
 
 		String strLine = null;
 		Integer lineNumber = 0;
+		CollectionFile headers = new CollectionFile();
+		List<CollectionFile> dataList = new ArrayList<CollectionFile>();
+		Integer FILE_ROWS = 14;
 
-		errors = new ArrayList<Exception>();
-		headers = new HashMap<String, String>();
-		dataList = new ArrayList<Map<String, String>>();
-
+		BufferedReader br;
 		try {
+			br = new BufferedReader(new InputStreamReader(file.getInputstream(), StandardCharsets.UTF_8));
+
 			while ((strLine = br.readLine()) != null) {
 
+				String[] values = strLine.split("\\|", -1);
+				if (values.length != FILE_ROWS) {
+					throw new FileRowsInvalidException(FILE_ROWS);
+				}
+
+				// SE LEE CABECERA
 				if (lineNumber == 0) {
-					// SE LEE CABECERA
-					String[] values = strLine.split("\\|");
-					if (values.length != FILE_ROWS) {
-						//new DataColumnsTotalException(lineNumber, values.length, FILE_ROWS);
-						errors.add(new FileColumnsTotalException(lineNumber, values.length, FILE_ROWS));
-					} else {
 
-						headers.put("code", values[0]);
-						headers.put("affiliationDate", values[1]);
-						headers.put("maximumAmount", values[2]);
-						headers.put("chargeAmount", values[3]);
-						headers.put("creditCardUpdated", values[4]);
-						headers.put("estimatedDate", values[5]);
-						headers.put("authorizationDate", values[6]);
-						headers.put("depositDate", values[7]);
-						headers.put("responseCode", values[8]);
-						headers.put("authorizationCode", values[9]);
-						headers.put("responseMessage", values[10]);
-						headers.put("action", values[11]);
-						headers.put("transactionState", values[12]);
-						headers.put("loteNumber", values[13]);
-						headers.put("channel", values[14]);
-						headers.put("disaffiliationDate", values[15]);
+					headers.setSaleCode(values[0]);
+					headers.setMaximumAmount(values[1]);
+					headers.setChargeAmount(values[2]);
+					headers.setEstimatedDate(values[3]);
+					headers.setDepositDate(values[4]);
 
-					}
+					headers.setResponseCode(values[5]);
+					headers.setAuthorizationCode(values[6]);
+					headers.setResponseMessage(values[7]);
+					headers.setAction(values[8]);
+					headers.setTransactionState(values[9]);
+
+					headers.setLoteNumber(values[10]);
+					headers.setChannel(values[11]);
+					headers.setPaymentMethod(values[12]);
+					headers.setMoneyType(values[13]);
+
+					dataList.add(headers);
+
 				} else {
 
-					String[] values = strLine.split("\\|");
-					if (values.length != FILE_ROWS) {
-						//new DataColumnsTotalException(lineNumber, values.length, FILE_ROWS);
-						errors.add(new FileColumnsTotalException(lineNumber, values.length, FILE_ROWS));
-					} else {
+					CollectionFile collectionFile = new CollectionFile();
 
-						Map<String, String> data = new HashMap<String, String>();
+					collectionFile.setSaleCode(values[0].trim());
+					collectionFile.setMaximumAmount(values[1].trim());
+					collectionFile.setChargeAmount(values[2].trim());
+					collectionFile.setEstimatedDate(values[3].trim());
+					collectionFile.setDepositDate(values[4].trim());
 
-						data.put("lineNumber", lineNumber.toString());
-						data.put("code", values[0]);
-						data.put("affiliationDate", values[1]);
-						data.put("maximumAmount", values[2]);
-						data.put("chargeAmount", values[3]);
-						data.put("creditCardUpdated", values[4]);
-						data.put("estimatedDate", values[5]);
-						data.put("authorizationDate", values[6]);
-						data.put("depositDate", values[7]);
-						data.put("responseCode", values[8]);
-						data.put("authorizationCode", values[9]);
-						data.put("responseMessage", values[10]);
-						data.put("action", values[11]);
-						data.put("transactionState", values[12]);
-						data.put("loteNumber", values[13]);
-						data.put("channel", values[14]);
-						data.put("disaffiliationDate", values[15]);
+					collectionFile.setResponseCode(values[5].trim());
+					collectionFile.setAuthorizationCode(values[6].trim());
+					collectionFile.setResponseMessage(values[7].trim());
+					collectionFile.setAction(values[8].trim());
+					collectionFile.setTransactionState(values[9].trim());
 
-						dataList.add(data);
-					}
+					collectionFile.setLoteNumber(values[10].trim());
+					collectionFile.setChannel(values[11].trim());
+					collectionFile.setPaymentMethod(values[12].trim());
+					collectionFile.setMoneyType(values[13].trim());
+
+					dataList.add(collectionFile);
+
 				}
 
 				lineNumber++;
 
 			}
 
-
-			System.out.println("dataList:" + dataList.size());
-			System.out.println("errors:" + errors.size());
-			System.out.println("headers:" + headers.size());
+			return dataList;
 
 		} catch (IOException e) {
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
+			throw new Exception(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
+			throw new Exception("Ocurrio un error al leer el archivo.");
 		}
 
 	}
+
+	private Collection validateFile(CollectionFile collectionFile, CollectionFile headers, Integer lineNumber,
+			Bank bank) throws MultipleErrorsException {
+
+		List<Exception> errors = new ArrayList<Exception>();
+		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
+		//SimpleDateFormat sdf2 = new SimpleDateFormat("MM/yyyy");
+
+		// CODE
+		Sale saleFound = null;
+		if (collectionFile.getSaleCode().length() == 0) {
+			errors.add(new NullException(headers.getSaleCode(), lineNumber));
+		} else if (collectionFile.getSaleCode().length() != 10) {
+			errors.add(new OverflowException(headers.getSaleCode(), lineNumber, 10));
+		} else {
+			saleFound = saleService.findByCode(collectionFile.getSaleCode());
+			if (saleFound == null) {
+				errors.add(new SaleNotFoundException(headers.getSaleCode(), lineNumber));
+			} else {
+				// saleState = saleFound.getSaleState();
+			}
+		}
+
 	
-	/*public void validateDuplicates(){
-		
-		System.out.println("Validando duplicados");
-		
-		for (int i=0; i< dataList.size();i++ ) {
-			Map<String, String> data1 = dataList.get(i);
-			for (int j=i+1; j< dataList.size();j++ ) {
-				Map<String, String> data2 = dataList.get(j);
-				if (data1.get("authorizationDate").equals(data2.get("authorizationDate")) 
-						&& data1.get("responseMessage").equals(data2.get("responseMessage"))
-						&& data1.get("code").equals(data2.get("code"))) {
-					errors.add(new CollectionDuplicateException(i,j, data1.get("code"), data1.get("responseMessage"),data1.get("authorizationDate")));
+
+		// IMPORTE MAXIMO
+		BigDecimal maximumAmount = null;
+		if (collectionFile.getMaximumAmount().length() == 0) {
+			errors.add(new NullException(headers.getMaximumAmount(), lineNumber));
+		} else if (collectionFile.getMaximumAmount().length() > 11) {
+			errors.add(new OverflowException(headers.getMaximumAmount(), lineNumber, 11));
+		} else {
+			try {
+				maximumAmount = new BigDecimal(collectionFile.getMaximumAmount());
+				if (maximumAmount.scale() > 2) {
+					errors.add(new DecimalException(lineNumber, headers.getMaximumAmount(), 2));
 				}
+			} catch (NumberFormatException e) {
+				errors.add(new FormatException(headers.getMaximumAmount(), lineNumber));
+			}
+		}
+
+		// IMPORTE CARGO
+		BigDecimal chargeAmount = null;
+		if (collectionFile.getChargeAmount().length() == 0) {
+			errors.add(new NullException(headers.getChargeAmount(), lineNumber));
+		} else if (collectionFile.getChargeAmount().length() > 11) {
+			errors.add(new OverflowException(headers.getChargeAmount(), lineNumber, 11));
+		} else {
+			try {
+				chargeAmount = new BigDecimal(collectionFile.getChargeAmount());
+				if (chargeAmount.scale() > 2) {
+					errors.add(new DecimalException(lineNumber, headers.getChargeAmount(), 2));
+				}
+			} catch (NumberFormatException e) {
+				errors.add(new FormatException(headers.getChargeAmount(), lineNumber));
+			}
+		}
+
+		// FECHA DE ESTIMADA
+		Date estimatedDate = null;
+		if (collectionFile.getEstimatedDate().length() == 0) {
+			errors.add(new NullException(headers.getEstimatedDate(), lineNumber));
+		} else if (collectionFile.getEstimatedDate().length() != 10) {
+			errors.add(new OverflowException(headers.getEstimatedDate(), lineNumber, 10));
+		} else {
+			try {
+				estimatedDate = sdf1.parse(collectionFile.getEstimatedDate());
+			} catch (ParseException e1) {
+				errors.add(new FormatException(headers.getEstimatedDate(), lineNumber));
+			}
+		}
+
+		// FECHA DE DEPOSITO
+		Date depositDate = null;
+		if (collectionFile.getDepositDate().length() == 0) {
+			errors.add(new NullException(headers.getDepositDate(), lineNumber));
+		} else if (collectionFile.getDepositDate().length() != 10) {
+			errors.add(new OverflowException(headers.getDepositDate(), lineNumber, 10));
+		} else {
+			try {
+				depositDate = sdf1.parse(collectionFile.getDepositDate());
+			} catch (ParseException e1) {
+				errors.add(new FormatException(headers.getDepositDate(), lineNumber));
+			}
+		}
+
+		// CODIGO RESPUESTA
+		Short responseCode = null;
+		if (collectionFile.getResponseCode().length() > 2) {
+			errors.add(new OverflowException(headers.getResponseCode(), lineNumber, 2));
+		} else if (collectionFile.getResponseCode().length() > 0) {
+			try {
+				responseCode = Short.parseShort(collectionFile.getResponseCode());
+			} catch (NumberFormatException e) {
+				errors.add(new FormatException(headers.getResponseCode(), lineNumber));
+			}
+		}
+
+		// CODIGO AUTORIZACION
+		Integer authorizationCode = null;
+		if (collectionFile.getAuthorizationCode().length() > 6) {
+			errors.add(new OverflowException(headers.getAuthorizationCode(), lineNumber, 6));
+		} else if (collectionFile.getAuthorizationCode().length() > 0) {
+			try {
+				authorizationCode = Integer.parseInt(collectionFile.getAuthorizationCode());
+			} catch (NumberFormatException e) {
+				errors.add(new FormatException(headers.getAuthorizationCode(), lineNumber));
+			}
+		}
+
+		// MENSAJE RESPUESTA
+		if (collectionFile.getResponseMessage().length() == 0) {
+			errors.add(new NullException(headers.getResponseMessage(), lineNumber));
+		} else if (collectionFile.getResponseMessage().length() > 20) {
+			errors.add(new OverflowException(headers.getResponseMessage(), lineNumber, 20));
+		} else {
+			// payer.setLastnamePaternalResponsible(saleFile.getLastnamePaternalResponsible());
+		}
+		
+		//RESPONSE MESSAGE
+		CollectionResponseEnum messageResponse = null;
+		if (collectionFile.getResponseMessage().length() == 0) {
+			errors.add(new NullException(headers.getResponseMessage(), lineNumber));
+		} else if (collectionFile.getResponseMessage().length() != 20) {
+			errors.add(new OverflowException(headers.getResponseMessage(), lineNumber, 20));
+		} else {
+			messageResponse = CollectionResponseEnum.findByName(collectionFile.getResponseMessage());
+			if (messageResponse == null) {
+				errors.add(new FormatException(headers.getResponseMessage(), lineNumber));
+			} else {
+				// payer.setDocumentType(documentTypeEnum);
 			}
 		}
 		
-		System.out.println("errors:" + errors.size());
+
+		// ACCION
+		if (collectionFile.getAction().length() == 0) {
+			errors.add(new NullException(headers.getAction(), lineNumber));
+		} else if (collectionFile.getAction().length() > 20) {
+			errors.add(new OverflowException(headers.getAction(), lineNumber, 20));
+		} else {
+			// payer.setLastnameMaternalResponsible(saleFile.getLastnameMaternalResponsible());
+		}
+
+		// ESTADO TRANSAXXION
+		if (collectionFile.getTransactionState().length() == 0) {
+			errors.add(new NullException(headers.getTransactionState(), lineNumber));
+		} else if (collectionFile.getTransactionState().length() > 20) {
+			errors.add(new OverflowException(headers.getTransactionState(), lineNumber, 20));
+		} else {
+			// payer.setFirstnameResponsible(saleFile.getFirstnameResponsible());
+		}
+
+		// NUMERO LOTE
+		Integer nroLote = null;
+		if (collectionFile.getLoteNumber().length() > 10) {
+			errors.add(new OverflowException(headers.getLoteNumber(), lineNumber, 10));
+		} else if (collectionFile.getLoteNumber().length() > 0) {
+			try {
+				nroLote = Integer.parseInt(collectionFile.getLoteNumber());
+			} catch (NumberFormatException e) {
+				errors.add(new FormatException(headers.getLoteNumber(), lineNumber));
+			}
+		}
+
+		// CANAL
+		if (collectionFile.getChannel().length() == 0) {
+			errors.add(new NullException(headers.getChannel(), lineNumber));
+		} else if (collectionFile.getChannel().length() > 20) {
+			errors.add(new OverflowException(headers.getChannel(), lineNumber, 20));
+		} else {
+			// payer.setFirstnameResponsible(saleFile.getFirstnameResponsible());
+		}
+
+		// MEDIO DE PAGO
+		PaymentMethod paymentMethod = null;
+		if (collectionFile.getPaymentMethod().length() == 0) {
+			errors.add(new NullException(headers.getPaymentMethod(), lineNumber));
+		} else if (collectionFile.getPaymentMethod().length() != 2) {
+			errors.add(new OverflowException(headers.getPaymentMethod(), lineNumber, 2));
+		} else {
+			paymentMethod = paymentMethodService.checkIfExist(collectionFile.getPaymentMethod());
+			if (paymentMethod == null) {
+				errors.add(new FormatException(headers.getPaymentMethod(), lineNumber));
+			} else {
+				// sale.setProduct(product);
+			}
+		}
 		
-	}*/
-
-
-	public void validateDataNull() {
-
-		System.out.println("ingreso a validateDataNull");
-		
-		Integer lineNumber = 1;
-
-				for (Map<String, String> data : dataList) {
-
-					// SE VALIDA NOT NULL
-
-					if (data.get("code").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("code")));
+		// TIPO DE MONEDA
+				MoneyTypeEnum moneyType = null;
+				if (collectionFile.getMoneyType().length() == 0) {
+					errors.add(new NullException(headers.getMoneyType(), lineNumber));
+				} else if (collectionFile.getMoneyType().length() != 10) {
+					errors.add(new OverflowException(headers.getMoneyType(), lineNumber, 10));
+				} else {
+					moneyType = MoneyTypeEnum.findByName(collectionFile.getMoneyType());
+					if (moneyType == null) {
+						errors.add(new FormatException(headers.getMoneyType(), lineNumber));
+					} else {
+						// payer.setDocumentType(documentTypeEnum);
 					}
-
-					if (data.get("affiliationDate").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("affiliationDate")));
-					}
-
-					if (data.get("maximumAmount").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("maximumAmount")));
-					}
-
-					if (data.get("chargeAmount").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("chargeAmount")));
-					}
-
-
-					if (data.get("estimatedDate").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("estimatedDate")));
-					
-					}
-
-					if (data.get("authorizationDate").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("authorizationDate")));
-						
-					}
-
-					if (data.get("depositDate").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("depositDate")));
-						
-					}
-
-					if (data.get("responseCode").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("responseCode")));
-						
-					}
-
-					if (data.get("responseMessage").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("responseMessage")));
-						
-					}
-
-					if (data.get("action").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("action")));
-						
-					}
-
-					if (data.get("transactionState").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("transactionState")));
-						
-					}
-
-					if (data.get("channel").length() == 0) {
-						errors.add(new DataColumnNullException(lineNumber,headers.get("channel")));
-					
-					}
-
-				
-					
-					lineNumber++;
-
 				}
 
-				
 
-		System.out.println("dataList:" + dataList.size());
-		System.out.println("errors:" + errors.size());
+		Collection collection = new Collection(maximumAmount, chargeAmount, estimatedDate,
+				depositDate, responseCode, authorizationCode,
+				messageResponse, collectionFile.getAction(),
+				collectionFile.getTransactionState(), nroLote, collectionFile.getChannel(), 
+				moneyType,saleFound,paymentMethod);
+
+		return collection;
 
 	}
 
-	public void validateDataSize() {
-		
-		Integer lineNumber = 1;
-
-				for (Map<String, String> data : dataList) {
-					
-					if (data.get("code").length() > 20) {
-						errors.add(new DataColumnLengthException(lineNumber,headers.get("code"),data.get("code").length(),20));
-						
-					}
-					
-
-					if (data.get("responseCode").length() > 2) {
-						errors.add(new DataColumnLengthException(lineNumber,headers.get("responseCode"),data.get("responseCode").length(),2));
-						
-					}
-
-					if (data.get("authorizationCode").length() > 6) {
-						errors.add(new DataColumnLengthException(lineNumber,headers.get("authorizationCode"),data.get("authorizationCode").length(),6));
-						
-					}
-
-					if (data.get("responseMessage").length() > 10) {
-						errors.add(new DataColumnLengthException(lineNumber,headers.get("responseMessage"),data.get("responseMessage").length(),10));
-						
-					}
-
-					if (data.get("action").length() > 30) {
-						errors.add(new DataColumnLengthException(lineNumber,headers.get("action"),data.get("action").length(),20));
-						
-					}
-
-					if (data.get("transactionState").length() > 20) {
-						errors.add(new DataColumnLengthException(lineNumber,headers.get("transactionState"),data.get("transactionState").length(),20));
-						
-					}
-
-					if (data.get("loteNumber").length() > 10) {
-						errors.add(new DataColumnLengthException(lineNumber,headers.get("loteNumber"),data.get("loteNumber").length(),10));
-						
-					}
-
-					if (data.get("channel").length() > 20) {
-						errors.add(new DataColumnLengthException(lineNumber,headers.get("channel"),data.get("channel").length(),20));
-						
-					}
-					
-					lineNumber++;
-
-					
-				}
-
-			
-
-			
-	}
-
-	@SuppressWarnings("unused")
-	public void validateDataType() {
-
-		System.out.println("ingreso a validateDataType");
-
-		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
-		Integer lineNumber = 1;
-
-				for (Map<String, String> data : dataList) {
-
-					try {
-						if (data.get("affiliationDate").length() > 0) {
-							Date affiliationDate = sdf1.parse(data
-									.get("affiliationDate"));
-						}
-					} catch (ParseException e1) {
-						errors.add(new DataColumnDateException(lineNumber, headers.get("affiliationDate"),"dd/mm/yyyy"));
-						
-					}
-
-					try {
-						BigDecimal maximumAmount = new BigDecimal(
-								data.get("maximumAmount"));
-
-						if (maximumAmount.scale() > 2) {
-							errors.add(new DataColumnDecimalException(lineNumber, headers.get("maximumAmount"),2));
-							
-						}
-					} catch (NumberFormatException e) {
-						errors.add(new DataColumnNumberException(lineNumber, headers.get("maximumAmount")));
-					}
-
-					try {
-						BigDecimal chargeAmount = new BigDecimal(
-								data.get("chargeAmount"));
-
-						if (chargeAmount.scale() > 2) {
-							errors.add(new DataColumnDecimalException(lineNumber, headers.get("chargeAmount"),2));
-							
-						}
-					} catch (NumberFormatException e) {
-						errors.add(new DataColumnNumberException(lineNumber, headers.get("chargeAmount")));
-					}
-
-					try {
-						if (data.get("creditCardUpdated")!=null && data.get("creditCardUpdated").length()>0) {
-							Date creditCardUpdated = sdf1.parse(data
-									.get("creditCardUpdated"));	
-						}
-					} catch (ParseException e1) {
-						errors.add(new DataColumnDateException(lineNumber, headers.get("creditCardUpdated"),"dd/mm/yyyy"));
-						
-					}
-
-					try {
-						Date estimatedDate = sdf1.parse(data
-								.get("estimatedDate"));
-					} catch (ParseException e1) {
-						errors.add(new DataColumnDateException(lineNumber, headers.get("estimatedDate"),"dd/mm/yyyy"));
-						
-					}
-
-					try {
-						Date authorizationDate = sdf1.parse(data
-								.get("authorizationDate"));
-					} catch (ParseException e1) {
-						errors.add(new DataColumnDateException(lineNumber, headers.get("authorizationDate"),"dd/mm/yyyy"));
-
-					}
-
-					try {
-						Date depositDate = sdf1.parse(data.get("depositDate"));
-					} catch (ParseException e1) {
-						errors.add(new DataColumnDateException(lineNumber, headers.get("depositDate"),"dd/mm/yyyy"));
-						
-					}
-
-					try {
-						/*System.out.println("codigo de respuesta:"
-								+ data.get("responseCode"));*/
-						Long responseCode = Long.parseLong(data
-								.get("responseCode"));
-					} catch (NumberFormatException e) {
-						errors.add(new DataColumnNumberException(lineNumber, headers.get("responseCode")));
-					}
-
-					try {
-						/*System.out.println("codigo de autorizacion:"
-								+ data.get("authorizationCode") + ":");*/
-						if (data.get("authorizationCode").length() > 0) {
-							Long authorizationCode = Long.parseLong(data
-									.get("authorizationCode"));
-						}
-
-					} catch (NumberFormatException e) {
-						errors.add(new DataColumnNumberException(lineNumber, headers.get("authorizationCode")));
-					}
-
-					try {
-						if (data.get("loteNumber").length() > 0) {
-							Long loteNumber = Long.parseLong(data
-									.get("loteNumber"));
-						}
-
-					} catch (NumberFormatException e) {
-						errors.add(new DataColumnNumberException(lineNumber, headers.get("loteNumber")));
-
-					}
-
-					try {
-						if (data.get("disaffiliationDate").length() > 0) {
-							Date disaffiliationDate = sdf1.parse(data
-									.get("disaffiliationDate"));
-						}
-					} catch (ParseException e) {
-						errors.add(new DataColumnDateException(lineNumber, headers.get("disaffiliationDate"),"dd/mm/yyyy"));
-						
-					}
-					
-					lineNumber++;
-
-				}
-
-			
-
-		System.out.println("dataList:" + dataList.size());
-		System.out.println("errors:" + errors.size());
-
-	}
-
-	public void validateData() {
+	/*public void validateData() {
 
 		System.out.println("ingreso a validateData");
 
 		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
-		
+
 		Integer lineNumber = 1;
 
 		try {
 
-				for (Map<String, String> data : dataList) {
+			for (Map<String, String> data : dataList) {
 
-						Sale sale = saleService.findByCode(data.get("code"));
+				Sale sale = saleService.findByCode(data.get("code"));
 
-						// VALIDA SI LA VENTA EXISTE
-						if (sale != null && sale.getId() > 0) {
+				// VALIDA SI LA VENTA EXISTE
+				if (sale != null && sale.getId() > 0) {
 
-							// VALIDA SI LA VENTA ESTA DE BAJA
-							/*if (!sale.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
-								errors.add(new DataSaleStateNoActiveException(lineNumber, headers.get("code"),data.get("code")));
-							}*/
+					// VALIDATE MESSAGE RESPONSE
+					CollectionResponseEnum collectionResponseEnum = CollectionResponseEnum
+							.findByName(data.get("responseMessage"));
+					if (collectionResponseEnum == null) {
+						errors.add(new DataCollectionResponseMessageNotFoundException(lineNumber,
+								headers.get("responseMessage"), data.get("responseMessage")));
+					} else {
 
-							// VALIDA COMMERCIAL CODE
-							Commerce commercialCodeObject = null;
-							for (Commerce commerce : commerces) {
-								if (sale.getCommerce().getCode().equals(
-										commerce.getCode())) {
-									commercialCodeObject = commerce;
-								}
-							}
-							if (commercialCodeObject == null) {
-								errors.add(new DataCommerceCodeException(lineNumber, headers.get("code"),""));
-							}
-							
-							
+						BigDecimal chargeAmount = new BigDecimal(data.get("chargeAmount"));
 
-							// VALIDATE MESSAGE RESPONSE
-							CollectionResponseEnum collectionResponseEnum = CollectionResponseEnum.findByName(data.get("responseMessage"));
-							if (collectionResponseEnum==null) {
-								errors.add(new DataCollectionResponseMessageNotFoundException(lineNumber, headers.get("responseMessage"),data.get("responseMessage")));
-							}else{
-								
-								BigDecimal chargeAmount = new BigDecimal(data.get("chargeAmount"));
-								
-								//OBTIENE CANTIDAD DE COBRANZAS POR VENTA
-								Date authorizationDate = sdf1.parse(data
-										.get("authorizationDate"));
-								
-								//OBTIENE CANTIDAD DE COBRANZAS DENEGADAS POR DÍA
-								Integer collectionsDenyByDayLength=0;
-								List<Collection> collectionsDenyByDay = collectionService
-										.findByResponseAndAuthorizationDay(CollectionResponseEnum.DENY,authorizationDate,sale.getCode());
-								if (collectionsDenyByDay!=null) {
-									collectionsDenyByDayLength=collectionsDenyByDay.size();
-								}
-								//OBTIENE CANTIDAD DE COBRANZAS APROBADAS POR DÍA
-								Integer collectionsAllowByDayLength=0;
-								List<Collection> collectionsAllowByDay = collectionService
-										.findByResponseAndAuthorizationDay(CollectionResponseEnum.ALLOW,authorizationDate,sale.getCode());
-								if (collectionsAllowByDay!=null) {
-									collectionsAllowByDayLength=collectionsAllowByDay.size();
-								}
-								//OBTIENE CANTIDAD DE COBRANZAS DENEGADAS POR MES
-								Integer collectionsDenyByMonthLength=0;
-								List<Collection> collectionsDenyByMonth = collectionService
-										.findByResponseAndAuthorizationMonth(CollectionResponseEnum.DENY,authorizationDate,sale.getCode());
-								if (collectionsDenyByMonth!=null) {
-									collectionsDenyByMonthLength=collectionsDenyByMonth.size();
-								}
-								//OBTIENE CANTIDAD DE COBRANZAS APROBADAS POR MES
-								Integer collectionsAllowByMonthLength=0;
-								List<Collection> collectionsAllowByMonth = collectionService
-										.findByResponseAndAuthorizationMonth(CollectionResponseEnum.ALLOW,authorizationDate,sale.getCode());
-								if (collectionsAllowByMonth!=null) {
-									collectionsAllowByMonthLength=collectionsAllowByMonth.size();
-								}
-								//OBTIENE TOTALES
-								Integer collectionsByMonthLength=collectionsAllowByMonthLength+collectionsDenyByMonthLength;
-								Integer collectionsByDayLength=collectionsAllowByDayLength+collectionsDenyByDayLength;
-								
-								//OBTIENE CANTIDAD DE COBRANZAS A REGISTRAR
-								int totalCollectionsAllow=0;
-								int totalCollectionsDeny=0;
-								for (int i=0; i< dataList.size();i++ ) {
-									Map<String, String> data1 = dataList.get(i);
-										if (data.get("authorizationDate").equals(data1.get("authorizationDate")) 
-												&& data.get("code").equals(data1.get("code"))) {
-											if (data1.get("responseMessage").equals(CollectionResponseEnum.ALLOW.getName())) {
-												totalCollectionsAllow++;
-											}else if (data1.get("responseMessage").equals(CollectionResponseEnum.DENY.getName())) {
-												totalCollectionsDeny++;
-											}
-										}
-								}
-								//OBTIENE TOTALES
-								int totalCollections=totalCollectionsAllow+totalCollectionsDeny;
-								
-								//si la cantidad de cobranzas por día + la cantidad de cobranzas a insertar es menor o igual a 2
-								//si la cantidad de cobranzas por mes + cantidad de cobranzas a insertar es menor o igual a 4
-								
-								if (collectionsByDayLength+totalCollections>5){//CAMBIA TEMPORALMENTE DE 2 A 5
-									errors.add(new DataCollectionMaximumByDayException(lineNumber, headers.get("code"),headers.get("authorizationDate"),data.get("code"),data.get("authorizationDate"),collectionsByDayLength,totalCollections));
-								}else if(collectionsByMonthLength+totalCollections>5){
-									errors.add(new DataCollectionMaximumByMonthException(lineNumber, headers.get("code"),headers.get("authorizationDate"),data.get("code"),data.get("authorizationDate"),collectionsByMonthLength,totalCollections));
-								}else{
-								
-									switch (collectionResponseEnum) {
-									
-									case ALLOW:
-										if (collectionsAllowByDayLength+totalCollectionsAllow>5) {//CAMBIA TEMPORALMENTE DE 2 A 5
-											errors.add(new DataCollectionAllowMaximumByDayException(lineNumber, headers.get("code"),headers.get("authorizationDate"),data.get("code"),data.get("authorizationDate"),collectionsAllowByDayLength,totalCollectionsAllow));
-										}else if(collectionsAllowByMonthLength+totalCollectionsAllow>5){//CAMBIA TEMPORALMENTE DE 2 A 5
-											errors.add(new DataCollectionAllowMaximumByMonthException(lineNumber, headers.get("code"),headers.get("authorizationDate"),data.get("code"),data.get("authorizationDate"),collectionsAllowByMonthLength,totalCollectionsAllow));
-										}
-										
-										// MONTO A CARGAR DEBE SER IGUAL A LA PRIMA DE LA VENTA.
-										if (sale.getInsurancePremium().compareTo(chargeAmount)!=0) {
-											errors.add(new DataCollectionChargeAmountException(lineNumber,headers.get("chargeAmount"),sale.getInsurancePremium(),chargeAmount));
-										}
-										break;
-									case DENY:
-										
-										if (collectionsDenyByDayLength+totalCollectionsDeny>5) {//CAMBIA TEMPORALMENTE DE 2 A 5
-											errors.add(new DataCollectionAllowMaximumByMonthException(lineNumber, headers.get("code"),headers.get("authorizationDate"),data.get("code"),data.get("authorizationDate"),collectionsDenyByDayLength,totalCollectionsDeny));
-										}else if(collectionsDenyByMonthLength+totalCollectionsDeny>5){
-											errors.add(new DataCollectionAllowMaximumByMonthException(lineNumber, headers.get("code"),headers.get("authorizationDate"),data.get("code"),data.get("authorizationDate"),collectionsDenyByMonthLength,totalCollectionsDeny));
-										}
-										
-										//MONTO A CARGAR DEBE SER CERO.
-										/*if (chargeAmount.intValue() != 0) {
-											errors.add(new DataCollectionChargeAmountException(lineNumber,headers.get("chargeAmount"),headers.get("responseMessage")));
-										}*/
-										if (sale.getInsurancePremium().compareTo(chargeAmount)!=0) {
-											errors.add(new DataCollectionChargeAmountException(lineNumber,headers.get("chargeAmount"),sale.getInsurancePremium(),chargeAmount));
-										}
-										break;	
+						// OBTIENE CANTIDAD DE COBRANZAS POR VENTA
+						Date authorizationDate = sdf1.parse(data.get("authorizationDate"));
 
-									default:
-										break;
-									}
-								}
-								
-							}
-
-
-						} else {
-							errors.add(new DataSaleNotFoundException(lineNumber,headers.get("code"),data.get("code")));
+						// OBTIENE CANTIDAD DE COBRANZAS DENEGADAS POR DÍA
+						Integer collectionsDenyByDayLength = 0;
+						List<Collection> collectionsDenyByDay = collectionService.findByResponseAndAuthorizationDay(
+								CollectionResponseEnum.DENY, authorizationDate, sale.getCode());
+						if (collectionsDenyByDay != null) {
+							collectionsDenyByDayLength = collectionsDenyByDay.size();
 						}
-						
-						lineNumber++;
+						// OBTIENE CANTIDAD DE COBRANZAS APROBADAS POR DÍA
+						Integer collectionsAllowByDayLength = 0;
+						List<Collection> collectionsAllowByDay = collectionService.findByResponseAndAuthorizationDay(
+								CollectionResponseEnum.ALLOW, authorizationDate, sale.getCode());
+						if (collectionsAllowByDay != null) {
+							collectionsAllowByDayLength = collectionsAllowByDay.size();
+						}
+						// OBTIENE CANTIDAD DE COBRANZAS DENEGADAS POR MES
+						Integer collectionsDenyByMonthLength = 0;
+						List<Collection> collectionsDenyByMonth = collectionService.findByResponseAndAuthorizationMonth(
+								CollectionResponseEnum.DENY, authorizationDate, sale.getCode());
+						if (collectionsDenyByMonth != null) {
+							collectionsDenyByMonthLength = collectionsDenyByMonth.size();
+						}
+						// OBTIENE CANTIDAD DE COBRANZAS APROBADAS POR MES
+						Integer collectionsAllowByMonthLength = 0;
+						List<Collection> collectionsAllowByMonth = collectionService
+								.findByResponseAndAuthorizationMonth(CollectionResponseEnum.ALLOW, authorizationDate,
+										sale.getCode());
+						if (collectionsAllowByMonth != null) {
+							collectionsAllowByMonthLength = collectionsAllowByMonth.size();
+						}
+						// OBTIENE TOTALES
+						Integer collectionsByMonthLength = collectionsAllowByMonthLength + collectionsDenyByMonthLength;
+						Integer collectionsByDayLength = collectionsAllowByDayLength + collectionsDenyByDayLength;
 
+						// OBTIENE CANTIDAD DE COBRANZAS A REGISTRAR
+						int totalCollectionsAllow = 0;
+						int totalCollectionsDeny = 0;
+						for (int i = 0; i < dataList.size(); i++) {
+							Map<String, String> data1 = dataList.get(i);
+							if (data.get("authorizationDate").equals(data1.get("authorizationDate"))
+									&& data.get("code").equals(data1.get("code"))) {
+								if (data1.get("responseMessage").equals(CollectionResponseEnum.ALLOW.getName())) {
+									totalCollectionsAllow++;
+								} else if (data1.get("responseMessage").equals(CollectionResponseEnum.DENY.getName())) {
+									totalCollectionsDeny++;
+								}
+							}
+						}
+						// OBTIENE TOTALES
+						int totalCollections = totalCollectionsAllow + totalCollectionsDeny;
+
+
+						if (collectionsByDayLength + totalCollections > 5) {// CAMBIA
+																			// TEMPORALMENTE
+																			// DE
+																			// 2
+																			// A
+																			// 5
+							errors.add(new DataCollectionMaximumByDayException(lineNumber, headers.get("code"),
+									headers.get("authorizationDate"), data.get("code"), data.get("authorizationDate"),
+									collectionsByDayLength, totalCollections));
+						} else if (collectionsByMonthLength + totalCollections > 5) {
+							errors.add(new DataCollectionMaximumByMonthException(lineNumber, headers.get("code"),
+									headers.get("authorizationDate"), data.get("code"), data.get("authorizationDate"),
+									collectionsByMonthLength, totalCollections));
+						} else {
+
+							switch (collectionResponseEnum) {
+
+							case ALLOW:
+								if (collectionsAllowByDayLength + totalCollectionsAllow > 5) {// CAMBIA
+																								// TEMPORALMENTE
+																								// 5
+									errors.add(new DataCollectionAllowMaximumByDayException(lineNumber,
+											headers.get("code"), headers.get("authorizationDate"), data.get("code"),
+											data.get("authorizationDate"), collectionsAllowByDayLength,
+											totalCollectionsAllow));
+								} else if (collectionsAllowByMonthLength + totalCollectionsAllow > 5) {// CAMBIA
+																										// A
+																										// 5
+									errors.add(new DataCollectionAllowMaximumByMonthException(lineNumber,
+											headers.get("code"), headers.get("authorizationDate"), data.get("code"),
+											data.get("authorizationDate"), collectionsAllowByMonthLength,
+											totalCollectionsAllow));
+								}
+
+								// MONTO A CARGAR DEBE SER IGUAL A LA PRIMA DE
+								// LA VENTA.
+								if (sale.getInsurancePremium().compareTo(chargeAmount) != 0) {
+									errors.add(new DataCollectionChargeAmountException(lineNumber,
+											headers.get("chargeAmount"), sale.getInsurancePremium(), chargeAmount));
+								}
+								break;
+							case DENY:
+
+								if (collectionsDenyByDayLength + totalCollectionsDeny > 5) {// CAMBIA
+																							// TEMPORALMENTE
+																							// DE
+																							// 2
+																							// A
+																							// 5
+									errors.add(new DataCollectionAllowMaximumByMonthException(lineNumber,
+											headers.get("code"), headers.get("authorizationDate"), data.get("code"),
+											data.get("authorizationDate"), collectionsDenyByDayLength,
+											totalCollectionsDeny));
+								} else if (collectionsDenyByMonthLength + totalCollectionsDeny > 5) {
+									errors.add(new DataCollectionAllowMaximumByMonthException(lineNumber,
+											headers.get("code"), headers.get("authorizationDate"), data.get("code"),
+											data.get("authorizationDate"), collectionsDenyByMonthLength,
+											totalCollectionsDeny));
+								}
+
+								// MONTO A CARGAR DEBE SER CERO.
+								
+								  //if (chargeAmount.intValue() != 0) {
+								//  errors.add(new
+								 // DataCollectionChargeAmountException(
+								 // lineNumber,headers.get("chargeAmount"),
+								//  headers.get("responseMessage"))); }
+								 
+								if (sale.getInsurancePremium().compareTo(chargeAmount) != 0) {
+									errors.add(new DataCollectionChargeAmountException(lineNumber,
+											headers.get("chargeAmount"), sale.getInsurancePremium(), chargeAmount));
+								}
+								
+								break;
+
+							default:
+								break;
+							}
+						}
+
+					}
+
+				} else {
+					errors.add(new DataSaleNotFoundException(lineNumber, headers.get("code"), data.get("code")));
 				}
-				
-				
+
+				lineNumber++;
+
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
-			errors.add( new ServiceException());
-			/*facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());*/
-		}	
+			errors.add(new ServiceException());
+			
+		}
 
 		System.out.println("dataList:" + dataList.size());
 		System.out.println("errors:" + errors.size());
 
-	}
-
-	public void createCollections() {
-
-		System.out.println("ingreso a createCollections");
-
-		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
-
-		SessionBean sessionBean = (SessionBean) FacesContext
-				.getCurrentInstance().getExternalContext()
-				.getSessionMap().get("sessionBean");
-		
-		User user = new User();
-		user.setId(sessionBean.getUser().getId());
-		
-		Integer lineNumber =1;
-
-				for (Map<String, String> data : dataList) {
-
-					try {
-						// / SE CREA LA VENTA
-						Collection collection = new Collection();
-
-						collection.setSaleCode(data.get("code"));
-						collection.setAffiliationDate(data.get(
-								"affiliationDate").length() > 0 ? sdf1
-								.parse(data.get("affiliationDate")) : null);
-						collection.setMaximumAmount(new BigDecimal(data
-								.get("maximumAmount")));
-						collection.setChargeAmount(new BigDecimal(data
-								.get("chargeAmount")));
-						collection.setCreditCardUpdated(data
-								.get("creditCardUpdated").length()>0 ? sdf1.parse(data
-								.get("creditCardUpdated")):null);
-						collection.setEstimatedDate(sdf1.parse(data
-								.get("estimatedDate")));
-						collection.setAuthorizationDate(sdf1.parse(data
-								.get("authorizationDate")));
-						collection.setDepositDate(sdf1.parse(data
-								.get("depositDate")));
-						collection.setResponseCode(Short.parseShort((data.get("responseCode"))));
-						collection
-								.setAuthorizationCode(data.get(
-										"authorizationCode").length() > 0 ? Integer
-										.parseInt(data.get("authorizationCode"))
-										: null);
-						collection.setResponseMessage(CollectionResponseEnum.findByName(data
-								.get("responseMessage")));
-						collection.setAction(data.get("action"));
-						collection.setTransactionState(data
-								.get("transactionState"));
-						collection.setLoteNumber(data.get("loteNumber")
-								.length() > 0 ? Integer.parseInt(data
-								.get("loteNumber")) : null);
-						collection.setChannel(data.get("channel"));
-						collection.setDisaffiliationDate(data.get(
-								"disaffiliationDate").length() > 0 ? sdf1
-								.parse(data.get("disaffiliationDate")) : null);
-
-						collection.setCreatedBy(user);
-						collection.setCreatedAt(new Date());
-						collectionService.add(collection);
-
-					} catch (Exception e) {
-						e.printStackTrace();
-						errors.add(new DataCollectionCreateException(lineNumber,e.getMessage()));
-					}
-					
-					lineNumber++;
-
-				}
-				
-				if (errors != null && errors.size() > 0) {
-					for (Exception e : errors) {
-						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
-					}
-				}else{
-					facesUtil.sendConfirmMessage("Se crearon correctamente las cobranzas.","");
-				}
-
-				
-	}
-	
-	public String load() {
-		try {
-
-			if (file != null && file.getFileName().length() > 0) {
-				if (file.getFileName().endsWith(".csv")
-						|| file.getFileName().endsWith(".CSV")) {
-					System.out.println("file NO es nulo:" + file.getFileName());
-
-					getData();
-					if (dataList == null && dataList.size() == 0) {
-						Exception e = new FileRowsZeroException();
-						facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
-					} else if (errors != null && errors.size() > 0) {
-						for (Exception e : errors) {
-							facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
-						}
-					}else{
-						
-						/*validateDuplicates();
-						if (errors != null && errors.size() > 0) {
-							for (Exception e : errors) {
-								facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
-							}
-						}else{*/
-							validateDataNull();
-							if (errors != null && errors.size() > 0) {
-								for (Exception e : errors) {
-									facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
-								}	
-							}else{
-								validateDataSize();
-								if (errors != null && errors.size() > 0) {
-									for (Exception e : errors) {
-										facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
-									}	
-								}else{
-									validateDataType();
-									if (errors != null && errors.size() > 0) {
-										for (Exception e : errors) {
-											facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
-										}	
-									}else{
-										validateData();
-										if (errors != null && errors.size() > 0) {
-											for (Exception e : errors) {
-												facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
-											}	
-										}else{
-											createCollections();
-										}
-									}
-								}
-								
-							}
-						//}
-						
-						
-					}
-
-				} else {
-					throw new FileExtensionException();
-				}
-
-			} else {
-				throw new FileNotFoundException();
-			}
-
-			
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
-
-		}
-		return null;
-
-	}
-
+	}*/
 
 	public UploadedFile getFile() {
 		return file;
@@ -867,5 +719,15 @@ public class LoadCollectionsController implements Serializable {
 	public void setFile(UploadedFile file) {
 		this.file = file;
 	}
+
+	public StreamedContent getDownloadFile() {
+		return downloadFile;
+	}
+
+	public void setDownloadFile(StreamedContent downloadFile) {
+		this.downloadFile = downloadFile;
+	}
+	
+	
 
 }

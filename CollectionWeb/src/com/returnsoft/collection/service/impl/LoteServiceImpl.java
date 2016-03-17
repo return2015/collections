@@ -3,136 +3,35 @@ package com.returnsoft.collection.service.impl;
 import java.util.Date;
 import java.util.List;
 
-import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 
-import com.returnsoft.collection.eao.BankEao;
-import com.returnsoft.collection.eao.CollectionEao;
-import com.returnsoft.collection.eao.CollectionPeriodEao;
-import com.returnsoft.collection.eao.CreditCardEao;
 import com.returnsoft.collection.eao.LoteEao;
-import com.returnsoft.collection.eao.PayerEao;
-import com.returnsoft.collection.eao.ProductEao;
-import com.returnsoft.collection.eao.SaleEao;
-import com.returnsoft.collection.eao.SaleStateEao;
-import com.returnsoft.collection.eao.UserEao;
-import com.returnsoft.collection.entity.Collection;
 import com.returnsoft.collection.entity.Lote;
-import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.LoteTypeEnum;
-import com.returnsoft.collection.exception.EaoException;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.LoteService;
-import com.returnsoft.collection.util.CollectionFile;
 
 @Stateless
-//@TransactionManagement(TransactionManagementType.BEAN)
 public class LoteServiceImpl implements LoteService {
-
-	//@Resource
-	//private UserTransaction userTransaction;
 
 	@EJB
 	private LoteEao loteEao;
-
-	@EJB
-	private ProductEao productEao;
-
-	@EJB
-	private CollectionPeriodEao collectionPeriodEao;
-
-	@EJB
-	private UserEao userEao;
-
-	@EJB
-	private BankEao bankEao;
 	
-	
-	@EJB
-	private PayerEao payerEao;
-
-	@EJB
-	private SaleStateEao saleStateEao;
-
-	@EJB
-	private CreditCardEao creditCardEao;
-	
-	@EJB
-	private SaleEao saleEao;
-	
-	@EJB
-	private CollectionEao collectionEao;
-	
-	//@EJB
-	//private LoteService loteService;
-	
-
-	//@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-//	public void update(Lote lote) {
-//
-//		try {
-//			
-//			userTransaction.begin();
-//			loteEao.update(lote);
-//			userTransaction.commit();
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//
-//	}
-
-	//@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-//	public Lote create(String name, Integer total) throws ServiceException {
-//
-//		try {
-//			
-//			userTransaction.begin();
-//
-//			Lote lote = new Lote();
-//			lote.setName(name);
-//			lote.setTotal(total);
-//			lote.setProcess(0);
-//			lote.setDate(new Date());
-//			lote.setState("En progreso");
-//
-//			loteEao.add(lote);
-//			
-//			userTransaction.commit();
-//
-//			return lote;			
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			if (e.getMessage() != null && e.getMessage().trim().length() > 0) {
-//				throw new ServiceException(e.getMessage(), e);
-//			} else {
-//				throw new ServiceException();
-//			}
-//		}
-//
-//	}
-
+	@Override
 	public List<Lote> findByDate(Date date) throws ServiceException {
 		try {
-
 			return loteEao.findByDate(date);
-
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage() != null && e.getMessage().trim().length() > 0) {
-				throw new ServiceException(e.getMessage(), e);
-			} else {
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());
 		}
 	}
-
 	
-	
-	
-	@Asynchronous
+	/*@Asynchronous
 	@Override
 	public void addTypeCollection(List<Collection> collections, String filename, CollectionFile headers, Integer userId){
 		
@@ -188,44 +87,32 @@ public class LoteServiceImpl implements LoteService {
 
 		}
 
-	}
-
-
-
+	}*/
 
 	@Override
 	public List<Lote> findLimit(Date date, LoteTypeEnum loteType, Integer first, Integer limit)
 			throws ServiceException {
 		try {
-			
 			return loteEao.findLimit(date, loteType, first, limit);
-			
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage() != null && e.getMessage().trim().length() > 0) {
-				throw new ServiceException(e.getMessage(), e);
-			} else {
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());
 		}
 	}
-
-
-
 
 	@Override
 	public Long findCount(Date date, LoteTypeEnum loteType) throws ServiceException {
 		try {
-			
 			return loteEao.findCount(date, loteType);
-			
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage() != null && e.getMessage().trim().length() > 0) {
-				throw new ServiceException(e.getMessage(), e);
-			} else {
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());
 		}
 	}
 

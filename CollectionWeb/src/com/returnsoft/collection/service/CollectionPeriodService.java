@@ -12,5 +12,7 @@ public interface CollectionPeriodService {
 	public List<CollectionPeriod> getAll() throws ServiceException;
 	
 	public CollectionPeriod findById(Short collectionPeriodId) throws ServiceException;
+	
+	public short checkIfExist(String name);
 
 }

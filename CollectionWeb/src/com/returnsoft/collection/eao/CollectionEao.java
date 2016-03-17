@@ -1,25 +1,266 @@
 package com.returnsoft.collection.eao;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import com.returnsoft.collection.entity.Collection;
 import com.returnsoft.collection.enumeration.CollectionResponseEnum;
 import com.returnsoft.collection.exception.EaoException;
 
+@Stateless
+public class CollectionEao  {
+	
+	@PersistenceContext
+	private EntityManager em;
+	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void add(Collection collection) throws EaoException{
+		try {
+			
+			String maxIdByProduct = getMaxCollectionIdByProduct(collection.getSale().getProduct().getId());
+			
+			String receiptNumber = ""; 
+			
+			if (maxIdByProduct!=null && maxIdByProduct.length() > 0) {
+				Long maxIdByProductLong = Long.parseLong(maxIdByProduct);
+				receiptNumber += (maxIdByProductLong+1);
+			}else{
+				receiptNumber += 1; 
+			}
+			
+			collection.setReceiptNumber(receiptNumber);
+			em.persist(collection);
+			
+			em.flush();
+			
+			
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			
+			throw new EaoException(e);
+		}
+	}
+	
+	
+	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public String getMaxCollectionIdByProduct(Short productId) throws EaoException{
+		try {
+			
+			String query = "SELECT max(cast(c.receiptNumber as signed)) FROM Collection c "
+					+ " left join c.sale s "
+					+ " left join s.product p "
+					+ "WHERE p.id=:productId ";
+			
+			Query q = em.createQuery(query);
+			q.setParameter("productId", productId);
+			
+			String maxIdProduct= (String)q.getSingleResult();
+			
+			return maxIdProduct;
+			
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+	}
+	
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public List<Collection> findBySaleId(Long saleId) throws EaoException{
+		try {
+			
+			String query = "SELECT c FROM Collection c left join c.sale s WHERE s.id = :saleId ";
+			
+			TypedQuery<Collection> q = em.createQuery(query, Collection.class);
+			q.setParameter("saleId", saleId);
+			
+			List<Collection> collections = q.getResultList();
+			return collections;
 
-public interface CollectionEao {
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public List<Collection> findAllowsBySaleId(Long saleId) throws EaoException{
+		try {
+			
+			String query = "SELECT c FROM Collection c left join c.sale s "
+					+ "WHERE c.responseMessage=:responseMessage s.id = :saleId ";
+			
+			TypedQuery<Collection> q = em.createQuery(query, Collection.class);
+			q.setParameter("saleId", saleId);
+			q.setParameter("responseMessage", CollectionResponseEnum.ALLOW);
+			
+			List<Collection> collections = q.getResultList();
+			return collections;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
 	
-	public void add(Collection collection) throws EaoException;
 	
-	public List<Collection> findBySaleId(Long saleId) throws EaoException;
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public Integer findByResponseAndAuthorizationDay(CollectionResponseEnum responseMessage, Date authorizationDate, String saleCode) throws EaoException{
+		
+		try {
+			
+			String query = "SELECT count(c.id) FROM Collection c left join c.sale s "
+					+ "WHERE s.code=:saleCode and c.responseMessage=:responseMessage "
+					+ "and c.authorizationDate = :authorizationDate group by s.id";
+			
+			Query q = em.createQuery(query);
+			q.setParameter("authorizationDate", authorizationDate);
+			q.setParameter("responseMessage", responseMessage);
+			q.setParameter("saleCode", saleCode);
+			
+			Long collectionsCount = (Long)q.getSingleResult();
+			
+			return collectionsCount.intValue();
+			
+		} catch (NoResultException e) {
+			return 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+	}
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public Integer findByResponseAndAuthorizationMonth(CollectionResponseEnum responseMessage,Date authorizationDate, String saleCode) throws EaoException{
+		
+		//System.out.println("findByResponseAndAuthorizationMonth.......................");
+		
+		try {
+			
+			String query = "SELECT count(c.id) FROM Collection c left join c.sale s "
+					+ "WHERE s.code=:saleCode and c.responseMessage=:responseMessage "
+					+ "and ( FUNC('MONTH',c.authorizationDate) = :authorizationDateMonth and FUNC('YEAR',c.authorizationDate) = :authorizationDateYear ) group by s.id";
+			
+			Query q = em.createQuery(query);
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(authorizationDate);
+			q.setParameter("authorizationDateMonth", calendar.get(Calendar.MONTH));
+			q.setParameter("authorizationDateYear", calendar.get(Calendar.YEAR));
+			q.setParameter("responseMessage", responseMessage);
+			q.setParameter("saleCode", saleCode);
+			
+			Long collectionsCount = (Long)q.getSingleResult();
+			
+			return collectionsCount.intValue();
+			
+		} catch (NoResultException e) {
+			return 0;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+	}
+
 	
-	public List<Collection> findAllowsBySaleId(Long saleId) throws EaoException;
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public Collection findByReceiptNumber(String receiptNumber) throws EaoException{
+		try {
+			
+			String query = "SELECT c FROM Collection c WHERE c.receiptNumber = :receiptNumber ";
+			
+			TypedQuery<Collection> q = em.createQuery(query, Collection.class);
+			q.setParameter("receiptNumber", receiptNumber);
+			
+			Collection collection = q.getSingleResult();
+			return collection;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
 	
-	public Integer findByResponseAndAuthorizationDay(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode) throws EaoException;
+	public List<Collection> findLimit(Date createdAtStarted, Date createdAtEnded, Integer first, Integer limit) throws EaoException{
+		try {
+			
+			String query = 
+					"SELECT n FROM Collection n " 
+					+ "WHERE n.id>0 ";
+			
+			if (createdAtStarted!=null && createdAtEnded!=null) {
+				query+=" and n.createdAt between :createdAtStarted and :createdAtEnded ";
+			}
+			
+			TypedQuery<Collection> q = em.createQuery(query, Collection.class);
+			
+			if (createdAtStarted!=null && createdAtEnded!=null) {
+				q.setParameter("createdAtStarted", createdAtStarted);
+				q.setParameter("createdAtEnded", createdAtEnded);	
+			}
+			
+			q.setFirstResult(first);
+			q.setMaxResults(limit);
+
+			return q.getResultList();
+			
+			
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+	}
 	
-	public Integer findByResponseAndAuthorizationMonth(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode) throws EaoException;
-	
-	public Collection findByReceiptNumber(String receiptNumber) throws EaoException;
+	public Long findCount(Date createdAtStarted, Date createdAtEnded) throws EaoException {
+		
+		
+		
+		try {
+			String query = 
+					"SELECT count(n.id) FROM Collection n " 
+					+ "WHERE n.id>0 ";
+			
+			if (createdAtStarted!=null && createdAtEnded!=null) {
+				query+=" and n.createdAt between :createdAtStarted and :createdAtEnded ";
+			}
+			
+			Query q = em.createQuery(query);
+			
+			if (createdAtStarted!=null && createdAtEnded!=null) {
+				q.setParameter("createdAtStarted", createdAtStarted);
+				q.setParameter("createdAtEnded", createdAtEnded);	
+			}
+			
+			return (Long)q.getSingleResult();
+			
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+		
+	}
 
 }

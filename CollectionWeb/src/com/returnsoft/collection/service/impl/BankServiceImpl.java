@@ -16,57 +16,44 @@ public class BankServiceImpl implements BankService{
 	@EJB
 	private BankEao bankEao;
 	
+	@Override
 	public List<Bank> getAll() throws ServiceException{
 		try {
-			
 			return bankEao.getBanks();
-			
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());	
 		}
 	}
 	
-	
+	@Override
 	public Bank findById(Short bankId) throws ServiceException {
 		try {
-
-			Bank bank = bankEao.findById(bankId);
-
-			return bank;
-
+			return bankEao.findById(bankId);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());	
 		}
 	}
 	
-	
+	@Override
 	public List<Bank> findByUser(Integer userId) throws ServiceException {
 		try {
-
-			List<Bank> banks = bankEao.findByUserId(userId);
-
-			return banks;
-
+			return bankEao.findByUserId(userId);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());	
 		}
 	}
-	
 	
 
 }

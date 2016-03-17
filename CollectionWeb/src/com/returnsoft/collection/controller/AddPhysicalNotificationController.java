@@ -26,14 +26,18 @@ import com.returnsoft.collection.util.SessionBean;
 
 @ManagedBean
 @ViewScoped
-public class AddNotificationController implements Serializable{
+public class AddPhysicalNotificationController implements Serializable{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private Notification notificationSelected;
+	//private Notification notificationSelected;
+	
+	private Sale saleSelected;
+	private Date sendingAt;
+	private String orderNumber;
 	
 	private String notificationStateSelected;
 	
@@ -64,10 +68,10 @@ public class AddNotificationController implements Serializable{
 					.getExternalContext().getRequestParameterMap()
 					.get("saleId");
 			
-			Sale saleSelected = saleService.findById(Long.parseLong(saleId));
+			saleSelected = saleService.findById(Long.parseLong(saleId));
 			
-			notificationSelected = new Notification();
-			notificationSelected.setSale(saleSelected);
+			//notificationSelected = new Notification();
+			//notificationSelected.setSale(saleSelected);
 			
 			return null;
 
@@ -89,8 +93,8 @@ public class AddNotificationController implements Serializable{
 				throw new UserLoggedNotFoundException();
 			}
 			
-			notificationSelected.setType(notificationType);
-			notificationSelected.setState(notificationState);
+			//notificationSelected.setType(notificationType);
+			//notificationSelected.setState(notificationState);
 			
 			
 			/*SessionBean sessionBean = (SessionBean) FacesContext
@@ -98,13 +102,13 @@ public class AddNotificationController implements Serializable{
 					.getSessionMap().get("sessionBean");*/
 			User user = sessionBean.getUser();
 			
-			notificationSelected.setCreatedBy(user);
-			notificationSelected.setCreatedAt(new Date());
-			notificationService.add(notificationSelected);
+			/*notificationSelected.setCreatedBy(user);
+			notificationSelected.setCreatedAt(new Date());*/
+			notificationService.addPhysical(saleSelected, sendingAt, orderNumber, user);
 			
 			// RETORNA LA VENTA ACTUALIZADA
 			
-			Sale saleUpdated = saleService.findById(notificationSelected.getSale().getId());
+			Sale saleUpdated = saleService.findById(saleSelected.getId());
 			RequestContext.getCurrentInstance().closeDialog(saleUpdated);
 
 		} catch (Exception e) {
@@ -116,12 +120,14 @@ public class AddNotificationController implements Serializable{
 
 	}
 
-	public Notification getNotificationSelected() {
-		return notificationSelected;
+
+
+	public Sale getSaleSelected() {
+		return saleSelected;
 	}
 
-	public void setNotificationSelected(Notification notificationSelected) {
-		this.notificationSelected = notificationSelected;
+	public void setSaleSelected(Sale saleSelected) {
+		this.saleSelected = saleSelected;
 	}
 
 	public String getNotificationStateSelected() {
@@ -138,6 +144,22 @@ public class AddNotificationController implements Serializable{
 
 	public NotificationTypeEnum getNotificationType() {
 		return notificationType;
+	}
+
+	public Date getSendingAt() {
+		return sendingAt;
+	}
+
+	public void setSendingAt(Date sendingAt) {
+		this.sendingAt = sendingAt;
+	}
+
+	public String getOrderNumber() {
+		return orderNumber;
+	}
+
+	public void setOrderNumber(String orderNumber) {
+		this.orderNumber = orderNumber;
 	}
 
 	

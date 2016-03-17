@@ -23,27 +23,33 @@
 
 	<h:panelGrid style="margin:auto;">
 
+		<h:panelGrid>
+			<h:panelGrid columns="2" cellpadding="0" cellspacing="0">
+				<p:outputLabel style="color:blue;"
+					value="1. Descargar formato de trama. "></p:outputLabel>
+				<h:form id="formLink">
+					<p:commandButton value="Download" ajax="false"
+						icon="ui-icon-arrowthick-1-s">
+						<p:fileDownload value="#{loadSaleStatesController.downloadFile}" />
+					</p:commandButton>
+				</h:form>
+			</h:panelGrid>
 
-		<p:messages id="messages" showDetail="true"></p:messages>
+			<p:outputLabel style="color:blue;"
+				value="2. Copiar la última columna de la pestaña TRAMA y pegarla en una archivo de texto."></p:outputLabel>
+			<p:outputLabel style="color:blue;"
+				value="3. El archivo de texto debe ser guardado con codificación UTF-8 y extensión '.txt'."></p:outputLabel>
+			<p:outputLabel style="color:blue;"
+				value="4. Cargar archivo de texto. "></p:outputLabel>
+			<p:outputLabel style="color:blue;" value="5. Procesar ventas. "></p:outputLabel>
+		</h:panelGrid>
 
-		<h:form id="formLinkSaleStates">
-			<h:commandLink
-				actionListener="#{loadSaleStatesController.downloadSaleStatesFile}"
-				value="Descargar formato de trama">
-			</h:commandLink>
-		</h:form>
-		<br></br>
-		<br></br>
-		<h:form id="formUploadSaleStates" enctype="multipart/form-data">
+		<h:form id="formUpload" enctype="multipart/form-data">
 			<h:panelGrid columns="2">
-				<h:inputFile id="saleStateFile"
-					value="#{loadSaleStatesController.file}">
-				</h:inputFile>
-				<h:commandButton value="Actualizar estados" process="@form"
-					actionListener="#{loadSaleStatesController.validateSaleStatesFile}">
-					<f:ajax execute="saleStateFile"
-						render=":acc_sales:messages_sale_states" />
-				</h:commandButton>
+				<p:fileUpload id="saleFile" value="#{loadSaleStatesController.file}"
+					mode="simple" skinSimple="true" />
+				<p:commandButton value="Procesar actualizaciones" ajax="false"
+					actionListener="#{loadSaleStatesController.uploadFile}" />
 			</h:panelGrid>
 		</h:form>
 

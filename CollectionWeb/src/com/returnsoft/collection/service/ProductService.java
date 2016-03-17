@@ -8,5 +8,7 @@ import com.returnsoft.collection.exception.ServiceException;
 public interface ProductService {
 	
 	public List<Product> getAll() throws ServiceException;
+	
+	public Product checkIfExist(String code);
 
 }

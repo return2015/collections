@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.returnsoft.collection.entity.Sale;
+import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
@@ -12,18 +13,13 @@ import com.returnsoft.collection.util.SaleFile;
 
 public interface SaleService {
 	
-	//public void add(Sale sale) throws ServiceException;
-	
-	//public Future<Integer> add(List<Sale> sale, String filename) /*throws ServiceException*/;
-	
+
 	public Sale findById(Long saleId) throws ServiceException;
 	
-	public Sale findByCode(String code) throws ServiceException;
+	public Sale findByCode(String code);
 	
-	public void addSaleList(List<Sale> sales, String filename, SaleFile headers, Integer userId, Short bankId);
+	public void addSaleList(List<Sale> sales, SaleFile headers, String filename, User createdBy);
 	
-	
-	//public Sale affiliate(String code, int userId, Date affiliateDate) throws ServiceException;
 	public List<Sale> findSalesBySaleData(Date saleDateStartedAt,Date saleDateEndedAt, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException;
 	public List<Sale> findSalesBySaleDataLimit(Date saleDateStartedAt,Date saleDateEndedAt, Short bankId, Short productId, SaleStateEnum saleState, Integer first, Integer limit) throws ServiceException;
 	public Long findSalesBySaleDataCount(Date saleDateStartedAt,Date saleDateEndedAt, Short bankId, Short productId, SaleStateEnum saleState) throws ServiceException;
@@ -47,14 +43,11 @@ public interface SaleService {
 	public List<Sale> findSalesByNamesContractorLimit(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor, Integer first, Integer limit) throws ServiceException;
 	public Long findSalesByNamesContractorCount(Long nuicContractor, String firstnameContractor, String lastnamePaternalContractor, String lastnameMaternalContractor) throws ServiceException;
 	
-	//public Long findByNuicInsuredAndDateOfSale(Integer nuicInsured, Date dateOfSale) throws ServiceException;
-	
 	public List<Sale> findForNotifications(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification,String orderNumber) throws ServiceException;
 	public List<Sale> findForNotificationsLimit(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification, String orderNumber,Integer first, Integer limit ) throws ServiceException;
 	public Long findForNotificationsCount(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification,String orderNumber) throws ServiceException;
 	
-	
-	public Boolean checkIfExistSale(Integer nuicInsured, Date dateOfSale, Short bankId, Short productId, Short collectionPeriodId) throws ServiceException;
+	public long checkIfExistSale(int nuicInsured, Date dateOfSale, short bankId, short productId, short collectionPeriodId);
 	
 	
 	

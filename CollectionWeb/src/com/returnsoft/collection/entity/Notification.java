@@ -71,6 +71,11 @@ public class Notification implements Serializable{
 	private NotificationStateEnum state;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "not_sal_id")
+	private Sale sale;
+	
+	
+	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "not_created_by")
 	private User createdBy;
 	
@@ -78,9 +83,7 @@ public class Notification implements Serializable{
 	@JoinColumn(name = "not_updated_by")
 	private User updatedBy;
 	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "not_sal_id")
-	private Sale sale;
+	
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "not_created_at")
@@ -89,6 +92,17 @@ public class Notification implements Serializable{
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "not_updated_at")
 	private Date updatedAt;
+	
+	///
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "not_updated_lot_id")
+	private Lote loteUpdated;
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "not_created_lot_id")
+	private Lote loteCreated;
+	
 	
 
 	public Integer getId() {
@@ -215,6 +229,22 @@ public class Notification implements Serializable{
 
 	public void setReason(String reason) {
 		this.reason = reason;
+	}
+
+	public Lote getLoteUpdated() {
+		return loteUpdated;
+	}
+
+	public void setLoteUpdated(Lote loteUpdated) {
+		this.loteUpdated = loteUpdated;
+	}
+
+	public Lote getLoteCreated() {
+		return loteCreated;
+	}
+
+	public void setLoteCreated(Lote loteCreated) {
+		this.loteCreated = loteCreated;
 	}
 
 

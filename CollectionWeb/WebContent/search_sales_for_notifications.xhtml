@@ -25,12 +25,16 @@
 
 		</div>
 
+		<p:scrollPanel id="messages" mode="native"
+			style="width:800px;height:70px;margin:auto;border:none;">
+			<p:messages showDetail="true"></p:messages>
+		</p:scrollPanel>
+
+
 		<h:form id="form">
 
 
-			<h:panelGrid style="margin:auto;text-align:center;">
-				<p:messages id="messages" showDetail="true"></p:messages>
-			</h:panelGrid>
+
 
 			<h:panelGrid columns="2" style="text-align:center;">
 				<h:panelGrid columns="2">
@@ -41,8 +45,8 @@
 							itemValue="dni" />
 						<f:selectItem itemLabel="Buscar por datos de notificación"
 							itemValue="notificationData" />
-						<p:ajax 
-							update=":form:searchTypeOut :form:searchTypeOut2 :form:messages"></p:ajax>
+						<p:ajax
+							update=":form:searchTypeOut :form:searchTypeOut2 :messages"></p:ajax>
 					</p:selectOneMenu>
 				</h:panelGrid>
 				<p:outputPanel id="searchTypeOut2">
@@ -70,7 +74,7 @@
 			</h:panelGrid>
 
 			<p:outputPanel id="searchTypeOut">
-				<h:panelGrid columns="3" rowClasses="panelgrid_center_row"
+				<h:panelGrid columns="4" rowClasses="panelgrid_center_row"
 					rendered="#{searchSalesForNotificationsController.searchTypeSelected=='notificationData'}">
 					<p:fieldset legend="DATOS DE VENTA">
 						<h:panelGrid columns="2">
@@ -125,9 +129,9 @@
 									<f:selectItems
 										value="#{searchSalesForNotificationsController.notificationTypes}"></f:selectItems>
 								</p:selectOneMenu>
-								
+
 								<p:outputLabel value="Número de orden"></p:outputLabel>
-								<p:inputText 
+								<p:inputText
 									value="#{searchSalesForNotificationsController.orderNumber}"></p:inputText>
 
 								<p:outputLabel value="Fecha envío notificación"></p:outputLabel>
@@ -146,20 +150,52 @@
 						</h:panelGrid>
 					</p:fieldset>
 
+					<p:fieldset legend="UBIGEO">
+						<h:panelGrid columns="2">
+
+							<p:outputLabel value="Departamento"></p:outputLabel>
+							<p:selectOneMenu id="department"
+								value="#{searchSalesForNotificationsController.departmentSelected}">
+								<f:selectItem itemLabel="Seleccione..." itemValue="" />
+								<f:selectItems
+									value="#{searchSalesForNotificationsController.departments}"></f:selectItems>
+							</p:selectOneMenu>
+
+							<p:outputLabel value="Provincia"></p:outputLabel>
+							<p:selectManyMenu id="province" scrollHeight="10"
+								value="#{searchSalesForNotificationsController.provincesSelected}">
+								<f:selectItems
+									value="#{searchSalesForNotificationsController.provinces}"></f:selectItems>
+							</p:selectManyMenu>
+
+
+						</h:panelGrid>
+					</p:fieldset>
 
 				</h:panelGrid>
 
 			</p:outputPanel>
 
 
-			<h:panelGrid columns="7" style="text-align:center;">
+			<h:panelGrid columns="10" style="text-align:center;">
 
 				<p:commandButton icon="ui-icon-search"
 					actionListener="#{searchSalesForNotificationsController.search}"
 					value="Buscar" process="@form"
-					update=":form:searchTypeOut :form:searchTable :form:saleId :form:messages 
+					update=":form:searchTypeOut :form:searchTable :form:saleId :messages 
 						:form:notificationsButtom :form:notificationButtom :form:dataButtom :form:payersButtom :form:editNotificationButtom ">
 				</p:commandButton>
+
+				<p:commandButton value="Exportar a Txt" type="button"
+					icon="ui-icon-arrowthickstop-1-s"
+					onclick="PF('confirmDialog').show()">
+				</p:commandButton>
+
+				<p:commandButton icon="ui-icon-arrowthickstop-1-s"
+					action="#{searchSalesForNotificationsController.exportExcel}"
+					value="Exportar a Excel" process="@form" ajax="false">
+				</p:commandButton>
+
 
 				<p:spacer width="100" height="1"></p:spacer>
 
@@ -172,8 +208,9 @@
 				<p:commandButton immediate="true" icon="ui-icon-plus"
 					actionListener="#{searchSalesForNotificationsController.createVirtualNotifications}"
 					value="Crear notificaciones virtuales"
-					update=":form:searchTable :form:messages">
-					<p:confirm header="Confirmación" message="¿Está seguro?"
+					update=":form:searchTable :messages">
+					<p:confirm header="Confirmación"
+						message="¿Está seguro que desea enviar notificaciones por correo a todos responsables de la búsqueda?"
 						icon="ui-icon-alert" />
 				</p:commandButton>
 
@@ -181,25 +218,44 @@
 					value="Crear notificaciones físicas"
 					oncomplete="PF('createPhysicalsDialog').show()"
 					update=":form:searchTable :formNotifications">
-					<p:confirm header="Confirmación" message="¿Está seguro?"
+					<p:confirm header="Confirmación"
+						message="¿Está seguro que desea registrar notificaciones físicas todos responsables de la busqueda?"
 						icon="ui-icon-alert" />
 				</p:commandButton>
 
-				<p:commandButton
-					action="#{searchSalesForNotificationsController.exportTxt}"
-					value="Exportar a Txt" process="@form" ajax="false">
+				<p:commandButton id="loadNotificationsButtom" immediate="true"
+					actionListener="#{searchSalesForNotificationsController.loadNotifications}"
+					icon="ui-icon-arrowthickstop-1-n"
+					value="Cargar actualización de notificaciones" update=":messages">
+					<p:ajax event="dialogReturn" update=":messages"
+						listener="#{searchSalesForNotificationsController.afterLoadNotifications}" />
 				</p:commandButton>
-				
-				<p:commandButton
-					action="#{searchSalesForNotificationsController.exportExcel}"
-					value="Exportar a Excel" process="@form" ajax="false">
-				</p:commandButton>
+
+				<p:confirmDialog
+					message="¿Está seguro que desea descargar todas las ventas de la búsqueda?"
+					header="Confirmación" severity="alert" widgetVar="confirmDialog">
+					<p:commandButton value="Si"
+						action="#{searchSalesForNotificationsController.exportTxt}"
+						ajax="false" onclick="PF('confirmDialog').hide()" />
+					<p:commandButton value="No" onclick="PF('confirmDialog').hide();"
+						type="button" />
+				</p:confirmDialog>
+
+				<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+					<p:commandButton value="Si" type="button"
+						styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+					<p:commandButton value="No" type="button"
+						styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+				</p:confirmDialog>
+
+
+
 
 			</h:panelGrid>
 
 
 
-			<h:panelGrid >
+			<h:panelGrid>
 
 				<p:outputLabel id="saleId"
 					value="Venta seleccionada: #{searchSalesForNotificationsController.saleSelected!=null?searchSalesForNotificationsController.saleSelected.code:''}">
@@ -209,8 +265,8 @@
 
 			<h:panelGrid columns="5">
 
-				<p:commandButton id="dataButtom" immediate="true" 
-					icon="ui-icon-pencil" value="Editar datos" update=":form:messages"
+				<p:commandButton id="dataButtom" immediate="true"
+					icon="ui-icon-pencil" value="Editar datos" update=":messages"
 					actionListener="#{searchSalesForNotificationsController.editPayer}"
 					disabled="#{searchSalesForNotificationsController.saleSelected==null}">
 					<p:ajax event="dialogReturn" update=":form:searchTable"
@@ -236,16 +292,16 @@
 				<p:commandButton id="editNotificationButtom" immediate="true"
 					actionListener="#{searchSalesForNotificationsController.editNotification}"
 					icon="ui-icon-search" value="Editar notificación"
-					update=":form:messages"
+					update=":messages"
 					disabled="#{searchSalesForNotificationsController.saleSelected==null}">
-					<p:ajax event="dialogReturn" update=":form:searchTable"
+					<p:ajax event="dialogReturn" update=":form:searchTable :messages"
 						listener="#{searchSalesForNotificationsController.afterEditNotification}" />
 				</p:commandButton>
 
 				<p:commandButton id="notificationButtom" immediate="true"
 					actionListener="#{searchSalesForNotificationsController.addPhysicalNotification}"
 					icon="ui-icon-plus" value="Agregar notificación física"
-					update=":form:messages"
+					update=":messages"
 					disabled="#{searchSalesForNotificationsController.saleSelected==null}">
 					<p:ajax event="dialogReturn" update=":form:searchTable"
 						listener="#{searchSalesForNotificationsController.afterAddPhysicalNotification}" />
@@ -364,7 +420,7 @@
 					<h:outputText value="#{s.notification.correlativeNumber}">
 					</h:outputText>
 				</p:column>
-				
+
 				<p:column headerText="Motivo" width="120">
 					<h:outputText value="#{s.notification.reason}">
 					</h:outputText>
@@ -453,31 +509,30 @@
 
 
 		<p:dialog header="Crear Notificaciones físicas masivamente"
-			widgetVar="createPhysicalsDialog" showEffect="fade" hideEffect="fade"
-			width="400" height="200">
+			modal="true" widgetVar="createPhysicalsDialog" showEffect="fade"
+			hideEffect="fade" width="400" height="200">
 			<h:form id="formNotifications">
 				<h:panelGrid style="margin:auto;">
 
-					<h:panelGrid style="margin:auto;text-align:center;">
-						<p:messages id="messagesNotifications" showDetail="true"></p:messages>
-					</h:panelGrid>
 
 					<h:panelGrid columns="2">
 
-						<p:outputLabel value="Ingrese fecha de envío"></p:outputLabel>
+						<p:outputLabel value="Ingrese Fecha de Envío"></p:outputLabel>
 						<p:calendar required="true" pattern="dd/MM/yyyy" navigator="true"
-							requiredMessage="Debe ingresar fecha de envío"
+							requiredMessage="Debe ingresar Fecha de Envío"
 							value="#{searchSalesForNotificationsController.sendingAtForPhysicals}"></p:calendar>
-						<p:outputLabel value="Número de orden"></p:outputLabel>	
-						<p:inputText value="#{searchSalesForNotificationsController.orderNumberForPhysicals}"></p:inputText>
+						<p:outputLabel value="Número de Orden"></p:outputLabel>
+						<p:inputText required="true"
+							requiredMessage="Debe ingresar Número de Orden"
+							value="#{searchSalesForNotificationsController.orderNumberForPhysicals}"></p:inputText>
 
 					</h:panelGrid>
 
 					<h:panelGrid style="margin:auto;text-align:center;">
-						<p:commandButton
+						<p:commandButton process="@form"
+							onclick="PF('createPhysicalsDialog').hide()"
 							actionListener="#{searchSalesForNotificationsController.createPhysicalNotifications}"
-							update=":formNotifications:messagesNotifications :form:searchTable"
-							value="Crear">
+							update=":messages :form:searchTable" value="Crear">
 						</p:commandButton>
 					</h:panelGrid>
 				</h:panelGrid>
@@ -551,13 +606,6 @@
 				</p:outputPanel>
 			</h:form>
 		</p:dialog>
-
-		<p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
-			<p:commandButton value="Sí" type="button"
-				styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
-			<p:commandButton value="No" type="button"
-				styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
-		</p:confirmDialog>
 
 
 

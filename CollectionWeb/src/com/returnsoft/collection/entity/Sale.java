@@ -140,10 +140,10 @@ public class Sale implements Serializable{
 	
 	
 	@Column(name = "sal_physical_notifications")
-	private Short physicalNotifications;
+	private short physicalNotifications;
 	
 	@Column(name = "sal_virtual_notifications")
-	private Short virtualNotifications;
+	private short virtualNotifications;
 	
 	@OneToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "sal_not_id")
@@ -190,6 +190,53 @@ public class Sale implements Serializable{
 	@JoinColumn(name = "sal_updated_by")
 	private User updatedBy;
 	
+	public Sale(){
+		
+	}
+	
+	
+	
+
+	public Sale(Long accountNumber, Integer nuicContractor, String lastnamePaternalContractor,
+			String lastnameMaternalContractor, String firstnameContractor, Integer nuicInsured,
+			String lastnamePaternalInsured, String lastnameMaternalInsured, String firstnameInsured, Integer phone1,
+			Integer phone2, Date date, String channel, String place, String vendorCode, String vendorName,
+			String policyNumber, String certificateNumber, String proposalNumber, String productDescription,
+			String collectionType, BigDecimal insurancePremium, Date auditDate, String auditUser, String commerceCode,
+			CollectionPeriod collectionPeriod, Product product, Bank bank) {
+		super();
+		this.accountNumber = accountNumber;
+		this.nuicContractor = nuicContractor;
+		this.lastnamePaternalContractor = lastnamePaternalContractor;
+		this.lastnameMaternalContractor = lastnameMaternalContractor;
+		this.firstnameContractor = firstnameContractor;
+		this.nuicInsured = nuicInsured;
+		this.lastnamePaternalInsured = lastnamePaternalInsured;
+		this.lastnameMaternalInsured = lastnameMaternalInsured;
+		this.firstnameInsured = firstnameInsured;
+		this.phone1 = phone1;
+		this.phone2 = phone2;
+		this.date = date;
+		this.channel = channel;
+		this.place = place;
+		this.vendorCode = vendorCode;
+		this.vendorName = vendorName;
+		this.policyNumber = policyNumber;
+		this.certificateNumber = certificateNumber;
+		this.proposalNumber = proposalNumber;
+		this.productDescription = productDescription;
+		this.collectionType = collectionType;
+		this.insurancePremium = insurancePremium;
+		this.auditDate = auditDate;
+		this.auditUser = auditUser;
+		this.commerceCode = commerceCode;
+		this.collectionPeriod = collectionPeriod;
+		this.product = product;
+		this.bank = bank;
+	}
+
+
+
 
 	public Long getId() {
 		return id;
@@ -561,7 +608,7 @@ public class Sale implements Serializable{
 		return physicalNotifications;
 	}
 
-	public void setPhysicalNotifications(Short physicalNotifications) {
+	public void setPhysicalNotifications(short physicalNotifications) {
 		this.physicalNotifications = physicalNotifications;
 	}
 
@@ -569,7 +616,7 @@ public class Sale implements Serializable{
 		return virtualNotifications;
 	}
 
-	public void setVirtualNotifications(Short virtualNotifications) {
+	public void setVirtualNotifications(short virtualNotifications) {
 		this.virtualNotifications = virtualNotifications;
 	}
 

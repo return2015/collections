@@ -24,128 +24,82 @@ public class UserServiceImpl implements UserService {
 	@EJB
 	private BankEao bankEao;
 
-	
+	@Override
 	public User loginUser(String username, String password)
 			throws ServiceException {
-
-		//String[] USERTYPES = { "administrator", "collector", "agent" };
-
 		try {
-
 			User user = userEao.findByUsername(username);
-
 			if (user==null) {
 				throw new UserNotFoundException();
 			}
-			
 			if (!user.getPassword().equals(password)) {
 				throw new UserWrongPasswordException();
 			}
-			
 			if (user.getIsActive().equals(false)) {
 				throw new UserInactiveException();
 			}
-
-			/*UserType userType = userEao.findUserType(user.getId());
-			if (userType == null) {
-				throw new ServiceException("El tipo de usuario es nulo.");
-			}
-
-			if (!Arrays.asList(USERTYPES).contains(userType.getCode())) {
-				throw new ServiceException("El tipo de usuario es inválido.");
-			}
-
-			if (userType.getCode().equals(USERTYPES[0])) {
-
-			} else if (userType.getCode().equals(USERTYPES[1])) {
-
-			} else if (userType.getCode().equals(USERTYPES[2])) {
-
-			}*/
-
 			return user;
-
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());
 		}
 
 	}
 
-	
-
+	@Override
 	public List<User> find(String name)
 			throws ServiceException {
 		try {
-			List<User> users = userEao.find(name);
-
-			return users;
-
+			return userEao.find(name);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());
 		}
 	}
 
-
+	@Override
 	public void add(User user) throws ServiceException {
-
 		try {
 			userEao.add(user);
-
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());
 		}
 	}
 	
+	@Override
 	public User update(User user) throws ServiceException {
-
 		try {
-			user = userEao.update(user);
-			
-			return user;
-
+			return userEao.update(user);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());
 		}
 	}
 	
-
+	@Override
 	public User findById(Integer userId) throws ServiceException {
 		try {
-
-			User user = userEao.findById(userId);
-
-			return user;
-
+			return userEao.findById(userId);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());
 		}
 	}
-
-	
 
 }

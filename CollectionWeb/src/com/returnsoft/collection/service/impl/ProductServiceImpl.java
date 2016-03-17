@@ -16,19 +16,26 @@ public class ProductServiceImpl implements ProductService {
 	@EJB
 	private ProductEao productEao; 
 	
-	
+	@Override
 	public List<Product> getAll() throws ServiceException{
 		try {
-			
 			return productEao.getProducts();
-			
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());	
+		}
+	}
+
+	@Override
+	public Product checkIfExist(String code){
+		try {
+			return productEao.ckeckIfExist(code);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;	
 		}
 	}
 

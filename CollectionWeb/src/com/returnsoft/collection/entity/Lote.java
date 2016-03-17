@@ -42,12 +42,14 @@ public class Lote implements Serializable{
 	@Column(name = "lot_process")
 	private Integer process;
 	
+	@Column(name = "lot_errors")
+	private Integer errors;
+	
 	@Column(name = "lot_state")
 	private String state;
 	
-	/*@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "lot_date")
-	private Date date;*/
+	@Column(name = "lot_messages")
+	private String messages;
 	
 	@Column(name = "lot_type_id")
 	@Convert(converter = LoteTypeConverter.class)
@@ -61,7 +63,18 @@ public class Lote implements Serializable{
 	@Column(name = "lot_created_at")
 	private Date createdAt;
 	
-
+	public Lote(){
+		
+	}
+	
+	public Lote(String name,Integer total,String state,LoteTypeEnum loteType,User createdBy,Date createdAt){
+		this.name=name;
+		this.total=total;
+		this.state=state;
+		this.loteType=loteType;
+		this.createdAt=createdAt;
+		this.createdBy=createdBy;
+	}
 	
 
 	public Integer getId() {
@@ -126,6 +139,22 @@ public class Lote implements Serializable{
 
 	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public Integer getErrors() {
+		return errors;
+	}
+
+	public void setErrors(Integer errors) {
+		this.errors = errors;
+	}
+
+	public String getMessages() {
+		return messages;
+	}
+
+	public void setMessages(String messages) {
+		this.messages = messages;
 	}
 
 	

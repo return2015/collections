@@ -71,6 +71,25 @@ public class SaleState implements Serializable {
 	@JoinColumn(name = "salsta_updated_by")
 	private User updatedBy;
 	
+	
+	
+
+	public SaleState() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public SaleState(SaleStateEnum state, Date date, String user, String channel, String reason, String observation,
+			Sale sale) {
+		super();
+		this.state = state;
+		this.date = date;
+		this.user = user;
+		this.channel = channel;
+		this.reason = reason;
+		this.observation = observation;
+		this.sale = sale;
+	}
 
 	public Long getId() {
 		return id;

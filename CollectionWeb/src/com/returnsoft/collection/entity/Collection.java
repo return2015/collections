@@ -18,7 +18,9 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.returnsoft.collection.converter.CollectionResponseConverter;
+import com.returnsoft.collection.converter.MoneyTypeConverter;
 import com.returnsoft.collection.enumeration.CollectionResponseEnum;
+import com.returnsoft.collection.enumeration.MoneyTypeEnum;
 
 @Entity
 @Table(name = "collection")
@@ -47,9 +49,9 @@ public class Collection implements Serializable{
 	@Column(name = "col_estimated_date")
 	private Date estimatedDate;
 	
-	@Temporal(TemporalType.TIMESTAMP)
+	/*@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "col_authorization_date")
-	private Date authorizationDate;
+	private Date authorizationDate;*/
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "col_deposit_date")
@@ -77,8 +79,12 @@ public class Collection implements Serializable{
 	@Column(name = "col_channel")
 	private String channel;
 	
-	@Column(name = "col_reason")
-	private String reason;
+	@Column(name = "col_money_type_id")
+	@Convert(converter=MoneyTypeConverter.class)
+	private MoneyTypeEnum moneyType;
+	
+	/*@Column(name = "col_reason")
+	private String reason;*/
 	
 	///////////////////
 	
@@ -95,12 +101,41 @@ public class Collection implements Serializable{
 	private Sale sale;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "col_paymet_id")
+	@JoinColumn(name = "col_payment_id")
 	private PaymentMethod paymentMethod;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "col_lot_id")
 	private Lote lote;
+	
+	
+
+	public Collection() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Collection(BigDecimal maximumAmount, BigDecimal chargeAmount, 
+			Date estimatedDate, Date depositDate, Short responseCode, Integer authorizationCode,
+			CollectionResponseEnum responseMessage, String action, String transactionState, Integer loteNumber,
+			String channel, MoneyTypeEnum moneyType,Sale sale, PaymentMethod paymentMethod) {
+		super();
+		this.maximumAmount = maximumAmount;
+		this.chargeAmount = chargeAmount;
+		this.estimatedDate = estimatedDate;
+		this.depositDate = depositDate;
+		this.responseCode = responseCode;
+		this.authorizationCode = authorizationCode;
+		this.responseMessage = responseMessage;
+		this.action = action;
+		this.transactionState = transactionState;
+		this.loteNumber = loteNumber;
+		this.channel = channel;
+		this.moneyType = moneyType;
+		
+		this.sale = sale;
+		this.paymentMethod = paymentMethod;
+	}
 
 	public Long getId() {
 		return id;
@@ -147,12 +182,13 @@ public class Collection implements Serializable{
 		this.estimatedDate = estimatedDate;
 	}
 
-	public Date getAuthorizationDate() {
-		return authorizationDate;
+	
+	public MoneyTypeEnum getMoneyType() {
+		return moneyType;
 	}
 
-	public void setAuthorizationDate(Date authorizationDate) {
-		this.authorizationDate = authorizationDate;
+	public void setMoneyType(MoneyTypeEnum moneyType) {
+		this.moneyType = moneyType;
 	}
 
 	public Date getDepositDate() {
@@ -267,14 +303,7 @@ public class Collection implements Serializable{
 		this.lote = lote;
 	}
 
-	public String getReason() {
-		return reason;
-	}
-
-	public void setReason(String reason) {
-		this.reason = reason;
-	}
-
+	
 	
 	
 	

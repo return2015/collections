@@ -7,8 +7,6 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -77,6 +75,26 @@ public class CreditCard implements Serializable{
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "crecar_updated_by")
 	private User updatedBy;
+	
+	
+
+
+	public CreditCard() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
+	public CreditCard(Long number, Date expirationDate, String state, Integer daysOfDefault,
+			 Sale sale, Date date) {
+		super();
+		this.number = number;
+		this.expirationDate = expirationDate;
+		this.state = state;
+		this.daysOfDefault = daysOfDefault;
+		this.sale = sale;
+		this.date = date;
+	}
 
 
 	public Long getId() {

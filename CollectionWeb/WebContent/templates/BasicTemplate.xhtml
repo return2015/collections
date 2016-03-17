@@ -39,10 +39,8 @@
 
 			<p:menuitem value="Ventas" outcome="search_sales" icon="ui-icon-star" />
 
-			<p:menuitem value="Cobranzas" outcome="search_sales_for_collections"
-				icon="ui-icon-star" />
-
-
+			<p:menuitem value="Cobranzas"
+				outcome="search_collections" icon="ui-icon-star" />
 
 			<p:menuitem value="Notificaciones"
 				outcome="search_sales_for_notifications" icon="ui-icon-star" />
@@ -52,14 +50,42 @@
 			<p:menuitem value="Usuarios" outcome="search_user"
 				rendered="#{sessionBean.isAdmin}" icon="ui-icon-star" />
 
-			<p:menuitem value="Seleccionar banco" outcome="select_bank"
-				icon="ui-icon-star" />
+			<p:menuitem value="Seleccionar banco"
+				onclick="PF('bankDialog').show()" icon="ui-icon-star" />
 
 			<p:menuitem value="Salir" action="#{loginController.doLogout}"
 				icon="ui-icon-star" />
 
 		</p:menubar>
+
+		<p:dialog header="Seleccione banco" widgetVar="bankDialog" modal="true" >
+
+			<h:panelGrid style="margin:auto;">
+				<h:panelGrid columns="2">
+					<p:outputLabel value="Banco"></p:outputLabel>
+					<p:selectOneMenu id="banks"
+						value="#{selectBankController.bankSelected}" required="true"
+						requiredMessage="Debe seleccionar banco">
+						<f:selectItem itemValue="" itemLabel="Seleccione..."></f:selectItem>
+						<f:selectItems value="#{selectBankController.banks}"></f:selectItems>
+					</p:selectOneMenu>
+				</h:panelGrid>
+				<h:panelGrid style="margin:auto;text-align:center;">
+					<p:commandButton icon="ui-icon-search" process="@form"
+						update=":pnl-bank" onclick="PF('bankDialog').hide();"
+						actionListener="#{selectBankController.selectBank}"
+						value="Seleccionar">
+					</p:commandButton>
+				</h:panelGrid>
+			</h:panelGrid>
+
+		</p:dialog>
+
 	</h:form>
+
+
+
+
 
 	<ui:insert name="content">
 	</ui:insert>

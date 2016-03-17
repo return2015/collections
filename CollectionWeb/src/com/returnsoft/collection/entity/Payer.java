@@ -7,8 +7,6 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -87,6 +85,37 @@ public class Payer implements Serializable{
 	private Sale sale;
 	
 	
+	
+	
+	
+	
+
+	public Payer() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
+	public Payer(DocumentTypeEnum documentType, Long nuicResponsible, String lastnamePaternalResponsible,
+			String lastnameMaternalResponsible, String firstnameResponsible, String mail, String department,
+			String province, String district, String address, Sale sale) {
+		super();
+		this.documentType = documentType;
+		this.nuicResponsible = nuicResponsible;
+		this.lastnamePaternalResponsible = lastnamePaternalResponsible;
+		this.lastnameMaternalResponsible = lastnameMaternalResponsible;
+		this.firstnameResponsible = firstnameResponsible;
+		this.mail = mail;
+		this.department = department;
+		this.province = province;
+		this.district = district;
+		this.address = address;
+		this.sale = sale;
+	}
+
+
+
+
 
 	public Long getId() {
 		return id;

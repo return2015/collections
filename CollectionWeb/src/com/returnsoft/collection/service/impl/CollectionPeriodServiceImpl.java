@@ -19,36 +19,39 @@ public class CollectionPeriodServiceImpl implements CollectionPeriodService {
 	@EJB
 	private CollectionPeriodEao collectionPeriodEao;
 	
+	@Override
 	public List<CollectionPeriod> getAll() throws ServiceException{
 		try {
-			
 			return collectionPeriodEao.getAll();
-			
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());	
 		}
 	}
 	
-	
+	@Override
 	public CollectionPeriod findById(Short collectionPeriodId) throws ServiceException {
 		try {
-
-			CollectionPeriod collectionPeriod = collectionPeriodEao.findById(collectionPeriodId);
-
-			return collectionPeriod;
-
+			return collectionPeriodEao.findById(collectionPeriodId);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
 		} catch (Exception e) {
 			e.printStackTrace();
-			if (e.getMessage()!=null && e.getMessage().trim().length()>0) {
-				throw new ServiceException(e.getMessage(), e);	
-			}else{
-				throw new ServiceException();
-			}
+			throw new ServiceException(e.getMessage());	
+		}
+	}
+
+	@Override
+	public short checkIfExist(String name){
+		try {
+			return collectionPeriodEao.ckeckIfExist(name);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;	
 		}
 	}
 	

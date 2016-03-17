@@ -66,16 +66,16 @@ public class SearchSalesController implements Serializable {
 
 	@EJB
 	private SaleService saleService;
-	
-	//@EJB
-	//private SaleServiceBackground saleServiceBackground;
+
+	// @EJB
+	// private SaleServiceBackground saleServiceBackground;
 
 	@EJB
 	private UserService userService;
 
 	@Inject
 	private FacesUtil facesUtil;
-	
+
 	@Inject
 	private SessionBean sessionBean;
 
@@ -113,224 +113,177 @@ public class SearchSalesController implements Serializable {
 	private List<SelectItem> saleStates;
 	private String saleStateSelected;
 
-	/*private Boolean searchByCreditCardNumberRendered;
-	private Boolean searchByDocumentNumberResponsibleRendered;
-	private Boolean searchByNamesRendered;
-	private Boolean searchByDateSaleRendered;
+	/*
+	 * private Boolean searchByCreditCardNumberRendered; private Boolean
+	 * searchByDocumentNumberResponsibleRendered; private Boolean
+	 * searchByNamesRendered; private Boolean searchByDateSaleRendered;
+	 * 
+	 * private Boolean searchByContractorRendered; private Boolean
+	 * searchByInsuredRendered; private Boolean searchByResponsibleRendered;
+	 */
 
-	private Boolean searchByContractorRendered;
-	private Boolean searchByInsuredRendered;
-	private Boolean searchByResponsibleRendered;*/
-
-	//private List<Sale> sales;
+	// private List<Sale> sales;
 	private Sale saleSelected;
-	//private Integer salesCount;
+	// private Integer salesCount;
 
 	///////
 	// CREAR VENTAS
 
 	private UploadedFile file;
-	//private String filename;
-	//private Integer FILE_ROWS = 49;
+	// private String filename;
+	// private Integer FILE_ROWS = 49;
 
-	//private List<String> errors;
-	//private SaleFile headers;
-	//private List<SaleFile> dataList;
-	//private Integer salesFileCount;
+	// private List<String> errors;
+	// private SaleFile headers;
+	// private List<SaleFile> dataList;
+	// private Integer salesFileCount;
 
-	//private Integer progress;
-	
-	//private Future<Integer> loadStatus;
-	
+	// private Integer progress;
+
+	// private Future<Integer> loadStatus;
+
 	private List<SelectItem> personTypes;
-	
+
 	private List<SelectItem> searchTypes;
-	
-	
+
 	private LazyDataModel<Sale> sales;
-	
 
 	////////////////////////////
 	///////////////////
 
 	public SearchSalesController() {
 		System.out.println("Se construye SearchSaleController");
-		//searchByNamesRendered=true;
-		//facesUtil = new FacesUtil();
-		/*sales = new LazyDataModel<Sale>() {
+		// searchByNamesRendered=true;
+		// facesUtil = new FacesUtil();
+		/*
+		 * sales = new LazyDataModel<Sale>() {
+		 * 
+		 * private static final long serialVersionUID = 1636739105248691317L;
+		 * 
+		 * @Override public int getPageSize() { // TODO Auto-generated method
+		 * stub return super.getPageSize(); }
+		 * 
+		 * @Override public int getRowCount() { // TODO Auto-generated method
+		 * stub return super.getRowCount(); }
+		 * 
+		 * @Override public Sale getRowData() { // TODO Auto-generated method
+		 * stub return super.getRowData(); }
+		 * 
+		 * @Override public Sale getRowData(String rowKey) { // TODO
+		 * Auto-generated method stub return super.getRowData(rowKey); }
+		 * 
+		 * @Override public int getRowIndex() { // TODO Auto-generated method
+		 * stub return super.getRowIndex(); }
+		 * 
+		 * @Override public Object getRowKey(Sale object) { // TODO
+		 * Auto-generated method stub return super.getRowKey(object); }
+		 * 
+		 * @Override public Object getWrappedData() { // TODO Auto-generated
+		 * method stub return super.getWrappedData(); }
+		 * 
+		 * @Override public boolean isRowAvailable() { // TODO Auto-generated
+		 * method stub return super.isRowAvailable(); }
+		 * 
+		 * @Override public List<Sale> load(int first, int pageSize,
+		 * List<SortMeta> multiSortMeta, Map<String, Object> filters) { // TODO
+		 * Auto-generated method stub return new ArrayList<Sale>(); }
+		 * 
+		 * @Override public List<Sale> load(int first, int pageSize, String
+		 * sortField, SortOrder sortOrder, Map<String, Object> filters) { //
+		 * TODO Auto-generated method stub return new ArrayList<Sale>(); }
+		 * 
+		 * @Override public void setPageSize(int pageSize) { // TODO
+		 * Auto-generated method stub super.setPageSize(pageSize); }
+		 * 
+		 * @Override public void setRowCount(int rowCount) { // TODO
+		 * Auto-generated method stub super.setRowCount(rowCount); }
+		 * 
+		 * @Override public void setRowIndex(int arg0) { // TODO Auto-generated
+		 * method stub super.setRowIndex(arg0); }
+		 * 
+		 * @Override public void setWrappedData(Object list) { // TODO
+		 * Auto-generated method stub super.setWrappedData(list); }
+		 * 
+		 * 
+		 * };
+		 */
 
-			private static final long serialVersionUID = 1636739105248691317L;
-
-			@Override
-			public int getPageSize() {
-				// TODO Auto-generated method stub
-				return super.getPageSize();
-			}
-
-			@Override
-			public int getRowCount() {
-				// TODO Auto-generated method stub
-				return super.getRowCount();
-			}
-
-			@Override
-			public Sale getRowData() {
-				// TODO Auto-generated method stub
-				return super.getRowData();
-			}
-
-			@Override
-			public Sale getRowData(String rowKey) {
-				// TODO Auto-generated method stub
-				return super.getRowData(rowKey);
-			}
-
-			@Override
-			public int getRowIndex() {
-				// TODO Auto-generated method stub
-				return super.getRowIndex();
-			}
-
-			@Override
-			public Object getRowKey(Sale object) {
-				// TODO Auto-generated method stub
-				return super.getRowKey(object);
-			}
-
-			@Override
-			public Object getWrappedData() {
-				// TODO Auto-generated method stub
-				return super.getWrappedData();
-			}
-
-			@Override
-			public boolean isRowAvailable() {
-				// TODO Auto-generated method stub
-				return super.isRowAvailable();
-			}
-
-			@Override
-			public List<Sale> load(int first, int pageSize, List<SortMeta> multiSortMeta, Map<String, Object> filters) {
-				// TODO Auto-generated method stub
-				return new ArrayList<Sale>();
-			}
-
-			@Override
-			public List<Sale> load(int first, int pageSize, String sortField, SortOrder sortOrder,
-					Map<String, Object> filters) {
-				// TODO Auto-generated method stub
-				return new ArrayList<Sale>();
-			}
-
-			@Override
-			public void setPageSize(int pageSize) {
-				// TODO Auto-generated method stub
-				super.setPageSize(pageSize);
-			}
-
-			@Override
-			public void setRowCount(int rowCount) {
-				// TODO Auto-generated method stub
-				super.setRowCount(rowCount);
-			}
-
-			@Override
-			public void setRowIndex(int arg0) {
-				// TODO Auto-generated method stub
-				super.setRowIndex(arg0);
-			}
-
-			@Override
-			public void setWrappedData(Object list) {
-				// TODO Auto-generated method stub
-				super.setWrappedData(list);
-			}
-			
-			
-		};*/
-		
-		
 	}
 
 	public String initialize() {
 
-		//System.out.println("initialize");
-		
-		/*if (searchTypeSelected==null) {
-			System.out.println("search es nullo");
-		}else{
-			System.out.println("search "+searchTypeSelected);
-			onChangeSearchType();
-		}
-		
-		if (personTypeSelected==null) {
-			System.out.println("person es nullo");
-		}else{
-			System.out.println("person "+personTypeSelected);
-			onChangePersonType();
-		}*/
-		
-		//System.out.println(searchTypeSelected);
-		//System.out.println(personTypeSelected);
-		
-		/*if (("personalData").equals(searchTypeSelected)) {
-			
-		}*/
+		// System.out.println("initialize");
+
+		/*
+		 * if (searchTypeSelected==null) { System.out.println("search es nullo"
+		 * ); }else{ System.out.println("search "+searchTypeSelected);
+		 * onChangeSearchType(); }
+		 * 
+		 * if (personTypeSelected==null) { System.out.println("person es nullo"
+		 * ); }else{ System.out.println("person "+personTypeSelected);
+		 * onChangePersonType(); }
+		 */
+
+		// System.out.println(searchTypeSelected);
+		// System.out.println(personTypeSelected);
+
+		/*
+		 * if (("personalData").equals(searchTypeSelected)) {
+		 * 
+		 * }
+		 */
 
 		try {
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
 				throw new UserLoggedNotFoundException();
 			}
-			
-			
-				personTypes = new ArrayList<SelectItem>();
-				SelectItem pt1 = new SelectItem("responsible","Responsable");
-				SelectItem pt2 = new SelectItem("insured","Asegurado");
-				SelectItem pt3 = new SelectItem("contractor","Contratante");
-				personTypes.add(pt1);
-				personTypes.add(pt2);
-				personTypes.add(pt3);
-				
-				searchTypes = new ArrayList<SelectItem>();
-				SelectItem st1 = new SelectItem("creditCard","Tarjeta Crédito");
-				SelectItem st2 = new SelectItem("dni","DNI");
-				SelectItem st3 = new SelectItem("saleData","Datos Venta");
-				SelectItem st4 = new SelectItem("personalData","Datos Persona");
-				searchTypes.add(st1);
-				searchTypes.add(st2);
-				searchTypes.add(st3);
-				searchTypes.add(st4);
-				
-				List<Bank> banksEntity = bankService.getAll();
-				banks = new ArrayList<SelectItem>();
-				for (Bank bank : banksEntity) {
-					SelectItem item = new SelectItem();
-					item.setValue(bank.getId().toString());
-					item.setLabel(bank.getName());
-					banks.add(item);
-				}
 
-				List<Product> productsEntity = productService.getAll();
-				products = new ArrayList<SelectItem>();
-				for (Product product : productsEntity) {
-					SelectItem item = new SelectItem();
-					item.setValue(product.getId().toString());
-					item.setLabel(product.getName());
-					products.add(item);
-				}
+			personTypes = new ArrayList<SelectItem>();
+			SelectItem pt1 = new SelectItem("responsible", "Responsable");
+			SelectItem pt2 = new SelectItem("insured", "Asegurado");
+			SelectItem pt3 = new SelectItem("contractor", "Contratante");
+			personTypes.add(pt1);
+			personTypes.add(pt2);
+			personTypes.add(pt3);
 
-				saleStates = new ArrayList<SelectItem>();
-				for (SaleStateEnum saleStateEnum : SaleStateEnum.values()) {
-					SelectItem item = new SelectItem();
-					item.setValue(saleStateEnum.getId());
-					item.setLabel(saleStateEnum.getName());
-					saleStates.add(item);
-				}
-				
-				searchTypeSelected="saleData";
-				
-				
-			
+			searchTypes = new ArrayList<SelectItem>();
+			SelectItem st1 = new SelectItem("creditCard", "Tarjeta Crédito");
+			SelectItem st2 = new SelectItem("dni", "DNI");
+			SelectItem st3 = new SelectItem("saleData", "Datos Venta");
+			SelectItem st4 = new SelectItem("personalData", "Datos Persona");
+			searchTypes.add(st1);
+			searchTypes.add(st2);
+			searchTypes.add(st3);
+			searchTypes.add(st4);
+
+			List<Bank> banksEntity = bankService.getAll();
+			banks = new ArrayList<SelectItem>();
+			for (Bank bank : banksEntity) {
+				SelectItem item = new SelectItem();
+				item.setValue(bank.getId().toString());
+				item.setLabel(bank.getName());
+				banks.add(item);
+			}
+
+			List<Product> productsEntity = productService.getAll();
+			products = new ArrayList<SelectItem>();
+			for (Product product : productsEntity) {
+				SelectItem item = new SelectItem();
+				item.setValue(product.getId().toString());
+				item.setLabel(product.getName());
+				products.add(item);
+			}
+
+			saleStates = new ArrayList<SelectItem>();
+			for (SaleStateEnum saleStateEnum : SaleStateEnum.values()) {
+				SelectItem item = new SelectItem();
+				item.setValue(saleStateEnum.getId());
+				item.setLabel(saleStateEnum.getName());
+				saleStates.add(item);
+			}
+
+			searchTypeSelected = "saleData";
+
 			return null;
 		} catch (UserLoggedNotFoundException e) {
 			e.printStackTrace();
@@ -343,13 +296,6 @@ public class SearchSalesController implements Serializable {
 		}
 
 	}
-	
-		
-		
-		
-		
-		
-
 
 	/*
 	 * private String getFilename(Part part) { for (String cd :
@@ -368,192 +314,174 @@ public class SearchSalesController implements Serializable {
 	 * + file.getHeader("Content-Disposition"));
 	 */
 
-	/*public void onChangeSearchType() {
+	/*
+	 * public void onChangeSearchType() { try {
+	 * 
+	 * // if (fromRequest) { //searchTypeSelected =
+	 * FacesContext.getCurrentInstance().getExternalContext().
+	 * getRequestParameterMap() // .get("form:searchType_input"); // }
+	 * 
+	 * System.out.println("onChangeSearchType");
+	 * System.out.println("onChangeSearchType:" + searchTypeSelected);
+	 * 
+	 * 
+	 * 
+	 * searchByContractorRendered = false; searchByInsuredRendered = false;
+	 * searchByResponsibleRendered = false; //personTypeSelected = "";
+	 * 
+	 * if (("creditCard").equals(searchTypeSelected)) {
+	 * searchByCreditCardNumberRendered = true;
+	 * searchByDocumentNumberResponsibleRendered = false; searchByNamesRendered
+	 * = false; searchByDateSaleRendered = false; } else if
+	 * (("dni").equals(searchTypeSelected)) { searchByCreditCardNumberRendered =
+	 * false; searchByDocumentNumberResponsibleRendered = true;
+	 * searchByNamesRendered = false; searchByDateSaleRendered = false; } else
+	 * if (("saleData").equals(searchTypeSelected)) {
+	 * searchByCreditCardNumberRendered = false;
+	 * searchByDocumentNumberResponsibleRendered = false; searchByNamesRendered
+	 * = false; searchByDateSaleRendered = true; } else if
+	 * (("personalData").equals(searchTypeSelected)) {
+	 * searchByCreditCardNumberRendered = false;
+	 * searchByDocumentNumberResponsibleRendered = false; searchByNamesRendered
+	 * = true; searchByDateSaleRendered = false; } else {
+	 * searchByCreditCardNumberRendered = false;
+	 * searchByDocumentNumberResponsibleRendered = false; searchByNamesRendered
+	 * = false; searchByDateSaleRendered = false; } } catch (Exception e) {
+	 * e.printStackTrace(); facesUtil.sendErrorMessage( e.getMessage()); } }
+	 */
+
+	/*
+	 * public void metodo(ComponentSystemEvent e){ System.out.println(
+	 * "ingreso a metodo"); }
+	 */
+
+	/*
+	 * public void onChangePersonType(){ try { // if (fromRequest) {
+	 * //personTypeSelected =
+	 * FacesContext.getCurrentInstance().getExternalContext().
+	 * getRequestParameterMap() // .get("form:personType_input"); // }
+	 * 
+	 * System.out.println("onChangePersonType");
+	 * 
+	 * //onChangeSearchType();
+	 * 
+	 * 
+	 * System.out.println("onChangePersonType:" + personTypeSelected); if
+	 * (("contractor").equals(personTypeSelected)) { searchByContractorRendered
+	 * = true; searchByInsuredRendered = false; searchByResponsibleRendered =
+	 * false; } else if (("insured").equals(personTypeSelected)) {
+	 * searchByContractorRendered = false; searchByInsuredRendered = true;
+	 * searchByResponsibleRendered = false; } else if
+	 * (("responsible").equals(personTypeSelected)) { searchByContractorRendered
+	 * = false; searchByInsuredRendered = false; searchByResponsibleRendered =
+	 * true; } else { searchByContractorRendered = false;
+	 * searchByInsuredRendered = false; searchByResponsibleRendered = false; } }
+	 * catch (Exception e) { e.printStackTrace();
+	 * facesUtil.sendErrorMessage(e.getMessage()); } }
+	 */
+
+	public void loadSales() {
 		try {
-			
-			// if (fromRequest) {
-			//searchTypeSelected = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap()
-			//		.get("form:searchType_input");
-			// }
 
-			System.out.println("onChangeSearchType");
-			System.out.println("onChangeSearchType:" + searchTypeSelected);
-			
-			
+			System.out.println("loadSales");
 
-			searchByContractorRendered = false;
-			searchByInsuredRendered = false;
-			searchByResponsibleRendered = false;
-			//personTypeSelected = "";
-
-			if (("creditCard").equals(searchTypeSelected)) {
-				searchByCreditCardNumberRendered = true;
-				searchByDocumentNumberResponsibleRendered = false;
-				searchByNamesRendered = false;
-				searchByDateSaleRendered = false;
-			} else if (("dni").equals(searchTypeSelected)) {
-				searchByCreditCardNumberRendered = false;
-				searchByDocumentNumberResponsibleRendered = true;
-				searchByNamesRendered = false;
-				searchByDateSaleRendered = false;
-			} else if (("saleData").equals(searchTypeSelected)) {
-				searchByCreditCardNumberRendered = false;
-				searchByDocumentNumberResponsibleRendered = false;
-				searchByNamesRendered = false;
-				searchByDateSaleRendered = true;
-			} else if (("personalData").equals(searchTypeSelected)) {
-				searchByCreditCardNumberRendered = false;
-				searchByDocumentNumberResponsibleRendered = false;
-				searchByNamesRendered = true;
-				searchByDateSaleRendered = false;
-			} else {
-				searchByCreditCardNumberRendered = false;
-				searchByDocumentNumberResponsibleRendered = false;
-				searchByNamesRendered = false;
-				searchByDateSaleRendered = false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage( e.getMessage());
-		}
-	}*/
-	
-	/*public void metodo(ComponentSystemEvent e){
-		System.out.println("ingreso a metodo");
-	}*/
-	
-
-	/*public void onChangePersonType(){
-		try {
-			// if (fromRequest) {
-			//personTypeSelected = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap()
-			//		.get("form:personType_input");
-			// }
-			
-			System.out.println("onChangePersonType");
-			
-			//onChangeSearchType();
-			
-
-			System.out.println("onChangePersonType:" + personTypeSelected);
-			if (("contractor").equals(personTypeSelected)) {
-				searchByContractorRendered = true;
-				searchByInsuredRendered = false;
-				searchByResponsibleRendered = false;
-			} else if (("insured").equals(personTypeSelected)) {
-				searchByContractorRendered = false;
-				searchByInsuredRendered = true;
-				searchByResponsibleRendered = false;
-			} else if (("responsible").equals(personTypeSelected)) {
-				searchByContractorRendered = false;
-				searchByInsuredRendered = false;
-				searchByResponsibleRendered = true;
-			} else {
-				searchByContractorRendered = false;
-				searchByInsuredRendered = false;
-				searchByResponsibleRendered = false;
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getMessage());
-		}
-	}*/
-	
-	public void loadSales(){
-		try {
-			
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
 				throw new UserLoggedNotFoundException();
 			}
 			Map<String, Object> options = new HashMap<String, Object>();
-			options.put("modal", false);
+			options.put("modal", true);
 			options.put("draggable", true);
 			options.put("resizable", false);
-			options.put("contentHeight", 300);
-			options.put("contentWidth", 400);
+			options.put("contentHeight", 200);
+			options.put("contentWidth", 500);
 
-			//Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
-			//ArrayList<String> paramList = new ArrayList<>();
-			//paramList.add(String.valueOf(saleSelected.getNotification().getId()));
-			//paramMap.put("notificationId", paramList);
+			// Map<String, List<String>> paramMap = new HashMap<String,
+			// List<String>>();
+			// ArrayList<String> paramList = new ArrayList<>();
+			// paramList.add(String.valueOf(saleSelected.getNotification().getId()));
+			// paramMap.put("notificationId", paramList);
 			RequestContext.getCurrentInstance().openDialog("load_sales", options, null);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getMessage());
 		}
 	}
-	
-	public void afterLoadSales(SelectEvent event){
+
+	public void afterLoadSales(SelectEvent event) {
 		try {
-			
+
+			System.out.println("afterLoadSales");
+
 			Exception exceptionReturn = (Exception) event.getObject();
-			
-			if (exceptionReturn!=null) {
+			if (exceptionReturn != null) {
 				if (exceptionReturn instanceof MultipleErrorsException) {
-					for (Exception err : ((MultipleErrorsException)exceptionReturn).getErrors()) {
+					for (Exception err : ((MultipleErrorsException) exceptionReturn).getErrors()) {
 						facesUtil.sendErrorMessage(err.getMessage());
 					}
-				}else if(exceptionReturn instanceof NullPointerException){
+				} else if (exceptionReturn instanceof NullPointerException) {
 					facesUtil.sendErrorMessage("Existen valores nulos.");
-				}else{
+				} else {
 					facesUtil.sendErrorMessage(exceptionReturn.getMessage());
-				}	
-			}else{
+				}
+			} else {
 				facesUtil.sendConfirmMessage("Se creó el lote satisfactorimente.");
 			}
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getMessage());
 		}
 	}
-	
-	
-	public void loadSaleStates(){
+
+	public void loadSaleStates() {
 		try {
-			
+
+			System.out.println("loadSaleStates");
+
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
 				throw new UserLoggedNotFoundException();
 			}
 			Map<String, Object> options = new HashMap<String, Object>();
-			options.put("modal", false);
+			options.put("modal", true);
 			options.put("draggable", true);
 			options.put("resizable", false);
-			options.put("contentHeight", 300);
-			options.put("contentWidth", 400);
+			options.put("contentHeight", 200);
+			options.put("contentWidth", 500);
 
-			//Map<String, List<String>> paramMap = new HashMap<String, List<String>>();
-			//ArrayList<String> paramList = new ArrayList<>();
-			//paramList.add(String.valueOf(saleSelected.getNotification().getId()));
-			//paramMap.put("notificationId", paramList);
+			// Map<String, List<String>> paramMap = new HashMap<String,
+			// List<String>>();
+			// ArrayList<String> paramList = new ArrayList<>();
+			// paramList.add(String.valueOf(saleSelected.getNotification().getId()));
+			// paramMap.put("notificationId", paramList);
 			RequestContext.getCurrentInstance().openDialog("load_sale_states", options, null);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getMessage());
 		}
 	}
-	
-	public void afterLoadSaleStates(SelectEvent event){
+
+	public void afterLoadSaleStates(SelectEvent event) {
 		try {
-			
+
+			System.out.println("afterLoadSaleStates");
+
 			Exception exceptionReturn = (Exception) event.getObject();
-			
-			if (exceptionReturn!=null) {
+			if (exceptionReturn != null) {
 				if (exceptionReturn instanceof MultipleErrorsException) {
-					for (Exception err : ((MultipleErrorsException)exceptionReturn).getErrors()) {
+					for (Exception err : ((MultipleErrorsException) exceptionReturn).getErrors()) {
 						facesUtil.sendErrorMessage(err.getMessage());
 					}
-				}else if(exceptionReturn instanceof NullPointerException){
+				} else if (exceptionReturn instanceof NullPointerException) {
 					facesUtil.sendErrorMessage("Existen valores nulos.");
-				}else{
+				} else {
 					facesUtil.sendErrorMessage(exceptionReturn.getMessage());
-				}	
-			}else{
+				}
+			} else {
 				facesUtil.sendConfirmMessage("Se creó el lote satisfactorimente.");
 			}
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getMessage());
@@ -563,7 +491,7 @@ public class SearchSalesController implements Serializable {
 	public void search() {
 
 		try {
-			
+
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
 				throw new UserLoggedNotFoundException();
 			}
@@ -572,53 +500,72 @@ public class SearchSalesController implements Serializable {
 
 			if (searchTypeSelected.equals("creditCard")) {
 				Long creditCardNumberLong = Long.parseLong(creditCardNumber);
-				//sales = saleService.findSalesByCreditCardNumber(creditCardNumberLong);
+				// sales =
+				// saleService.findSalesByCreditCardNumber(creditCardNumberLong);
 				System.out.println("Se inicia la busqueda XXX");
-				
+
 				sales = new SaleLazyModel(saleService, searchTypeSelected, creditCardNumberLong);
-				
+
 				System.out.println("Se termina la busqueda XXX");
-				
+
 			} else if (searchTypeSelected.equals("dni")) {
 				Long nuicResponsibleLong = Long.parseLong(nuicResponsible);
-				//sales = saleService.findSalesByNuicResponsible(nuicResponsibleLong);
+				// sales =
+				// saleService.findSalesByNuicResponsible(nuicResponsibleLong);
 
 				System.out.println("Se inicia la busqueda XXX");
-			
+
 				sales = new SaleLazyModel(saleService, searchTypeSelected, nuicResponsibleLong);
-				
+
 				System.out.println("Se termina la busqueda XXX");
-				
+
 			} else if (searchTypeSelected.equals("saleData")) {
-				//System.out.println(""+dateOfSaleStarted);
-				//System.out.println(""+dateOfSaleEnded);
+				
+				System.out.println("Ingreso a buscar por datos de venta.");
+				// System.out.println(""+dateOfSaleStarted);
+				// System.out.println(""+dateOfSaleEnded);
 				final short productId;
-				//System.out.println(productSelected);
+				// System.out.println(productSelected);
 				if (productSelected != null && productSelected.length() > 0) {
 					productId = Short.parseShort(productSelected);
-				}else{
-					productId=0;
+				} else {
+					productId = 0;
 				}
 				final short bankId;
-				//System.out.println(bankSelected);
+				// System.out.println(bankSelected);
 				if (bankSelected != null && bankSelected.length() > 0) {
 					bankId = Short.parseShort(bankSelected);
-				}else{
+				} else {
 					bankId = 0;
 				}
 				final SaleStateEnum saleState;
 				if (saleStateSelected != null && saleStateSelected.length() > 0) {
 					saleState = SaleStateEnum.findById(Short.parseShort(saleStateSelected));
+				} else {
+					saleState = null;
+				}
+
+				System.out.println("Se inicia la busqueda XXX");
+
+				sales = new SaleLazyModel(saleService, dateOfSaleStarted, dateOfSaleEnded, bankId, productId,
+						saleState);
+				
+				System.out.println("Termino busqueda");
+				
+				if (sales!=null) {
+					if (sales.getWrappedData()!=null) {
+						System.out.println("cantidad de ventas en el controller: "+((List<Sale>)sales.getWrappedData()).size());	
+					}else{
+					System.out.println("wrapped data es nulo");
+					}
+						
 				}else{
-					saleState=null;
+					System.out.println("sales es nulo");
 				}
 				
-				//System.out.println("Se inicia la busqueda XXX");
-			
-				sales = new SaleLazyModel(saleService, dateOfSaleStarted, dateOfSaleEnded, bankId, productId, saleState);
 				
-				
-				//System.out.println("Se termina la busqueda XXX");
+
+				// System.out.println("Se termina la busqueda XXX");
 
 			} else if (searchTypeSelected.equals("personalData")) {
 				if (personTypeSelected.equals("contractor")) {
@@ -634,12 +581,12 @@ public class SearchSalesController implements Serializable {
 						}
 
 						System.out.println("Se inicia la busqueda XXX");
-						sales = new SaleLazyModel(saleService, personTypeSelected, nuicContractorLong, firstnameContractor, lastnamePaternalContractor, lastnameMaternalContractor);
+						sales = new SaleLazyModel(saleService, personTypeSelected, nuicContractorLong,
+								firstnameContractor, lastnamePaternalContractor, lastnameMaternalContractor);
 						System.out.println("Se termina la busqueda XXX");
-						
 
 					} else {
-						
+
 						facesUtil.sendErrorMessage("Debe ingresar al menos un dato");
 					}
 
@@ -655,10 +602,13 @@ public class SearchSalesController implements Serializable {
 							nuicInsuredLong = Long.parseLong(nuicInsured);
 						}
 
-						//sales = saleService.findSalesByNamesInsured(nuicInsuredLong, firstnameInsured,
-						//lastnamePaternalInsured, lastnameMaternalInsured);
+						// sales =
+						// saleService.findSalesByNamesInsured(nuicInsuredLong,
+						// firstnameInsured,
+						// lastnamePaternalInsured, lastnameMaternalInsured);
 						System.out.println("Se inicia la busqueda XXX");
-						sales = new SaleLazyModel(saleService, personTypeSelected, nuicInsuredLong, firstnameInsured, lastnamePaternalInsured, lastnameMaternalInsured);
+						sales = new SaleLazyModel(saleService, personTypeSelected, nuicInsuredLong, firstnameInsured,
+								lastnamePaternalInsured, lastnameMaternalInsured);
 						System.out.println("Se termina la busqueda XXX");
 
 					} else {
@@ -677,10 +627,14 @@ public class SearchSalesController implements Serializable {
 							nuicResponsibleLong = Long.parseLong(nuicResponsible);
 						}
 
-						//sales = saleService.findSalesByNamesResponsible(nuicResponsibleLong, firstnameResponsible,
-						//		lastnamePaternalResponsible, lastnameMaternalResponsible);
+						// sales =
+						// saleService.findSalesByNamesResponsible(nuicResponsibleLong,
+						// firstnameResponsible,
+						// lastnamePaternalResponsible,
+						// lastnameMaternalResponsible);
 						System.out.println("Se inicia la busqueda XXX");
-						sales = new SaleLazyModel(saleService, personTypeSelected, nuicResponsibleLong, firstnameResponsible, lastnamePaternalResponsible, lastnameMaternalResponsible);
+						sales = new SaleLazyModel(saleService, personTypeSelected, nuicResponsibleLong,
+								firstnameResponsible, lastnamePaternalResponsible, lastnameMaternalResponsible);
 						System.out.println("Se termina la busqueda XXX");
 
 					} else {
@@ -701,65 +655,67 @@ public class SearchSalesController implements Serializable {
 	public void exportTxt() throws IOException {
 
 		try {
-			
-			
+
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
 				throw new UserLoggedNotFoundException();
 			}
-			
-			
+
 			List<Sale> salesFound = new ArrayList<Sale>();
-			
-			//saleSelected = null;
 
 			if (searchTypeSelected.equals("creditCard")) {
 				Long creditCardNumberLong = Long.parseLong(creditCardNumber);
-				//sales = saleService.findSalesByCreditCardNumber(creditCardNumberLong);
+				// sales =
+				// saleService.findSalesByCreditCardNumber(creditCardNumberLong);
 				System.out.println("Se inicia la busqueda XXX");
-				
-				//sales = new SaleLazyModel(saleService, searchTypeSelected, creditCardNumberLong);
-				//salesFound = saleService.fin
+
+				// sales = new SaleLazyModel(saleService, searchTypeSelected,
+				// creditCardNumberLong);
+				// salesFound = saleService.fin
 				System.out.println("Se termina la busqueda XXX");
-				
+
 			} else if (searchTypeSelected.equals("dni")) {
 				Long nuicResponsibleLong = Long.parseLong(nuicResponsible);
-				//sales = saleService.findSalesByNuicResponsible(nuicResponsibleLong);
+				// sales =
+				// saleService.findSalesByNuicResponsible(nuicResponsibleLong);
 
 				System.out.println("Se inicia la busqueda XXX");
-			
-				//sales = new SaleLazyModel(saleService, searchTypeSelected, nuicResponsibleLong);
+
+				// sales = new SaleLazyModel(saleService, searchTypeSelected,
+				// nuicResponsibleLong);
 				salesFound = saleService.findSalesByNuicResponsible(nuicResponsibleLong);
 				System.out.println("Se termina la busqueda XXX");
-				
+
 			} else if (searchTypeSelected.equals("saleData")) {
-				System.out.println(""+dateOfSaleStarted);
-				System.out.println(""+dateOfSaleEnded);
+				System.out.println("" + dateOfSaleStarted);
+				System.out.println("" + dateOfSaleEnded);
 				final short productId;
 				System.out.println(productSelected);
 				if (productSelected != null && productSelected.length() > 0) {
 					productId = Short.parseShort(productSelected);
-				}else{
-					productId=0;
+				} else {
+					productId = 0;
 				}
 				final short bankId;
 				System.out.println(bankSelected);
 				if (bankSelected != null && bankSelected.length() > 0) {
 					bankId = Short.parseShort(bankSelected);
-				}else{
+				} else {
 					bankId = 0;
 				}
 				final SaleStateEnum saleState;
 				if (saleStateSelected != null && saleStateSelected.length() > 0) {
 					saleState = SaleStateEnum.findById(Short.parseShort(saleStateSelected));
-				}else{
-					saleState=null;
+				} else {
+					saleState = null;
 				}
-				
+
 				System.out.println("Se inicia la busqueda XXX");
-			
-				//sales = new SaleLazyModel(saleService, dateOfSaleStarted, dateOfSaleEnded, bankId, productId, saleState);
-				salesFound = saleService.findSalesBySaleData(dateOfSaleStarted, dateOfSaleEnded, bankId, productId, saleState);
-				
+
+				// sales = new SaleLazyModel(saleService, dateOfSaleStarted,
+				// dateOfSaleEnded, bankId, productId, saleState);
+				salesFound = saleService.findSalesBySaleData(dateOfSaleStarted, dateOfSaleEnded, bankId, productId,
+						saleState);
+
 				System.out.println("Se termina la busqueda XXX");
 
 			} else if (searchTypeSelected.equals("personalData")) {
@@ -776,13 +732,16 @@ public class SearchSalesController implements Serializable {
 						}
 
 						System.out.println("Se inicia la busqueda XXX");
-						//sales = new SaleLazyModel(saleService, personTypeSelected, nuicContractorLong, firstnameContractor, lastnamePaternalContractor, lastnameMaternalContractor);
-						salesFound = saleService.findSalesByNamesContractor(nuicContractorLong, firstnameContractor, lastnamePaternalContractor, lastnameMaternalContractor);
+						// sales = new SaleLazyModel(saleService,
+						// personTypeSelected, nuicContractorLong,
+						// firstnameContractor, lastnamePaternalContractor,
+						// lastnameMaternalContractor);
+						salesFound = saleService.findSalesByNamesContractor(nuicContractorLong, firstnameContractor,
+								lastnamePaternalContractor, lastnameMaternalContractor);
 						System.out.println("Se termina la busqueda XXX");
-						
 
 					} else {
-						
+
 						facesUtil.sendErrorMessage("Debe ingresar al menos un dato");
 					}
 
@@ -798,11 +757,17 @@ public class SearchSalesController implements Serializable {
 							nuicInsuredLong = Long.parseLong(nuicInsured);
 						}
 
-						//sales = saleService.findSalesByNamesInsured(nuicInsuredLong, firstnameInsured,
-						//lastnamePaternalInsured, lastnameMaternalInsured);
+						// sales =
+						// saleService.findSalesByNamesInsured(nuicInsuredLong,
+						// firstnameInsured,
+						// lastnamePaternalInsured, lastnameMaternalInsured);
 						System.out.println("Se inicia la busqueda XXX");
-						//sales = new SaleLazyModel(saleService, personTypeSelected, nuicInsuredLong, firstnameInsured, lastnamePaternalInsured, lastnameMaternalInsured);
-						salesFound = saleService.findSalesByNamesInsured(nuicInsuredLong, firstnameInsured, lastnamePaternalInsured, lastnameMaternalInsured);
+						// sales = new SaleLazyModel(saleService,
+						// personTypeSelected, nuicInsuredLong,
+						// firstnameInsured, lastnamePaternalInsured,
+						// lastnameMaternalInsured);
+						salesFound = saleService.findSalesByNamesInsured(nuicInsuredLong, firstnameInsured,
+								lastnamePaternalInsured, lastnameMaternalInsured);
 						System.out.println("Se termina la busqueda XXX");
 
 					} else {
@@ -821,11 +786,18 @@ public class SearchSalesController implements Serializable {
 							nuicResponsibleLong = Long.parseLong(nuicResponsible);
 						}
 
-						//sales = saleService.findSalesByNamesResponsible(nuicResponsibleLong, firstnameResponsible,
-						//		lastnamePaternalResponsible, lastnameMaternalResponsible);
+						// sales =
+						// saleService.findSalesByNamesResponsible(nuicResponsibleLong,
+						// firstnameResponsible,
+						// lastnamePaternalResponsible,
+						// lastnameMaternalResponsible);
 						System.out.println("Se inicia la busqueda XXX");
-						//sales = new SaleLazyModel(saleService, personTypeSelected, nuicResponsibleLong, firstnameResponsible, lastnamePaternalResponsible, lastnameMaternalResponsible);
-						salesFound = saleService.findSalesByNamesResponsible(nuicResponsibleLong, firstnameResponsible, lastnamePaternalResponsible, lastnameMaternalResponsible);
+						// sales = new SaleLazyModel(saleService,
+						// personTypeSelected, nuicResponsibleLong,
+						// firstnameResponsible, lastnamePaternalResponsible,
+						// lastnameMaternalResponsible);
+						salesFound = saleService.findSalesByNamesResponsible(nuicResponsibleLong, firstnameResponsible,
+								lastnamePaternalResponsible, lastnameMaternalResponsible);
 						System.out.println("Se termina la busqueda XXX");
 
 					} else {
@@ -834,8 +806,7 @@ public class SearchSalesController implements Serializable {
 				}
 
 			}
-			
-			
+
 			////////////
 
 			StringBuilder cadena = new StringBuilder();
@@ -893,18 +864,22 @@ public class SearchSalesController implements Serializable {
 			header += "FECHA ACT TC" + separator;
 			header += "FECHA CREACION" + separator;
 			header += "USUARIO CREACION";
-			
+
 			cadena.append(header);
 			cadena.append("\r\n");
-			
-			search();
-			
-			
+
+			//search();
+
 			SimpleDateFormat sdf1 = new SimpleDateFormat("MM/yyyy");
 			SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
 			SimpleDateFormat sdf3 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			
+			int count=0;
 
 			for (Sale sale : salesFound) {
+				
+				count++;
+				System.out.println("count:"+count);
 
 				cadena.append(sale.getCode() + separator);
 				cadena.append(sale.getPayer().getDocumentType().getName() + separator);
@@ -970,22 +945,22 @@ public class SearchSalesController implements Serializable {
 
 			FacesContext fc = FacesContext.getCurrentInstance();
 			HttpServletResponse response = (HttpServletResponse) fc.getExternalContext().getResponse();
-			
+
 			response.reset();
 			response.setContentType("text/comma-separated-values");
 			response.setHeader("Content-Disposition", "attachment; filename=\"ventas.txt\"");
-			
+
 			OutputStream output = response.getOutputStream();
-			
+
 			// for (String s : strings) {
 			output.write(cadena.toString().getBytes());
 			// }
-			
+
 			output.flush();
 			output.close();
-			
+
 			fc.responseComplete();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
@@ -996,10 +971,10 @@ public class SearchSalesController implements Serializable {
 	public void exportExcel() throws IOException {
 
 		try {
-			
-			List<Sale> sales = new ArrayList<Sale>();
 
-			search();
+			// List<Sale> sales = new ArrayList<Sale>();
+
+			// search();
 
 			SimpleDateFormat sdf1 = new SimpleDateFormat("MM/yyyy");
 			SimpleDateFormat sdf2 = new SimpleDateFormat("dd/MM/yyyy");
@@ -1065,74 +1040,88 @@ public class SearchSalesController implements Serializable {
 			// for (int i = 0; i < sales.size(); i++) {
 
 			int lineNumber = 1;
+			
+			/*System.out.println(sales.getRowCount());
+			System.out.println(sales.getRowCount());
+			System.out.println(sales.getRowCount());
+			System.out.println(sales.getRowCount());
+			System.out.println(sales.getRowCount());
+			System.out.println(sales.getRowCount());
+			
+			//((List<Sale>)sales.getWrappedData()).size();
+			
+			System.out.println("sizeee:::"+((List<Sale>)sales.getWrappedData()).size());*/
 
-			for (Sale sale : sales) {
+			if (sales != null && sales.getWrappedData()!=null && ((List<Sale>)sales.getWrappedData()).size() > 1) {
 
-				System.out.println("Procesando a excel:" + lineNumber);
-				// Sale sale = sales.get(i);
-				XSSFRow rowBody = sheet.createRow(lineNumber);
+				for (Sale sale : (List<Sale>)sales.getWrappedData()) {
 
-				rowBody.createCell(0).setCellValue(sale.getCode());
-				rowBody.createCell(1).setCellValue(sale.getPayer().getDocumentType().getName());
-				rowBody.createCell(2).setCellValue(sale.getPayer().getNuicResponsible());
-				rowBody.createCell(3).setCellValue(sale.getPayer().getLastnamePaternalResponsible());
-				rowBody.createCell(4).setCellValue(sale.getPayer().getLastnameMaternalResponsible());
-				rowBody.createCell(5).setCellValue(sale.getPayer().getFirstnameResponsible());
-				rowBody.createCell(6).setCellValue(sale.getCreditCard().getNumber() + "");
-				rowBody.createCell(7).setCellValue(sale.getAccountNumber() + "");
-				rowBody.createCell(8).setCellValue(sale.getCreditCard().getExpirationDate() != null
-						? sdf1.format(sale.getCreditCard().getExpirationDate()) : null);
-				rowBody.createCell(9).setCellValue(sale.getCreditCard().getDaysOfDefault() != null
-						? sale.getCreditCard().getDaysOfDefault().toString() : "");
+					System.out.println("Procesando a excel:" + lineNumber);
+					// Sale sale = sales.get(i);
+					XSSFRow rowBody = sheet.createRow(lineNumber);
 
-				rowBody.createCell(10)
-						.setCellValue(sale.getNuicContractor() != null ? sale.getNuicContractor().toString() : "");
-				rowBody.createCell(11).setCellValue(sale.getLastnamePaternalContractor());
-				rowBody.createCell(12).setCellValue(sale.getLastnameMaternalContractor());
-				rowBody.createCell(13).setCellValue(sale.getFirstnameContractor());
-				rowBody.createCell(14).setCellValue(sale.getNuicInsured());
-				rowBody.createCell(15).setCellValue(sale.getLastnamePaternalInsured());
-				rowBody.createCell(16).setCellValue(sale.getLastnameMaternalInsured());
-				rowBody.createCell(17).setCellValue(sale.getFirstnameInsured());
-				rowBody.createCell(18).setCellValue(sale.getPhone1());
-				rowBody.createCell(19).setCellValue(sale.getPhone2());
-				rowBody.createCell(20).setCellValue(sale.getPayer().getMail());
-				rowBody.createCell(21).setCellValue(sale.getPayer().getDepartment());
-				rowBody.createCell(22).setCellValue(sale.getPayer().getProvince());
-				rowBody.createCell(23).setCellValue(sale.getPayer().getDistrict());
-				rowBody.createCell(24).setCellValue(sale.getPayer().getAddress());
-				rowBody.createCell(25).setCellValue(sdf2.format(sale.getDate()));
-				rowBody.createCell(26).setCellValue(sale.getChannel());
-				rowBody.createCell(27).setCellValue(sale.getPlace());
-				rowBody.createCell(28).setCellValue(sale.getVendorCode());
-				rowBody.createCell(29).setCellValue(sale.getVendorName());
-				rowBody.createCell(30).setCellValue(sale.getPolicyNumber());
-				rowBody.createCell(31).setCellValue(sale.getCertificateNumber());
-				rowBody.createCell(32).setCellValue(sale.getProposalNumber());
-				rowBody.createCell(33).setCellValue(sale.getCommerceCode());
-				rowBody.createCell(34).setCellValue(sale.getProduct().getName());
-				rowBody.createCell(35).setCellValue(sale.getProductDescription());
-				rowBody.createCell(36).setCellValue(sale.getCollectionPeriod().getName());
-				rowBody.createCell(37).setCellValue(sale.getCollectionType());
-				rowBody.createCell(38).setCellValue(sale.getBank().getName());
-				rowBody.createCell(39).setCellValue(sale.getInsurancePremium().doubleValue());
-				rowBody.createCell(40).setCellValue(sdf2.format(sale.getAuditDate()));
-				rowBody.createCell(41).setCellValue(sale.getAuditUser());
-				rowBody.createCell(42).setCellValue(sale.getSaleState().getState().getName());
-				rowBody.createCell(43).setCellValue(
-						sale.getSaleState().getDate() != null ? sdf2.format(sale.getSaleState().getDate()) : "");
-				rowBody.createCell(44).setCellValue(sale.getSaleState().getUser());
-				rowBody.createCell(45).setCellValue(sale.getSaleState().getChannel());
-				rowBody.createCell(46).setCellValue(sale.getSaleState().getReason());
-				rowBody.createCell(47).setCellValue(sale.getSaleState().getObservation());
-				rowBody.createCell(48).setCellValue(
-						sale.getCreditCard().getDate() != null ? sdf2.format(sale.getCreditCard().getDate()) : "");
+					rowBody.createCell(0).setCellValue(sale.getCode());
+					rowBody.createCell(1).setCellValue(sale.getPayer().getDocumentType().getName());
+					rowBody.createCell(2).setCellValue(sale.getPayer().getNuicResponsible());
+					rowBody.createCell(3).setCellValue(sale.getPayer().getLastnamePaternalResponsible());
+					rowBody.createCell(4).setCellValue(sale.getPayer().getLastnameMaternalResponsible());
+					rowBody.createCell(5).setCellValue(sale.getPayer().getFirstnameResponsible());
+					rowBody.createCell(6).setCellValue(sale.getCreditCard().getNumber() + "");
+					rowBody.createCell(7).setCellValue(sale.getAccountNumber() + "");
+					rowBody.createCell(8).setCellValue(sale.getCreditCard().getExpirationDate() != null
+							? sdf1.format(sale.getCreditCard().getExpirationDate()) : null);
+					rowBody.createCell(9).setCellValue(sale.getCreditCard().getDaysOfDefault() != null
+							? sale.getCreditCard().getDaysOfDefault().toString() : "");
 
-				rowBody.createCell(49).setCellValue(sdf3.format(sale.getCreatedAt()));
-				rowBody.createCell(50).setCellValue(sale.getCreatedBy().getUsername());
+					rowBody.createCell(10)
+							.setCellValue(sale.getNuicContractor() != null ? sale.getNuicContractor().toString() : "");
+					rowBody.createCell(11).setCellValue(sale.getLastnamePaternalContractor());
+					rowBody.createCell(12).setCellValue(sale.getLastnameMaternalContractor());
+					rowBody.createCell(13).setCellValue(sale.getFirstnameContractor());
+					rowBody.createCell(14).setCellValue(sale.getNuicInsured());
+					rowBody.createCell(15).setCellValue(sale.getLastnamePaternalInsured());
+					rowBody.createCell(16).setCellValue(sale.getLastnameMaternalInsured());
+					rowBody.createCell(17).setCellValue(sale.getFirstnameInsured());
+					rowBody.createCell(18).setCellValue(sale.getPhone1()!=null?sale.getPhone1().toString():"");
+					rowBody.createCell(19).setCellValue(sale.getPhone2()!=null?sale.getPhone2().toString():"");
+					rowBody.createCell(20).setCellValue(sale.getPayer().getMail());
+					rowBody.createCell(21).setCellValue(sale.getPayer().getDepartment());
+					rowBody.createCell(22).setCellValue(sale.getPayer().getProvince());
+					rowBody.createCell(23).setCellValue(sale.getPayer().getDistrict());
+					rowBody.createCell(24).setCellValue(sale.getPayer().getAddress());
+					rowBody.createCell(25).setCellValue(sdf2.format(sale.getDate()));
+					rowBody.createCell(26).setCellValue(sale.getChannel());
+					rowBody.createCell(27).setCellValue(sale.getPlace());
+					rowBody.createCell(28).setCellValue(sale.getVendorCode());
+					rowBody.createCell(29).setCellValue(sale.getVendorName());
+					rowBody.createCell(30).setCellValue(sale.getPolicyNumber());
+					rowBody.createCell(31).setCellValue(sale.getCertificateNumber());
+					rowBody.createCell(32).setCellValue(sale.getProposalNumber());
+					rowBody.createCell(33).setCellValue(sale.getCommerceCode());
+					rowBody.createCell(34).setCellValue(sale.getProduct().getName());
+					rowBody.createCell(35).setCellValue(sale.getProductDescription());
+					rowBody.createCell(36).setCellValue(sale.getCollectionPeriod().getName());
+					rowBody.createCell(37).setCellValue(sale.getCollectionType());
+					rowBody.createCell(38).setCellValue(sale.getBank().getName());
+					rowBody.createCell(39).setCellValue(sale.getInsurancePremium().doubleValue());
+					rowBody.createCell(40).setCellValue(sdf2.format(sale.getAuditDate()));
+					rowBody.createCell(41).setCellValue(sale.getAuditUser());
+					rowBody.createCell(42).setCellValue(sale.getSaleState().getState().getName());
+					rowBody.createCell(43).setCellValue(
+							sale.getSaleState().getDate() != null ? sdf2.format(sale.getSaleState().getDate()) : "");
+					rowBody.createCell(44).setCellValue(sale.getSaleState().getUser());
+					rowBody.createCell(45).setCellValue(sale.getSaleState().getChannel());
+					rowBody.createCell(46).setCellValue(sale.getSaleState().getReason());
+					rowBody.createCell(47).setCellValue(sale.getSaleState().getObservation());
+					rowBody.createCell(48).setCellValue(
+							sale.getCreditCard().getDate() != null ? sdf2.format(sale.getCreditCard().getDate()) : "");
 
-				lineNumber++;
+					rowBody.createCell(49).setCellValue(sdf3.format(sale.getCreatedAt()));
+					rowBody.createCell(50).setCellValue(sale.getCreatedBy().getUsername());
 
+					lineNumber++;
+
+				}
 			}
 
 			FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -1154,7 +1143,7 @@ public class SearchSalesController implements Serializable {
 
 	public void download() {
 		try {
-			
+
 			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() < 1) {
 				throw new UserLoggedNotFoundException();
 			}
@@ -1191,9 +1180,6 @@ public class SearchSalesController implements Serializable {
 		}
 
 	}
-
-	
-	
 
 	public LazyDataModel<Sale> getSales() {
 		return sales;
@@ -1339,9 +1325,6 @@ public class SearchSalesController implements Serializable {
 		this.searchTypeSelected = searchTypeSelected;
 	}
 
-
-
-	
 	public String getPersonTypeSelected() {
 		return personTypeSelected;
 	}
@@ -1349,9 +1332,6 @@ public class SearchSalesController implements Serializable {
 	public void setPersonTypeSelected(String personTypeSelected) {
 		this.personTypeSelected = personTypeSelected;
 	}
-
-
-
 
 	public String getNuicResponsible() {
 		return nuicResponsible;
@@ -1393,8 +1373,6 @@ public class SearchSalesController implements Serializable {
 		this.saleStateSelected = saleStateSelected;
 	}
 
-
-
 	public List<SelectItem> getSaleStates() {
 		return saleStates;
 	}
@@ -1403,8 +1381,6 @@ public class SearchSalesController implements Serializable {
 		this.saleStates = saleStates;
 	}
 
-	
-
 	public UploadedFile getFile() {
 		return file;
 	}
@@ -1412,10 +1388,6 @@ public class SearchSalesController implements Serializable {
 	public void setFile(UploadedFile file) {
 		this.file = file;
 	}
-
-	
-	
-
 
 	public List<SelectItem> getPersonTypes() {
 		return personTypes;

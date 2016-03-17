@@ -14,7 +14,7 @@ import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
-import com.returnsoft.collection.exception.ServiceException;
+
 import com.returnsoft.collection.service.SaleService;
 public class SaleLazyModel extends LazyDataModel<Sale>{
 
@@ -208,6 +208,7 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 				
 				sales = saleService.findSalesBySaleDataLimit(dateOfSaleStarted, dateOfSaleEnded, bankId,
 						productId, saleState, first, pageSize);
+				System.out.println("cantidad de ventas en el load:"+sales.size());
 				Long salesCount = saleService.findSalesBySaleDataCount(dateOfSaleStarted, dateOfSaleEnded, bankId,
 						productId, saleState);
 				this.setRowCount(salesCount.intValue());
@@ -248,7 +249,7 @@ public class SaleLazyModel extends LazyDataModel<Sale>{
 				this.setRowCount(salesCount.intValue());
 			}
 			
-		} catch (ServiceException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		

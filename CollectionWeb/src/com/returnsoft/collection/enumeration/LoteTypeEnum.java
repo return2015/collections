@@ -5,7 +5,13 @@ public enum LoteTypeEnum {
 	CREATESALE((short)1,"Creación de ventas"),
 	CREATECOLLECTION((short)2,"Creación de cobranzas"),
 	UPDATECREDITCARD((short)3,"Actualización de TC"),
-	UPDATESALESTATE((short)4,"Actualización de estado");
+	UPDATESALESTATE((short)4,"Actualización de estado"),
+	
+	///////
+	
+	CREATEPHYSICALNOTIFICACION((short)5,"Creación de notificaciones físicas"),
+	CREATEVIRTUALNOTIFICACION((short)6,"Creación de notificaciones virtuales"),
+	UPDATEPHYSICALNOTIFICACION((short)7,"Actualización de notificaciones físicas");
 	
 	
 	private Short id;

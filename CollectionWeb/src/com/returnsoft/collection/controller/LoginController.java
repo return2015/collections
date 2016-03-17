@@ -75,7 +75,8 @@ public class LoginController implements Serializable {
 				/*FacesContext.getCurrentInstance().getExternalContext()
 				.getSessionMap().put("sessionBean", sessionBean);*/
 				
-				return "select_bank?faces-redirect=true";
+				//return "select_bank?faces-redirect=true";
+				return "home?faces-redirect=true";
 				
 			default:
 				throw new UserTypeNotFoundException();

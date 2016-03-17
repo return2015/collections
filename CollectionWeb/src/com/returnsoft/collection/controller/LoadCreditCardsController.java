@@ -19,23 +19,12 @@ import javax.faces.context.FacesContext;
 
 import org.primefaces.model.UploadedFile;
 
-import com.returnsoft.collection.entity.Commerce;
 import com.returnsoft.collection.entity.CreditCard;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.CreditCardValidationEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
-import com.returnsoft.collection.exception.DataCollectionCreateException;
-import com.returnsoft.collection.exception.DataColumnDateException;
-import com.returnsoft.collection.exception.DataColumnLengthException;
-import com.returnsoft.collection.exception.DataColumnNullException;
-import com.returnsoft.collection.exception.DataColumnNumberException;
-import com.returnsoft.collection.exception.DataCommerceCodeException;
-import com.returnsoft.collection.exception.DataCreditCardDuplicateException;
-import com.returnsoft.collection.exception.DataCreditCardValidationNotFoundException;
-import com.returnsoft.collection.exception.DataSaleNotFoundException;
-import com.returnsoft.collection.exception.DataSaleStateNoActiveException;
 import com.returnsoft.collection.exception.FileColumnsTotalException;
 import com.returnsoft.collection.exception.FileExtensionException;
 import com.returnsoft.collection.exception.FileNotFoundException;
@@ -43,7 +32,6 @@ import com.returnsoft.collection.exception.FileRowsZeroException;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
-import com.returnsoft.collection.service.CommerceService;
 import com.returnsoft.collection.service.CreditCardService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
@@ -61,7 +49,7 @@ public class LoadCreditCardsController implements Serializable {
 
 	private UploadedFile file;
 
-	private List<Commerce> commerces;
+	
 	// private List<SaleState> states;
 	private Integer FILE_ROWS = (6);
 
@@ -77,8 +65,6 @@ public class LoadCreditCardsController implements Serializable {
 	@EJB
 	private CreditCardService creditCardUpdateService;
 	
-	@EJB
-	private CommerceService commerceService;
 	
 	@EJB
 	private SaleService saleService;

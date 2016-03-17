@@ -7,7 +7,6 @@ public class CollectionFile {
 	private String chargeAmount;
 	private String receiptNumber;
 	private String estimatedDate;
-	private String authorizationDate;
 	private String depositDate;
 	private String responseCode;
 	private String authorizationCode;
@@ -17,6 +16,7 @@ public class CollectionFile {
 	private String loteNumber;
 	private String channel;
 	private String paymentMethod;
+	private String moneyType;
 	
 	
 	public String getSaleCode() {
@@ -51,12 +51,7 @@ public class CollectionFile {
 	public void setEstimatedDate(String estimatedDate) {
 		this.estimatedDate = estimatedDate;
 	}
-	public String getAuthorizationDate() {
-		return authorizationDate;
-	}
-	public void setAuthorizationDate(String authorizationDate) {
-		this.authorizationDate = authorizationDate;
-	}
+	
 	public String getDepositDate() {
 		return depositDate;
 	}
@@ -110,6 +105,12 @@ public class CollectionFile {
 	}
 	public void setPaymentMethod(String paymentMethod) {
 		this.paymentMethod = paymentMethod;
+	}
+	public String getMoneyType() {
+		return moneyType;
+	}
+	public void setMoneyType(String moneyType) {
+		this.moneyType = moneyType;
 	}
 	
 	

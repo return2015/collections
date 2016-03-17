@@ -21,22 +21,10 @@ import javax.faces.context.FacesContext;
 import org.primefaces.model.UploadedFile;
 
 import com.returnsoft.collection.entity.Collection;
-import com.returnsoft.collection.entity.Commerce;
 import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.UserTypeEnum;
-import com.returnsoft.collection.exception.DataCollectionCreateException;
-import com.returnsoft.collection.exception.DataColumnDateException;
-import com.returnsoft.collection.exception.DataColumnDecimalException;
-import com.returnsoft.collection.exception.DataColumnLengthException;
-import com.returnsoft.collection.exception.DataColumnNullException;
-import com.returnsoft.collection.exception.DataColumnNumberException;
-import com.returnsoft.collection.exception.DataCommerceCodeException;
-import com.returnsoft.collection.exception.DataRepaymentChargeAmountException;
-import com.returnsoft.collection.exception.DataRepaymentDuplicateException;
-import com.returnsoft.collection.exception.DataRepaymentInsurancePremiumException;
-import com.returnsoft.collection.exception.DataSaleNotFoundException;
 import com.returnsoft.collection.exception.FileColumnsTotalException;
 import com.returnsoft.collection.exception.FileExtensionException;
 import com.returnsoft.collection.exception.FileNotFoundException;
@@ -45,7 +33,6 @@ import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.exception.UserPermissionNotFoundException;
 import com.returnsoft.collection.service.CollectionService;
-import com.returnsoft.collection.service.CommerceService;
 import com.returnsoft.collection.service.RepaymentService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.util.FacesUtil;
@@ -63,7 +50,7 @@ public class LoadRepaymentsController implements Serializable {
 
 	private UploadedFile file;
 
-	private List<Commerce> commerces;
+	
 	// private List<SaleState> states;
 	private Integer FILE_ROWS = 5;
 
@@ -79,8 +66,7 @@ public class LoadRepaymentsController implements Serializable {
 	@EJB
 	private CollectionService collectionService;
 	
-	@EJB
-	private CommerceService commerceService;
+	
 	
 	@EJB
 	private SaleService saleService;

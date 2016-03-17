@@ -7,7 +7,7 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui">
 <f:metadata>
-	<f:viewAction action="#{addNotificationController.initialize}" />
+	<f:viewAction action="#{addPhysicalNotificationController.initialize}" />
 </f:metadata>
 <h:head>
 	<h:outputStylesheet library="css" name="collection.css" />
@@ -25,60 +25,61 @@
 		<h:panelGrid style="margin:auto;">
 
 			<h:panelGrid style="margin:auto;text-align:center;">
-				<p:messages id="messages"></p:messages>
+				<p:messages id="messages" showDetail="true"></p:messages>
 			</h:panelGrid>
 
 			<h:panelGrid columns="2">
 
 				<p:outputLabel value="Codigo único"></p:outputLabel>
 				<p:outputLabel
-					value="#{addNotificationController.notificationSelected.sale.code}"></p:outputLabel>
+					value="#{addPhysicalNotificationController.saleSelected.code}"></p:outputLabel>
 
 				<p:outputLabel value="Nombre Responsable"></p:outputLabel>
 				<p:outputLabel
-					value="#{addNotificationController.notificationSelected.sale.payer.firstnameResponsible}"></p:outputLabel>
+					value="#{addPhysicalNotificationController.saleSelected.payer.firstnameResponsible}"></p:outputLabel>
 
 				<p:outputLabel value="A. Paterno Responsable"></p:outputLabel>
 				<p:outputLabel
-					value="#{addNotificationController.notificationSelected.sale.payer.lastnamePaternalResponsible}"></p:outputLabel>
+					value="#{addPhysicalNotificationController.saleSelected.payer.lastnamePaternalResponsible}"></p:outputLabel>
 
 				<p:outputLabel value="A. Materno Responsable"></p:outputLabel>
 				<p:outputLabel
-					value="#{addNotificationController.notificationSelected.sale.payer.lastnameMaternalResponsible}"></p:outputLabel>
+					value="#{addPhysicalNotificationController.saleSelected.payer.lastnameMaternalResponsible}"></p:outputLabel>
 
 				<p:outputLabel value="Dirección"></p:outputLabel>
 				<p:outputLabel
-					value="#{addNotificationController.notificationSelected.sale.payer.address}"></p:outputLabel>
+					value="#{addPhysicalNotificationController.saleSelected.payer.address}"></p:outputLabel>
 
 				<p:outputLabel value="Departamento"></p:outputLabel>
 				<p:outputLabel
-					value="#{addNotificationController.notificationSelected.sale.payer.department}"></p:outputLabel>
+					value="#{addPhysicalNotificationController.saleSelected.payer.department}"></p:outputLabel>
 
 				<p:outputLabel value="Provincia"></p:outputLabel>
 				<p:outputLabel
-					value="#{addNotificationController.notificationSelected.sale.payer.province}"></p:outputLabel>
+					value="#{addPhysicalNotificationController.saleSelected.payer.province}"></p:outputLabel>
 
 				<p:outputLabel value="Distrito"></p:outputLabel>
 				<p:outputLabel
-					value="#{addNotificationController.notificationSelected.sale.payer.district}"></p:outputLabel>
+					value="#{addPhysicalNotificationController.saleSelected.payer.district}"></p:outputLabel>
 
 				<p:outputLabel value="Estado de notificación"></p:outputLabel>
-				<p:outputLabel value="#{addNotificationController.notificationState.name}"></p:outputLabel>
+				<p:outputLabel value="#{addPhysicalNotificationController.notificationState.name}"></p:outputLabel>
 				
 				<p:outputLabel value="Tipo de notificación"></p:outputLabel>
-				<p:outputLabel value="#{addNotificationController.notificationType.name}"></p:outputLabel>
+				<p:outputLabel value="#{addPhysicalNotificationController.notificationType.name}"></p:outputLabel>
 
 				<p:outputLabel value="Fecha de envío"></p:outputLabel>
 				<p:calendar required="true" pattern="dd/MM/yyyy" navigator="true"
 					requiredMessage="Debe ingresar fecha de envío"
-					value="#{addNotificationController.notificationSelected.sendingAt}"></p:calendar>
+					value="#{addPhysicalNotificationController.sendingAt}"></p:calendar>
+					
 				<p:outputLabel value="Número de orden"></p:outputLabel>
-				<p:inputText value="#{addNotificationController.notificationSelected.orderNumber}"></p:inputText>	
+				<p:inputText value="#{addPhysicalNotificationController.orderNumber}"></p:inputText>	
 
 			</h:panelGrid>
 
 			<h:panelGrid style="margin:auto;text-align:center;">
-				<p:commandButton actionListener="#{addNotificationController.add}"
+				<p:commandButton actionListener="#{addPhysicalNotificationController.add}"
 					update="@form" value="Agregar">
 				</p:commandButton>
 			</h:panelGrid>

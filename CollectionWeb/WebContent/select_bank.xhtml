@@ -11,43 +11,38 @@
 
 	<ui:define name="metadata">
 		<f:metadata>
-			<f:viewAction action="#{selectBankController.initialize}"/>
-		</f:metadata>	
+			<f:viewAction action="#{selectBankController.initialize}" />
+		</f:metadata>
 	</ui:define>
 
 	<ui:define name="content">
-
 		<div class="title ui-widget-header ui-corner-all">
 			<h:panelGrid style="margin:auto;">
 				SELECCIONE BANCO
 			</h:panelGrid>
 		</div>
-		
 		<h:panelGrid style="margin:auto;text-align:center;">
-					<p:messages id="messages" showDetail="true"></p:messages>
-				</h:panelGrid>
-
+			<p:messages id="messages" showDetail="true"></p:messages>
+		</h:panelGrid>
 		<h:form id="form">
 			<h:panelGrid style="margin:auto;">
-
 				<h:panelGrid columns="2">
-
 					<p:outputLabel value="Banco"></p:outputLabel>
-					<p:selectOneMenu id="banks" value="#{selectBankController.bankSelected}"
-					required="true" requiredMessage="Debe seleccionar banco">
-					<f:selectItem itemValue=""  itemLabel="Seleccione..."></f:selectItem>
-					<f:selectItems value="#{selectBankController.banks}"></f:selectItems>
+					<p:selectOneMenu id="banks"
+						value="#{selectBankController.bankSelected}" required="true"
+						requiredMessage="Debe seleccionar banco">
+						<f:selectItem itemValue="" itemLabel="Seleccione..."></f:selectItem>
+						<f:selectItems value="#{selectBankController.banks}"></f:selectItems>
 					</p:selectOneMenu>
-
 				</h:panelGrid>
 				<h:panelGrid style="margin:auto;text-align:center;">
-					<p:commandButton icon="ui-icon-search" process="@form" update=":messages :pnl-bank"
-						actionListener="#{selectBankController.selectBank}" value="Seleccionar">
+					<p:commandButton icon="ui-icon-search" process="@form"
+						update=":messages :pnl-bank"
+						actionListener="#{selectBankController.selectBank}"
+						value="Seleccionar">
 					</p:commandButton>
 				</h:panelGrid>
 			</h:panelGrid>
-
-
 		</h:form>
 	</ui:define>
 

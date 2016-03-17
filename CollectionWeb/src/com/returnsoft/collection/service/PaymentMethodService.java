@@ -8,5 +8,7 @@ import com.returnsoft.collection.exception.ServiceException;
 public interface PaymentMethodService {
 	
 	public List<PaymentMethod> getAll() throws ServiceException;
+	
+	public PaymentMethod checkIfExist(String code);
 
 }

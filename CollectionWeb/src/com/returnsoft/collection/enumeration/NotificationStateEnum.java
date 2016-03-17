@@ -3,7 +3,6 @@ package com.returnsoft.collection.enumeration;
 public enum NotificationStateEnum {
 	
 	SENDING((short)1,"Enviado",true),
-	
 	DELIVERED((short)2,"Entregado",false),
 	UNTRACEABLE((short)3,"Inubicable",false),
 	RETURNED((short)4,"Devuelto",false);
@@ -22,6 +21,15 @@ public enum NotificationStateEnum {
 		for(NotificationStateEnum mailingStateEnum: NotificationStateEnum.values()){
 			if (mailingStateEnum.getId()==id) {
 				return mailingStateEnum;
+			}
+		}
+		return null;
+	}
+	
+	public static NotificationStateEnum findByName(String name){
+		for(NotificationStateEnum notificationStateEnum: NotificationStateEnum.values()){
+			if (notificationStateEnum.getName().equals(name)) {
+				return notificationStateEnum;
 			}
 		}
 		return null;

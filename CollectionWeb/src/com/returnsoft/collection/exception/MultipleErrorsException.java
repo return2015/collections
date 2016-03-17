@@ -12,7 +12,7 @@ public class MultipleErrorsException extends Exception{
 	private List<Exception> errors;
 
 	public MultipleErrorsException(List<Exception> errors) {
-		super();
+		super("Se encontraron "+errors.size()+" errores.");
 		this.errors=errors;
 	}
 
