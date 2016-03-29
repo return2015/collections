@@ -12,7 +12,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -34,8 +33,12 @@ public class CreditCardHistory implements Serializable{
 	@Column(name = "crecarhis_id")
 	private Long idHist;
 	
-	@Column(name = "crecar_id")
-	private Long id;
+	/*@Column(name = "crecar_id")
+	private Long id;*/
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "crecar_id")
+	private Sale sale;
 	
 	@Column(name = "crecar_number")
 	private Long number;
@@ -61,13 +64,18 @@ public class CreditCardHistory implements Serializable{
 	@Column(name = "crecar_date")
 	private Date date;
 	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "crecar_lot_id")
+	private Lote lote;
+	
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "crecar_updated_at")
-	private Date createdAt;
+	private Date updatedAt;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "crecar_updated_by")
-	private User createdBy;
+	private User updatedBy;
 
 	public Long getIdHist() {
 		return idHist;
@@ -77,16 +85,26 @@ public class CreditCardHistory implements Serializable{
 		this.idHist = idHist;
 	}
 
-	public Long getId() {
+	/*public Long getId() {
 		return id;
 	}
 
 	public void setId(Long id) {
 		this.id = id;
-	}
+	}*/
+	
+	
 
 	public Long getNumber() {
 		return number;
+	}
+
+	public Sale getSale() {
+		return sale;
+	}
+
+	public void setSale(Sale sale) {
+		this.sale = sale;
 	}
 
 	public void setNumber(Long number) {
@@ -133,22 +151,31 @@ public class CreditCardHistory implements Serializable{
 		this.date = date;
 	}
 
-	public Date getCreatedAt() {
-		return createdAt;
+	public Date getUpdatedAt() {
+		return updatedAt;
 	}
 
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
+	public void setUpdatedAt(Date updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 
-	public User getCreatedBy() {
-		return createdBy;
+	public User getUpdatedBy() {
+		return updatedBy;
 	}
 
-	public void setCreatedBy(User createdBy) {
-		this.createdBy = createdBy;
+	public void setUpdatedBy(User updatedBy) {
+		this.updatedBy = updatedBy;
 	}
-	
+
+	public Lote getLote() {
+		return lote;
+	}
+
+	public void setLote(Lote lote) {
+		this.lote = lote;
+	}
+
+
 	
 
 }

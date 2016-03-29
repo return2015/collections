@@ -57,6 +57,10 @@ public class Collection implements Serializable{
 	@Column(name = "col_deposit_date")
 	private Date depositDate;
 	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "col_month_liquidation")
+	private Date monthLiquidation;
+	
 	@Column(name = "col_response_code")
 	private Short responseCode;
 	
@@ -101,7 +105,7 @@ public class Collection implements Serializable{
 	private Sale sale;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "col_payment_id")
+	@JoinColumn(name = "col_payment_method_id")
 	private PaymentMethod paymentMethod;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
@@ -116,7 +120,7 @@ public class Collection implements Serializable{
 	}
 
 	public Collection(BigDecimal maximumAmount, BigDecimal chargeAmount, 
-			Date estimatedDate, Date depositDate, Short responseCode, Integer authorizationCode,
+			Date estimatedDate, Date depositDate, Date monthLiquidation, Short responseCode, Integer authorizationCode,
 			CollectionResponseEnum responseMessage, String action, String transactionState, Integer loteNumber,
 			String channel, MoneyTypeEnum moneyType,Sale sale, PaymentMethod paymentMethod) {
 		super();
@@ -124,6 +128,7 @@ public class Collection implements Serializable{
 		this.chargeAmount = chargeAmount;
 		this.estimatedDate = estimatedDate;
 		this.depositDate = depositDate;
+		this.monthLiquidation = monthLiquidation;
 		this.responseCode = responseCode;
 		this.authorizationCode = authorizationCode;
 		this.responseMessage = responseMessage;
@@ -301,6 +306,14 @@ public class Collection implements Serializable{
 
 	public void setLote(Lote lote) {
 		this.lote = lote;
+	}
+
+	public Date getMonthLiquidation() {
+		return monthLiquidation;
+	}
+
+	public void setMonthLiquidation(Date monthLiquidation) {
+		this.monthLiquidation = monthLiquidation;
 	}
 
 	

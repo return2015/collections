@@ -22,7 +22,7 @@ import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.enumeration.LoteTypeEnum;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.SaleStateService;
-import com.returnsoft.collection.util.SaleStateFile;
+import com.returnsoft.collection.vo.SaleStateFile;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)

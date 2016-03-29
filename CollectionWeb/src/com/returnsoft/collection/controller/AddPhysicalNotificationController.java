@@ -21,8 +21,8 @@ import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.SaleService;
-import com.returnsoft.collection.util.FacesUtil;
-import com.returnsoft.collection.util.SessionBean;
+import com.returnsoft.generic.util.FacesUtil;
+import com.returnsoft.generic.util.SessionBean;
 
 @ManagedBean
 @ViewScoped

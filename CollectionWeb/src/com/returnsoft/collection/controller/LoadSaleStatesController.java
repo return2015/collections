@@ -1,7 +1,6 @@
 package com.returnsoft.collection.controller;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
@@ -44,8 +43,8 @@ import com.returnsoft.collection.exception.SaleNotFoundException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.service.SaleStateService;
-import com.returnsoft.collection.util.SaleStateFile;
-import com.returnsoft.collection.util.SessionBean;
+import com.returnsoft.collection.vo.SaleStateFile;
+import com.returnsoft.generic.util.SessionBean;
 
 @ManagedBean
 @ViewScoped
@@ -77,45 +76,6 @@ public class LoadSaleStatesController implements Serializable {
 				"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "tramas_estados.xlsx");
 	}
 
-	/*
-	 * public void downloadSaleStatesFile() { try {
-	 * 
-	 * if (sessionBean == null || sessionBean.getUser() == null ||
-	 * sessionBean.getUser().getId() == null) { throw new
-	 * UserLoggedNotFoundException(); }
-	 * 
-	 * ServletContext servletContext = (ServletContext)
-	 * FacesContext.getCurrentInstance().getExternalContext() .getContext();
-	 * String separator = System.getProperty("file.separator"); String rootPath
-	 * = servletContext.getRealPath(separator); String fileName = rootPath +
-	 * "resources" + separator + "templates" + separator +
-	 * "tramas_estados.xlsx"; File file = new File(fileName); InputStream
-	 * pdfInputStream = new FileInputStream(file);
-	 * 
-	 * FacesContext facesContext = FacesContext.getCurrentInstance();
-	 * ExternalContext externalContext = facesContext.getExternalContext();
-	 * externalContext.setResponseContentType(
-	 * "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-	 * externalContext.setResponseHeader("Content-Disposition",
-	 * "attachment; filename=\"tramas_estados.xlsx\"");
-	 * 
-	 * // Read PDF contents and write them to the output byte[] bytesBuffer =
-	 * new byte[2048]; int bytesRead;
-	 * 
-	 * while ((bytesRead = pdfInputStream.read(bytesBuffer)) > 0) {
-	 * externalContext.getResponseOutputStream().write(bytesBuffer, 0,
-	 * bytesRead); }
-	 * 
-	 * externalContext.getResponseOutputStream().flush();
-	 * externalContext.getResponseOutputStream().close();
-	 * pdfInputStream.close(); facesContext.responseComplete();
-	 * 
-	 * } catch (Exception e) { e.printStackTrace();
-	 * facesUtil.sendErrorMessage(e.getClass().getSimpleName(), e.getMessage());
-	 * }
-	 * 
-	 * }
-	 */
 
 	public void uploadFile() {
 		/* AjaxBehaviorEvent event */
@@ -222,7 +182,7 @@ public class LoadSaleStatesController implements Serializable {
 	private List<SaleStateFile> readFile(UploadedFile file) throws Exception {
 
 		String strLine = null;
-		Integer lineNumber = 0;
+		Integer lineNumber = 1;
 		SaleStateFile headers = new SaleStateFile();
 		List<SaleStateFile> dataList = new ArrayList<SaleStateFile>();
 		Integer FILE_ROWS = 7;
@@ -234,10 +194,10 @@ public class LoadSaleStatesController implements Serializable {
 
 				String[] values = strLine.split("\\|", -1);
 				if (values.length != FILE_ROWS) {
-					throw new FileRowsInvalidException(FILE_ROWS);
+					throw new FileRowsInvalidException(lineNumber,FILE_ROWS);
 				}
 
-				if (lineNumber == 0) {
+				if (lineNumber == 1) {
 
 					headers.setCode(values[0]);
 					headers.setState(values[1]);
@@ -266,9 +226,9 @@ public class LoadSaleStatesController implements Serializable {
 
 			return dataList;
 
-		} catch (IOException e) {
+		} catch (FileRowsInvalidException e) {
 			e.printStackTrace();
-			throw new Exception(e.getClass().getName());
+			throw new Exception(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("Ocurrio un error al leer el archivo.");

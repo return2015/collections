@@ -11,8 +11,9 @@ public enum LoteTypeEnum {
 	
 	CREATEPHYSICALNOTIFICACION((short)5,"Creación de notificaciones físicas"),
 	CREATEVIRTUALNOTIFICACION((short)6,"Creación de notificaciones virtuales"),
-	UPDATEPHYSICALNOTIFICACION((short)7,"Actualización de notificaciones físicas");
+	UPDATEPHYSICALNOTIFICACION((short)7,"Actualización de notificaciones físicas"),
 	
+	CREATEREPAYMENTS((short)8,"Creación de extornos");
 	
 	private Short id;
 	private String name;

@@ -33,8 +33,12 @@ public class SaleStateHistory implements Serializable{
 	@Column(name = "salstahis_id")
 	private Integer idHist;
 	
-	@Column(name = "salsta_id")
-	private Integer id;
+	/*@Column(name = "salsta_id")
+	private Integer id;*/
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "salsta_id")
+	private Sale sale;
 	
 	@Column(name = "salsta_state")
 	@Convert(converter=SaleStateConverter.class)
@@ -56,6 +60,10 @@ public class SaleStateHistory implements Serializable{
 	@Column(name = "salsta_observation")
 	private String observation;
 	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "salsta_lot_id")
+	private Lote lote;
+	
 	/*@OneToOne(fetch=FetchType.LAZY,mappedBy="saleState")
 	private Sale sale;*/
 	
@@ -75,12 +83,13 @@ public class SaleStateHistory implements Serializable{
 		this.idHist = idHist;
 	}
 
-	public Integer getId() {
-		return id;
+	
+	public Sale getSale() {
+		return sale;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
+	public void setSale(Sale sale) {
+		this.sale = sale;
 	}
 
 	public SaleStateEnum getState() {
@@ -145,6 +154,14 @@ public class SaleStateHistory implements Serializable{
 
 	public void setUpdatedBy(User updatedBy) {
 		this.updatedBy = updatedBy;
+	}
+
+	public Lote getLote() {
+		return lote;
+	}
+
+	public void setLote(Lote lote) {
+		this.lote = lote;
 	}
 	
 	

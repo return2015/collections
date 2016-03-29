@@ -52,6 +52,7 @@ import com.returnsoft.collection.exception.SaleNotFoundException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.SaleStateNotFoundException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
+import com.returnsoft.collection.lazy.LoteLazyModel;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.CollectionPeriodService;
 import com.returnsoft.collection.service.CollectionService;
@@ -59,10 +60,9 @@ import com.returnsoft.collection.service.LoteService;
 import com.returnsoft.collection.service.PaymentMethodService;
 import com.returnsoft.collection.service.ProductService;
 import com.returnsoft.collection.service.SaleService;
-import com.returnsoft.collection.util.CollectionFile;
-import com.returnsoft.collection.util.FacesUtil;
-import com.returnsoft.collection.util.LoteLazyModel;
-import com.returnsoft.collection.util.SessionBean;
+import com.returnsoft.collection.vo.CollectionFile;
+import com.returnsoft.generic.util.FacesUtil;
+import com.returnsoft.generic.util.SessionBean;
 
 @ManagedBean
 @ViewScoped

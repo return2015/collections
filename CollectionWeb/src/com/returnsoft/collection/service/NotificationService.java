@@ -6,8 +6,11 @@ import java.util.List;
 import com.returnsoft.collection.entity.Notification;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
+import com.returnsoft.collection.enumeration.NotificationStateEnum;
+import com.returnsoft.collection.enumeration.NotificationTypeEnum;
+import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.ServiceException;
-import com.returnsoft.collection.util.NotificationFile;
+import com.returnsoft.collection.vo.NotificationFile;
 
 public interface NotificationService {
 	
@@ -32,5 +35,10 @@ public interface NotificationService {
 	public Boolean verifyIfExist(Long nuicResponsible, String orderNumber);
 	
 	public Notification findByKey(Long nuicResponsible, String orderNumber);
+	
+	public List<Sale> findBySale(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification,String orderNumber) throws ServiceException;
+	public List<Sale> findBySaleLimit(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification, String orderNumber,Integer first, Integer limit ) throws ServiceException;
+	public Long findBySaleCount(Date saleDateStartedAt,Date saleDateEndedAt,Date sendingDate, List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState, NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress, Boolean withoutNotification,String orderNumber) throws ServiceException;
+	
 	
 }

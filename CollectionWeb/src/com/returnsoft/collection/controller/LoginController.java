@@ -11,8 +11,8 @@ import javax.inject.Named;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.exception.UserTypeNotFoundException;
 import com.returnsoft.collection.service.UserService;
-import com.returnsoft.collection.util.FacesUtil;
-import com.returnsoft.collection.util.SessionBean;
+import com.returnsoft.generic.util.FacesUtil;
+import com.returnsoft.generic.util.SessionBean;
 
 @Named
 @RequestScoped
@@ -97,7 +97,7 @@ public class LoginController implements Serializable {
 	public String doLogout() {
 		try {
 			
-			//System.out.println("ingresoa logout");
+			System.out.println("ingresoa logout");
 			FacesContext.getCurrentInstance().getExternalContext()
 					.invalidateSession();
 

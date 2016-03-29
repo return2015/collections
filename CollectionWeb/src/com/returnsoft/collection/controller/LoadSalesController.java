@@ -1,7 +1,6 @@
 package com.returnsoft.collection.controller;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
@@ -52,8 +51,8 @@ import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.CollectionPeriodService;
 import com.returnsoft.collection.service.ProductService;
 import com.returnsoft.collection.service.SaleService;
-import com.returnsoft.collection.util.SaleFile;
-import com.returnsoft.collection.util.SessionBean;
+import com.returnsoft.collection.vo.SaleFile;
+import com.returnsoft.generic.util.SessionBean;
 
 @ManagedBean
 @ViewScoped
@@ -191,7 +190,7 @@ public class LoadSalesController implements Serializable {
 	private List<SaleFile> readFile(UploadedFile file) throws Exception {
 
 		String strLine = null;
-		Integer lineNumber = 0;
+		Integer lineNumber = 1;
 		SaleFile headers = new SaleFile();
 		List<SaleFile> dataList = new ArrayList<SaleFile>();
 		Integer FILE_ROWS = 49;
@@ -203,12 +202,16 @@ public class LoadSalesController implements Serializable {
 			while ((strLine = br.readLine()) != null) {
 
 				String[] values = strLine.split("\\|", -1);
+
+				
 				if (values.length != FILE_ROWS) {
-					throw new FileRowsInvalidException(FILE_ROWS);
+					throw new FileRowsInvalidException(lineNumber,FILE_ROWS);
 				}
+				
+				
 
 				// SE LEE CABECERA
-				if (lineNumber == 0) {
+				if (lineNumber == 1) {
 
 					headers.setDocumentType(values[0]);
 					headers.setNuicResponsible(values[1]);
@@ -334,9 +337,9 @@ public class LoadSalesController implements Serializable {
 
 			return dataList;
 
-		} catch (IOException e) {
+		} catch (FileRowsInvalidException e) {
 			e.printStackTrace();
-			throw new Exception(e.getClass().getName());
+			throw new Exception(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("Ocurrio un error al leer el archivo.");
@@ -355,8 +358,8 @@ public class LoadSalesController implements Serializable {
 		DocumentTypeEnum documentType = null;
 		if (saleFile.getDocumentType().length() == 0) {
 			errors.add(new NullException(headers.getDocumentType(), lineNumber));
-		} else if (saleFile.getDocumentType().length() != 3) {
-			errors.add(new OverflowException(headers.getDocumentType(), lineNumber, 3));
+		} else if (saleFile.getDocumentType().length() > 5) {
+			errors.add(new OverflowException(headers.getDocumentType(), lineNumber, 5));
 		} else {
 			documentType = DocumentTypeEnum.findByName(saleFile.getDocumentType());
 			if (documentType == null) {
@@ -471,12 +474,12 @@ public class LoadSalesController implements Serializable {
 		}
 
 		// NUIC DE CONTRATANTE
-		Integer nuicContractor = null;
-		if (saleFile.getNuicContractor().length() > 8) {
-			errors.add(new OverflowException(headers.getNuicContractor(), lineNumber, 8));
+		Long nuicContractor = null;
+		if (saleFile.getNuicContractor().length() > 11) {
+			errors.add(new OverflowException(headers.getNuicContractor(), lineNumber, 11));
 		} else if (saleFile.getNuicContractor().length() > 0) {
 			try {
-				nuicContractor = Integer.parseInt(saleFile.getNuicContractor());
+				nuicContractor = Long.parseLong(saleFile.getNuicContractor());
 				// sale.setNuicContractor(nuicContractor);
 			} catch (NumberFormatException e) {
 				errors.add(new FormatException(headers.getNuicContractor(), lineNumber));
@@ -505,14 +508,14 @@ public class LoadSalesController implements Serializable {
 		}
 
 		// NUIC DE ASEGURADO
-		int nuicInsured = 0;
+		Long nuicInsured = null;
 		if (saleFile.getNuicInsured().length() == 0) {
 			errors.add(new NullException(headers.getNuicInsured(), lineNumber));
-		} else if (saleFile.getNuicInsured().length() > 8) {
-			errors.add(new OverflowException(headers.getNuicInsured(), lineNumber, 8));
+		} else if (saleFile.getNuicInsured().length() > 11) {
+			errors.add(new OverflowException(headers.getNuicInsured(), lineNumber, 11));
 		} else {
 			try {
-				nuicInsured = Integer.parseInt(saleFile.getNuicInsured());
+				nuicInsured = Long.parseLong(saleFile.getNuicInsured());
 				// sale.setNuicInsured(nuicInsured);
 			} catch (NumberFormatException e) {
 				errors.add(new FormatException(headers.getNuicInsured(), lineNumber));

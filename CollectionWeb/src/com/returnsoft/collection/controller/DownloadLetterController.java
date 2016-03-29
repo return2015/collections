@@ -25,7 +25,7 @@ import com.returnsoft.collection.exception.NullException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.SaleService;
-import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.generic.util.FacesUtil;
 
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRParameter;

@@ -23,7 +23,7 @@ public class SaleStateHistoryEao {
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<SaleStateHistory> findBySaleId(Long saleId) throws EaoException {
 		try {
-			String query = "SELECT ssh FROM SaleStateHistory ssh  WHERE ssh.id = :saleId ";
+			String query = "SELECT ssh FROM SaleStateHistory ssh left join ssh.sale s  WHERE s.id = :saleId ";
 
 			TypedQuery<SaleStateHistory> q = em.createQuery(query, SaleStateHistory.class);
 			q.setParameter("saleId", saleId);

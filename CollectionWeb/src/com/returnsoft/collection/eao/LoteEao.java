@@ -7,15 +7,12 @@ import java.util.List;
 
 //import javax.annotation.Resource;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
-import com.returnsoft.collection.eao.LoteEao;
 import com.returnsoft.collection.entity.Lote;
 import com.returnsoft.collection.enumeration.LoteTypeEnum;
 import com.returnsoft.collection.exception.EaoException;

@@ -39,6 +39,7 @@ import com.returnsoft.collection.exception.BankInvalidException;
 import com.returnsoft.collection.exception.BankNotSelectedException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
+import com.returnsoft.collection.lazy.SaleLazyModel;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.CollectionService;
 import com.returnsoft.collection.service.CreditCardService;
@@ -47,9 +48,8 @@ import com.returnsoft.collection.service.RepaymentService;
 import com.returnsoft.collection.service.SaleService;
 import com.returnsoft.collection.service.SaleStateService;
 import com.returnsoft.collection.service.UserService;
-import com.returnsoft.collection.util.FacesUtil;
-import com.returnsoft.collection.util.SaleLazyModel;
-import com.returnsoft.collection.util.SessionBean;
+import com.returnsoft.generic.util.FacesUtil;
+import com.returnsoft.generic.util.SessionBean;
 
 @ManagedBean
 @ViewScoped
@@ -317,13 +317,13 @@ public class SearchSalesForCollectionsController implements Serializable {
 
 			if (searchTypeSelected.equals("creditCard")) {
 				Long creditCardNumberLong = Long.parseLong(creditCardNumber);
-				sales = new SaleLazyModel(saleService, searchTypeSelected, creditCardNumberLong);
+				//sales = new SaleLazyModel(saleService, searchTypeSelected, creditCardNumberLong);
 				
 			} else if (searchTypeSelected.equals("dni")) {
 				Long nuicResponsibleLong = Long.parseLong(nuicResponsible);
 				//sales = saleService
 				//		.findSalesByNuicResponsible(nuicResponsibleLong);
-				sales = new SaleLazyModel(saleService, searchTypeSelected, nuicResponsibleLong);
+				//sales = new SaleLazyModel(saleService, searchTypeSelected, nuicResponsibleLong);
 				
 			} else if (searchTypeSelected.equals("saleData")) {
 				Short productId = null;
@@ -386,7 +386,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 //								nuicContractorLong, firstnameContractor,
 //								lastnamePaternalContractor,
 //								lastnameMaternalContractor);
-						sales = new SaleLazyModel(saleService, personTypeSelected, nuicContractorLong, firstnameContractor, lastnamePaternalContractor, lastnameMaternalContractor);
+						//sales = new SaleLazyModel(saleService, personTypeSelected, nuicContractorLong, firstnameContractor, lastnamePaternalContractor, lastnameMaternalContractor);
 
 					} else {
 						FacesMessage msg = new FacesMessage(
@@ -414,7 +414,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 //								nuicInsuredLong, firstnameInsured,
 //								lastnamePaternalInsured,
 //								lastnameMaternalInsured);
-						sales = new SaleLazyModel(saleService, personTypeSelected, nuicInsuredLong, firstnameInsured, lastnamePaternalInsured, lastnameMaternalInsured);
+						//sales = new SaleLazyModel(saleService, personTypeSelected, nuicInsuredLong, firstnameInsured, lastnamePaternalInsured, lastnameMaternalInsured);
 
 					} else {
 						FacesMessage msg = new FacesMessage(
@@ -444,7 +444,7 @@ public class SearchSalesForCollectionsController implements Serializable {
 								nuicResponsibleLong, firstnameResponsible,
 								lastnamePaternalResponsible,
 								lastnameMaternalResponsible);*/
-						sales = new SaleLazyModel(saleService, personTypeSelected, nuicResponsibleLong, firstnameResponsible, lastnamePaternalResponsible, lastnameMaternalResponsible);
+						///sales = new SaleLazyModel(saleService, personTypeSelected, nuicResponsibleLong, firstnameResponsible, lastnamePaternalResponsible, lastnameMaternalResponsible);
 
 					} else {
 						FacesMessage msg = new FacesMessage(

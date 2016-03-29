@@ -39,13 +39,11 @@
 
 			<p:menuitem value="Ventas" outcome="search_sales" icon="ui-icon-star" />
 
-			<p:menuitem value="Cobranzas"
-				outcome="search_collections" icon="ui-icon-star" />
+			<p:menuitem value="Cobranzas" outcome="search_collections" icon="ui-icon-star" />
+			
+			<p:menuitem value="Extornos" outcome="search_repayments" icon="ui-icon-star" />
 
-			<p:menuitem value="Notificaciones"
-				outcome="search_sales_for_notifications" icon="ui-icon-star" />
-
-
+			<p:menuitem value="Notificaciones" outcome="search_sales_for_notifications" icon="ui-icon-star" />
 
 			<p:menuitem value="Usuarios" outcome="search_user"
 				rendered="#{sessionBean.isAdmin}" icon="ui-icon-star" />
@@ -53,7 +51,7 @@
 			<p:menuitem value="Seleccionar banco"
 				onclick="PF('bankDialog').show()" icon="ui-icon-star" />
 
-			<p:menuitem value="Salir" action="#{loginController.doLogout}"
+			<p:menuitem value="Salir" immediate="true" action="#{loginController.doLogout}"
 				icon="ui-icon-star" />
 
 		</p:menubar>

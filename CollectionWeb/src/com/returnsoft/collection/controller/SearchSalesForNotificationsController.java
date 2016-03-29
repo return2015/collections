@@ -51,13 +51,14 @@ import com.returnsoft.collection.exception.NotificationPendingException;
 import com.returnsoft.collection.exception.NullException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
+import com.returnsoft.collection.lazy.NotificationsBySaleLazyModel;
+import com.returnsoft.collection.lazy.SaleLazyModel;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.PayerService;
 import com.returnsoft.collection.service.SaleService;
-import com.returnsoft.collection.util.FacesUtil;
-import com.returnsoft.collection.util.SaleLazyModel;
-import com.returnsoft.collection.util.SessionBean;
+import com.returnsoft.generic.util.FacesUtil;
+import com.returnsoft.generic.util.SessionBean;
 
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRParameter;
@@ -272,7 +273,8 @@ public class SearchSalesForNotificationsController implements Serializable {
 				if (nuicResponsible != null) {
 					nuicResponsibleLong = Long.parseLong(nuicResponsible);
 				}
-				sales = new SaleLazyModel(saleService, searchTypeSelected, nuicResponsibleLong);
+				
+				//sales = new SaleLazyModel(saleService, searchTypeSelected, nuicResponsibleLong);
 			} else if (searchTypeSelected.equals("notificationData")) {
 				// ESTADOS DE NOTIFICACION
 				List<NotificationStateEnum> notificationStatesEnum = new ArrayList<NotificationStateEnum>();
@@ -298,7 +300,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 				if (notificationTypeSelected != null && notificationTypeSelected.length() > 0) {
 					notificationType = NotificationTypeEnum.findById(Short.parseShort(notificationTypeSelected));
 				}
-				sales = new SaleLazyModel(saleService, dateOfSaleStarted, dateOfSaleEnded, sendingDate,
+				sales = new NotificationsBySaleLazyModel(notificationService, dateOfSaleStarted, dateOfSaleEnded, sendingDate,
 						notificationStatesEnum, bankId, saleState, notificationType, withoutMail, withoutAddress,
 						withoutNotification, orderNumber);
 			}
@@ -348,7 +350,7 @@ public class SearchSalesForNotificationsController implements Serializable {
 				if (notificationTypeSelected != null && notificationTypeSelected.length() > 0) {
 					notificationType = NotificationTypeEnum.findById(Short.parseShort(notificationTypeSelected));
 				}
-				sales = saleService.findForNotifications(dateOfSaleStarted, dateOfSaleEnded, sendingDate,
+				sales = notificationService.findBySale(dateOfSaleStarted, dateOfSaleEnded, sendingDate,
 						notificationStatesEnum, bankId, saleState, notificationType, withoutMail, withoutAddress,
 						withoutNotification, orderNumber);
 			}

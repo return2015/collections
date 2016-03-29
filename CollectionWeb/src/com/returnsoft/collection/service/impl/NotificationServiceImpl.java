@@ -55,7 +55,7 @@ import com.returnsoft.collection.exception.SaleNotFoundException;
 import com.returnsoft.collection.exception.SaleStateNoActiveException;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.NotificationService;
-import com.returnsoft.collection.util.NotificationFile;
+import com.returnsoft.collection.vo.NotificationFile;
 
 import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRParameter;
@@ -1097,5 +1097,61 @@ public class NotificationServiceImpl implements NotificationService {
 			throw new ServiceException(e.getMessage());
 		}
 	}
+	
+	
+	
+	@Override
+	public List<Sale> findBySale(Date saleDateStartedAt, Date saleDateEndedAt, Date sendingDate,
+			List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState,
+			NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress,
+			Boolean withoutNotification, String orderNumber) throws ServiceException {
+		try {
+			return notificationEao.findBySale(saleDateStartedAt, saleDateEndedAt, sendingDate, notificationStates,
+					bankId, saleState, notificationType, withoutMail, withoutAddress, withoutNotification, orderNumber);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	@Override
+	public List<Sale> findBySaleLimit(Date saleDateStartedAt, Date saleDateEndedAt, Date sendingDate,
+			List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState,
+			NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress,
+			Boolean withoutNotification, String orderNumber, Integer first, Integer limit) throws ServiceException {
+		try {
+			return notificationEao.findBySaleLimit(saleDateStartedAt, saleDateEndedAt, sendingDate,
+					notificationStates, bankId, saleState, notificationType, withoutMail, withoutAddress,
+					withoutNotification, orderNumber, first, limit);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	@Override
+	public Long findBySaleCount(Date saleDateStartedAt, Date saleDateEndedAt, Date sendingDate,
+			List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState,
+			NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress,
+			Boolean withoutNotification, String orderNumber) throws ServiceException {
+		try {
+			return notificationEao.findBySaleCount(saleDateStartedAt, saleDateEndedAt, sendingDate,
+					notificationStates, bankId, saleState, notificationType, withoutMail, withoutAddress,
+					withoutNotification, orderNumber);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getMessage());
+		}
+	}
+	
 
 }

@@ -1,6 +1,5 @@
 package com.returnsoft.collection.eao;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -11,15 +10,11 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
-import com.returnsoft.collection.eao.SaleEao;
 import com.returnsoft.collection.entity.Sale;
-import com.returnsoft.collection.enumeration.NotificationStateEnum;
-import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.EaoException;
 
 @Stateless
-// @TransactionManagement(TransactionManagementType.CONTAINER)
 public class SaleEao {
 
 	@PersistenceContext
@@ -28,26 +23,21 @@ public class SaleEao {
 	//@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void add(Sale sale) throws EaoException {
 		try {
-
+			
 			Long newCorrelative = generateNewCorrelative(sale.getProduct().getId(), sale.getBank().getId());
 			String code = newCorrelative.toString();
 			while (code.length() < 6) {
 				code = "0" + code;
 			}
+			
 			code = sale.getBank().getCode() + sale.getProduct().getCode() + code;
 			sale.setCode(code);
-
-			// System.out.println("RECIEN SE CREA LA VENTA");
-
+			
 			em.persist(sale);
 			em.flush();
-
-			// System.out.println("RECIEN SE CREA LA VENTA");
-
+			
 		} catch (Exception e) {
-
 			e.printStackTrace();
-
 			throw new EaoException(e);
 		}
 	}
@@ -140,21 +130,20 @@ public class SaleEao {
 	}
 
 	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public long checkExistSale(Integer nuicInsured, Date dateOfSale, Short bankId, Short productId,
+	public long checkExistSale(Long nuicInsured, Date dateOfSale, Short bankId, Short productId,
 			Short collectionPeriodId) throws EaoException {
 
 		try {
 
-			String query = "SELECT s.id FROM " 
-			+ "Sale s " 
-					+ "left join s.bank b " 
-					+ "left join s.product p "
-					+ "left join s.collectionPeriod cp " 
-					+ "WHERE s.nuicInsured = :nuicInsured "
-					+ "and s.date = :dateOfSale " 
-					+ "and p.id  = :productId " 
-					+ "and b.id = :bankId "
-					+ "and cp.id = :collectionPeriodId ";
+			String query = "SELECT s.id FROM Sale s "
+					+ " left join s.bank b "
+					+ " left join s.product p "
+					+ " left join s.collectionPeriod cp "
+					+ " WHERE s.nuicInsured = :nuicInsured "
+					+ " and s.date = :dateOfSale "
+					+ " and p.id  = :productId "
+					+ " and b.id = :bankId "
+					+ " and cp.id = :collectionPeriodId ";
 
 			TypedQuery<Long> q = em.createQuery(query, Long.class);
 			q.setParameter("nuicInsured", nuicInsured);
@@ -175,308 +164,7 @@ public class SaleEao {
 	
 
 	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public List<Sale> findForNotifications(Date saleDateStartedAt, Date saleDateEndedAt, Date sendingDate,
-			List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState,
-			NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress,
-			Boolean withoutNotification, String orderNumber) throws EaoException {
-		try {
-
-			String query = "SELECT s FROM Sale s " 
-			+ "left join fetch s.saleState ss "
-			+ "left join fetch s.payer p " 
-			+ "left join fetch s.creditCard cc " 
-			+ "left join s.bank b "
-			+ "left join s.notification n " 
-			+ "WHERE s.id>0 ";
-			
-			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
-				query+=" and s.date between :saleDateStartedAt and :saleDateEndedAt ";
-			}
-
-			if (sendingDate != null) {
-				query += " and n.sendingAt between :sendingDateStart and  :sendingDateEnd";
-			}
-			if (bankId != null) {
-				query += " and b.id = :bankId ";
-			}
-
-			if (saleState != null) {
-				query += " and ss.state = :saleState ";
-			}
-
-			if (notificationType != null) {
-				query += " and n.type = :notificationType ";
-			}
-
-			if (notificationStates != null && notificationStates.size() > 0) {
-				query += " and n.state in :notificationStates ";
-			}
-
-			if (withoutAddress) {
-				query += " and (p.address is not null and p.address <> '') ";
-			}
-
-			if (withoutMail) {
-				query += " and (p.mail is not null and p.mail <> '') ";
-			}
-
-			if (withoutNotification) {
-				query += " and n.id is null ";
-			}
-			if (orderNumber != null && orderNumber.length() > 0) {
-				query += " and n.orderNumber=:orderNumber ";
-			}
-
-			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
-			
-			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
-				q.setParameter("saleDateStartedAt", saleDateStartedAt);
-				q.setParameter("saleDateEndedAt", saleDateEndedAt);	
-			}
-
-			if (sendingDate != null) {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				q.setParameter("sendingDateStart", sdf2.parse(sdf.format(sendingDate) + " 00:00:00"));
-				q.setParameter("sendingDateEnd", sdf2.parse(sdf.format(sendingDate) + " 23:59:59"));
-			}
-
-			if (notificationStates != null && notificationStates.size() > 0) {
-				q.setParameter("notificationStates", notificationStates);
-			}
-
-			if (saleState != null) {
-				q.setParameter("saleState", saleState);
-			}
-
-			if (notificationType != null) {
-				q.setParameter("notificationType", notificationType);
-			}
-
-			if (bankId != null) {
-				q.setParameter("bankId", bankId);
-			}
-
-			if (orderNumber != null && orderNumber.length() > 0) {
-				q.setParameter("orderNumber", orderNumber);
-			}
-
-			List<Sale> sales = q.getResultList();
-			return sales;
-
-		} catch (NoResultException e) {
-			return null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new EaoException(e.getMessage());
-		}
-
-	}
-
-	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public List<Sale> findForNotificationsLimit(Date saleDateStartedAt, Date saleDateEndedAt, Date sendingDate,
-			List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState,
-			NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress,
-			Boolean withoutNotification, String orderNumber, Integer first, Integer limit) throws EaoException {
-		try {
-
-			String query = 
-					"SELECT s FROM Sale s " 
-					+ "left join fetch s.saleState ss "
-					+ "left join fetch s.creditCard cc " 
-					+ "left join fetch s.payer p "
-					+ "left join fetch s.bank b " 
-					+ "left join s.notification n "
-					+ "WHERE s.id>0 ";
-			
-			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
-				query+=" and s.date between :saleDateStartedAt and :saleDateEndedAt ";
-			}
-			
-			if (sendingDate != null) {
-				query += " and n.sendingAt between :sendingDateStart and  :sendingDateEnd";
-			}
-			if (bankId != null) {
-				query += " and b.id = :bankId ";
-			}
-
-			if (saleState != null) {
-				query += " and ss.state = :saleState ";
-			}
-
-			if (notificationType != null) {
-				query += " and n.type = :notificationType ";
-			}
-
-			if (notificationStates != null && notificationStates.size() > 0) {
-				query += " and n.state in :notificationStates ";
-			}
-
-			if (withoutAddress) {
-				query += " and (p.address is not null and p.address <> '') ";
-			}
-
-			if (withoutMail) {
-				query += " and (p.mail is not null and p.mail <> '') ";
-			}
-
-			if (withoutNotification) {
-				query += " and n.id is null ";
-			}
-
-			if (orderNumber != null && orderNumber.length() > 0) {
-				query += " and n.orderNumber=:orderNumber ";
-			}
-
-			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
-			
-			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
-				q.setParameter("saleDateStartedAt", saleDateStartedAt);
-				q.setParameter("saleDateEndedAt", saleDateEndedAt);	
-			}
-
-			if (sendingDate != null) {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				q.setParameter("sendingDateStart", sdf2.parse(sdf.format(sendingDate) + " 00:00:00"));
-				q.setParameter("sendingDateEnd", sdf2.parse(sdf.format(sendingDate) + " 23:59:59"));
-			}
-
-			if (notificationStates != null && notificationStates.size() > 0) {
-				q.setParameter("notificationStates", notificationStates);
-			}
-
-			if (saleState != null) {
-				q.setParameter("saleState", saleState);
-			}
-
-			if (notificationType != null) {
-				q.setParameter("notificationType", notificationType);
-			}
-
-			if (bankId != null) {
-				q.setParameter("bankId", bankId);
-			}
-
-			if (orderNumber != null && orderNumber.length() > 0) {
-				q.setParameter("orderNumber", orderNumber);
-			}
-
-			q.setFirstResult(first);
-			q.setMaxResults(limit);
-
-			List<Sale> sales = q.getResultList();
-			return sales;
-
-		} catch (NoResultException e) {
-			return null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new EaoException(e.getMessage());
-		}
-
-	}
-
-	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public Long findForNotificationsCount(Date saleDateStartedAt, Date saleDateEndedAt, Date sendingDate,
-			List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState,
-			NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress,
-			Boolean withoutNotification, String orderNumber) throws EaoException {
-		try {
-
-			String query = 
-					"SELECT count(s.id) FROM Sale s " 
-					+ "left join fetch s.saleState ss "
-					+ "left join fetch s.creditCard cc " 
-					+ "left join fetch s.payer p " 
-					+ "left join s.bank b "
-					+ "left join s.notification n " 
-					+ "WHERE s.id>0 ";
-			
-			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
-				query+=" and s.date between :saleDateStartedAt and :saleDateEndedAt ";
-			}
-
-			if (sendingDate != null) {
-				query += " and n.sendingAt between :sendingDateStart and  :sendingDateEnd";
-			}
-			if (bankId != null) {
-				query += " and b.id = :bankId ";
-			}
-
-			if (saleState != null) {
-				query += " and ss.state = :saleState ";
-			}
-
-			if (notificationType != null) {
-				query += " and n.type = :notificationType ";
-			}
-
-			if (notificationStates != null && notificationStates.size() > 0) {
-				query += " and n.state in :notificationStates ";
-			}
-
-			if (withoutAddress) {
-				query += " and (p.address is not null and p.address <> '') ";
-			}
-
-			if (withoutMail) {
-				query += " and (p.mail is not null and p.mail <> '') ";
-			}
-
-			if (withoutNotification) {
-				query += " and n.id is null ";
-			}
-
-			if (orderNumber != null && orderNumber.length() > 0) {
-				query += " and n.orderNumber=:orderNumber ";
-			}
-
-			Query q = em.createQuery(query);
-			
-			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
-				q.setParameter("saleDateStartedAt", saleDateStartedAt);
-				q.setParameter("saleDateEndedAt", saleDateEndedAt);	
-			}
-
-			if (sendingDate != null) {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				q.setParameter("sendingDateStart", sdf2.parse(sdf.format(sendingDate) + " 00:00:00"));
-				q.setParameter("sendingDateEnd", sdf2.parse(sdf.format(sendingDate) + " 23:59:59"));
-			}
-
-			if (notificationStates != null && notificationStates.size() > 0) {
-				q.setParameter("notificationStates", notificationStates);
-			}
-
-			if (saleState != null) {
-				q.setParameter("saleState", saleState);
-			}
-
-			if (notificationType != null) {
-				q.setParameter("notificationType", notificationType);
-			}
-
-			if (bankId != null) {
-				q.setParameter("bankId", bankId);
-			}
-
-			if (orderNumber != null && orderNumber.length() > 0) {
-				q.setParameter("orderNumber", orderNumber);
-			}
-
-			Long salesCount = (Long) q.getSingleResult();
-			return salesCount;
-
-		} catch (NoResultException e) {
-			return null;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new EaoException(e.getMessage());
-		}
-
-	}
+	
 
 	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findBySaleData(Date saleDateStartedAt, Date saleDateEndedAt, Short bankId, Short productId,
@@ -486,9 +174,13 @@ public class SaleEao {
 			String query = 
 					"SELECT s "
 					+ "FROM Sale s " 
-					+ "left join s.product p " 
-					+ "left join s.bank b "
-					+ "left join fetch s.payer pa " 
+					+ "left join fetch s.product p " 
+					+ "left join fetch s.bank b "
+					+ "left join fetch s.lote l "
+					+ "left join fetch s.collectionPeriod cp "
+					+ "left join fetch s.createdBy cb "
+					+ "left join fetch s.updatedBy ub "
+					+ "left join fetch s.payer pa "
 					+ "left join fetch s.creditCard cc "
 					+ "left join fetch s.saleState ss "
 					+ "WHERE s.id>0 ";
@@ -548,8 +240,16 @@ public class SaleEao {
 			SaleStateEnum saleState, Integer first, Integer limit) throws EaoException {
 		try {
 
-			String query = "SELECT s FROM Sale s " + "left join s.product p " + "left join s.bank b "
-					+ "left join fetch s.payer pa " + "left join fetch s.creditCard cc "
+			String query = 
+					"SELECT s FROM Sale s " 
+					+ "left join fetch s.product p " 
+					+ "left join fetch s.bank b "
+					+ "left join fetch s.lote l "
+					+ "left join fetch s.collectionPeriod cp "
+					+ "left join fetch s.createdBy cb "
+					+ "left join fetch s.updatedBy ub "
+					+ "left join fetch s.payer pa "
+					+ "left join fetch s.creditCard cc "
 					+ "left join fetch s.saleState ss "
 					+ "WHERE s.id>0 ";
 			
@@ -587,13 +287,13 @@ public class SaleEao {
 			if (saleState != null) {
 				q.setParameter("saleState", saleState);
 			}
-			System.out.println("first:"+first);
-			System.out.println("limit:"+limit);
+			//System.out.println("first:"+first);
+			//System.out.println("limit:"+limit);
 			q.setFirstResult(first);
 			q.setMaxResults(limit);
 			List<Sale> sales = q.getResultList();
 
-			System.out.println("cantidad de ventas" + sales.size());
+			//System.out.println("cantidad de ventas" + sales.size());
 
 			return sales;
 
@@ -611,9 +311,13 @@ public class SaleEao {
 			SaleStateEnum saleState) throws EaoException {
 		try {
 
-			String query = "SELECT count(s.id) FROM Sale s " + "left join s.product p " + "left join s.bank b "
-					+ "left join fetch s.payer pa " + "left join fetch s.creditCard cc "
-					+ "left join fetch s.saleState ss "
+			String query = 
+					"SELECT count(s.id) FROM Sale s " 
+					+ "left join s.product p " 
+					+ "left join s.bank b "
+					+ "left join s.payer pa " 
+					+ "left join s.creditCard cc "
+					+ "left join s.saleState ss "
 					+ "WHERE s.id>0 ";
 			
 			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
@@ -666,13 +370,55 @@ public class SaleEao {
 
 	}
 
+	public List<Sale> findByCreditCard(Long creditCardNumber) throws EaoException {
+		try {
+
+			String query = 
+					"SELECT s FROM Sale s "
+							+ "left join fetch s.product p " 
+							+ "left join fetch s.bank b "
+							+ "left join fetch s.lote l "
+							+ "left join fetch s.collectionPeriod cp "
+							+ "left join fetch s.createdBy cb "
+							+ "left join fetch s.updatedBy ub "
+							+ "left join fetch s.payer pa "
+							+ "left join fetch s.creditCard cc "
+							+ "left join fetch s.saleState ss "
+					+ "WHERE cc.number = :creditCardNumber ";
+
+			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
+			q.setParameter("creditCardNumber", creditCardNumber);
+
+			List<Sale> sales = q.getResultList();
+			return sales;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
 	
 
 	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNuicResponsible(Long nuicResponsible) throws EaoException {
 		try {
+			
+			System.out.println("nuicResponsible:"+nuicResponsible);
 
-			String query = "SELECT s FROM Sale s left join s.payer p WHERE p.nuicResponsible = :nuicResponsible ";
+			String query = "SELECT s FROM Sale s "
+					+ "left join fetch s.product p " 
+					+ "left join fetch s.bank b "
+					+ "left join fetch s.lote l "
+					+ "left join fetch s.collectionPeriod cp "
+					+ "left join fetch s.createdBy cb "
+					+ "left join fetch s.updatedBy ub "
+					+ "left join fetch s.payer pa "
+					+ "left join fetch s.creditCard cc "
+					+ "left join fetch s.saleState ss "
+					+ "WHERE pa.nuicResponsible = :nuicResponsible ";
 
 			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
 			q.setParameter("nuicResponsible", nuicResponsible);
@@ -688,7 +434,7 @@ public class SaleEao {
 		}
 
 	}
-
+/*
 	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNuicResponsibleLimit(Long nuicResponsible, Integer first, Integer limit)
 			throws EaoException {
@@ -731,7 +477,7 @@ public class SaleEao {
 			throw new EaoException(e.getMessage());
 		}
 
-	}
+	}*/
 
 	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNamesResponsible(Long nuicResponsible, String firstnameResponsible,
@@ -742,19 +488,28 @@ public class SaleEao {
 
 			String query = "SELECT s " 
 							+ "FROM Sale s " 
-							+ "left join s.payer p WHERE s.id > 0 ";
+							+ "left join fetch s.product p " 
+							+ "left join fetch s.bank b "
+							+ "left join fetch s.lote l "
+							+ "left join fetch s.collectionPeriod cp "
+							+ "left join fetch s.createdBy cb "
+							+ "left join fetch s.updatedBy ub "
+							+ "left join fetch s.payer pa "
+							+ "left join fetch s.creditCard cc "
+							+ "left join fetch s.saleState ss "
+							+ "WHERE s.id > 0 ";
 
 			if (nuicResponsible != null && nuicResponsible > 0) {
-				query += " and p.nuicResponsible = :nuicResponsible ";
+				query += " and pa.nuicResponsible = :nuicResponsible ";
 			}
 			if (firstnameResponsible != null && firstnameResponsible.length() > 0) {
-				query += " and p.firstnameResponsible = :firstnameResponsible ";
+				query += " and pa.firstnameResponsible = :firstnameResponsible ";
 			}
 			if (lastnamePaternalResponsible != null && lastnamePaternalResponsible.length() > 0) {
-				query += " and p.lastnamePaternalResponsible = :lastnamePaternalResponsible ";
+				query += " and pa.lastnamePaternalResponsible = :lastnamePaternalResponsible ";
 			}
 			if (lastnameMaternalResponsible != null && lastnameMaternalResponsible.length() > 0) {
-				query += " and p.lastnameMaternalResponsible = :lastnameMaternalResponsible ";
+				query += " and pa.lastnameMaternalResponsible = :lastnameMaternalResponsible ";
 			}
 
 			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
@@ -784,7 +539,7 @@ public class SaleEao {
 		}
 
 	}
-
+/*
 	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNamesResponsibleLimit(Long nuicResponsible, String firstnameResponsible,
 			String lastnamePaternalResponsible, String lastnameMaternalResponsible, Integer first, Integer limit)
@@ -885,14 +640,25 @@ public class SaleEao {
 			throw new EaoException(e.getMessage());
 		}
 
-	}
+	}*/
 
 	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNamesInsured(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured,
 			String lastnameMaternalInsured) throws EaoException {
 		try {
 
-			String query = "SELECT s FROM Sale s where s.id > 0 ";
+			String query = "SELECT s "
+					+ "FROM Sale s "
+					+ "left join fetch s.product p " 
+					+ "left join fetch s.bank b "
+					+ "left join fetch s.lote l "
+					+ "left join fetch s.collectionPeriod cp "
+					+ "left join fetch s.createdBy cb "
+					+ "left join fetch s.updatedBy ub "
+					+ "left join fetch s.payer pa "
+					+ "left join fetch s.creditCard cc "
+					+ "left join fetch s.saleState ss "
+					+ "where s.id > 0 ";
 
 			if (nuicInsured != null && nuicInsured > 0) {
 				query += " and s.nuicInsured = :nuicInsured ";
@@ -933,7 +699,7 @@ public class SaleEao {
 		}
 
 	}
-
+/*
 	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNamesInsuredLimit(Long nuicInsured, String firstnameInsured, String lastnamePaternalInsured,
 			String lastnameMaternalInsured, Integer first, Integer limit) throws EaoException {
@@ -1029,14 +795,25 @@ public class SaleEao {
 			throw new EaoException(e.getMessage());
 		}
 
-	}
+	}*/
 
 	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Sale> findByNamesContractor(Long nuicContractor, String firstnameContractor,
 			String lastnamePaternalContractor, String lastnameMaternalContractor) throws EaoException {
 		try {
 
-			String query = "SELECT s FROM Sale s where s.id > 0 ";
+			String query = "SELECT s "
+					+ "FROM Sale s "
+					+ "left join fetch s.product p " 
+					+ "left join fetch s.bank b "
+					+ "left join fetch s.lote l "
+					+ "left join fetch s.collectionPeriod cp "
+					+ "left join fetch s.createdBy cb "
+					+ "left join fetch s.updatedBy ub "
+					+ "left join fetch s.payer pa "
+					+ "left join fetch s.creditCard cc "
+					+ "left join fetch s.saleState ss "
+					+ "where s.id > 0 ";
 
 			if (nuicContractor != null && nuicContractor > 0) {
 				query += " and s.nuicContractor = :nuicContractor ";
@@ -1079,7 +856,7 @@ public class SaleEao {
 	}
 
 	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public List<Sale> findByNamesContractorLimit(Long nuicContractor, String firstnameContractor,
+	/*public List<Sale> findByNamesContractorLimit(Long nuicContractor, String firstnameContractor,
 			String lastnamePaternalContractor, String lastnameMaternalContractor, Integer first, Integer limit)
 					throws EaoException {
 		try {
@@ -1174,6 +951,6 @@ public class SaleEao {
 			throw new EaoException(e.getMessage());
 		}
 
-	}
+	}*/
 
 }

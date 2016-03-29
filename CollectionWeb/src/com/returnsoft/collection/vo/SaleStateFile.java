@@ -1,4 +1,4 @@
-package com.returnsoft.collection.util;
+package com.returnsoft.collection.vo;
 
 public class SaleStateFile {
 	

@@ -1,0 +1,273 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/BasicTemplate.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{searchCollectionsController.initialize}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<div class="title ui-widget-header ui-corner-all">
+			<h:panelGrid columns="2" style="margin:auto;">
+		GESTIÓN DE COBRANZAS 
+			</h:panelGrid>
+
+		</div>
+
+		<p:scrollPanel id="messages" mode="native"
+			style="width:800px;height:70px;margin:auto;border:none;">
+			<p:messages showDetail="true"></p:messages>
+		</p:scrollPanel>
+
+
+		<h:panelGrid>
+			<h:form id="form" prependId="false">
+
+				<h:panelGrid columns="4">
+
+					<h:panelGrid columns="2">
+
+						<p:outputLabel value="Producto:"></p:outputLabel>
+						<p:selectOneMenu id="product"
+							value="#{searchCollectionsController.productSelected}">
+							<f:selectItem itemLabel="Seleccione..." itemValue="" />
+							<f:selectItems value="#{searchCollectionsController.products}"></f:selectItems>
+						</p:selectOneMenu>
+
+						<p:outputLabel value="Banco:"></p:outputLabel>
+						<p:selectOneMenu id="bank"
+							value="#{searchCollectionsController.bankSelected}">
+							<f:selectItem itemLabel="Seleccione..." itemValue="" />
+							<f:selectItems value="#{searchCollectionsController.banks}"></f:selectItems>
+						</p:selectOneMenu>
+
+					</h:panelGrid>
+
+					<h:panelGrid columns="2">
+
+						<p:outputLabel value="Fecha estimada:"></p:outputLabel>
+						<p:calendar navigator="true"
+							value="#{searchCollectionsController.estimatedDate}"
+							pattern="dd-MM-yyyy"></p:calendar>
+
+						<p:outputLabel value="Fecha depósito:"></p:outputLabel>
+						<p:calendar navigator="true"
+							value="#{searchCollectionsController.depositDate}"
+							pattern="dd-MM-yyyy"></p:calendar>
+
+
+					</h:panelGrid>
+					
+					<h:panelGrid columns="2">
+
+						<p:outputLabel value="Mes liquidación:"></p:outputLabel>
+						<p:calendar navigator="true"
+							value="#{searchCollectionsController.monthLiquidationDate}"
+							pattern="MM-yyyy"></p:calendar>
+
+					</h:panelGrid>
+
+					<h:panelGrid columns="2">
+
+						<p:outputLabel value="Número documento"></p:outputLabel>
+						<p:inputText style="width: 230px;"
+							value="#{searchCollectionsController.documentNumber}"></p:inputText>
+
+					</h:panelGrid>
+
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="6">
+				
+					<p:commandButton
+						actionListener="#{searchCollectionsController.search}"
+						icon="ui-icon-search" value="Buscar" process="@form"
+						update=":formTable:searchTable :formTable:collectionId :messages">
+					</p:commandButton>
+					
+					<p:commandButton icon="ui-icon-arrowthickstop-1-s"
+						value="Descargar en Txt" type="button"
+						onclick="PF('confirmDialog').show()">
+					</p:commandButton>
+
+					<p:spacer height="5" width="50"></p:spacer>
+
+					<p:commandButton id="loadCollectionsButtom" immediate="true"
+						actionListener="#{searchCollectionsController.loadCollections}"
+						icon="ui-icon-arrowthickstop-1-n" value="Cargar cobranzas"
+						update=":messages">
+						<p:ajax event="dialogReturn" update=":messages"
+							listener="#{searchCollectionsController.afterLoadCollections}" />
+					</p:commandButton>
+					
+
+				</h:panelGrid>
+				
+				<p:confirmDialog
+					message="¿Está seguro que desea descargar todas las cobranzas de la búsqueda?"
+					header="Confirmación" severity="alert" widgetVar="confirmDialog">
+					<p:commandButton value="Si"
+						action="#{searchCollectionsController.exportTxt}" ajax="false"
+						onclick="PF('confirmDialog').hide()" />
+					<p:commandButton value="No" onclick="PF('confirmDialog').hide();"
+						type="button" />
+				</p:confirmDialog>
+				
+
+
+			</h:form>
+		</h:panelGrid>
+
+		<h:form id="formTable" prependId="false">
+
+
+			<h:panelGrid columns="2" style="width:100%;">
+				<p:outputLabel id="collectionId"
+					value="Cobranza seleccionada: #{searchCollectionsController.collectionSelected!=null?searchCollectionsController.collectionSelected.id:''}">
+				</p:outputLabel>
+			</h:panelGrid>
+
+
+			<p:dataTable style="width:100%;" lazy="true"
+				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+				currentPageReportTemplate="(Entries: {startRecord} - {endRecord} of {totalRecords}, Page: {currentPage}/{totalPages})"
+				value="#{searchCollectionsController.collections}" var="s"
+				selectionMode="single"
+				selection="#{searchCollectionsController.collectionSelected}"
+				paginator="true" rows="10" id="searchTable">
+
+				<p:ajax event="rowSelect" update=":formTable:collectionId" />
+				<p:ajax event="rowUnselect" update=":formTable:collectionId" />
+
+				<p:column headerText="Id" width="20">
+					<h:outputText value="#{s.id}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="Código Venta" width="80">
+					<h:outputText value="#{s.sale.code}">
+					</h:outputText>
+				</p:column>
+				
+				<p:column headerText="Número documento" width="80">
+					<h:outputText value="#{s.sale.payer.nuicResponsible}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Producto" width="80">
+					<h:outputText value="#{s.sale.product.name}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Banco" width="80">
+					<h:outputText value="#{s.sale.bank.name}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Número recibo" width="80">
+					<h:outputText value="#{s.receiptNumber}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Monto máximo" width="80">
+					<h:outputText value="#{s.maximumAmount}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Monto cargar" width="80">
+					<h:outputText value="#{s.chargeAmount}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Fecha estimada" width="80">
+					<h:outputText value="#{s.estimatedDate}">
+						<f:convertDateTime pattern="dd-MM-yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Fecha depósito" width="80">
+					<h:outputText value="#{s.depositDate}">
+						<f:convertDateTime pattern="dd-MM-yyyy" />
+					</h:outputText>
+				</p:column>
+				
+				<p:column headerText="Mes liquidación" width="80">
+					<h:outputText value="#{s.monthLiquidation}">
+						<f:convertDateTime pattern="MM-yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Código respuesta" width="80">
+					<h:outputText value="#{s.responseCode}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Código autorización" width="80">
+					<h:outputText value="#{s.authorizationCode}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Mensaje respuesta" width="80">
+					<h:outputText value="#{s.responseMessage.name}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Acción" width="80">
+					<h:outputText value="#{s.action}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Canal" width="80">
+					<h:outputText value="#{s.channel}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Tipo moneda" width="80">
+					<h:outputText value="#{s.moneyType.name}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Medio pago" width="80">
+					<h:outputText value="#{s.paymentMethod.name}">
+					</h:outputText>
+				</p:column>
+
+
+				<p:column headerText="Lote" width="120">
+					<h:outputText value="#{s.lote.name}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Fecha creación" width="80">
+					<h:outputText value="#{s.createdAt}">
+						<f:convertDateTime pattern="dd-MM-yyyy hh:mm:ss a" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Usuario creación" width="80">
+					<h:outputText value="#{s.createdBy.username}"></h:outputText>
+				</p:column>
+
+			</p:dataTable>
+
+		</h:form>
+
+
+
+
+
+
+	</ui:define>
+
+</ui:composition>
+</html>

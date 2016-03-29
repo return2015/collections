@@ -8,6 +8,8 @@ import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.transaction.UserTransaction;
 
 import com.returnsoft.collection.eao.CollectionEao;
@@ -16,13 +18,13 @@ import com.returnsoft.collection.eao.SaleEao;
 import com.returnsoft.collection.entity.Collection;
 import com.returnsoft.collection.entity.Lote;
 import com.returnsoft.collection.entity.User;
-import com.returnsoft.collection.enumeration.CollectionResponseEnum;
 import com.returnsoft.collection.enumeration.LoteTypeEnum;
 import com.returnsoft.collection.exception.ServiceException;
 import com.returnsoft.collection.service.CollectionService;
-import com.returnsoft.collection.util.CollectionFile;
+import com.returnsoft.collection.vo.CollectionFile;
 
 @Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
 public class CollectionServiceImpl implements CollectionService {
 
 	@EJB
@@ -70,7 +72,7 @@ public class CollectionServiceImpl implements CollectionService {
 				try {
 
 					utx.begin();
-
+					System.out.println(collection.getDepositDate());
 					collection.setLote(lote);
 					collection.setCreatedBy(createdBy);
 					collection.setCreatedAt(current);
@@ -134,7 +136,7 @@ public class CollectionServiceImpl implements CollectionService {
 
 	}
 
-	@Override
+	/*@Override
 	public Integer findByResponseAndAuthorizationDay(CollectionResponseEnum messageResponse, Date authorizationDate, String saleCode)
 			throws ServiceException {
 		try {
@@ -176,7 +178,7 @@ public class CollectionServiceImpl implements CollectionService {
 			e.printStackTrace();
 			throw new ServiceException(e.getMessage());	
 		}
-	}
+	}*/
 	
 	@Override
 	public List<Collection> findBySale(Long saleId) throws ServiceException{
@@ -190,13 +192,18 @@ public class CollectionServiceImpl implements CollectionService {
 			throw new ServiceException(e.getMessage());	
 		}
 	}
-
+	
 	@Override
-	public List<Collection> findLimit(Date createdAtStarted, Date createdAtEnded, Integer first, Integer limit)
+	public List<Collection> findList(Date estimatedDate, Date depositDate,Date monthLiquidationDate,Short bankId, Short productId,Long documentNumber)
 			throws ServiceException {
 		try {
+			System.out.println("INICIA FIND LIST");
 			
-			return collectionEao.findLimit(createdAtStarted, createdAtEnded, first, limit);
+			List<Collection> collections = collectionEao.findList(estimatedDate, depositDate,monthLiquidationDate, bankId,productId,documentNumber);
+			
+			System.out.println("TERMINA FIND LIST");
+			
+			return collections;
 			
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -208,10 +215,11 @@ public class CollectionServiceImpl implements CollectionService {
 	}
 
 	@Override
-	public Long findCount(Date createdAtStarted, Date createdAtEnded) throws ServiceException {
+	public List<Collection> findLimit(Date estimatedDate, Date depositDate,Date monthLiquidationDate,Short bankId, Short productId,Long documentNumber, Integer first, Integer limit)
+			throws ServiceException {
 		try {
 			
-			return collectionEao.findCount(createdAtStarted, createdAtEnded);
+			return collectionEao.findLimit(estimatedDate, depositDate,monthLiquidationDate, bankId,productId,documentNumber,first, limit);
 			
 		} catch (NullPointerException e) {
 			e.printStackTrace();
@@ -219,6 +227,31 @@ public class CollectionServiceImpl implements CollectionService {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	@Override
+	public Long findCount(Date estimatedDate, Date depositDate,Date monthLiquidationDate,Short bankId, Short productId,Long documentNumber) throws ServiceException {
+		try {
+			
+			return collectionEao.findCount(estimatedDate, depositDate,monthLiquidationDate,bankId,productId,documentNumber);
+			
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getClass().getName());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ServiceException(e.getMessage());
+		}
+	}
+
+	@Override
+	public long checkIfExist(Date estimatedDate, String saleCode) {
+		try {
+			return collectionEao.checkExists(saleCode,estimatedDate);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
 		}
 	}
 	

@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/BasicTemplate.xhtml">
+
+	<ui:define name="metadata">
+		<f:metadata>
+			<f:viewAction action="#{searchRepaymentsController.initialize}" />
+		</f:metadata>
+	</ui:define>
+
+	<ui:define name="content">
+
+		<div class="title ui-widget-header ui-corner-all">
+			<h:panelGrid columns="2" style="margin:auto;">
+		GESTIÓN DE EXTORNOS 
+			</h:panelGrid>
+
+		</div>
+
+		<p:scrollPanel id="messages" mode="native"
+			style="width:800px;height:70px;margin:auto;border:none;">
+			<p:messages showDetail="true"></p:messages>
+		</p:scrollPanel>
+
+
+		<h:panelGrid>
+			<h:form id="form" prependId="false">
+
+				<h:panelGrid columns="3">
+
+					<h:panelGrid columns="2">
+
+						<p:outputLabel value="Producto:"></p:outputLabel>
+						<p:selectOneMenu id="product"
+							value="#{searchRepaymentsController.productSelected}">
+							<f:selectItem itemLabel="Seleccione..." itemValue="" />
+							<f:selectItems value="#{searchRepaymentsController.products}"></f:selectItems>
+						</p:selectOneMenu>
+
+						<p:outputLabel value="Banco:"></p:outputLabel>
+						<p:selectOneMenu id="bank"
+							value="#{searchRepaymentsController.bankSelected}">
+							<f:selectItem itemLabel="Seleccione..." itemValue="" />
+							<f:selectItems value="#{searchRepaymentsController.banks}"></f:selectItems>
+						</p:selectOneMenu>
+
+					</h:panelGrid>
+
+					<h:panelGrid columns="2">
+
+						<p:outputLabel value="Fecha abono"></p:outputLabel>
+						<p:calendar navigator="true"
+							value="#{searchRepaymentsController.paymentDate}"
+							pattern="dd-MM-yyyy"></p:calendar>
+
+						<p:outputLabel value="Fecha devolución:"></p:outputLabel>
+						<p:calendar navigator="true"
+							value="#{searchRepaymentsController.returnedDate}"
+							pattern="dd-MM-yyyy"></p:calendar>
+
+
+					</h:panelGrid>
+
+					<h:panelGrid columns="2">
+
+						<p:outputLabel value="Número documento"></p:outputLabel>
+						<p:inputText style="width: 230px;"
+							value="#{searchRepaymentsController.documentNumber}"></p:inputText>
+
+					</h:panelGrid>
+
+
+				</h:panelGrid>
+
+				<h:panelGrid columns="6">
+				
+					<p:commandButton
+						actionListener="#{searchRepaymentsController.search}"
+						icon="ui-icon-search" value="Buscar" process="@form"
+						update=":formTable:searchTable :formTable:collectionId :messages">
+					</p:commandButton>
+					
+					<p:commandButton icon="ui-icon-arrowthickstop-1-s"
+						value="Descargar en Txt" type="button"
+						onclick="PF('confirmDialog').show()">
+					</p:commandButton>
+
+					<p:spacer height="5" width="50"></p:spacer>
+
+					<p:commandButton id="loadRepaymentsButtom" immediate="true"
+						actionListener="#{searchRepaymentsController.loadRepayments}"
+						icon="ui-icon-arrowthickstop-1-n" value="Cargar extornos"
+						update=":messages">
+						<p:ajax event="dialogReturn" update=":messages"
+							listener="#{searchRepaymentsController.afterLoadRepayments}" />
+					</p:commandButton>
+					
+
+				</h:panelGrid>
+				
+				<p:confirmDialog
+					message="¿Está seguro que desea descargar todos los extornos de la búsqueda?"
+					header="Confirmación" severity="alert" widgetVar="confirmDialog">
+					<p:commandButton value="Si"
+						action="#{searchRepaymentsController.exportTxt}" ajax="false"
+						onclick="PF('confirmDialog').hide()" />
+					<p:commandButton value="No" onclick="PF('confirmDialog').hide();"
+						type="button" />
+				</p:confirmDialog>
+				
+
+
+			</h:form>
+		</h:panelGrid>
+
+		<h:form id="formTable" prependId="false">
+
+
+			<h:panelGrid columns="2" style="width:100%;">
+				<p:outputLabel id="collectionId"
+					value="Cobranza seleccionada: #{searchRepaymentsController.repaymentSelected!=null?searchRepaymentsController.repaymentSelected.id:''}">
+				</p:outputLabel>
+			</h:panelGrid>
+
+
+			<p:dataTable style="width:100%;" lazy="true"
+				paginatorTemplate="{FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+				currentPageReportTemplate="(Entries: {startRecord} - {endRecord} of {totalRecords}, Page: {currentPage}/{totalPages})"
+				value="#{searchRepaymentsController.repayments}" var="s"
+				selectionMode="single"
+				selection="#{searchRepaymentsController.repaymentSelected}"
+				paginator="true" rows="10" id="searchTable">
+
+				<p:ajax event="rowSelect" update=":formTable:collectionId" />
+				<p:ajax event="rowUnselect" update=":formTable:collectionId" />
+
+				<p:column headerText="Id" width="20">
+					<h:outputText value="#{s.id}"></h:outputText>
+				</p:column>
+
+				<p:column headerText="Código Venta" width="80">
+					<h:outputText value="#{s.sale.code}">
+					</h:outputText>
+				</p:column>
+				
+				<p:column headerText="Número documento" width="80">
+					<h:outputText value="#{s.sale.payer.nuicResponsible}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Producto" width="80">
+					<h:outputText value="#{s.sale.product.name}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Banco" width="80">
+					<h:outputText value="#{s.sale.bank.name}">
+					</h:outputText>
+				</p:column>
+				
+				<p:column headerText="Número de primas" width="80">
+					<h:outputText value="#{s.insurancePremiumNumber}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Importe cargar" width="80">
+					<h:outputText value="#{s.returnedAmount}">
+					</h:outputText>
+				</p:column>
+
+
+				<p:column headerText="Fecha abono" width="80">
+					<h:outputText value="#{s.paymentDate}">
+						<f:convertDateTime pattern="dd-MM-yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Fecha devolución" width="80">
+					<h:outputText value="#{s.returnedDate}">
+						<f:convertDateTime pattern="dd-MM-yyyy" />
+					</h:outputText>
+				</p:column>
+
+
+				<p:column headerText="Lote" width="120">
+					<h:outputText value="#{s.lote.name}">
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Fecha creación" width="80">
+					<h:outputText value="#{s.createdAt}">
+						<f:convertDateTime pattern="dd-MM-yyyy hh:mm:ss a" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Usuario creación" width="80">
+					<h:outputText value="#{s.createdBy.username}"></h:outputText>
+				</p:column>
+
+			</p:dataTable>
+
+		</h:form>
+
+
+
+
+
+
+	</ui:define>
+
+</ui:composition>
+</html>

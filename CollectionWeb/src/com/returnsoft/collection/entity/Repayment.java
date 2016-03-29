@@ -15,7 +15,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 @Entity 
 @Table(name = "repayment")
@@ -31,8 +30,8 @@ public class Repayment implements Serializable{
 	@Column(name = "rep_id")
 	private Integer id;
 	
-	@Transient
-	private String code;
+	/*@Transient
+	private String code;*/
 	
 	/*@Transient
 	private String receiptNumber;*/
@@ -41,8 +40,8 @@ public class Repayment implements Serializable{
 	@Column(name = "rep_insurance_premium_number")
 	private Integer insurancePremiumNumber;
 	
-	@Column(name = "rep_charge_amount")
-	private BigDecimal chargeAmount;
+	/*@Column(name = "rep_charge_amount")
+	private BigDecimal chargeAmount;*/
 	
 	@Column(name = "rep_returned_amount")
 	private BigDecimal returnedAmount;
@@ -54,9 +53,6 @@ public class Repayment implements Serializable{
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "rep_payment_date")
 	private Date paymentDate;
-	
-	
-	
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "rep_created_at")
@@ -70,10 +66,27 @@ public class Repayment implements Serializable{
 	@JoinColumn(name = "rep_sal_id")
 	private Sale sale;
 	
-	/*@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "rep_col_id")
-	private Collection collection;*/
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "rep_lot_id")
+	private Lote lote;
 	
+	
+	
+
+	public Repayment(Integer insurancePremiumNumber, BigDecimal returnedAmount, Date returnedDate, Date paymentDate,
+			Sale sale) {
+		super();
+		this.insurancePremiumNumber = insurancePremiumNumber;
+		this.returnedAmount = returnedAmount;
+		this.returnedDate = returnedDate;
+		this.paymentDate = paymentDate;
+		this.sale = sale;
+	}
+
+	public Repayment() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
 	public Integer getId() {
 		return id;
@@ -143,13 +156,13 @@ public class Repayment implements Serializable{
 		this.insurancePremiumNumber = insurancePremiumNumber;
 	}
 
-	public String getCode() {
+	/*public String getCode() {
 		return code;
 	}
 
 	public void setCode(String code) {
 		this.code = code;
-	}
+	}*/
 
 	/*public String getReceiptNumber() {
 		return receiptNumber;
@@ -162,12 +175,18 @@ public class Repayment implements Serializable{
 	public Date getPaymentDate() {
 		return paymentDate;
 	}
-
+	
 	public void setPaymentDate(Date paymentDate) {
 		this.paymentDate = paymentDate;
 	}
 	
+	public Lote getLote() {
+		return lote;
+	}
+	
+	public void setLote(Lote lote) {
+		this.lote = lote;
+	}
 	
 	
-
 }

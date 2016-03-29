@@ -23,7 +23,7 @@ public class PayerHistoryEao{
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<PayerHistory> findBySaleId(Long saleId) throws EaoException {
 		try {
-			String query = "SELECT ph FROM PayerHistory ph  WHERE ph.id = :saleId ";
+			String query = "SELECT ph FROM PayerHistory ph left join ph.sale s  WHERE s.id = :saleId ";
 
 			TypedQuery<PayerHistory> q = em.createQuery(query, PayerHistory.class);
 			q.setParameter("saleId", saleId);

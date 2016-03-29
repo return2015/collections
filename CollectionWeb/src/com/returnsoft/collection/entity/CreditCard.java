@@ -58,6 +58,10 @@ public class CreditCard implements Serializable{
 	/*@OneToOne(fetch=FetchType.LAZY,mappedBy="creditCard")
 	private Sale sale;*/
 	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "crecar_lot_id")
+	private Lote lote;
+	
 	@MapsId 
     @OneToOne
 	@JoinColumn(name = "crecar_id") 
@@ -220,34 +224,14 @@ public class CreditCard implements Serializable{
 	}
 
 
-	/*public Date getCreatedAt() {
-		return createdAt;
+	public Lote getLote() {
+		return lote;
 	}
 
 
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}*/
-
-
-	/*public User getCreatedBy() {
-		return createdBy;
+	public void setLote(Lote lote) {
+		this.lote = lote;
 	}
-
-
-	public void setCreatedBy(User createdBy) {
-		this.createdBy = createdBy;
-	}*/
-
-
-	/*public Date getUpdateDate() {
-		return updateDate;
-	}
-
-
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
-	}*/
 
 
 

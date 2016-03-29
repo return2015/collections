@@ -46,7 +46,7 @@ public class Sale implements Serializable{
 	////////////////////////////
 	
 	@Column(name = "sal_nuic_contractor")
-	private Integer nuicContractor;
+	private Long nuicContractor;
 	
 	@Column(name = "sal_lastname_paternal_contractor")
 	private String lastnamePaternalContractor;
@@ -58,7 +58,7 @@ public class Sale implements Serializable{
 	private String firstnameContractor;
 	
 	@Column(name = "sal_nuic_insured")
-	private Integer nuicInsured;
+	private Long nuicInsured;
 	
 	@Column(name = "sal_lastname_paternal_insured")
 	private String lastnamePaternalInsured;
@@ -197,8 +197,8 @@ public class Sale implements Serializable{
 	
 	
 
-	public Sale(Long accountNumber, Integer nuicContractor, String lastnamePaternalContractor,
-			String lastnameMaternalContractor, String firstnameContractor, Integer nuicInsured,
+	public Sale(Long accountNumber, Long nuicContractor, String lastnamePaternalContractor,
+			String lastnameMaternalContractor, String firstnameContractor, Long nuicInsured,
 			String lastnamePaternalInsured, String lastnameMaternalInsured, String firstnameInsured, Integer phone1,
 			Integer phone2, Date date, String channel, String place, String vendorCode, String vendorName,
 			String policyNumber, String certificateNumber, String proposalNumber, String productDescription,
@@ -286,13 +286,35 @@ public class Sale implements Serializable{
 		this.accountNumber = accountNumber;
 	}
 
-	public Integer getNuicContractor() {
+	
+
+	public Long getNuicContractor() {
 		return nuicContractor;
 	}
 
-	public void setNuicContractor(Integer nuicContractor) {
+
+
+
+	public void setNuicContractor(Long nuicContractor) {
 		this.nuicContractor = nuicContractor;
 	}
+
+
+
+
+	public Long getNuicInsured() {
+		return nuicInsured;
+	}
+
+
+
+
+	public void setNuicInsured(Long nuicInsured) {
+		this.nuicInsured = nuicInsured;
+	}
+
+
+
 
 	public String getLastnamePaternalContractor() {
 		return lastnamePaternalContractor;
@@ -310,13 +332,7 @@ public class Sale implements Serializable{
 		this.lastnameMaternalContractor = lastnameMaternalContractor;
 	}
 
-	public Integer getNuicInsured() {
-		return nuicInsured;
-	}
-
-	public void setNuicInsured(Integer nuicInsured) {
-		this.nuicInsured = nuicInsured;
-	}
+	
 
 	public String getLastnamePaternalInsured() {
 		return lastnamePaternalInsured;

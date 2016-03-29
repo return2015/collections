@@ -6,7 +6,7 @@ import com.returnsoft.collection.entity.SaleState;
 import com.returnsoft.collection.entity.SaleStateHistory;
 import com.returnsoft.collection.entity.User;
 import com.returnsoft.collection.exception.ServiceException;
-import com.returnsoft.collection.util.SaleStateFile;
+import com.returnsoft.collection.vo.SaleStateFile;
 
 public interface SaleStateService {
 

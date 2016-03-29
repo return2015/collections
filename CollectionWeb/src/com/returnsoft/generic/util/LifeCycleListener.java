@@ -1,4 +1,4 @@
-package com.returnsoft.collection.util;
+package com.returnsoft.generic.util;
 
 import java.util.Map;
 import java.util.Set;

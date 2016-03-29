@@ -3,7 +3,9 @@ package com.returnsoft.collection.enumeration;
 public enum DocumentTypeEnum {
 	
 	DNI((short)1,"DNI"),
-	RUC((short)2,"RUC");
+	RUC((short)2,"RUC"),
+	OTROS((short)3,"OTROS");
+	
 	
 	private Short id;
 	private String name;

@@ -15,8 +15,8 @@ import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
 import com.returnsoft.collection.service.BankService;
 import com.returnsoft.collection.service.UserService;
-import com.returnsoft.collection.util.FacesUtil;
-import com.returnsoft.collection.util.SessionBean;
+import com.returnsoft.generic.util.FacesUtil;
+import com.returnsoft.generic.util.SessionBean;
 
 @ManagedBean
 @ViewScoped

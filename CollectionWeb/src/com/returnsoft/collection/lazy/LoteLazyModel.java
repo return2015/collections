@@ -1,4 +1,4 @@
-package com.returnsoft.collection.util;
+package com.returnsoft.collection.lazy;
 
 import java.util.ArrayList;
 import java.util.Date;

@@ -24,7 +24,7 @@ import com.returnsoft.collection.enumeration.NotificationTypeEnum;
 import com.returnsoft.collection.exception.BankLetterNotFoundException;
 import com.returnsoft.collection.service.NotificationService;
 import com.returnsoft.collection.service.SaleService;
-import com.returnsoft.collection.util.FacesUtil;
+import com.returnsoft.generic.util.FacesUtil;
 
 @Named
 @RequestScoped

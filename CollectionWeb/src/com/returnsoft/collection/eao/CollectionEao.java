@@ -1,6 +1,5 @@
 package com.returnsoft.collection.eao;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -14,7 +13,6 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import com.returnsoft.collection.entity.Collection;
-import com.returnsoft.collection.enumeration.CollectionResponseEnum;
 import com.returnsoft.collection.exception.EaoException;
 
 @Stateless
@@ -27,22 +25,17 @@ public class CollectionEao  {
 	public void add(Collection collection) throws EaoException{
 		try {
 			
-			String maxIdByProduct = getMaxCollectionIdByProduct(collection.getSale().getProduct().getId());
-			
-			String receiptNumber = ""; 
-			
-			if (maxIdByProduct!=null && maxIdByProduct.length() > 0) {
-				Long maxIdByProductLong = Long.parseLong(maxIdByProduct);
-				receiptNumber += (maxIdByProductLong+1);
-			}else{
-				receiptNumber += 1; 
+			Long newCorrelative = generateNewReceiptNumber(collection.getSale().getProduct().getId(),collection.getSale().getBank().getId());
+			String receiptNumber = newCorrelative.toString();
+			System.out.println("receiptNumber1:"+receiptNumber);
+			while (receiptNumber.length() < 6) {
+				receiptNumber = "0" + receiptNumber;
 			}
-			
+			System.out.println("receiptNumber2:"+receiptNumber);
+			receiptNumber = collection.getSale().getBank().getCode() + collection.getSale().getProduct().getCode() + receiptNumber;
 			collection.setReceiptNumber(receiptNumber);
 			em.persist(collection);
-			
 			em.flush();
-			
 			
 		} catch (Exception e) {
 			
@@ -55,20 +48,34 @@ public class CollectionEao  {
 	
 	
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public String getMaxCollectionIdByProduct(Short productId) throws EaoException{
+	private Long generateNewReceiptNumber(Short productId, Short bankId) throws EaoException{
 		try {
 			
-			String query = "SELECT max(cast(c.receiptNumber as signed)) FROM Collection c "
+			String query = "SELECT max(cast(substring(c.receiptNumber,5) as signed)) "
+					+ " FROM Collection c "
 					+ " left join c.sale s "
 					+ " left join s.product p "
-					+ "WHERE p.id=:productId ";
+					+ " left join s.bank b "
+					+ "WHERE p.id=:productId and b.id=:bankId";
 			
 			Query q = em.createQuery(query);
 			q.setParameter("productId", productId);
+			q.setParameter("bankId", bankId);
 			
-			String maxIdProduct= (String)q.getSingleResult();
+			Long maxIdProduct= (Long)q.getSingleResult();
 			
-			return maxIdProduct;
+			Long newCorrelative;
+			
+//String receiptNumber = ""; 
+			
+			if (maxIdProduct!=null && maxIdProduct > 0) {
+				newCorrelative =maxIdProduct+1;
+			}else{
+				newCorrelative = new Long(1);
+			}
+			
+			
+			return newCorrelative;
 			
 		} catch (NoResultException e) {
 			return null;
@@ -98,7 +105,7 @@ public class CollectionEao  {
 		}
 
 	}
-	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	/*@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public List<Collection> findAllowsBySaleId(Long saleId) throws EaoException{
 		try {
 			
@@ -176,8 +183,32 @@ public class CollectionEao  {
 			e.printStackTrace();
 			throw new EaoException(e.getMessage());
 		}
-	}
+	}*/
 
+	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public Long checkExists(String saleCode, Date estimatedDate) throws EaoException{
+		try {
+			
+			String query = "SELECT c.id FROM Collection c "
+					+ "left join c.sale s "
+					+ "WHERE c.estimatedDate = :estimatedDate  and s.code=:saleCode";
+			
+			Query q = em.createQuery(query);
+			q.setParameter("saleCode", saleCode);
+			q.setParameter("estimatedDate", estimatedDate);
+			
+			return (Long)q.getSingleResult();
+			
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
+	
 	
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	public Collection findByReceiptNumber(String receiptNumber) throws EaoException{
@@ -200,22 +231,145 @@ public class CollectionEao  {
 
 	}
 	
-	public List<Collection> findLimit(Date createdAtStarted, Date createdAtEnded, Integer first, Integer limit) throws EaoException{
+	public List<Collection> findList(Date estimatedDate, Date depositDate,Date monthLiquidationDate,Short bankId, Short productId,Long documentNumber) throws EaoException{
+		try {
+			
+			
+			
+			String query = 
+					"SELECT c FROM Collection c "
+					+ " left join fetch c.paymentMethod pm "
+					+ " left join fetch c.sale s "
+					+ " left join fetch c.sale.payer pa "
+					+ " left join fetch c.sale.saleState ss "
+					+ " left join fetch c.sale.creditCard cc " 
+					+ " left join fetch c.sale.bank b "
+					+ " left join fetch c.sale.product p "
+					+ " left join fetch c.createdBy u "
+					+ " WHERE c.id>0 ";
+			
+			if (estimatedDate!=null ) {
+				query+=" and c.estimatedDate =:estimatedDate ";
+			}
+			
+			if (depositDate!=null ) {
+				query+=" and c.depositDate =:depositDate ";
+			}
+			
+			if (monthLiquidationDate!=null ) {
+				query+=" and c.monthLiquidation =:monthLiquidationDate ";
+			}
+			
+			if (bankId!=null ) {
+				query+=" and b.id =:bankId ";
+			}
+			if (productId!=null ) {
+				query+=" and p.id =:productId ";
+			}
+			if (documentNumber!=null && documentNumber>0) {
+				query+=" and pa.nuicResponsible =:documentNumber ";
+			}
+			
+			//System.out.println("QUERY1:"+query);
+			
+			TypedQuery<Collection> q = em.createQuery(query, Collection.class);
+			
+			if (estimatedDate!=null ) {
+				q.setParameter("estimatedDate", estimatedDate);
+			}
+			
+			if (depositDate!=null ) {
+				q.setParameter("depositDate", depositDate);
+			}
+			
+			if (monthLiquidationDate!=null ) {
+				q.setParameter("monthLiquidationDate", monthLiquidationDate);
+			}
+			
+			if (bankId!=null ) {
+				q.setParameter("bankId", bankId);
+			}
+			if (productId!=null ) {
+				q.setParameter("productId", productId);
+			}
+			if (documentNumber!=null && documentNumber>0) {
+				q.setParameter("documentNumber", documentNumber);
+			}
+			
+			//System.out.println("QUERY2:"+query);
+			
+			return q.getResultList();
+			
+			
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+	}
+	
+	
+	public List<Collection> findLimit(Date estimatedDate, Date depositDate,Date monthLiquidationDate,Short bankId, Short productId,Long documentNumber, Integer first, Integer limit) throws EaoException{
 		try {
 			
 			String query = 
-					"SELECT n FROM Collection n " 
-					+ "WHERE n.id>0 ";
+					"SELECT c FROM Collection c "
+							+ " left join fetch c.paymentMethod pm "
+							+ " left join fetch c.sale s "
+							+ " left join fetch c.sale.payer pa "
+							+ " left join fetch c.sale.saleState ss "
+							+ " left join fetch c.sale.creditCard cc " 
+							+ " left join fetch c.sale.bank b "
+							+ " left join fetch c.sale.product p "
+							+ " left join fetch c.createdBy u "
+							+ " left join fetch c.lote l "
+					+ "WHERE c.id>0 ";
 			
-			if (createdAtStarted!=null && createdAtEnded!=null) {
-				query+=" and n.createdAt between :createdAtStarted and :createdAtEnded ";
+			if (estimatedDate!=null ) {
+				query+=" and c.estimatedDate =:estimatedDate ";
+			}
+			
+			if (depositDate!=null ) {
+				query+=" and c.depositDate =:depositDate ";
+			}
+			
+			if (monthLiquidationDate!=null ) {
+				query+=" and c.monthLiquidation =:monthLiquidationDate ";
+			}
+			
+			if (bankId!=null ) {
+				query+=" and b.id =:bankId ";
+			}
+			if (productId!=null ) {
+				query+=" and p.id =:productId ";
+			}
+			if (documentNumber!=null && documentNumber>0) {
+				query+=" and pa.nuicResponsible =:documentNumber ";
 			}
 			
 			TypedQuery<Collection> q = em.createQuery(query, Collection.class);
 			
-			if (createdAtStarted!=null && createdAtEnded!=null) {
-				q.setParameter("createdAtStarted", createdAtStarted);
-				q.setParameter("createdAtEnded", createdAtEnded);	
+			if (estimatedDate!=null ) {
+				q.setParameter("estimatedDate", estimatedDate);
+			}
+			
+			if (depositDate!=null ) {
+				q.setParameter("depositDate", depositDate);
+			}
+			
+			if (monthLiquidationDate!=null ) {
+				q.setParameter("monthLiquidationDate", monthLiquidationDate);
+			}
+			
+			if (bankId!=null ) {
+				q.setParameter("bankId", bankId);
+			}
+			if (productId!=null ) {
+				q.setParameter("productId", productId);
+			}
+			if (documentNumber!=null && documentNumber>0) {
+				q.setParameter("documentNumber", documentNumber);
 			}
 			
 			q.setFirstResult(first);
@@ -232,24 +386,63 @@ public class CollectionEao  {
 		}
 	}
 	
-	public Long findCount(Date createdAtStarted, Date createdAtEnded) throws EaoException {
+	public Long findCount(Date estimatedDate, Date depositDate,Date monthLiquidationDate,Short bankId, Short productId,Long documentNumber) throws EaoException {
 		
 		
 		
 		try {
 			String query = 
-					"SELECT count(n.id) FROM Collection n " 
-					+ "WHERE n.id>0 ";
+					"SELECT count(c.id) FROM Collection c "
+					+ " left join c.sale s "
+							+ " left join s.bank b "
+							+ " left join s.product p "
+							+ " left join s.payer pa "
+					+ "WHERE c.id>0 ";
 			
-			if (createdAtStarted!=null && createdAtEnded!=null) {
-				query+=" and n.createdAt between :createdAtStarted and :createdAtEnded ";
+			if (estimatedDate!=null ) {
+				query+=" and c.estimatedDate =:estimatedDate ";
+			}
+			
+			if (depositDate!=null ) {
+				query+=" and c.depositDate =:depositDate ";
+			}
+			
+			if (monthLiquidationDate!=null ) {
+				query+=" and c.monthLiquidation =:monthLiquidationDate ";
+			}
+			
+			if (bankId!=null ) {
+				query+=" and b.id =:bankId ";
+			}
+			if (productId!=null ) {
+				query+=" and p.id =:productId ";
+			}
+			if (documentNumber!=null && documentNumber>0) {
+				query+=" and pa.nuicResponsible =:documentNumber ";
 			}
 			
 			Query q = em.createQuery(query);
 			
-			if (createdAtStarted!=null && createdAtEnded!=null) {
-				q.setParameter("createdAtStarted", createdAtStarted);
-				q.setParameter("createdAtEnded", createdAtEnded);	
+			if (estimatedDate!=null ) {
+				q.setParameter("estimatedDate", estimatedDate);
+			}
+			
+			if (depositDate!=null ) {
+				q.setParameter("depositDate", depositDate);
+			}
+			
+			if (monthLiquidationDate!=null ) {
+				q.setParameter("monthLiquidationDate", monthLiquidationDate);
+			}
+			
+			if (bankId!=null ) {
+				q.setParameter("bankId", bankId);
+			}
+			if (productId!=null ) {
+				q.setParameter("productId", productId);
+			}
+			if (documentNumber!=null && documentNumber>0) {
+				q.setParameter("documentNumber", documentNumber);
 			}
 			
 			return (Long)q.getSingleResult();

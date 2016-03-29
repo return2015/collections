@@ -1,4 +1,4 @@
-package com.returnsoft.collection.util;
+package com.returnsoft.collection.vo;
 
 public class CollectionFile {
 	
@@ -8,6 +8,7 @@ public class CollectionFile {
 	private String receiptNumber;
 	private String estimatedDate;
 	private String depositDate;
+	private String monthLiquidation;
 	private String responseCode;
 	private String authorizationCode;
 	private String responseMessage;
@@ -111,6 +112,12 @@ public class CollectionFile {
 	}
 	public void setMoneyType(String moneyType) {
 		this.moneyType = moneyType;
+	}
+	public String getMonthLiquidation() {
+		return monthLiquidation;
+	}
+	public void setMonthLiquidation(String monthLiquidation) {
+		this.monthLiquidation = monthLiquidation;
 	}
 	
 	

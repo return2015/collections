@@ -15,8 +15,10 @@ import javax.persistence.TypedQuery;
 
 import com.returnsoft.collection.eao.NotificationEao;
 import com.returnsoft.collection.entity.Notification;
+import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.enumeration.NotificationStateEnum;
 import com.returnsoft.collection.enumeration.NotificationTypeEnum;
+import com.returnsoft.collection.enumeration.SaleStateEnum;
 import com.returnsoft.collection.exception.EaoException;
 
 @Stateless
@@ -227,6 +229,309 @@ public class NotificationEao {
 			e.printStackTrace();
 			throw new EaoException(e);
 		}
+	}
+	
+	public List<Sale> findBySale(Date saleDateStartedAt, Date saleDateEndedAt, Date sendingDate,
+			List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState,
+			NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress,
+			Boolean withoutNotification, String orderNumber) throws EaoException {
+		try {
+
+			String query = "SELECT s FROM Sale s " 
+			+ "left join fetch s.saleState ss "
+			+ "left join fetch s.payer p " 
+			+ "left join fetch s.creditCard cc " 
+			+ "left join s.bank b "
+			+ "left join s.notification n " 
+			+ "WHERE s.id>0 ";
+			
+			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
+				query+=" and s.date between :saleDateStartedAt and :saleDateEndedAt ";
+			}
+
+			if (sendingDate != null) {
+				query += " and n.sendingAt between :sendingDateStart and  :sendingDateEnd";
+			}
+			if (bankId != null) {
+				query += " and b.id = :bankId ";
+			}
+
+			if (saleState != null) {
+				query += " and ss.state = :saleState ";
+			}
+
+			if (notificationType != null) {
+				query += " and n.type = :notificationType ";
+			}
+
+			if (notificationStates != null && notificationStates.size() > 0) {
+				query += " and n.state in :notificationStates ";
+			}
+
+			if (withoutAddress) {
+				query += " and (p.address is not null and p.address <> '') ";
+			}
+
+			if (withoutMail) {
+				query += " and (p.mail is not null and p.mail <> '') ";
+			}
+
+			if (withoutNotification) {
+				query += " and n.id is null ";
+			}
+			if (orderNumber != null && orderNumber.length() > 0) {
+				query += " and n.orderNumber=:orderNumber ";
+			}
+
+			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
+			
+			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
+				q.setParameter("saleDateStartedAt", saleDateStartedAt);
+				q.setParameter("saleDateEndedAt", saleDateEndedAt);	
+			}
+
+			if (sendingDate != null) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				q.setParameter("sendingDateStart", sdf2.parse(sdf.format(sendingDate) + " 00:00:00"));
+				q.setParameter("sendingDateEnd", sdf2.parse(sdf.format(sendingDate) + " 23:59:59"));
+			}
+
+			if (notificationStates != null && notificationStates.size() > 0) {
+				q.setParameter("notificationStates", notificationStates);
+			}
+
+			if (saleState != null) {
+				q.setParameter("saleState", saleState);
+			}
+
+			if (notificationType != null) {
+				q.setParameter("notificationType", notificationType);
+			}
+
+			if (bankId != null) {
+				q.setParameter("bankId", bankId);
+			}
+
+			if (orderNumber != null && orderNumber.length() > 0) {
+				q.setParameter("orderNumber", orderNumber);
+			}
+
+			List<Sale> sales = q.getResultList();
+			return sales;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
+
+	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public List<Sale> findBySaleLimit(Date saleDateStartedAt, Date saleDateEndedAt, Date sendingDate,
+			List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState,
+			NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress,
+			Boolean withoutNotification, String orderNumber, Integer first, Integer limit) throws EaoException {
+		try {
+
+			String query = 
+					"SELECT s FROM Sale s " 
+					+ "left join fetch s.saleState ss "
+					+ "left join fetch s.creditCard cc " 
+					+ "left join fetch s.payer p "
+					+ "left join fetch s.bank b " 
+					+ "left join s.notification n "
+					+ "WHERE s.id>0 ";
+			
+			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
+				query+=" and s.date between :saleDateStartedAt and :saleDateEndedAt ";
+			}
+			
+			if (sendingDate != null) {
+				query += " and n.sendingAt between :sendingDateStart and  :sendingDateEnd";
+			}
+			if (bankId != null) {
+				query += " and b.id = :bankId ";
+			}
+
+			if (saleState != null) {
+				query += " and ss.state = :saleState ";
+			}
+
+			if (notificationType != null) {
+				query += " and n.type = :notificationType ";
+			}
+
+			if (notificationStates != null && notificationStates.size() > 0) {
+				query += " and n.state in :notificationStates ";
+			}
+
+			if (withoutAddress) {
+				query += " and (p.address is not null and p.address <> '') ";
+			}
+
+			if (withoutMail) {
+				query += " and (p.mail is not null and p.mail <> '') ";
+			}
+
+			if (withoutNotification) {
+				query += " and n.id is null ";
+			}
+
+			if (orderNumber != null && orderNumber.length() > 0) {
+				query += " and n.orderNumber=:orderNumber ";
+			}
+
+			TypedQuery<Sale> q = em.createQuery(query, Sale.class);
+			
+			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
+				q.setParameter("saleDateStartedAt", saleDateStartedAt);
+				q.setParameter("saleDateEndedAt", saleDateEndedAt);	
+			}
+
+			if (sendingDate != null) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				q.setParameter("sendingDateStart", sdf2.parse(sdf.format(sendingDate) + " 00:00:00"));
+				q.setParameter("sendingDateEnd", sdf2.parse(sdf.format(sendingDate) + " 23:59:59"));
+			}
+
+			if (notificationStates != null && notificationStates.size() > 0) {
+				q.setParameter("notificationStates", notificationStates);
+			}
+
+			if (saleState != null) {
+				q.setParameter("saleState", saleState);
+			}
+
+			if (notificationType != null) {
+				q.setParameter("notificationType", notificationType);
+			}
+
+			if (bankId != null) {
+				q.setParameter("bankId", bankId);
+			}
+
+			if (orderNumber != null && orderNumber.length() > 0) {
+				q.setParameter("orderNumber", orderNumber);
+			}
+
+			q.setFirstResult(first);
+			q.setMaxResults(limit);
+
+			List<Sale> sales = q.getResultList();
+			return sales;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
+	}
+
+	//@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+	public Long findBySaleCount(Date saleDateStartedAt, Date saleDateEndedAt, Date sendingDate,
+			List<NotificationStateEnum> notificationStates, Short bankId, SaleStateEnum saleState,
+			NotificationTypeEnum notificationType, Boolean withoutMail, Boolean withoutAddress,
+			Boolean withoutNotification, String orderNumber) throws EaoException {
+		try {
+
+			String query = 
+					"SELECT count(s.id) FROM Sale s " 
+					+ "left join fetch s.saleState ss "
+					+ "left join fetch s.creditCard cc " 
+					+ "left join fetch s.payer p " 
+					+ "left join s.bank b "
+					+ "left join s.notification n " 
+					+ "WHERE s.id>0 ";
+			
+			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
+				query+=" and s.date between :saleDateStartedAt and :saleDateEndedAt ";
+			}
+
+			if (sendingDate != null) {
+				query += " and n.sendingAt between :sendingDateStart and  :sendingDateEnd";
+			}
+			if (bankId != null) {
+				query += " and b.id = :bankId ";
+			}
+
+			if (saleState != null) {
+				query += " and ss.state = :saleState ";
+			}
+
+			if (notificationType != null) {
+				query += " and n.type = :notificationType ";
+			}
+
+			if (notificationStates != null && notificationStates.size() > 0) {
+				query += " and n.state in :notificationStates ";
+			}
+
+			if (withoutAddress) {
+				query += " and (p.address is not null and p.address <> '') ";
+			}
+
+			if (withoutMail) {
+				query += " and (p.mail is not null and p.mail <> '') ";
+			}
+
+			if (withoutNotification) {
+				query += " and n.id is null ";
+			}
+
+			if (orderNumber != null && orderNumber.length() > 0) {
+				query += " and n.orderNumber=:orderNumber ";
+			}
+
+			Query q = em.createQuery(query);
+			
+			if (saleDateStartedAt!=null && saleDateEndedAt!=null) {
+				q.setParameter("saleDateStartedAt", saleDateStartedAt);
+				q.setParameter("saleDateEndedAt", saleDateEndedAt);	
+			}
+
+			if (sendingDate != null) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				q.setParameter("sendingDateStart", sdf2.parse(sdf.format(sendingDate) + " 00:00:00"));
+				q.setParameter("sendingDateEnd", sdf2.parse(sdf.format(sendingDate) + " 23:59:59"));
+			}
+
+			if (notificationStates != null && notificationStates.size() > 0) {
+				q.setParameter("notificationStates", notificationStates);
+			}
+
+			if (saleState != null) {
+				q.setParameter("saleState", saleState);
+			}
+
+			if (notificationType != null) {
+				q.setParameter("notificationType", notificationType);
+			}
+
+			if (bankId != null) {
+				q.setParameter("bankId", bankId);
+			}
+
+			if (orderNumber != null && orderNumber.length() > 0) {
+				q.setParameter("orderNumber", orderNumber);
+			}
+
+			Long salesCount = (Long) q.getSingleResult();
+			return salesCount;
+
+		} catch (NoResultException e) {
+			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new EaoException(e.getMessage());
+		}
+
 	}
 	
 	

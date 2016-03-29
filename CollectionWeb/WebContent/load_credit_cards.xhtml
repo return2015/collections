@@ -7,46 +7,54 @@
 	xmlns:f="http://java.sun.com/jsf/core"
 	xmlns:p="http://primefaces.org/ui">
 
-<ui:composition template="/templates/BasicTemplate.xhtml">
+<h:head>
+	<h:outputStylesheet library="css" name="collection.css" />
+</h:head>
 
-<ui:define name="metadata">
-		<f:metadata>
-			<f:viewAction action="#{loadCreditCardsController.initialize}"/>
-		</f:metadata>	
-	</ui:define>
-	
-	<ui:define name="content">
+<h:body>
 
-		<div class="title ui-widget-header ui-corner-all">
-			<h:panelGrid style="margin:auto;">
-		CARGAR ACTUALIZACIONES DE TARJETA
+	<div class="title ui-widget-header ui-corner-all">
+		<h:panelGrid style="margin:auto;">
+		CARGAR ACTUALIZACIONES DE TARJETA DE CREDITO
 		</h:panelGrid>
 
-		</div>
 
-		<h:form id="form" enctype="multipart/form-data">
-			<h:panelGrid style="margin:auto;">
+	</div>
 
-				<h:panelGrid style="margin:auto;text-align:center;">
-					<p:messages id="messages" showDetail="true"></p:messages>
-				</h:panelGrid>
+	<h:panelGrid style="margin:auto;">
 
-
-				<h:panelGrid columns="2" style="margin:auto;text-align:center;">
-
-					<p:fileUpload mode="simple" value="#{loadCreditCardsController.file}" />
-					
-					<p:commandButton icon="ui-icon-document" ajax="false"
-						action="#{loadCreditCardsController.load}" value="Cargar actualizaciones de tarjeta">
+		<h:panelGrid>
+			<h:panelGrid columns="2" cellpadding="0" cellspacing="0">
+				<p:outputLabel style="color:blue;"
+					value="1. Descargar formato de trama. "></p:outputLabel>
+				<h:form id="formLink">
+					<p:commandButton value="Download" ajax="false"
+						icon="ui-icon-arrowthick-1-s">
+						<p:fileDownload value="#{loadCreditCardsController.downloadFile}" />
 					</p:commandButton>
-
-				</h:panelGrid>
-
+				</h:form>
 			</h:panelGrid>
 
+			<p:outputLabel style="color:blue;"
+				value="2. Copiar la última columna de la pestaña TRAMA y pegarla en una archivo de texto."></p:outputLabel>
+			<p:outputLabel style="color:blue;"
+				value="3. El archivo de texto debe ser guardado con codificación UTF-8 y extensión '.txt'."></p:outputLabel>
+			<p:outputLabel style="color:blue;"
+				value="4. Cargar archivo de texto. "></p:outputLabel>
+			<p:outputLabel style="color:blue;" value="5. Procesar ventas. "></p:outputLabel>
+		</h:panelGrid>
 
+		<h:form id="formUpload" enctype="multipart/form-data">
+			<h:panelGrid columns="2">
+				<p:fileUpload id="saleFile" value="#{loadCreditCardsController.file}"
+					mode="simple" skinSimple="true" />
+				<p:commandButton value="Procesar actualizaciones" ajax="false"
+					actionListener="#{loadCreditCardsController.uploadFile}" />
+			</h:panelGrid>
 		</h:form>
-	</ui:define>
 
-</ui:composition>
+	</h:panelGrid>
+
+
+</h:body>
 </html>

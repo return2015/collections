@@ -12,7 +12,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -34,8 +33,12 @@ public class PayerHistory implements Serializable {
 	@Column(name = "payhis_id")
 	private Long idHist;
 	
-	@Column(name = "pay_id")
-	private Long id;
+	/*@Column(name = "pay_id")
+	private Long id;*/
+	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "pay_id")
+	private Sale sale;
 	
 	@Column(name = "pay_document_type_id")
 	@Convert(converter=DocumentTypeConverter.class)
@@ -80,16 +83,18 @@ public class PayerHistory implements Serializable {
 	@JoinColumn(name = "pay_sal_id")
 	private Sale sale;*/
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
+	
 
 	public DocumentTypeEnum getDocumentType() {
 		return documentType;
+	}
+
+	public Sale getSale() {
+		return sale;
+	}
+
+	public void setSale(Sale sale) {
+		this.sale = sale;
 	}
 
 	public void setDocumentType(DocumentTypeEnum documentType) {

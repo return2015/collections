@@ -1,42 +1,54 @@
 package com.returnsoft.collection.controller;
 
 import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
 
+import org.primefaces.context.RequestContext;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 import org.primefaces.model.UploadedFile;
 
-import com.returnsoft.collection.entity.Collection;
+import com.returnsoft.collection.entity.Bank;
 import com.returnsoft.collection.entity.Repayment;
 import com.returnsoft.collection.entity.Sale;
 import com.returnsoft.collection.entity.User;
-import com.returnsoft.collection.enumeration.UserTypeEnum;
-import com.returnsoft.collection.exception.FileColumnsTotalException;
+import com.returnsoft.collection.exception.BankNotSelectedException;
+import com.returnsoft.collection.exception.DecimalException;
 import com.returnsoft.collection.exception.FileExtensionException;
 import com.returnsoft.collection.exception.FileNotFoundException;
+import com.returnsoft.collection.exception.FileRowsInvalidException;
 import com.returnsoft.collection.exception.FileRowsZeroException;
-import com.returnsoft.collection.exception.ServiceException;
+import com.returnsoft.collection.exception.FormatException;
+import com.returnsoft.collection.exception.MultipleErrorsException;
+import com.returnsoft.collection.exception.NullException;
+import com.returnsoft.collection.exception.OverflowException;
+import com.returnsoft.collection.exception.SaleAlreadyExistException;
+import com.returnsoft.collection.exception.SaleDuplicateException;
+import com.returnsoft.collection.exception.SaleNotFoundException;
 import com.returnsoft.collection.exception.UserLoggedNotFoundException;
-import com.returnsoft.collection.exception.UserPermissionNotFoundException;
 import com.returnsoft.collection.service.CollectionService;
 import com.returnsoft.collection.service.RepaymentService;
 import com.returnsoft.collection.service.SaleService;
-import com.returnsoft.collection.util.FacesUtil;
-import com.returnsoft.collection.util.SessionBean;
+import com.returnsoft.collection.vo.RepaymentFile;
+import com.returnsoft.generic.util.SessionBean;
 
 @ManagedBean
 @ViewScoped
@@ -50,13 +62,15 @@ public class LoadRepaymentsController implements Serializable {
 
 	private UploadedFile file;
 
+	private StreamedContent downloadFile;
+
 	
 	// private List<SaleState> states;
-	private Integer FILE_ROWS = 5;
+	/*private Integer FILE_ROWS = 5;
 
 	private List<Exception> errors;
 	private Map<String, String> headers;
-	private List<Map<String, String>> dataList;
+	private List<Map<String, String>> dataList;*/
 	
 	//private final String[] saleStates = { "ACTIVO", "BAJA" };
 
@@ -66,63 +80,311 @@ public class LoadRepaymentsController implements Serializable {
 	@EJB
 	private CollectionService collectionService;
 	
-	
-	
 	@EJB
 	private SaleService saleService;
 	
-	private FacesUtil facesUtil;
+	@Inject
+	private SessionBean sessionBean;
+	
+	//private FacesUtil facesUtil;
 
 	public LoadRepaymentsController() {
-		System.out.println("Ingreso al constructor");
-		facesUtil = new FacesUtil();
-	}
-
-	//@PostConstruct
-	public String initialize() {
-try {
-			
-			SessionBean sessionBean = (SessionBean) FacesContext
-					.getCurrentInstance().getExternalContext().getSessionMap()
-					.get("sessionBean");
-			
-			if (sessionBean!=null && sessionBean.getUser()!=null && sessionBean.getUser().getId()>0) {
-				
-				if (!sessionBean.getUser().getUserType().equals(UserTypeEnum.ADMIN)
-						&& !sessionBean.getUser().getUserType().equals(UserTypeEnum.AGENT)) {
-					throw new UserPermissionNotFoundException();
-				}
-					
-				Short bankId = (Short) sessionBean.getBank().getId();
-				
-				commerces = commerceService.findByBank(bankId);
-				
-				return null;
-				
-			} else{
-				throw new UserLoggedNotFoundException();
-			}
-			
-
-		} catch (UserLoggedNotFoundException e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-			return "login.xhtml?faces-redirect=true";
-		} catch (UserPermissionNotFoundException e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-			return "login.xhtml?faces-redirect=true";		
-		} catch (Exception e) {
-			e.printStackTrace();
-			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),
-					e.getMessage());
-			return null;
-		}
+		//System.out.println("Ingreso al constructor");
+		//facesUtil = new FacesUtil();
+		System.out.println("LoadRepaymentsController");
+		InputStream stream = ((ServletContext) FacesContext.getCurrentInstance().getExternalContext().getContext())
+				.getResourceAsStream("/resources/templates/tramas_extornos.xlsx");
+		downloadFile = new DefaultStreamedContent(stream,
+				"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "tramas_extornos.xlsx");
 	}
 	
-	public void validateDuplicates(){
+	public void uploadFile() {
+
+		System.out.println("uploadFile");
+
+		try {
+
+			if (sessionBean == null || sessionBean.getUser() == null || sessionBean.getUser().getId() == null) {
+				throw new UserLoggedNotFoundException();
+			}
+
+			if (sessionBean.getBank() == null) {
+				throw new BankNotSelectedException();
+			}
+
+			if (file == null) {
+				throw new FileNotFoundException();
+			}
+
+			if (!file.getContentType().equals("text/plain")) {
+				throw new FileExtensionException();
+			}
+
+			////////////////////
+			// SE LEE ARCHIVO //
+			////////////////////
+
+			List<RepaymentFile> dataList = readFile(file);
+			RepaymentFile headers = dataList.get(0);
+			dataList.remove(0);
+
+			if (dataList.size() == 0) {
+				throw new FileRowsZeroException();
+			}
+
+			//////////////////////////
+			// VALIDANDO DUPLICADOS //
+			//////////////////////////
+
+			Set<String> dataSet = new HashSet<String>();
+			Set<Integer> errorSet = new HashSet<Integer>();
+			int lineNumber = 2;
+
+			for (RepaymentFile repaymentFile : dataList) {
+				String dataString = repaymentFile.getCode();
+				if (!dataSet.add(dataString)) {
+					errorSet.add(lineNumber);
+				}
+
+				lineNumber++;
+			}
+
+			if (errorSet.size() > 0) {
+				List<Exception> errors = new ArrayList<Exception>();
+				for (Integer errorLineNumber : errorSet) {
+					errors.add(new SaleDuplicateException(errorLineNumber));
+				}
+				throw new MultipleErrorsException(errors);
+			}
+
+			/////////////////////
+			// VALIDANDO DATOS //
+			/////////////////////
+
+			lineNumber = 2;
+			Bank bank = sessionBean.getBank();
+			List<Repayment> repayments = new ArrayList<Repayment>();
+			List<Exception> errors = new ArrayList<Exception>();
+
+			for (RepaymentFile repaymentFile : dataList) {
+				try {
+					Repayment repayment = validateFile(repaymentFile, headers, lineNumber, bank);
+					repayments.add(repayment);
+				} catch (MultipleErrorsException e) {
+					for (Exception exception : e.getErrors()) {
+						errors.add(exception);
+					}
+				}
+				lineNumber++;
+			}
+
+			if (errors.size() > 0) {
+				throw new MultipleErrorsException(errors);
+			}
+
+			/////////////////////////////////////
+			// SE ENVIAN LAS VENTAS AL SERVICE //
+			/////////////////////////////////////
+
+			User user = sessionBean.getUser();
+			repaymentService.addRepaymentList(repayments, headers, file.getFileName(), user);
+			RequestContext.getCurrentInstance().closeDialog(null);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			RequestContext.getCurrentInstance().closeDialog(e);
+		}
+
+	}
+	
+	private List<RepaymentFile> readFile(UploadedFile file) throws Exception {
+
+		String strLine = null;
+		Integer lineNumber = 1;
+		RepaymentFile headers = new RepaymentFile();
+		List<RepaymentFile> dataList = new ArrayList<RepaymentFile>();
+		Integer FILE_ROWS = 5;
+
+		BufferedReader br;
+		try {
+			br = new BufferedReader(new InputStreamReader(file.getInputstream(), StandardCharsets.UTF_8));
+
+			while ((strLine = br.readLine()) != null) {
+
+				String[] values = strLine.split("\\|", -1);
+				//System.out.println("values.length:" + values.length);
+				if (values.length != FILE_ROWS) {
+					throw new FileRowsInvalidException(lineNumber,FILE_ROWS);
+				}
+
+				// SE LEE CABECERA
+				if (lineNumber == 1) {
+
+					headers.setCode(values[0]);
+					headers.setInsurancePremiumNumber(values[1]);
+					headers.setReturnedAmount(values[2]);
+					headers.setReturnedDate(values[3]);
+					headers.setPaymentDate(values[4]);
+					
+					dataList.add(headers);
+
+				} else {
+
+					RepaymentFile repaymentFile = new RepaymentFile();
+
+					repaymentFile.setCode(values[0].trim());
+					repaymentFile.setInsurancePremiumNumber(values[1].trim());
+					repaymentFile.setReturnedAmount(values[2].trim());
+					repaymentFile.setReturnedDate(values[3].trim());
+					repaymentFile.setPaymentDate(values[4].trim());
+
+
+					dataList.add(repaymentFile);
+
+				}
+
+				lineNumber++;
+
+			}
+
+			return dataList;
+
+		} catch (FileRowsInvalidException e) {
+			e.printStackTrace();
+			throw new Exception(e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("Ocurrio un error al leer el archivo.");
+		}
+
+	}
+	
+	private Repayment validateFile(RepaymentFile repaymentFile, RepaymentFile headers, Integer lineNumber,
+			Bank bank) throws MultipleErrorsException {
+
+		List<Exception> errors = new ArrayList<Exception>();
+		SimpleDateFormat sdf1 = new SimpleDateFormat("dd/MM/yyyy");
+		// SimpleDateFormat sdf2 = new SimpleDateFormat("MM/yyyy");
+
+		// CODE
+		Sale saleFound = null;
+		if (repaymentFile.getCode().length() == 0) {
+			errors.add(new NullException(headers.getCode(), lineNumber));
+		} else if (repaymentFile.getCode().length() != 10) {
+			errors.add(new OverflowException(headers.getCode(), lineNumber, 10));
+		} else {
+			saleFound = saleService.findByCode(repaymentFile.getCode());
+			if (saleFound == null) {
+				errors.add(new SaleNotFoundException(headers.getCode(), lineNumber));
+			} else {
+				// saleState = saleFound.getSaleState();
+			}
+		}
+		
+		// NUMERO DE PRIMAS
+		Integer insurancePremiumNumber = null;
+		if (repaymentFile.getInsurancePremiumNumber().length() > 4) {
+			errors.add(new OverflowException(headers.getInsurancePremiumNumber(), lineNumber, 4));
+		} else if (repaymentFile.getInsurancePremiumNumber().length() > 0) {
+			try {
+				insurancePremiumNumber = Integer.parseInt(repaymentFile.getInsurancePremiumNumber());
+				// creditCard.setDaysOfDefault(daysOfDefault);
+			} catch (NumberFormatException e) {
+				errors.add(new FormatException(headers.getInsurancePremiumNumber(), lineNumber));
+			}
+		}
+				
+
+		// IMPORTE MAXIMO
+		BigDecimal returnedAmount = null;
+		if (repaymentFile.getReturnedAmount().length() == 0) {
+			errors.add(new NullException(headers.getReturnedAmount(), lineNumber));
+		} else if (repaymentFile.getReturnedAmount().length() > 11) {
+			errors.add(new OverflowException(headers.getReturnedAmount(), lineNumber, 11));
+		} else {
+			try {
+				returnedAmount = new BigDecimal(repaymentFile.getReturnedAmount());
+				if (returnedAmount.scale() > 2) {
+					errors.add(new DecimalException(lineNumber, headers.getReturnedAmount(), 2));
+				}
+			} catch (NumberFormatException e) {
+				errors.add(new FormatException(headers.getReturnedAmount(), lineNumber));
+			}
+		}
+
+
+		// FECHA DE DEVOLUCION
+		Date returnedDate = null;
+		if (repaymentFile.getReturnedDate().length() == 0) {
+			errors.add(new NullException(headers.getReturnedDate(), lineNumber));
+		} else if (repaymentFile.getReturnedDate().length() != 10) {
+			errors.add(new OverflowException(headers.getReturnedDate(), lineNumber, 10));
+		} else {
+			try {
+				returnedDate = sdf1.parse(repaymentFile.getReturnedDate());
+				
+			} catch (ParseException e1) {
+				errors.add(new FormatException(headers.getReturnedDate(), lineNumber));
+			}
+		}
+		
+		// FECHA DE PAGO
+				Date paymentDate = null;
+				if (repaymentFile.getPaymentDate().length() == 0) {
+					errors.add(new NullException(headers.getPaymentDate(), lineNumber));
+				} else if (repaymentFile.getPaymentDate().length() != 10) {
+					errors.add(new OverflowException(headers.getPaymentDate(), lineNumber, 10));
+				} else {
+					try {
+						paymentDate = sdf1.parse(repaymentFile.getPaymentDate());
+						
+					} catch (ParseException e1) {
+						errors.add(new FormatException(headers.getPaymentDate(), lineNumber));
+					}
+				}
+			
+
+
+		
+		// VERIFICA SI EXISTE EL EXTORNO
+				if (returnedAmount != null && saleFound !=null) {
+					long collectionId = repaymentService.checkIfExist(saleFound.getCode(),returnedAmount);
+					if (collectionId > 0) {
+						errors.add(new SaleAlreadyExistException(lineNumber));
+					}
+				}
+		
+
+		if (errors.size() > 0) {
+			throw new MultipleErrorsException(errors);
+		}
+
+		Repayment repayment = new Repayment(insurancePremiumNumber, returnedAmount, returnedDate, paymentDate, saleFound);
+
+		return repayment;
+
+	}
+
+	public UploadedFile getFile() {
+		return file;
+	}
+
+	public void setFile(UploadedFile file) {
+		this.file = file;
+	}
+
+	public StreamedContent getDownloadFile() {
+		return downloadFile;
+	}
+
+	public void setDownloadFile(StreamedContent downloadFile) {
+		this.downloadFile = downloadFile;
+	}
+	
+
+	
+	
+	/*public void validateDuplicates(){
 		
 		System.out.println("Validando duplicados");
 		
@@ -140,9 +402,9 @@ try {
 		
 		System.out.println("errors:" + errors.size());
 		
-	}
+	}*/
 
-	public void getData() {
+	/*public void getData() {
 
 		System.out.println("ingreso a getData");
 
@@ -222,9 +484,9 @@ try {
 			facesUtil.sendErrorMessage(e.getClass().getSimpleName(),e.getMessage());
 		}
 
-	}
+	}*/
 
-	public void validateDataNull() {
+	/*public void validateDataNull() {
 
 		System.out.println("ingreso a validateDataNull");
 		
@@ -239,9 +501,6 @@ try {
 						errors.add(new DataColumnNullException(lineNumber,headers.get("code")));
 					}
 
-					/*if (data.get("receiptNumber").length() == 0) {
-						errors.add(new DataCellValueNullException(lineNumber,headers.get("receiptNumber")));
-					}*/
 
 					if (data.get("insurancePremiumNumber").length() == 0) {
 						errors.add(new DataColumnNullException(lineNumber,headers.get("insurancePremiumNumber")));
@@ -268,9 +527,9 @@ try {
 		System.out.println("dataList:" + dataList.size());
 		System.out.println("errors:" + errors.size());
 
-	}
+	}*/
 
-	public void validateDataSize() {
+	/*public void validateDataSize() {
 		
 		Integer lineNumber = 1;
 		
@@ -280,9 +539,7 @@ try {
 						errors.add(new DataColumnLengthException(lineNumber,headers.get("code"),data.get("code").length(),20));
 					}
 
-					/*if (data.get("receiptNumber").length() > 20) {
-						errors.add(new DataCellValueLengthException(lineNumber,headers.get("receiptNumber"),data.get("receiptNumber").length(),20));
-					}*/
+					
 
 					if (data.get("insurancePremiumNumber").length() > 6) {
 						errors.add(new DataColumnLengthException(lineNumber,headers.get("insurancePremiumNumber"),data.get("insurancePremiumNumber").length(),6));
@@ -293,9 +550,9 @@ try {
 				}
 
 				
-	}
+	}*/
 
-	@SuppressWarnings("unused")
+	/*@SuppressWarnings("unused")
 	public void validateDataType() {
 
 		System.out.println("ingreso a validateDataType");
@@ -338,10 +595,7 @@ try {
 					}
 
 					try {
-						/*
-						 * System.out.println("codigo de respuesta:" +
-						 * data.get("responseCode"));
-						 */
+						
 						Integer insurancePremiumNumber = Integer.parseInt(data
 								.get("insurancePremiumNumber"));
 					} catch (NumberFormatException e) {
@@ -357,9 +611,9 @@ try {
 		System.out.println("dataList:" + dataList.size());
 		System.out.println("errors:" + errors.size());
 
-	}
+	}*/
 	
-	
+	/*
 	public void validateData() {
 
 		System.out.println("ingreso a validateData");
@@ -383,9 +637,7 @@ try {
 
 							// VALIDA SI LA VENTA ESTA DE BAJA
 							// SE RETIRO ESTA VALIDACION
-							/*if (!sale.getSaleState().getState().equals(SaleStateEnum.ACTIVE)) {
-								errors.add(new DataSaleStateNoActiveException(lineNumber, headers.get("code"),data.get("code")));
-							}*/
+							
 
 							// VALIDA COMMERCIAL CODE
 							Commerce commercialCodeObject = null;
@@ -457,10 +709,10 @@ try {
 		System.out.println("dataList:" + dataList.size());
 		System.out.println("errors:" + errors.size());
 
-	}
+	}*/
 	
 	
-	public void createRepayments() {
+	/*public void createRepayments() {
 
 		System.out.println("ingreso a createRepayments");
 		
@@ -527,9 +779,9 @@ try {
 
 			
 
-	}
+	}*/
 
-	public String load() {
+	/*public String load() {
 		try {
 
 			if (file != null && file.getFileName().length() > 0) {
@@ -603,6 +855,8 @@ try {
 		}
 		return null;
 
-	}
+	}*/
+	
+	
 
 }
